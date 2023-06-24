@@ -19,5 +19,4 @@
 <script lang="ts">
 	import { Header, Icon, Tooltip } from 'sheodox-ui';
 	export let data;
-	console.log('page data', data);
 </script>

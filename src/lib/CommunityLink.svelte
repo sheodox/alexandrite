@@ -19,7 +19,7 @@
 			</h1>
 		</Stack>
 	</div>
-	<a href="/c/something" class="inline-link">{communityName}</a>
+	<a href="/c/{communityName}" class="inline-link">{communityName}</a>
 </Tooltip>
 
 <script lang="ts">

@@ -1,4 +1,4 @@
-<h1 class="m-0">{name}</h1>
+<h1 class="m-0">{name}<slot name="name" /></h1>
 <Stack dir="r" gap={3}>
 	{#each details as detail}
 		<Tooltip>
@@ -20,7 +20,7 @@
 	import Markdown from '$lib/Markdown.svelte';
 
 	export let view: { counts: { users: number; posts: number; comments: number } } | undefined = undefined;
-	export let name: string;
+	export let name = '';
 	export let description: string;
 
 	$: details = view?.counts

@@ -8,13 +8,16 @@ export interface ApiPostsRes {
 
 export const GET = (async ({ url, locals }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
+	const communityName = url.searchParams.get('communityName');
 
+	console.log({ communityName });
 	const posts = {
 		posts: await locals.client
 			.getPosts({
 				auth: locals.jwt,
 				limit: 20,
-				page
+				page,
+				community_name: communityName ?? undefined
 			})
 			.then(({ posts }) => posts)
 	};
