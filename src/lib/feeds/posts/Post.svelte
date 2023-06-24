@@ -51,7 +51,11 @@
 						<span slot="tooltip">Open in overlay</span>
 						{#if modeList}
 							<button class="" on:click={() => dispatch('overlay', postView.post.id)}>
-								<Icon icon="right-to-bracket" /><span class="sr-only">Open in overlay</span>
+								<span class:muted={postView.counts.comments === 0}>
+									<Icon icon="comments" iconVariant="regular" variant="icon-only" />
+									{postView.counts.comments}
+								</span>
+								<span class="sr-only">Comments</span>
 							</button>
 						{/if}
 					</Tooltip>
@@ -99,11 +103,6 @@
 							</Tooltip>
 						</span>
 					{/if}
-					<button class="small">
-						<Icon icon="comments" iconVariant="regular" variant="icon-only" />
-						{postView.counts.comments}
-						<span class="sr-only">Comments</span>
-					</button>
 					<Tooltip>
 						<span slot="tooltip"> Save </span>
 						<button aria-pressed={postView.saved} class="small">
