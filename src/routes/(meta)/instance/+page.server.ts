@@ -18,16 +18,18 @@ export const actions = {
 
 		cookies.set('instance', instance);
 
-		const baseUrl = 'https://' + instance;
+		if (username) {
+			const baseUrl = 'https://' + instance;
 
-		const client: LemmyHttp = new LemmyHttp(baseUrl);
-		const loginForm: Login = {
-			username_or_email: username,
-			password: body.password + ''
-		};
-		const jwt = (await client.login(loginForm)).jwt;
+			const client: LemmyHttp = new LemmyHttp(baseUrl);
+			const loginForm: Login = {
+				username_or_email: username,
+				password: body.password + ''
+			};
+			const jwt = (await client.login(loginForm)).jwt;
 
-		cookies.set('jwt', jwt ?? '');
+			cookies.set('jwt', jwt ?? '');
+		}
 
 		throw redirect(303, '/');
 	}
