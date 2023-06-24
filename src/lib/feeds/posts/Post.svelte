@@ -51,7 +51,7 @@
 						<span slot="tooltip">Open in overlay</span>
 						{#if modeList}
 							<button class="" on:click={() => dispatch('overlay', postView.post.id)}>
-								<span class:muted={postView.counts.comments === 0}>
+								<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
 									<Icon icon="comments" iconVariant="regular" variant="icon-only" />
 									{postView.counts.comments}
 								</span>
