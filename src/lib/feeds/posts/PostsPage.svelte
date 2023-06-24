@@ -10,6 +10,12 @@
 			top: 0;
 		}
 	}
+	.community-avatar :global(img) {
+		height: 6rem;
+		width: 6rem;
+		border-radius: 100rem;
+		border: 3px solid var(--sx-gray-200);
+	}
 </style>
 
 <div class="f-row f-1">
@@ -17,8 +23,14 @@
 		{#if communityView}
 			<section class="p-8">
 				<Stack gap={2} dir="c">
-					<h1>!{nameAtInstance(communityView.community)}</h1>
-					<div />
+					<Stack dir="r" gap={6} align="center">
+						{#if communityView.community.icon}
+							<div class="community-avatar">
+								<Image src={communityView.community.icon} />
+							</div>
+						{/if}
+						<h1>!{nameAtInstance(communityView.community)}</h1>
+					</Stack>
 				</Stack>
 			</section>
 		{/if}
@@ -28,9 +40,16 @@
 	<aside>
 		{#if communityView}
 			<article>
-				<Sidebar description={communityView.community.description ?? ''}>
+				<Sidebar counts={communityCounts} description={communityView.community.description ?? ''}>
 					<span slot="name"
-						>!{communityView.community.name}<span class="muted">@{nameAtInstance(communityView.community, true)}</span>
+						>!{communityView.community.name}
+						<br />
+						<div>
+							<span class="muted">@{nameAtInstance(communityView.community, true)}</span>
+							<ExternalLink href={communityView.community.actor_id}>
+								<Icon icon="arrow-up-right-from-square" />
+							</ExternalLink>
+						</div>
 					</span></Sidebar
 				>
 			</article>
@@ -48,18 +67,38 @@
 {/if}
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, Icon, ExternalLink } from 'sheodox-ui';
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import OverlayPost from '$lib/OverlayPost.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import Image from '$lib/Image.svelte';
 	import type { CommunityView, PostView, SiteView } from 'lemmy-js-client';
 
 	export let postViews: PostView[];
 	export let siteView: SiteView;
 	export let communityView: CommunityView | null = null;
 
+	$: communityCounts = communityView?.counts
+		? [
+				{
+					label: 'Users',
+					icon: 'users',
+					value: communityView.counts.subscribers
+				},
+				{
+					label: 'Posts',
+					icon: 'file-lines',
+					value: communityView.counts.posts
+				},
+				{
+					label: 'Comments',
+					icon: 'comments',
+					value: communityView.counts.comments
+				}
+		  ]
+		: [];
 	console.log({ communityView });
 
 	let overlayPost: null | PostView;
