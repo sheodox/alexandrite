@@ -55,6 +55,4 @@
 	}
 
 	$: commentTree = getBranches(path, commentViews);
-	$: console.log('comments', commentViews);
-	$: console.log('dsafafsddsfa', { commentTree });
 </script>

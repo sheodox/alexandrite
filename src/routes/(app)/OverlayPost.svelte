@@ -80,8 +80,6 @@
 	export let postView: PostView;
 	let commentViews: CommentView[];
 
-	console.log({ postView });
-
 	let pageNum = 1;
 	async function loadNextCommentPage() {
 		const cvs = (await fetch(`/api/comments/${postView.post.id}?page=${pageNum++}`).then((res) => res.json())).comments;

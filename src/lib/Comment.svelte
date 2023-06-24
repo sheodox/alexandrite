@@ -16,7 +16,7 @@
 
 <section>
 	<Stack gap={2} dir="c">
-		<Stack gap={2} dir="r" align="center">
+		<Stack gap={1} dir="r" align="center">
 			<UserLink user={commentView.creator} />
 			<UserBadges user={commentView.creator} {postOP} />
 			<span class="muted">
@@ -42,6 +42,4 @@
 
 	export let commentView: CommentView;
 	export let postOP: string;
-
-	console.log(commentView);
 </script>
