@@ -32,7 +32,14 @@
 								<Image src={communityView.community.icon} />
 							</div>
 						{/if}
-						<h1>!{nameAtInstance(communityView.community)}</h1>
+						<Stack dir="c" gap={2}>
+							<h1 class="mb-2">!{nameAtInstance(communityView.community)}</h1>
+							<div>
+								<span class="sx-badge-gray"
+									>Since {dateFormatter.format(parseISO(communityView.community.published + 'Z'))}</span
+								>
+							</div>
+						</Stack>
 					</Stack>
 				</Stack>
 			</section>
@@ -43,7 +50,11 @@
 	<aside>
 		{#if communityView}
 			<article>
-				<Sidebar counts={communityCounts} description={communityView.community.description ?? ''}>
+				<Sidebar
+					counts={communityCounts}
+					description={communityView.community.description ?? ''}
+					since={communityView.community.published}
+				>
 					<span slot="name"
 						>!{communityView.community.name}
 						<br />
@@ -78,10 +89,15 @@
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Image from '$lib/Image.svelte';
 	import type { CommunityView, PostView, SiteView } from 'lemmy-js-client';
+	import { parseISO } from 'date-fns';
 
 	export let postViews: PostView[];
 	export let siteView: SiteView;
 	export let communityView: CommunityView | null = null;
+
+	const dateFormatter = new Intl.DateTimeFormat('en', {
+		dateStyle: 'medium'
+	});
 
 	$: communityCounts = communityView?.counts
 		? [
