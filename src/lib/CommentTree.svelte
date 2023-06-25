@@ -13,7 +13,7 @@
 
 <Stack gap={nestedLevel === 0 ? 5 : 1} cl="px-4 pt-{nestedLevel === 0 ? 2 : 0}">
 	{#each commentTree as { cv, children }, index}
-		<div class="pl-2 comment">
+		<div class="comment">
 			<div class="comment-leaf p-2 pb-0">
 				<Comment commentView={cv} {postOP} />
 			</div>

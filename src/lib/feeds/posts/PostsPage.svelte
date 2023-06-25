@@ -16,12 +16,15 @@
 		border-radius: 100rem;
 		border: 3px solid var(--sx-gray-200);
 	}
+	.community-header {
+		background: var(--sx-gray-800);
+	}
 </style>
 
 <div class="f-row f-1">
-	<div class="f-1 px-6 py-2">
+	<div class="f-1">
 		{#if communityView}
-			<section class="p-8">
+			<section class="p-8 community-header">
 				<Stack gap={2} dir="c">
 					<Stack dir="r" gap={6} align="center">
 						{#if communityView.community.icon}
