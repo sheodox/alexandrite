@@ -45,7 +45,7 @@
 
 	onMount(() => {
 		observer = new IntersectionObserver(maybeMore, {
-			threshold: 0.01
+			threshold: [0.01, 0.9]
 		});
 		observer.observe(scrollMore);
 	});
