@@ -22,9 +22,12 @@
 			width: 100%;
 		}
 	}
-	.post-mode-list {
-		flex-basis: 9.2rem;
+	div.vote-column {
+		// hack to keep long titles from shifting the layout, make sure things
+		// have space to grow at least a line by making something in the row tall
+		height: 9.5rem;
 	}
+
 	.embed-content {
 		max-width: 100%;
 		width: 60rem;
@@ -35,7 +38,9 @@
 	<Stack dir="c" gap={2}>
 		<Stack dir="r" gap={2} align="center">
 			{@const thumbnailUrl = postView.post.thumbnail_url}
-			<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" />
+			<div class="vote-column f-column justify-content-center">
+				<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" />
+			</div>
 			<div class="thumbnail">
 				{#if thumbnailUrl}
 					<Image src={thumbnailUrl} />
