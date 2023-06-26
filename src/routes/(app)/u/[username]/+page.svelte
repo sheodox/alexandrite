@@ -4,6 +4,9 @@
 	siteView={data.site.site_view}
 	personView={data.person_view}
 	{endOfFeed}
+	selectedType={data.query.type}
+	selectedListing={data.query.listing}
+	selectedSort={data.query.sort}
 	settings={data.settings}
 />
 
