@@ -1,7 +1,15 @@
 <div class="sx-toggles">
 	{#each options as option}
 		{@const radioId = `${id}-${option.value}-radio`}
-		<input id={radioId} value={option.value} type="radio" bind:group={selected} on:change {name} />
+		<input
+			id={radioId}
+			value={option.value}
+			type="radio"
+			bind:group={selected}
+			on:change
+			{name}
+			disabled={option.disabled}
+		/>
 		<label for={radioId}>
 			<span>{option.label}</span>
 		</label>
@@ -14,6 +22,7 @@
 	interface Option {
 		value: string;
 		label: string;
+		disabled?: boolean;
 	}
 	export let options: Option[];
 	export let selected: string;

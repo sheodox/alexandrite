@@ -2,7 +2,7 @@
 	<div slot="headerEnd" class="f-row align-items-center">
 		<Tooltip placement="bottom">
 			<span slot="tooltip">Your Home Instance</span>
-			<span class="sx-badge-gray">{data.homeInstance}</span>
+			<span class="sx-badge-gray">{data.settings.instance}</span>
 		</Tooltip>
 		<Tooltip placement="bottom-end">
 			<span slot="tooltip">Change Instance</span>

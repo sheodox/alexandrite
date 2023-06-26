@@ -2,14 +2,19 @@
 
 import type { LemmyHttp } from 'lemmy-js-client';
 
+export interface Settings {
+	username: string;
+	instance: string;
+	instanceUrl: string; // instance url with https protocol
+}
+
 // for information about these interfaces
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
 			// lemmy server instance URL
-			instance: string;
-			instanceUrl: string; // instance url with https protocol
+			settings: Settings;
 			jwt: string;
 			client: LemmyHttp;
 		}

@@ -7,6 +7,7 @@
 	selectedType={data.query.type}
 	selectedListing={data.query.listing}
 	selectedSort={data.query.sort}
+	settings={data.settings}
 />
 
 <script lang="ts">

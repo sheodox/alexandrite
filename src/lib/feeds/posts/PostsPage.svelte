@@ -71,7 +71,17 @@
 				</Stack>
 			</section>
 		{/if}
-		<PostFeed {postViews} on:more on:overlay={onOverlay} {endOfFeed} {selectedSort} {selectedListing} {selectedType} />
+		<PostFeed
+			{settings}
+			{postViews}
+			on:more
+			on:overlay={onOverlay}
+			{endOfFeed}
+			{selectedSort}
+			{selectedListing}
+			{selectedType}
+			showListingFilter
+		/>
 	</div>
 
 	<aside>
@@ -100,15 +110,18 @@
 	import type { CommunityView, PersonView, PostView, SiteView } from 'lemmy-js-client';
 	import { parseISO } from 'date-fns';
 	import CommunitySidebar from '$lib/CommunitySidebar.svelte';
+	import type { Settings } from '../../../app';
 
 	export let postViews: PostView[];
 	export let siteView: SiteView;
+	export let settings: Settings;
 	export let communityView: CommunityView | null = null;
 	export let personView: PersonView | null = null;
 	export let endOfFeed: boolean;
 	export let selectedType: string; // default  'posts';
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
+	export let showListingFilter: boolean;
 
 	const dateFormatter = new Intl.DateTimeFormat('en', {
 		dateStyle: 'medium'

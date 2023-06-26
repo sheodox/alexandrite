@@ -4,6 +4,7 @@
 	siteView={data.site.site_view}
 	personView={data.person_view}
 	{endOfFeed}
+	settings={data.settings}
 />
 
 <script lang="ts">

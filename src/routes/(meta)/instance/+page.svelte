@@ -23,7 +23,7 @@
 	export let form;
 	export let data;
 
-	let instance = form?.instance ?? data.homeInstance ?? 'lemmy.ml',
+	let instance = form?.instance ?? data.settings.instance ?? 'lemmy.ml',
 		username = form?.username ?? '',
 		password = '';
 </script>
