@@ -12,9 +12,17 @@
 	{/each}
 </Stack>
 
-<p class="has-inline-links">
-	<Markdown md={description || ''} />
-</p>
+{#if description}
+	<p class="has-inline-links">
+		<Markdown md={description || ''} />
+	</p>
+{/if}
+
+{#if sidebar}
+	<p class="has-inline-links">
+		<Markdown md={sidebar || ''} />
+	</p>
+{/if}
 
 <script lang="ts">
 	import { Stack, Tooltip, Icon } from 'sheodox-ui';
@@ -22,4 +30,5 @@
 
 	export let counts: { label: string; icon: string; value: number }[] = [];
 	export let description: string;
+	export let sidebar = '';
 </script>

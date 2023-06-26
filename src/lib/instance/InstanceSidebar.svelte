@@ -1,4 +1,4 @@
-<Sidebar counts={siteCounts} description={siteView.site.description ?? ''}>
+<Sidebar counts={siteCounts} description={siteView.site.description ?? ''} sidebar={siteView.site.sidebar}>
 	<span slot="name"
 		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>

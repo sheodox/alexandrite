@@ -19,7 +19,7 @@
 	import MarkdownIt from 'markdown-it';
 	const parser = new MarkdownIt();
 	export let md: string;
-	const rendered = parser.render(md);
+	$: rendered = parser.render(md);
 
 	function toggleFullSize(e: MouseEvent) {
 		const target = e.target as HTMLElement;
