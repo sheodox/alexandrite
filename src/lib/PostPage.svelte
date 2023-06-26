@@ -33,13 +33,7 @@
 		{/if}
 	</article>
 	<aside>
-		<article>
-			<Sidebar description={postView.community.description ?? ''}>
-				<h1 class="mb-2">
-					<NameAtInstance place={postView.community} prefix="!" />
-				</h1>
-			</Sidebar>
-		</article>
+		<CommunitySidebar community={postView.community} />
 	</aside>
 </Stack>
 
@@ -48,8 +42,7 @@
 	import { Stack, Loading, Icon } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
-	import Sidebar from '$lib/Sidebar.svelte';
-	import NameAtInstance from './NameAtInstance.svelte';
+	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentView, PostView } from 'lemmy-js-client';
 
 	export let postView: PostView;

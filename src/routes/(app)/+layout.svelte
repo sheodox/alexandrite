@@ -2,8 +2,10 @@
 	<div slot="headerEnd" class="f-row align-items-center">
 		<Tooltip placement="bottom">
 			<span slot="tooltip">Your Home Instance</span>
-			<span class="sx-badge-gray">{data.settings.instance}</span>
-		</Tooltip>
+			<span class="sx-badge-cyan">
+				{instanceText}
+			</span></Tooltip
+		>
 		<Tooltip placement="bottom-end">
 			<span slot="tooltip">Change Instance</span>
 			<a href="/instance" class="button">
@@ -19,4 +21,8 @@
 <script lang="ts">
 	import { Header, Icon, Tooltip } from 'sheodox-ui';
 	export let data;
+
+	$: instanceText = data.settings.username
+		? `${data.settings.username}@${data.settings.instance}`
+		: data.settings.instance;
 </script>

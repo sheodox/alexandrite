@@ -1,8 +1,8 @@
 <article>
-	<Sidebar counts={communityCounts} description={communityView.community.description ?? ''}>
+	<Sidebar counts={communityCounts} description={community.description ?? ''}>
 		<span slot="name">
-			<NameAtInstance place={communityView.community} prefix="!" />
-			<ExternalLink href={communityView.community.actor_id}>
+			<NameAtInstance place={community} prefix="!" />
+			<ExternalLink href={community.actor_id}>
 				<Icon icon="arrow-up-right-from-square" />
 			</ExternalLink>
 		</span></Sidebar
@@ -13,26 +13,27 @@
 	import { Icon, ExternalLink } from 'sheodox-ui';
 	import Sidebar from '$lib/Sidebar.svelte';
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
-	import type { CommunityView } from 'lemmy-js-client';
+	import type { CommunityView, Community } from 'lemmy-js-client';
 
-	export let communityView: CommunityView;
+	export let community: Community;
+	export let counts: CommunityView['counts'] | null = null;
 
-	$: communityCounts = communityView?.counts
+	$: communityCounts = counts
 		? [
 				{
 					label: 'Users',
 					icon: 'users',
-					value: communityView.counts.subscribers
+					value: counts.subscribers
 				},
 				{
 					label: 'Posts',
 					icon: 'file-lines',
-					value: communityView.counts.posts
+					value: counts.posts
 				},
 				{
 					label: 'Comments',
 					icon: 'comments',
-					value: communityView.counts.comments
+					value: counts.comments
 				}
 		  ]
 		: [];
