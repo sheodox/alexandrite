@@ -33,7 +33,9 @@
 							</div>
 						{/if}
 						<Stack dir="c" gap={2}>
-							<h1 class="mb-2">!{nameAtInstance(communityView.community)}</h1>
+							<h1 class="mb-2">
+								<NameAtInstance place={communityView.community} prefix="!" />
+							</h1>
 							<div>
 								<span class="sx-badge-gray"
 									>Since {dateFormatter.format(parseISO(communityView.community.published + 'Z'))}</span
@@ -44,29 +46,37 @@
 				</Stack>
 			</section>
 		{/if}
-		<PostFeed {postViews} on:more on:overlay={onOverlay} />
+		{#if personView}
+			<section class="p-8 community-header">
+				<Stack gap={2} dir="c">
+					<Stack dir="r" gap={6} align="center">
+						{#if personView.person.avatar}
+							<div class="community-avatar">
+								<Image src={personView.person.avatar} />
+							</div>
+						{/if}
+						<Stack dir="c" gap={2}>
+							<h1 class="mb-2">
+								<NameAtInstance place={personView.person} prefix="@" />
+							</h1>
+							<div>
+								<span class="sx-badge-gray"
+									><Icon icon="cake-candles" />Since {dateFormatter.format(
+										parseISO(personView.person.published + 'Z')
+									)}</span
+								>
+							</div>
+						</Stack>
+					</Stack>
+				</Stack>
+			</section>
+		{/if}
+		<PostFeed {postViews} on:more on:overlay={onOverlay} {endOfFeed} />
 	</div>
 
 	<aside>
 		{#if communityView}
-			<article>
-				<Sidebar
-					counts={communityCounts}
-					description={communityView.community.description ?? ''}
-					since={communityView.community.published}
-				>
-					<span slot="name"
-						>!{communityView.community.name}
-						<br />
-						<div>
-							<span class="muted">@{nameAtInstance(communityView.community, true)}</span>
-							<ExternalLink href={communityView.community.actor_id}>
-								<Icon icon="arrow-up-right-from-square" />
-							</ExternalLink>
-						</div>
-					</span></Sidebar
-				>
-			</article>
+			<CommunitySidebar {communityView} />
 
 			<hr class="my-8" />
 		{/if}
@@ -81,43 +91,26 @@
 {/if}
 
 <script lang="ts">
-	import { Stack, Icon, ExternalLink } from 'sheodox-ui';
+	import { Stack, Icon } from 'sheodox-ui';
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
-	import { nameAtInstance } from '$lib/nav-utils';
+	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import OverlayPost from '$lib/OverlayPost.svelte';
-	import Sidebar from '$lib/Sidebar.svelte';
 	import Image from '$lib/Image.svelte';
-	import type { CommunityView, PostView, SiteView } from 'lemmy-js-client';
+	import type { CommunityView, PersonView, PostView, SiteView } from 'lemmy-js-client';
 	import { parseISO } from 'date-fns';
+	import CommunitySidebar from '$lib/CommunitySidebar.svelte';
 
 	export let postViews: PostView[];
 	export let siteView: SiteView;
 	export let communityView: CommunityView | null = null;
+	export let personView: PersonView | null = null;
+	export let endOfFeed: boolean;
 
 	const dateFormatter = new Intl.DateTimeFormat('en', {
 		dateStyle: 'medium'
 	});
 
-	$: communityCounts = communityView?.counts
-		? [
-				{
-					label: 'Users',
-					icon: 'users',
-					value: communityView.counts.subscribers
-				},
-				{
-					label: 'Posts',
-					icon: 'file-lines',
-					value: communityView.counts.posts
-				},
-				{
-					label: 'Comments',
-					icon: 'comments',
-					value: communityView.counts.comments
-				}
-		  ]
-		: [];
 	console.log({ communityView });
 
 	let overlayPost: null | PostView;

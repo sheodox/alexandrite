@@ -34,7 +34,11 @@
 	</article>
 	<aside>
 		<article>
-			<Sidebar name={'!' + nameAtInstance(postView.community)} description={postView.community.description ?? ''} />
+			<Sidebar description={postView.community.description ?? ''}>
+				<h1 class="mb-2">
+					<NameAtInstance place={postView.community} prefix="!" />
+				</h1>
+			</Sidebar>
 		</article>
 	</aside>
 </Stack>
@@ -45,8 +49,8 @@
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import NameAtInstance from './NameAtInstance.svelte';
 	import type { CommentView, PostView } from 'lemmy-js-client';
-	import { nameAtInstance } from '$lib/nav-utils';
 
 	export let postView: PostView;
 	let commentViews: CommentView[];

@@ -9,6 +9,23 @@ export interface ApiPostsRes {
 export const GET = (async ({ url, locals }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
 	const communityName = url.searchParams.get('communityName');
+	const username = url.searchParams.get('username');
+
+	// can't filter posts by username, have to get them from a different api
+	if (username) {
+		const posts = {
+			posts: await locals.client
+				.getPersonDetails({
+					auth: locals.jwt,
+					username: username,
+					limit: 20,
+					page
+				})
+				.then(({ posts }) => posts)
+		};
+
+		return json(posts);
+	}
 
 	const posts = {
 		posts: await locals.client

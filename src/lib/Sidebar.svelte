@@ -1,4 +1,5 @@
-<h1>{name}<slot name="name" /></h1>
+<h1><slot name="name" /></h1>
+
 <Stack dir="r" gap={3}>
 	{#each counts as count}
 		<Tooltip>
@@ -20,6 +21,5 @@
 	import Markdown from '$lib/Markdown.svelte';
 
 	export let counts: { label: string; icon: string; value: number }[] = [];
-	export let name = '';
 	export let description: string;
 </script>

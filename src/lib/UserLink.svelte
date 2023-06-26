@@ -19,12 +19,13 @@
 			</h1>
 		</Stack>
 	</div>
-	<a href="/u/something" class="inline-link">{creatorName}</a>
+	<a href="/u/{creatorName}" class="inline-link"><NameAtInstance place={user} prefix="" /></a>
 </Tooltip>
 
 <script lang="ts">
 	import { Stack, Tooltip } from 'sheodox-ui';
 	import Image from './Image.svelte';
+	import NameAtInstance from './NameAtInstance.svelte';
 	import type { Person } from 'lemmy-js-client';
 	import { nameAtInstance } from './nav-utils';
 

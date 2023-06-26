@@ -2,13 +2,13 @@
 	on:more={more}
 	postViews={data.posts}
 	siteView={data.site.site_view}
-	communityView={data.communityView}
+	personView={data.person_view}
 	{endOfFeed}
 />
 
 <script lang="ts">
-	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
+	import type { PostView } from 'lemmy-js-client';
 
 	export let data;
 	let page = 1,
@@ -16,7 +16,7 @@
 
 	async function more() {
 		const nextPage: { posts: PostView[] } = await fetch(
-			`/api/posts?page=${++page}&communityName=${data.communityName}`
+			`/api/posts?page=${++page}&username=${data.person_view.person.name}`
 		).then((res) => res.json());
 
 		if (!nextPage.posts) {

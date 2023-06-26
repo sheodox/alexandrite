@@ -1,7 +1,13 @@
-<Sidebar counts={siteCounts} name={siteView.site.name} description={siteView.site.description ?? ''} />
+<Sidebar counts={siteCounts} description={siteView.site.description ?? ''}>
+	<span slot="name"
+		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
+	</span>
+</Sidebar>
 
 <script lang="ts">
+	import { Icon } from 'sheodox-ui';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import type { SiteView } from 'lemmy-js-client';
 	export let siteView: SiteView;
 
