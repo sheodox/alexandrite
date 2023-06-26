@@ -3,10 +3,16 @@ import type { ApiPostsRes } from '../../api/posts/+server';
 
 export const load = (async ({ fetch, params, url, locals }) => {
 	const community = params.communityName;
+	const selectedType = url.searchParams.get('type') || '';
+	const selectedListing = url.searchParams.get('listing') || '';
+	const selectedSort = url.searchParams.get('sort') || '';
 
-	const { posts }: ApiPostsRes = await fetch(`/api/posts?page=1&communityName=${community}`).then((res) => res.json());
+	const { posts, query }: ApiPostsRes = await fetch(
+		`/api/posts?page=1&communityName=${community}&type=${selectedType}&listing=${selectedListing}&sort=${selectedSort}`
+	).then((res) => res.json());
 	return {
 		posts,
+		query,
 		communityName: params.communityName,
 		communityView: locals.client
 			.getCommunity({

@@ -1,4 +1,12 @@
-<PostsPage on:more={more} {endOfFeed} postViews={data.posts} siteView={data.site.site_view} />
+<PostsPage
+	on:more={more}
+	{endOfFeed}
+	postViews={data.posts}
+	siteView={data.site.site_view}
+	selectedType={data.query.type}
+	selectedListing={data.query.listing}
+	selectedSort={data.query.sort}
+/>
 
 <script lang="ts">
 	import type { PostView } from 'lemmy-js-client';
@@ -12,7 +20,9 @@
 		if (endOfFeed) {
 			return;
 		}
-		const nextPage: { posts: PostView[] } = await fetch(`/api/posts?page=${++page}`).then((res) => res.json());
+		const nextPage: { posts: PostView[] } = await fetch(
+			`/api/posts?page=${++page}&type=${data.query.type}&listing=${data.query.listing}&sort=${data.query.sort}`
+		).then((res) => res.json());
 		if (!nextPage.posts) {
 			endOfFeed = true;
 			return;

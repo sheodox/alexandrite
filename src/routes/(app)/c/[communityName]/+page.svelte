@@ -4,6 +4,9 @@
 	siteView={data.site.site_view}
 	communityView={data.communityView}
 	{endOfFeed}
+	selectedType={data.query.type}
+	selectedListing={data.query.listing}
+	selectedSort={data.query.sort}
 />
 
 <script lang="ts">

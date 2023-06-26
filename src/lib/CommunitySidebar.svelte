@@ -1,7 +1,7 @@
 <article>
 	<Sidebar counts={communityCounts} description={communityView.community.description ?? ''}>
 		<span slot="name">
-			<NameAtInstance place={communityView.community} />
+			<NameAtInstance place={communityView.community} prefix="!" />
 			<ExternalLink href={communityView.community.actor_id}>
 				<Icon icon="arrow-up-right-from-square" />
 			</ExternalLink>

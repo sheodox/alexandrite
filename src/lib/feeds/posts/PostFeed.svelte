@@ -14,12 +14,32 @@
 
 <div class="py-1">
 	<Stack dir="column" gap={1}>
-		{#each postViews as pv, i (pv.post.id)}
-			<Post postView={pv} on:overlay />
-			{#if i + 1 < postViews.length}
-				<hr class="w-100" />
-			{/if}
-		{/each}
+		<form method="GET" action="">
+			<section>
+				<Stack gap={4} align="center" cl="p-4" dir="r">
+					<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
+					<ToggleGroup options={sourceOptions} bind:selected={selectedListing} name="listing" />
+					<select aria-label="Post Sort" bind:value={selectedSort} name="sort">
+						{#each sortOptions as opt}
+							<option value={opt.value}>{opt.label}</option>
+						{/each}
+					</select>
+
+					<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+				</Stack>
+			</section>
+		</form>
+
+		{#if selectedType === 'Posts'}
+			{#each postViews as pv, i (pv.post.id)}
+				<Post postView={pv} on:overlay />
+				{#if i + 1 < postViews.length}
+					<hr class="w-100" />
+				{/if}
+			{/each}
+		{:else}
+			<p>Comment listing coming soon</p>
+		{/if}
 	</Stack>
 </div>
 
@@ -34,9 +54,12 @@
 {/if}
 
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { Stack, Icon } from 'sheodox-ui';
 	import Post from './Post.svelte';
+	import CommentTree from '$lib/CommentTree.svelte';
 	import type { PostView } from 'lemmy-js-client';
+	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 
 	const dispatch = createEventDispatcher<{ more: void }>();
@@ -46,6 +69,90 @@
 
 	let scrollMore: HTMLElement;
 	let observer: IntersectionObserver | null;
+	export let selectedType: string; // default  'Posts';
+	export let selectedListing: string; // default 'Local';
+	export let selectedSort: string; // default 'Hot';
+
+	const typeOptions = [
+			{
+				value: 'Posts',
+				label: 'Posts'
+			},
+			{
+				value: 'Comments',
+				label: 'Comments'
+			}
+		],
+		sourceOptions = [
+			{
+				value: 'Subscribed',
+				label: 'Subscribed'
+			},
+			{
+				value: 'Local',
+				label: 'Local'
+			},
+			{
+				value: 'All',
+				label: 'All'
+			}
+		],
+		sortOptions = [
+			{
+				value: 'Hot',
+				label: 'Hot',
+				hidden: false
+			},
+			{
+				value: 'Active',
+				label: 'Active',
+				hidden: false
+			},
+			{
+				value: 'New',
+				label: 'New',
+				hidden: false
+			},
+			{
+				value: 'Old',
+				label: 'Old',
+				hidden: false
+			},
+			{
+				value: 'MostComments',
+				label: 'Most Comments',
+				hidden: false
+			},
+			{
+				value: 'NewComments',
+				label: 'New Comments',
+				hidden: false
+			},
+			{
+				value: 'TopDay',
+				label: 'Top Day',
+				hidden: false
+			},
+			{
+				value: 'TopWeek',
+				label: 'Top Week',
+				hidden: false
+			},
+			{
+				value: 'TopMonth',
+				label: 'Top Month',
+				hidden: false
+			},
+			{
+				value: 'TopYear',
+				label: 'Top Year'
+			},
+			{
+				value: 'TopAll',
+				label: 'Top All Time',
+				hidden: false
+			}
+		];
 
 	function maybeMore(entries: IntersectionObserverEntry[]) {
 		if (endOfFeed) {

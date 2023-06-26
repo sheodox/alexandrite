@@ -71,7 +71,7 @@
 				</Stack>
 			</section>
 		{/if}
-		<PostFeed {postViews} on:more on:overlay={onOverlay} {endOfFeed} />
+		<PostFeed {postViews} on:more on:overlay={onOverlay} {endOfFeed} {selectedSort} {selectedListing} {selectedType} />
 	</div>
 
 	<aside>
@@ -106,6 +106,9 @@
 	export let communityView: CommunityView | null = null;
 	export let personView: PersonView | null = null;
 	export let endOfFeed: boolean;
+	export let selectedType: string; // default  'posts';
+	export let selectedListing: string; // default 'local';
+	export let selectedSort: string; // default 'Hot';
 
 	const dateFormatter = new Intl.DateTimeFormat('en', {
 		dateStyle: 'medium'

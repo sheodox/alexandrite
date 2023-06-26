@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	export let place: NamedThing;
-	export let prefix: string = '????'; // @, !, /m/ etc
+	export let prefix: string; // @, !, /m/ etc
 
 	$: name = place.name;
 	$: instance = getInstance(place);
