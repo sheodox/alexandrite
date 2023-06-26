@@ -80,7 +80,7 @@
 			{selectedSort}
 			{selectedListing}
 			{selectedType}
-			showListingFilter
+			{showListingFilter}
 		/>
 	</div>
 
@@ -121,7 +121,7 @@
 	export let selectedType: string; // default  'posts';
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
-	export let showListingFilter: boolean;
+	export let showListingFilter = false;
 
 	const dateFormatter = new Intl.DateTimeFormat('en', {
 		dateStyle: 'medium'
