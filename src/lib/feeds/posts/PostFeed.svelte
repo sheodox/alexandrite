@@ -2,30 +2,31 @@
 	hr {
 		border-color: var(--sx-gray-transparent-light);
 	}
-	#scroll-more {
-		position: relative;
-		top: -750px;
-	}
-	.end-of-feed {
-		height: 20rem;
-		background: var(--sx-gray-800);
-	}
 </style>
 
 <div class="py-1">
 	<Stack dir="column" gap={1}>
-		<form method="GET" action="">
+		<form method="GET" bind:this={filterForm} data-sveltekit-replacestate>
 			<section>
 				<Stack gap={4} align="center" cl="p-4" dir="r">
-					<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
-					{#if showListingFilter}
-						<ToggleGroup options={sourceOptions} bind:selected={selectedListing} name="listing" />
+					{#if typeOptions}
+						<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" on:change={submitForm} />
 					{/if}
-					<select aria-label="Post Sort" bind:value={selectedSort} name="sort">
-						{#each sortOptions as opt}
-							<option value={opt.value}>{opt.label}</option>
-						{/each}
-					</select>
+					{#if listingOptions}
+						<ToggleGroup
+							options={listingOptions}
+							bind:selected={selectedListing}
+							name="listing"
+							on:change={submitForm}
+						/>
+					{/if}
+					{#if sortOptions}
+						<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required on:change={submitForm}>
+							{#each sortOptions as opt}
+								<option value={opt.value}>{opt.label}</option>
+							{/each}
+						</select>
+					{/if}
 
 					<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
 				</Stack>
@@ -45,141 +46,84 @@
 	</Stack>
 </div>
 
-<div bind:this={scrollMore} id="scroll-more" />
-{#if endOfFeed}
-	<section class="end-of-feed f-row justify-content-center">
-		<Stack dir="c" align="center" justify="center" cl="f-1">
-			<p class="m-0 sx-font-size-12"><Icon icon="file-circle-xmark" variant="icon-only" /></p>
-			<p class="m-0 sx-font-size-6">No more posts!</p>
-		</Stack>
-	</section>
-{/if}
+<InfiniteFeed
+	on:more
+	{endOfFeed}
+	feedEndIcon="file-circle-xmark"
+	feedEndMessage="No more posts!"
+	loading={loadingPosts}
+	loadMoreFailed={loadingPostsFailed}
+/>
 
 <script lang="ts">
 	import { Stack, Icon } from 'sheodox-ui';
 	import Post from './Post.svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
-	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import InfiniteFeed from './InfiniteFeed.svelte';
+	import {
+		NormalFeedTypeOptions,
+		type FeedType,
+		UserFeedTypeOptions,
+		ListingOptions,
+		CommentSortOptions,
+		PostSortOptions,
+		UserSortOptions
+	} from '$lib/feed-filters';
 	import type { Settings } from '../../../app';
 
-	const dispatch = createEventDispatcher<{ more: void }>();
+	let filterForm: HTMLFormElement;
 
-	export let postViews: PostView[];
-	export let endOfFeed: boolean;
-
-	let scrollMore: HTMLElement;
-	let observer: IntersectionObserver | null;
-	export let selectedType: string;
-	export let selectedListing: string;
-	export let selectedSort: string;
-	export let settings: Settings;
-	export let showListingFilter = false;
-
-	$: typeOptions = [
-		{
-			value: 'Posts',
-			label: 'Posts'
-		},
-		{
-			value: 'Comments',
-			label: 'Comments'
-		}
-	];
-	$: sourceOptions = [
-		{
-			value: 'Subscribed',
-			label: 'Subscribed',
-			disabled: !settings.username
-		},
-		{
-			value: 'Local',
-			label: 'Local'
-		},
-		{
-			value: 'All',
-			label: 'All'
-		}
-	];
-	$: sortOptions = [
-		{
-			value: 'Hot',
-			label: 'Hot',
-			hidden: false
-		},
-		{
-			value: 'Active',
-			label: 'Active',
-			hidden: false
-		},
-		{
-			value: 'New',
-			label: 'New',
-			hidden: false
-		},
-		{
-			value: 'Old',
-			label: 'Old',
-			hidden: false
-		},
-		{
-			value: 'MostComments',
-			label: 'Most Comments',
-			hidden: false
-		},
-		{
-			value: 'NewComments',
-			label: 'New Comments',
-			hidden: false
-		},
-		{
-			value: 'TopDay',
-			label: 'Top Day',
-			hidden: false
-		},
-		{
-			value: 'TopWeek',
-			label: 'Top Week',
-			hidden: false
-		},
-		{
-			value: 'TopMonth',
-			label: 'Top Month',
-			hidden: false
-		},
-		{
-			value: 'TopYear',
-			label: 'Top Year'
-		},
-		{
-			value: 'TopAll',
-			label: 'Top All Time',
-			hidden: false
-		}
-	];
-
-	function maybeMore(entries: IntersectionObserverEntry[]) {
-		if (endOfFeed) {
-			observer?.disconnect();
-			observer = null;
-			return;
-		}
-		for (const entry of entries) {
-			if (entry.isIntersecting) {
-				dispatch('more');
-				return;
-			}
+	function submitForm() {
+		if (selectedType && selectedListing && selectedSort) {
+			filterForm.submit();
 		}
 	}
 
-	onMount(() => {
-		observer = new IntersectionObserver(maybeMore, {
-			threshold: [0.01, 0.9]
-		});
-		observer.observe(scrollMore);
-	});
+	export let feedType: FeedType;
+	export let settings: Settings;
+	export let postViews: PostView[];
+	export let loadingPosts: boolean;
+	export let loadingPostsFailed: boolean;
+	export let endOfFeed: boolean;
+	export let selectedType: string;
+	export let selectedListing: string;
+	export let selectedSort: string;
+	// which filters should be shown for this type of content
+	$: typeOptions = getTypeOptions(feedType);
+	$: listingOptions = getListingOptions(feedType);
+	$: sortOptions = getSortOptions(feedType, selectedType);
 
-	onDestroy(() => {
-		observer?.disconnect();
-	});
+	function getTypeOptions(feedType: FeedType) {
+		switch (feedType) {
+			case 'user':
+				return UserFeedTypeOptions;
+
+			default:
+				return NormalFeedTypeOptions;
+		}
+	}
+
+	function getListingOptions(feedType: FeedType) {
+		switch (feedType) {
+			case 'top':
+				return ListingOptions(!!settings.username);
+
+			default:
+				return null;
+		}
+	}
+
+	function getSortOptions(feedType: FeedType, selectedType: string) {
+		if (feedType === 'user') {
+			return UserSortOptions;
+		}
+		switch (selectedType) {
+			case 'Comments':
+				return CommentSortOptions;
+
+			default:
+				return PostSortOptions;
+		}
+	}
 </script>

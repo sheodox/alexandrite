@@ -1,0 +1,24 @@
+<a class="inline-link" {href} rel="noreferrer" target="_blank"
+	><Icon icon="arrow-up-right-from-square" />{prettyUrl(href)}</a
+>
+
+<script lang="ts">
+	import { Icon } from 'sheodox-ui';
+
+	export let href: string;
+
+	const ellipsis = '...',
+		maxDisplayedPathLength = 10;
+
+	function prettyUrl(href: string) {
+		const u = new URL(href),
+			ending = u.pathname + u.search + u.hash,
+			endingAsCharacters = [...ending],
+			shortened =
+				endingAsCharacters.length > maxDisplayedPathLength
+					? [...ending].slice(0, maxDisplayedPathLength - ellipsis.length).join('') + ellipsis
+					: ending;
+
+		return `${u.host}${shortened}`;
+	}
+</script>

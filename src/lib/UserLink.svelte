@@ -15,9 +15,10 @@
 				</div>
 			{/if}
 			<h1 class="sx-font-size-4 m-0">
-				{creatorName}
+				{user.display_name ?? user.name}
 			</h1>
 		</Stack>
+		<span>{creatorName}</span>
 	</div>
 	<a href="/u/{creatorName}" class="inline-link"><NameAtInstance place={user} prefix="" /></a>
 </Tooltip>

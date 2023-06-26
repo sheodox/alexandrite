@@ -22,11 +22,6 @@
 			width: 100%;
 		}
 	}
-	div.vote-column {
-		// hack to keep long titles from shifting the layout, make sure things
-		// have space to grow at least a line by making something in the row tall
-		height: 9.5rem;
-	}
 
 	.embed-content {
 		max-width: 100%;
@@ -43,10 +38,10 @@
 			</div>
 			<div class="thumbnail">
 				{#if thumbnailUrl}
-					<Image src={thumbnailUrl} />
+					<Image src={thumbnailUrl} mode="thumbnail" />
 				{:else}
 					<Stack justify="center" align="center">
-						<Icon icon="arrow-up-right-from-square" />
+						<Icon icon={postView.post.url ? 'arrow-up-right-from-square' : 'comments'} />
 					</Stack>
 				{/if}
 			</div>
@@ -65,11 +60,10 @@
 						{/if}
 					</Tooltip>
 					<a href="/post/{postView.post.id}" class="sx-font-size-5">{postView.post.name}</a>
+					<PostBadges {postView} />
 				</Stack>
 				{#if postView.post.url && !probablyImage}
-					<a class="inline-link" href={postView.post.url} rel="noreferrer" target="_blank"
-						><Icon icon="arrow-up-right-from-square" />{prettyUrl(postView.post.url)}</a
-					>
+					<PrettyExternalLink href={postView.post.url} />
 				{/if}
 				<Stack dir="r" gap={2} align="center">
 					{#if postView.post.nsfw}
@@ -79,7 +73,7 @@
 					<UserBadges user={postView.creator} postOP="" />
 					to
 					<CommunityLink community={postView.community} />
-					&centerdot;
+					<span class="muted"> &centerdot; </span>
 					<RelativeTime date={postView.post.published} />
 				</Stack>
 				<Stack dir="r" gap={2} align="center">
@@ -96,7 +90,7 @@
 									{#if showPost}
 										<Icon icon="eye-slash" variant="icon-only" />
 									{:else}
-										{#if hasBody}
+										{#if hasBody || hasEmbedText}
 											<Icon icon="newspaper" variant="icon-only" />
 										{/if}
 										{#if probablyImage}
@@ -128,6 +122,21 @@
 		<slot name="beforeEmbed" />
 		{#if modeShow || (showPost && hasEmbeddableContent)}
 			<div class="p-2 embed-content">
+				{#if hasEmbedText}
+					<div class="card">
+						<h2 class="card-title m-0">
+							{postView.post.embed_title}
+						</h2>
+						<div class="card-body">
+							{#if postView.post.url}
+								<PrettyExternalLink href={postView.post.url} />
+							{/if}
+							<p>
+								{postView.post.embed_description ?? ''}
+							</p>
+						</div>
+					</div>
+				{/if}
 				{#if hasBody}
 					<div>
 						<Markdown md={postView.post.body ?? ''} />
@@ -152,12 +161,12 @@
 	import Markdown from '$lib/Markdown.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
+	import PrettyExternalLink from '$lib/PrettyExternalLink.svelte';
+	import PostBadges from '$lib/PostBadges.svelte';
 
 	const dispatch = createEventDispatcher<{
-			overlay: number;
-		}>(),
-		ellipsis = '...',
-		maxDisplayedPathLength = 10;
+		overlay: number;
+	}>();
 
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
@@ -170,7 +179,8 @@
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');
 	$: hasBody = !!postView.post.body;
-	$: hasEmbeddableContent = probablyImage || hasBody;
+	$: hasEmbedText = !!postView.post.embed_title;
+	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
 
 	function hasImageExtension(url: string) {
 		if (!url) {
@@ -178,17 +188,5 @@
 		}
 		const u = new URL(url);
 		return /\.(png|jpg|jpeg|webp)$/.test(u.pathname);
-	}
-
-	function prettyUrl(url: string) {
-		const u = new URL(url),
-			ending = u.pathname + u.search + u.hash,
-			endingAsCharacters = [...ending],
-			shortened =
-				endingAsCharacters.length > maxDisplayedPathLength
-					? [...ending].slice(0, maxDisplayedPathLength - ellipsis.length).join('') + ellipsis
-					: ending;
-
-		return `${u.host}${shortened}`;
 	}
 </script>

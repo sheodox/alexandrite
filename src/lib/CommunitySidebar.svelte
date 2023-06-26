@@ -1,12 +1,12 @@
 <article>
-	<Sidebar counts={communityCounts} description={community.description ?? ''}>
+	<Sidebar counts={communityCounts} description={community.description ?? ''} bannerImageSrc={community.banner}>
 		<span slot="name">
 			<NameAtInstance place={community} prefix="!" />
 			<ExternalLink href={community.actor_id}>
 				<Icon icon="arrow-up-right-from-square" />
 			</ExternalLink>
-		</span></Sidebar
-	>
+		</span>
+	</Sidebar>
 </article>
 
 <script lang="ts">

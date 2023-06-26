@@ -15,19 +15,32 @@
 				</div>
 			{/if}
 			<h1 class="sx-font-size-4 m-0">
-				{communityName}
+				{displayCommunity.name}
 			</h1>
 		</Stack>
+		{#if community.title}
+			<NameAtInstance place={community} prefix="!" />
+		{/if}
 	</div>
-	<a href="/c/{communityName}" class="inline-link">{communityName}</a>
+	<span>
+		<a href="/c/{communityName}" class="inline-link"><NameAtInstance place={displayCommunity} prefix="" /></a>
+		<CommunityBadges {community} />
+	</span>
 </Tooltip>
 
 <script lang="ts">
 	import { Stack, Tooltip } from 'sheodox-ui';
 	import Image from './Image.svelte';
 	import { nameAtInstance } from './nav-utils';
+	import CommunityBadges from './feeds/posts/CommunityBadges.svelte';
 	import type { Community } from 'lemmy-js-client';
+	import NameAtInstance from './NameAtInstance.svelte';
 
 	export let community: Community;
 	const communityName = nameAtInstance(community);
+	const displayCommunity = {
+		name: community.title ?? community.name,
+		local: community.local,
+		actor_id: community.actor_id
+	};
 </script>

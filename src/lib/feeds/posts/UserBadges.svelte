@@ -1,19 +1,43 @@
-{#if user.banned}
-	<span class="sx-badge-red">Banned</span>
-{/if}
-{#if user.bot_account}
-	<span class="sx-badge-cyan">Bot</span>
-{/if}
-{#if user.admin}
-	<span class="sx-badge-orange">Admin</span>
-{/if}
-{#if user.actor_id === postOP}
-	<span class="sx-badge-pink">OP</span>
+{#if badges.length}
+	<span class="sx-font-size-2 f-row">
+		{#each badges as b}
+			<Tooltip>
+				<span slot="tooltip">{b.text}</span>
+				<span class="sx-badge-{b.color}">
+					<span>{b.text}</span>
+				</span>
+			</Tooltip>
+		{/each}
+	</span>
 {/if}
 
 <script lang="ts">
+	import { Tooltip } from 'sheodox-ui';
 	import type { Person } from 'lemmy-js-client';
 
 	export let user: Person;
-	export let postOP: string; // actor_id of someone who made a post
+	export let postOP = ''; // actor_id of someone who made a post
+
+	$: badges = getBadges(user);
+
+	function getBadges(user: Person) {
+		const badges = [];
+
+		if (user.banned) {
+			badges.push({ color: 'red', text: 'Banned' });
+		}
+		if (user.deleted) {
+			badges.push({ color: 'red', text: 'Deleted' });
+		}
+		if (user.bot_account) {
+			badges.push({ color: 'cyan', text: 'Bot' });
+		}
+		if (user.admin) {
+			badges.push({ color: 'orange', text: 'Admin' });
+		}
+		if (user.actor_id === postOP) {
+			badges.push({ color: 'pink', text: 'OP' });
+		}
+		return badges;
+	}
 </script>

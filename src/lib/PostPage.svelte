@@ -23,9 +23,22 @@
 
 		<hr class="w-100" />
 
+		<h2 class="px-4 mt-6" id="comments">Comments ({postView.counts.comments})</h2>
 		{#if commentViews}
-			<h2 class="px-4 mt-6" id="comments">Comments ({commentViews.length})</h2>
-			<CommentTree {commentViews} postOP={postView.creator.actor_id} />
+			<CommentTree
+				{commentViews}
+				postOP={postView.creator.actor_id}
+				on:more={loadNextCommentPage}
+				on:expand={expandComment}
+			/>
+			<InfiniteFeed
+				on:more={loadNextCommentPage}
+				endOfFeed={endOfCommentsFeed}
+				loadMoreFailed={commentLoadFailed}
+				loading={loadingComments}
+				feedEndMessage="No more comments"
+				feedEndIcon="comment-slash"
+			/>
 		{:else}
 			<Stack align="center" justify="center" cl="f-1">
 				<Loading />
@@ -43,15 +56,75 @@
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
+	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import type { CommentView, PostView } from 'lemmy-js-client';
 
 	export let postView: PostView;
 	let commentViews: CommentView[];
 
-	let pageNum = 1;
+	let commentsPageNum = 1,
+		loadingComments = false,
+		commentLoadFailed = false,
+		endOfCommentsFeed = false;
+
+	function mergeNewCommentViews(nextPage: CommentView[]): number {
+		if (!commentViews) {
+			commentViews = nextPage;
+			return commentViews.length;
+		}
+
+		const newCommentViews = nextPage.filter((c1) => !commentViews.some((c2) => c2.comment.id === c1.comment.id));
+
+		commentViews = [...commentViews, ...newCommentViews];
+
+		return newCommentViews.length;
+	}
+
+	async function loadComments(url: string): Promise<{ comments: number; busy: boolean; error: boolean }> {
+		if (loadingComments) {
+			return { comments: 0, busy: true, error: false };
+		}
+
+		loadingComments = true;
+
+		try {
+			const res = await fetch(url);
+			if (!res.ok) {
+				throw new Error('Failed to load comments');
+			}
+			const cvs = (await res.json()).comments;
+			return {
+				comments: mergeNewCommentViews(cvs),
+				busy: false,
+				error: false
+			};
+		} catch (e) {
+			// todo show an error message
+			console.log(e);
+		} finally {
+			loadingComments = false;
+		}
+
+		// failed to load
+		return { comments: 0, busy: false, error: true };
+	}
+
 	async function loadNextCommentPage() {
-		const cvs = (await fetch(`/api/comments/${postView.post.id}?page=${pageNum++}`).then((res) => res.json())).comments;
-		commentViews = [...(commentViews || []), ...cvs];
+		const { comments, busy, error } = await loadComments(`/api/comments/${postView.post.id}?page=${commentsPageNum++}`);
+		commentLoadFailed = error;
+
+		if (!busy && comments === 0) {
+			endOfCommentsFeed = true;
+		}
+		if (error) {
+			commentLoadFailed = true;
+			// revert to the failed page, so it can be retried
+			commentsPageNum--;
+		}
+	}
+
+	async function expandComment(e: CustomEvent<number>) {
+		loadComments(`/api/comments/${postView.post.id}?parentId=${e.detail}`);
 	}
 
 	onMount(() => {

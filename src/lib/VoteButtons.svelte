@@ -47,5 +47,5 @@
 		'-1': 'blue',
 		'0': 'gray',
 		'1': 'pink'
-	}[vote];
+	}[vote ?? 0];
 </script>

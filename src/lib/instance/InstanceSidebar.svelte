@@ -10,6 +10,7 @@
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import type { SiteView } from 'lemmy-js-client';
 	export let siteView: SiteView;
+	console.log(siteView);
 
 	$: siteCounts = [
 		{
