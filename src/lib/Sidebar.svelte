@@ -23,7 +23,7 @@
 			{/each}
 		</Stack>
 	{/if}
-	<slot name="counts" />
+	<slot name="actions" />
 
 	{#if description}
 		<p class="has-inline-links">

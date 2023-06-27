@@ -34,7 +34,7 @@
 		<Stack dir="r" gap={2} align="center">
 			{@const thumbnailUrl = postView.post.thumbnail_url}
 			<div class="vote-column f-column justify-content-center">
-				<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" />
+				<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" on:vote={vote} {votePending} />
 			</div>
 			<div class="thumbnail">
 				{#if thumbnailUrl}
@@ -59,10 +59,12 @@
 							</button>
 						{/if}
 					</Tooltip>
-					<a href="/post/{postView.post.id}" class="sx-font-size-5">{postView.post.name}</a>
+					<a href="/post/{postView.post.id}" class="sx-font-size-5" data-sveltekit-preload-data="off"
+						>{postView.post.name}</a
+					>
 					<PostBadges {postView} />
 				</Stack>
-				{#if postView.post.url && !probablyImage}
+				{#if postView.post.url && probablyImage && !thumbnailUrl}
 					<PrettyExternalLink href={postView.post.url} />
 				{/if}
 				<Stack dir="r" gap={2} align="center">
@@ -175,7 +177,8 @@
 	// viewing a single post, show everything
 	$: modeShow = mode === 'show';
 
-	let showPost = false;
+	let showPost = false,
+		votePending = false;
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');
 	$: hasBody = !!postView.post.body;
@@ -188,5 +191,21 @@
 		}
 		const u = new URL(url);
 		return /\.(png|jpg|jpeg|webp)$/.test(u.pathname);
+	}
+
+	async function vote(e: CustomEvent<number>) {
+		votePending = true;
+		const res = await fetch(`/api/posts/${postView.post.id}/vote`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				score: e.detail
+			})
+		});
+
+		if (res.ok) {
+			postView = (await res.json()).postView;
+		}
+		votePending = false;
 	}
 </script>

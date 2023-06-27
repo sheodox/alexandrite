@@ -23,7 +23,9 @@
 			<h1 class="ml-2">sx-lemmy</h1>
 		</div>
 
-		<AppSidebar />
+		{#if data.site.my_user}
+			<AppSidebar subscriptions={data.site.my_user.follows} />
+		{/if}
 	</Sidebar>
 
 	<main class="f-column f-1">
@@ -34,7 +36,15 @@
 <script lang="ts">
 	import { Sidebar, Header, Icon, Tooltip } from 'sheodox-ui';
 	import AppSidebar from './AppSidebar.svelte';
+	import { setAppContext } from '$lib/app-context';
 	export let data;
+
+	setAppContext({
+		username: data.settings.username,
+		loggedIn: data.loggedIn,
+		instance: data.settings.instance,
+		instanceUrl: data.settings.instanceUrl
+	});
 
 	let menuOpen = false;
 

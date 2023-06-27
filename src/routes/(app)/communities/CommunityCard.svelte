@@ -8,7 +8,7 @@
 		flex-shrink: 0;
 	}
 	.description {
-		max-height: 10rem;
+		max-height: 20rem;
 		overflow: auto;
 	}
 </style>
@@ -25,16 +25,19 @@
 		</a>
 	</Stack>
 
-	<div class="card-body">
-		<CommunityCounts {communityView} />
+	<Stack cl="card-body" dir="c" gap={2}>
 		<CommunityBadges extended community={communityView.community} />
+		<Stack dir="r" align="center" gap={2}>
+			<CommunityJoin {communityView} />
+			<CommunityCounts {communityView} />
+		</Stack>
 
 		{#if communityView.community.description}
 			<div class="description">
 				<Markdown md={communityView.community.description} />
 			</div>
 		{/if}
-	</div>
+	</Stack>
 </div>
 
 <script lang="ts">
@@ -46,6 +49,7 @@
 	import type { CommunityView } from 'lemmy-js-client';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import CommunityCounts from '$lib/CommunityCounts.svelte';
+	import CommunityJoin from '$lib/CommunityJoin.svelte';
 
 	export let communityView: CommunityView;
 	const communityName = nameAtInstance(communityView.community);

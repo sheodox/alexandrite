@@ -23,7 +23,9 @@
 		{/if}
 	</div>
 	<span>
-		<a href="/c/{communityName}" class="inline-link"><NameAtInstance place={displayCommunity} prefix="" /></a>
+		<a href="/c/{communityName}" class="inline-link" data-sveltekit-preload-data="off"
+			><NameAtInstance place={displayCommunity} prefix="" /></a
+		>
 		<CommunityBadges {community} />
 	</span>
 </Tooltip>

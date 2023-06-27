@@ -21,6 +21,7 @@
 			<Stack dir="c" gap={2}>
 				<h1 class="mb-2"><slot name="name" /></h1>
 				<Stack dir="r" align="center">
+					<slot name="actions" />
 					<span class="sx-badge-gray"
 						><Icon icon="cake-candles" />Since {dateFormatter.format(parseISO(published + 'Z'))}</span
 					>

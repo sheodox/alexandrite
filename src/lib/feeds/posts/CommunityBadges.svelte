@@ -1,18 +1,20 @@
 {#if badges.length}
-	<span class="sx-font-size-2 f-row">
-		{#each badges as b}
-			<Tooltip>
-				<span slot="tooltip">{b.text}</span>
-				<span class="sx-badge-{b.color}">
-					<span>{b.text}</span>
-				</span>
-			</Tooltip>
-		{/each}
-	</span>
+	<Stack gap={2} dir="r" align="center">
+		<span class="sx-font-size-2 f-row">
+			{#each badges as b}
+				<Tooltip>
+					<span slot="tooltip">{b.text}</span>
+					<span class="sx-badge-{b.color} m-0">
+						<span>{b.text}</span>
+					</span>
+				</Tooltip>
+			{/each}
+		</span>
+	</Stack>
 {/if}
 
 <script lang="ts">
-	import { Tooltip } from 'sheodox-ui';
+	import { Tooltip, Stack } from 'sheodox-ui';
 	import type { Community } from 'lemmy-js-client';
 
 	export let community: Community;
@@ -20,7 +22,7 @@
 
 	$: badges = getBadges(community, extended);
 
-	function getBadges(community: Community) {
+	function getBadges(community: Community, extended: boolean) {
 		const badges = [];
 
 		if (community.removed) {

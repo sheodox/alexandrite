@@ -13,7 +13,8 @@ export const load = (async ({ params, url, locals }) => {
 			sort: selectedSort
 		},
 		...(await locals.client.getPersonDetails({
-			username
+			username,
+			auth: locals.jwt
 		}))
 	};
 }) satisfies PageServerLoad;

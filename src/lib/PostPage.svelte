@@ -110,7 +110,9 @@
 	}
 
 	async function loadNextCommentPage() {
-		const { comments, busy, error } = await loadComments(`/api/comments/${postView.post.id}?page=${commentsPageNum++}`);
+		const { comments, busy, error } = await loadComments(
+			`/api/posts/${postView.post.id}/comments?page=${commentsPageNum++}`
+		);
 		commentLoadFailed = error;
 
 		if (!busy && comments === 0) {
@@ -124,7 +126,7 @@
 	}
 
 	async function expandComment(e: CustomEvent<number>) {
-		loadComments(`/api/comments/${postView.post.id}?parentId=${e.detail}`);
+		loadComments(`/api/posts/${postView.post.id}/comments?parentId=${e.detail}`);
 	}
 
 	onMount(() => {

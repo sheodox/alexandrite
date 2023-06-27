@@ -33,7 +33,14 @@
 			<div class="comment-content">
 				<Markdown md={commentView.comment.content} />
 			</div>
-			<VoteButtons vote={commentView.my_vote} score={commentView.counts.score} dir="row" small />
+			<VoteButtons
+				vote={commentView.my_vote}
+				score={commentView.counts.score}
+				dir="row"
+				small
+				on:vote={vote}
+				{votePending}
+			/>
 		{/if}
 	</Stack>
 </section>
@@ -55,6 +62,23 @@
 	export let commentView: CommentView;
 	export let postOP: string;
 	export let collapsed = false;
+	let votePending = false;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
+
+	async function vote(e: CustomEvent<number>) {
+		votePending = true;
+		const res = await fetch(`/api/comments/${commentView.comment.id}/vote`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				score: e.detail
+			})
+		});
+
+		if (res.ok) {
+			commentView = (await res.json()).commentView;
+		}
+		votePending = false;
+	}
 </script>

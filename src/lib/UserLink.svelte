@@ -20,7 +20,9 @@
 		</Stack>
 		<span>{creatorName}</span>
 	</div>
-	<a href="/u/{creatorName}" class="inline-link"><NameAtInstance place={user} prefix="" /></a>
+	<a href="/u/{creatorName}" class="inline-link" data-sveltekit-preload-data="off"
+		><NameAtInstance place={user} prefix="" /></a
+	>
 </Tooltip>
 
 <script lang="ts">

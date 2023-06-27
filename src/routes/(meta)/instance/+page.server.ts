@@ -29,6 +29,7 @@ export const actions = {
 			const jwt = (await client.login(loginForm)).jwt;
 
 			cookies.set('jwt', jwt ?? '');
+			cookies.set('username', username);
 		}
 
 		throw redirect(303, '/');

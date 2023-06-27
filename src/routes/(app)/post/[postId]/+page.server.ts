@@ -6,6 +6,8 @@ export const load = (async ({ params, locals }) => {
 		throw error(400, 'Missing Post ID');
 	}
 	return {
-		postView: params.postId ? locals.client.getPost({ id: +params.postId }).then(({ post_view }) => post_view) : null
+		postView: params.postId
+			? locals.client.getPost({ id: +params.postId, auth: locals.jwt }).then(({ post_view }) => post_view)
+			: null
 	};
 }) satisfies PageServerLoad;

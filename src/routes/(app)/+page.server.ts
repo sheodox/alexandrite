@@ -14,6 +14,6 @@ export const load = (async ({ fetch, url, locals }) => {
 	return {
 		posts,
 		query,
-		post: postId ? locals.client.getPost({ id: +postId }) : null
+		post: postId ? locals.client.getPost({ id: +postId, auth: locals.jwt }) : null
 	};
 }) satisfies PageServerLoad;

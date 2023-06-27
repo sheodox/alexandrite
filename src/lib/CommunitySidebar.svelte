@@ -7,7 +7,7 @@
 			</ExternalLink>
 		</span>
 
-		<div slot="counts">
+		<div slot="actions">
 			{#if communityView}
 				<CommunityCounts {communityView} />
 			{/if}
