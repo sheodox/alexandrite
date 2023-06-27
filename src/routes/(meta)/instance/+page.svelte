@@ -1,6 +1,6 @@
 <h1>Welcome</h1>
 
-<form action="?/setInstance" use:enhance method="POST">
+<form action="?/setInstance" method="POST">
 	<Stack gap={2}>
 		{#if form?.errorMsg}
 			<Alert variant="error">{form.errorMsg}</Alert>
@@ -18,12 +18,11 @@
 
 <script lang="ts">
 	import { Alert, TextInput, Stack } from 'sheodox-ui';
-	import { enhance } from '$app/forms';
 
 	export let form;
 	export let data;
 
-	let instance = form?.instance ?? data.settings.instance ?? 'lemmy.ml',
+	let instance = form?.instance || data.settings.instance || 'lemmy.ml',
 		username = form?.username ?? '',
 		password = '';
 </script>
