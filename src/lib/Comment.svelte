@@ -77,7 +77,9 @@
 		});
 
 		if (res.ok) {
-			commentView = (await res.json()).commentView;
+			const newCV: CommentView = (await res.json()).commentView;
+			commentView.counts.score = newCV.counts.score;
+			commentView.my_vote = newCV.my_vote;
 		}
 		votePending = false;
 	}
