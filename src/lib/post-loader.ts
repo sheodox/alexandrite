@@ -6,7 +6,9 @@ interface MorePage<T> {
 
 export async function* postLoader<T>(resourceUrl: string, viewKey: string): AsyncIterator<MorePage<T>, MorePage<T>> {
 	const u = new URL(location.origin + resourceUrl);
-	let pageNum = 1,
+	// assume the first page has already loaded with the page, and this is just used for additional pages.
+	// only the comments under a post start with nothing loaded, it doesn't use this loader
+	let pageNum = 2,
 		endOfFeed = false;
 
 	while (!endOfFeed) {
