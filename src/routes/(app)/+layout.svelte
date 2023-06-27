@@ -1,4 +1,4 @@
-<Header appName="sx-lemmy" href="/">
+<Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen>
 	<div slot="headerEnd" class="f-row align-items-center">
 		<Tooltip placement="bottom">
 			<span slot="tooltip">Your Home Instance</span>
@@ -16,11 +16,27 @@
 	</div>
 </Header>
 
-<slot />
+<div class="f-row f-1">
+	<Sidebar bind:menuOpen docked>
+		<div slot="header" class="f-row align-items-center">
+			<!-- <Logo /> -->
+			<h1 class="ml-2">sx-lemmy</h1>
+		</div>
+
+		<AppSidebar />
+	</Sidebar>
+
+	<main class="f-column f-1">
+		<slot />
+	</main>
+</div>
 
 <script lang="ts">
-	import { Header, Icon, Tooltip } from 'sheodox-ui';
+	import { Sidebar, Header, Icon, Tooltip } from 'sheodox-ui';
+	import AppSidebar from './AppSidebar.svelte';
 	export let data;
+
+	let menuOpen = false;
 
 	$: instanceText = data.settings.username
 		? `${data.settings.username}@${data.settings.instance}`

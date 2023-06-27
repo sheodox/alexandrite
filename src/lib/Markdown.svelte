@@ -17,9 +17,13 @@
 
 <script lang="ts">
 	import MarkdownIt from 'markdown-it';
-	const parser = new MarkdownIt();
+	const fullRender = new MarkdownIt();
+	const noImageRender = new MarkdownIt().disable('image');
+
 	export let md: string;
-	$: rendered = parser.render(md);
+	export let noImages = false;
+
+	$: rendered = noImages ? noImageRender.render(md) : fullRender.render(md);
 
 	function toggleFullSize(e: MouseEvent) {
 		const target = e.target as HTMLElement;

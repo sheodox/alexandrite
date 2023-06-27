@@ -10,17 +10,20 @@
 	{/if}
 	<h1><slot name="name" /></h1>
 
-	<Stack dir="r" gap={3}>
-		{#each counts as count}
-			<Tooltip>
-				<span slot="tooltip">{count.label}</span>
-				<span class="muted">
-					<Icon icon={count.icon} />
-				</span>
-				<strong>{count.value.toLocaleString()}</strong>
-			</Tooltip>
-		{/each}
-	</Stack>
+	{#if counts}
+		<Stack dir="r" gap={3}>
+			{#each counts as count}
+				<Tooltip>
+					<span slot="tooltip">{count.label}</span>
+					<span class="muted">
+						<Icon icon={count.icon} />
+					</span>
+					<strong>{count.value.toLocaleString()}</strong>
+				</Tooltip>
+			{/each}
+		</Stack>
+	{/if}
+	<slot name="counts" />
 
 	{#if description}
 		<p class="has-inline-links">

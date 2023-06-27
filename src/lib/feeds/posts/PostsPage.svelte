@@ -33,7 +33,7 @@
 	<aside>
 		<slot name="sidebar" />
 		{#if communityView}
-			<CommunitySidebar counts={communityView.counts} community={communityView.community} />
+			<CommunitySidebar {communityView} community={communityView.community} />
 
 			<hr class="my-8" />
 		{/if}
