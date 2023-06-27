@@ -21,7 +21,7 @@
 		</section>
 	</form>
 
-	<Grid gap={2} basis="22rem">
+	<Grid gap={4} basis="22rem">
 		{#each data.communities as cv}
 			<CommunityCard communityView={cv} />
 		{/each}
