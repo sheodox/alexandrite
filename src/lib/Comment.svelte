@@ -122,6 +122,7 @@
 				<input type="hidden" name="commentId" value={commentView.comment.id} />
 				<CommentEditor
 					value={commentView.comment.content}
+					selectedLanguage={commentView.comment.language_id}
 					cancellable
 					label="Edit"
 					on:cancel={() => (showCommentEdit = false)}
@@ -244,7 +245,6 @@
 
 		if (res.ok) {
 			const cv = await res.json();
-			console.log(cv);
 			dispatch('update-comment', cv.commentView as CommentView);
 		}
 		deletePending = false;

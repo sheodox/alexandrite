@@ -6,6 +6,9 @@
 	.dn {
 		display: none;
 	}
+	button {
+		width: 8rem;
+	}
 </style>
 
 <Layout size="medium">
@@ -27,7 +30,11 @@
 				<Checkbox name="nsfw" {disabled}>NSFW</Checkbox>
 			</div>
 			<Stack dir="c" cl="mt-2">
-				<CommentEditor {submitting} label="Body" />
+				<CommentEditor {submitting} label="Body" showSubmit={false} />
+			</Stack>
+
+			<Stack dir="r" justify="end">
+				<button class="primary" disabled={!title}>Post</button>
 			</Stack>
 		</Stack>
 	</form>

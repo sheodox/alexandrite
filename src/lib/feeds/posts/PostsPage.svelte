@@ -71,8 +71,6 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	console.log({ communityView });
-
 	let overlayPost: null | PostView;
 
 	async function onOverlay(e: CustomEvent<number>) {

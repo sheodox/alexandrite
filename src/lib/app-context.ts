@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import type { LemmyHttp } from 'lemmy-js-client';
+import type { GetSiteResponse } from 'lemmy-js-client';
 
 export const APP_CONTEXT_KEY = '__SX_APP_CONTEXT__';
 
@@ -8,6 +8,7 @@ export interface AppContext {
 	instance: string;
 	instanceUrl: string;
 	loggedIn: boolean;
+	siteMeta: GetSiteResponse;
 }
 
 export const getAppContext = () => {

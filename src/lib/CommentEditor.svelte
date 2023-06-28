@@ -22,12 +22,25 @@
 			>
 			<Stack dir="r" justify="end" align="center" gap={2}>
 				<Checkbox bind:checked={showPreview}>Show Preview</Checkbox>
-				<button class="secondary f-row gap-2" disabled={!value}>
-					{#if submitting}
-						<Spinner />
-					{/if}
-					Post
-				</button>
+				<select
+					aria-label="language"
+					name="languageId"
+					required
+					bind:value={selectedLanguage}
+					on:change={saveSelectedLanguage}
+				>
+					{#each siteMeta.all_languages as lang}
+						<option value={lang.id}>{lang.name}</option>
+					{/each}
+				</select>
+				{#if showSubmit}
+					<button class="secondary f-row gap-2" disabled={!value}>
+						{#if submitting}
+							<Spinner />
+						{/if}
+						Post
+					</button>
+				{/if}
 				{#if cancellable}
 					<button class="tertiary" type="button" on:click={cancel}>Cancel</button>
 				{/if}
@@ -45,22 +58,39 @@
 	import { Icon, Stack, Checkbox, Fieldset } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import Spinner from './Spinner.svelte';
+	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{ cancel: void }>();
+
+	const languageCacheKey = 'editor-language';
+	const { siteMeta } = getAppContext();
+	const englishLanguageId = siteMeta.all_languages.find(({ code }) => code === 'en')?.id;
 
 	const textareaId = `comment-textarea-${genId()}`;
 	let showPreview = false;
 
 	export let label = 'Comment';
 	export let value = '';
+	export let selectedLanguage = 0;
 	export let cancellable = false;
 	export let submitting: boolean;
+	export let showSubmit = true;
+	const initialValue = value;
+
+	onMount(() => {
+		const cached = localStorage?.getItem(languageCacheKey);
+		selectedLanguage = (cached ? Number(cached) : englishLanguageId) ?? 0;
+	});
 
 	function cancel() {
-		if (!value || confirm('Are you sure you want to discard your comment?')) {
+		if (value === initialValue || confirm('Are you sure you want to discard your comment?')) {
 			dispatch('cancel');
 		}
+	}
+
+	function saveSelectedLanguage() {
+		localStorage.setItem(languageCacheKey, '' + selectedLanguage);
 	}
 </script>

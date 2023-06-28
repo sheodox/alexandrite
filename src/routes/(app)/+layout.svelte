@@ -96,7 +96,8 @@
 		username: data.settings.username,
 		loggedIn: data.loggedIn,
 		instance: data.settings.instance,
-		instanceUrl: data.settings.instanceUrl
+		instanceUrl: data.settings.instanceUrl,
+		siteMeta: data.site
 	});
 
 	let menuOpen = false;

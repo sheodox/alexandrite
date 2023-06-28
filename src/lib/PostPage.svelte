@@ -31,17 +31,24 @@
 		<hr class="w-100" />
 
 		{#if loggedIn}
-			<form
-				action="/post/{postView.post.id}/?/postComment"
-				on:submit={() => {
-					submittingComment = true;
-				}}
-				use:enhance={addCommentEnhance}
-				method="POST"
-				class="comment-editor"
-			>
-				<CommentEditor submitting={submittingComment} />
-			</form>
+			<div class="comment-editor">
+				<Accordion bind:open={showCommentComposer} buttonClasses="tertiary">
+					<span slot="title">Leave a comment</span>
+					{#key showCommentComposer}
+						<form
+							action="/post/{postView.post.id}/?/postComment"
+							on:submit={() => {
+								submittingComment = true;
+							}}
+							use:enhance={addCommentEnhance}
+							method="POST"
+							class="p-2"
+						>
+							<CommentEditor submitting={submittingComment} />
+						</form>
+					{/key}
+				</Accordion>
+			</div>
 		{/if}
 
 		<h2 class="px-4 mt-6 mb-0" id="comments">Comments ({postView.counts.comments})</h2>
@@ -78,7 +85,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
-	import { Stack, Icon, Breadcrumbs } from 'sheodox-ui';
+	import { Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
@@ -98,6 +105,7 @@
 
 	let commentsPageNum = 1,
 		loadingComments = false,
+		showCommentComposer = true,
 		commentLoadFailed = false,
 		endOfCommentsFeed = false,
 		submittingComment = false;
@@ -113,12 +121,12 @@
 	const addCommentEnhance: SubmitFunction<{ commentView: CommentView }> = () => {
 		return async ({ update, result }) => {
 			await update();
-			console.log('result', result);
 			submittingComment = false;
 
 			if (result.type === 'success' && result.data) {
 				commentViews.unshift(result.data.commentView);
 				commentViews = commentViews;
+				showCommentComposer = false;
 			}
 		};
 	};

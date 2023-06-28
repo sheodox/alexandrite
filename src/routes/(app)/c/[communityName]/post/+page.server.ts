@@ -39,7 +39,8 @@ export const actions = {
 			name: title,
 			body: body.content as string,
 			url: (body.url as string) ? (body.url as string) : undefined,
-			nsfw: body.nsfw === 'on'
+			nsfw: body.nsfw === 'on',
+			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 
 		throw redirect(303, `/post/${postRes.post_view.post.id}`);

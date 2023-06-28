@@ -22,7 +22,8 @@ export const actions = {
 				content: body.content as string,
 				auth: locals.jwt,
 				post_id: +params.postId,
-				parent_id
+				parent_id,
+				language_id: body.languageId ? Number(body.languageId) : undefined
 			});
 
 			return {
@@ -30,7 +31,7 @@ export const actions = {
 			};
 		}
 	},
-	editComment: async ({ request, locals, params }) => {
+	editComment: async ({ request, locals }) => {
 		const body = Object.fromEntries(await request.formData()),
 			commentId = Number(body.commentId);
 
@@ -38,7 +39,8 @@ export const actions = {
 			const res = await locals.client.editComment({
 				content: body.content as string,
 				auth: locals.jwt,
-				comment_id: commentId
+				comment_id: commentId,
+				language_id: body.languageId ? Number(body.languageId) : undefined
 			});
 
 			return {
