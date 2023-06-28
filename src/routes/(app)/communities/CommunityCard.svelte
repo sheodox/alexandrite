@@ -34,7 +34,7 @@
 
 		{#if communityView.community.description}
 			<div class="description">
-				<Markdown md={communityView.community.description} />
+				<Markdown md={communityView.community.description} noImages />
 			</div>
 		{/if}
 	</Stack>

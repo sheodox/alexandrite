@@ -14,15 +14,6 @@
 	.vote-down[aria-pressed='true'] {
 		color: var(--sx-blue-400);
 	}
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	.pending {
-		animation: spin 0.5s linear infinite;
-		display: block;
-	}
 </style>
 
 <div class={dir === 'row' ? 'f-row' : 'f-column'}>
@@ -38,9 +29,7 @@
 	</button>
 	<span class="sx-badge-{counterColor} text-align-center align-self-center">
 		{#if votePending}
-			<span class="pending">
-				<Icon icon="circle-notch" variant="icon-only" />
-			</span>
+			<Spinner />
 		{:else}
 			{score}
 			<span class="sr-only">score</span>
@@ -62,6 +51,7 @@
 	import { Icon } from 'sheodox-ui';
 	import { createEventDispatcher } from 'svelte';
 	import { getAppContext } from './app-context';
+	import Spinner from './Spinner.svelte';
 
 	const dispatch = createEventDispatcher<{
 		vote: number;

@@ -1,6 +1,7 @@
 <PostsPage
 	settings={data.settings}
 	on:more={more}
+	on:update-post-view={updatePostView}
 	{endOfFeed}
 	feedType="top"
 	postViews={data.posts}
@@ -39,5 +40,10 @@
 		data.posts = [...data.posts, ...more.items.filter((p) => !data.posts.some((p2) => p2.post.id === p.post.id))];
 
 		loadingPosts = false;
+	}
+
+	function updatePostView(e: CustomEvent<PostView>) {
+		const pv = e.detail;
+		data.posts = data.posts.map((p) => (p.post.id === pv.post.id ? pv : p));
 	}
 </script>

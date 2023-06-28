@@ -21,12 +21,27 @@
 		{@const collapsed = collapsedComments.includes(cv.comment.id)}
 		<div class="comment">
 			<div class="comment-leaf p-2 pb-0" class:collapsed>
-				<Comment commentView={cv} {postOP} on:collapse={() => toggleCollapse(cv.comment.id)} {collapsed} />
+				<Comment
+					commentView={cv}
+					{postOP}
+					on:collapse={() => toggleCollapse(cv.comment.id)}
+					{collapsed}
+					on:new-comment
+					on:update-comment
+				/>
 			</div>
 			{#if !collapsed}
 				{#if children.length}
 					<div class="nested">
-						<svelte:self nestedLevel={nestedLevel + 1} {commentViews} path={cv.comment.path} {postOP} on:expand />
+						<svelte:self
+							nestedLevel={nestedLevel + 1}
+							{commentViews}
+							path={cv.comment.path}
+							{postOP}
+							on:expand
+							on:new-comment
+							on:update-comment
+						/>
 					</div>
 				{:else if cv.counts.child_count > 0}
 					<div class="nested">

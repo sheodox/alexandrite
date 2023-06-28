@@ -11,11 +11,18 @@
 	article.post {
 		margin: 0 auto;
 	}
+	.comment-editor {
+		width: 60rem;
+		max-width: 100%;
+	}
 </style>
 
 <Stack dir="r" cl="f-1">
 	<article class="f-column p-4 f-1 post">
-		<Post {postView} mode="show">
+		<div class="ml-6 mb-1">
+			<Breadcrumbs {links} />
+		</div>
+		<Post {postView} mode="show" on:update-post-view>
 			<Stack dir="r" slot="beforeEmbed">
 				<a href="#comments" class="button tertiary"><Icon icon="comments" iconVariant="regular" />To Comments</a>
 			</Stack>
@@ -23,27 +30,45 @@
 
 		<hr class="w-100" />
 
-		<h2 class="px-4 mt-6" id="comments">Comments ({postView.counts.comments})</h2>
+		{#if loggedIn}
+			<form
+				action="/post/{postView.post.id}/?/postComment"
+				on:submit={() => {
+					submittingComment = true;
+				}}
+				use:enhance={addCommentEnhance}
+				method="POST"
+				class="comment-editor"
+			>
+				<CommentEditor submitting={submittingComment} />
+			</form>
+		{/if}
+
+		<h2 class="px-4 mt-6 mb-0" id="comments">Comments ({postView.counts.comments})</h2>
+		<section>
+			<Stack gap={4} align="center" cl="p-4" dir="r">
+				<ToggleGroup options={CommentSortOptions} bind:selected={selectedSort} name="sort" on:change={changeSort} />
+			</Stack>
+		</section>
+
 		{#if commentViews}
 			<CommentTree
 				{commentViews}
 				postOP={postView.creator.actor_id}
 				on:more={loadNextCommentPage}
 				on:expand={expandComment}
+				on:new-comment={onNewComment}
+				on:update-comment={onUpdateComment}
 			/>
-			<InfiniteFeed
-				on:more={loadNextCommentPage}
-				endOfFeed={endOfCommentsFeed}
-				loadMoreFailed={commentLoadFailed}
-				loading={loadingComments}
-				feedEndMessage="No more comments"
-				feedEndIcon="comment-slash"
-			/>
-		{:else}
-			<Stack align="center" justify="center" cl="f-1">
-				<Loading />
-			</Stack>
 		{/if}
+		<InfiniteFeed
+			on:more={loadNextCommentPage}
+			endOfFeed={endOfCommentsFeed}
+			loadMoreFailed={commentLoadFailed}
+			loading={loadingComments}
+			feedEndMessage="No more comments"
+			feedEndIcon="comment-slash"
+		/>
 	</article>
 	<aside>
 		<CommunitySidebar community={postView.community} />
@@ -52,20 +77,64 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Stack, Loading, Icon } from 'sheodox-ui';
+	import { enhance } from '$app/forms';
+	import { Stack, Icon, Breadcrumbs } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import type { CommentView, PostView } from 'lemmy-js-client';
+	import { CommentSortOptions } from './feed-filters';
+	import ToggleGroup from './ToggleGroup.svelte';
+	import CommentEditor from './CommentEditor.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { getAppContext } from './app-context';
+	import { nameAtInstance } from './nav-utils';
 
 	export let postView: PostView;
-	let commentViews: CommentView[];
+	const { loggedIn } = getAppContext();
+	let commentViews: CommentView[],
+		selectedSort = 'Hot';
 
 	let commentsPageNum = 1,
 		loadingComments = false,
 		commentLoadFailed = false,
+		endOfCommentsFeed = false,
+		submittingComment = false;
+
+	function changeSort() {
+		// start over if sorting changes
+		commentsPageNum = 1;
 		endOfCommentsFeed = false;
+		commentViews = [];
+		loadNextCommentPage();
+	}
+
+	const addCommentEnhance: SubmitFunction<{ commentView: CommentView }> = () => {
+		return async ({ update, result }) => {
+			await update();
+			console.log('result', result);
+			submittingComment = false;
+
+			if (result.type === 'success' && result.data) {
+				commentViews.unshift(result.data.commentView);
+				commentViews = commentViews;
+			}
+		};
+	};
+
+	function onNewComment(e: CustomEvent<CommentView>) {
+		commentViews.push(e.detail);
+		commentViews = commentViews;
+	}
+
+	function onUpdateComment(e: CustomEvent<CommentView>) {
+		const index = commentViews.findIndex((cv) => cv.comment.id === e.detail.comment.id);
+		if (index >= 0) {
+			commentViews[index] = e.detail;
+			commentViews = commentViews;
+		}
+	}
 
 	function mergeNewCommentViews(nextPage: CommentView[]): number {
 		if (!commentViews) {
@@ -111,7 +180,7 @@
 
 	async function loadNextCommentPage() {
 		const { comments, busy, error } = await loadComments(
-			`/api/posts/${postView.post.id}/comments?page=${commentsPageNum++}`
+			`/api/posts/${postView.post.id}/comments?page=${commentsPageNum++}&sort=${selectedSort}`
 		);
 		commentLoadFailed = error;
 
@@ -132,4 +201,19 @@
 	onMount(() => {
 		loadNextCommentPage();
 	});
+
+	$: communityName = nameAtInstance(postView.community);
+	$: links = [
+		{
+			text: 'Home',
+			href: '/'
+		},
+		{
+			text: communityName,
+			href: `/c/${communityName}/`
+		},
+		{
+			text: ''
+		}
+	];
 </script>

@@ -6,15 +6,23 @@
 	.comment-content :global(:last-child) {
 		margin: 0;
 	}
-	.comment-content {
+	.comment-content,
+	.reply-editor {
 		max-width: 60rem;
 	}
 	section :global(img) {
 		max-width: 100%;
 	}
+	.maybe-deleting {
+		outline: 3px solid var(--sx-red-transparent);
+		border-radius: 10px;
+	}
+	.deleted-msg {
+		font-style: italic;
+	}
 </style>
 
-<section>
+<section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
 		<Stack gap={1} dir="r" align="center">
 			<Tooltip>
@@ -28,43 +36,183 @@
 			<UserBadges user={commentView.creator} {postOP} />
 			<span class="muted"> &centerdot; </span>
 			<RelativeTime date={commentView.comment.published} />
+			{#if commentView.comment.updated && commentView.comment.updated !== commentView.comment.published}
+				<RelativeTime date={commentView.comment.updated} variant="icon" icon="edit" verb="Edited" />
+			{/if}
 		</Stack>
 		{#if !collapsed}
 			<div class="comment-content">
-				<Markdown md={commentView.comment.content} />
+				{#if commentView.comment.deleted}
+					<p class="muted deleted-msg">Deleted by creator</p>
+				{:else}
+					<Markdown md={commentView.comment.content} />
+				{/if}
 			</div>
-			<VoteButtons
-				vote={commentView.my_vote}
-				score={commentView.counts.score}
-				dir="row"
-				small
-				on:vote={vote}
-				{votePending}
-			/>
+			<Stack dir="r" gap={2} align="center">
+				<VoteButtons
+					vote={commentView.my_vote}
+					score={commentView.counts.score}
+					dir="row"
+					small
+					on:vote={vote}
+					{votePending}
+				/>
+				{#if maybeDeleting}
+					<button class="danger small sx-font-size-2" on:click={() => deleteComment(true)} disabled={someActionPending}
+						>Delete</button
+					>
+					<button
+						class="tertiary small sx-font-size-2"
+						on:click={() => (maybeDeleting = false)}
+						disabled={someActionPending}>Cancel</button
+					>
+				{:else}
+					<LogButton on:click={() => console.log({ commentView })} />
+					{#if loggedIn}
+						<IconButton
+							icon="reply"
+							small
+							text="Reply"
+							on:click={() => (showReplyComposer = true)}
+							disabled={someActionPending}
+						/>
+						{#if myComment}
+							<IconButton
+								icon="edit"
+								small
+								text="Edit"
+								on:click={() => (showCommentEdit = true)}
+								disabled={someActionPending}
+							/>
+							{#if commentView.comment.deleted}
+								<IconButton
+									icon="recycle"
+									small
+									text="Restore"
+									disabled={deletePending}
+									on:click={() => deleteComment(false)}
+								/>
+							{:else}
+								<IconButton
+									icon="trash-can"
+									small
+									text="Delete"
+									on:click={() => (maybeDeleting = true)}
+									disabled={someActionPending}
+								/>
+							{/if}
+						{/if}
+					{/if}
+				{/if}
+				{#if deletePending}
+					<Spinner />
+				{/if}
+			</Stack>
+		{/if}
+		{#if showCommentEdit}
+			<form
+				use:enhance={commentEditSubmit}
+				on:submit={() => {
+					submittingEdit = true;
+				}}
+				action="/post/{commentView.post.id}/?/editComment"
+				method="POST"
+				class="reply-editor"
+			>
+				<input type="hidden" name="commentId" value={commentView.comment.id} />
+				<CommentEditor
+					value={commentView.comment.content}
+					cancellable
+					label="Edit"
+					on:cancel={() => (showCommentEdit = false)}
+					submitting={submittingEdit}
+				/>
+			</form>
+		{/if}
+		{#if showReplyComposer && loggedIn}
+			<form
+				use:enhance={commentReplySubmit}
+				on:submit={() => {
+					submittingReply = true;
+				}}
+				action="/post/{commentView.post.id}/?/postComment"
+				method="POST"
+				class="reply-editor"
+			>
+				<input type="hidden" name="parentId" value={commentView.comment.id} />
+				<CommentEditor cancellable on:cancel={() => (showReplyComposer = false)} submitting={submittingReply} />
+			</form>
 		{/if}
 	</Stack>
 </section>
 
 <script lang="ts">
 	import { Stack, Tooltip, Icon } from 'sheodox-ui';
+	import { enhance } from '$app/forms';
 	import UserLink from './UserLink.svelte';
 	import Markdown from './Markdown.svelte';
 	import VoteButtons from './VoteButtons.svelte';
 	import RelativeTime from './RelativeTime.svelte';
 	import UserBadges from './feeds/posts/UserBadges.svelte';
+	import LogButton from './LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
+	import IconButton from './IconButton.svelte';
+	import CommentEditor from './CommentEditor.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { getAppContext } from './app-context';
+	import Spinner from './Spinner.svelte';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
+		'new-comment': CommentView;
+		'update-comment': CommentView;
 	}>();
 
 	export let commentView: CommentView;
 	export let postOP: string;
 	export let collapsed = false;
+
+	const { loggedIn, username } = getAppContext();
+
+	$: myComment = commentView.creator.local && commentView.creator.name === username;
+
+	let showReplyComposer = false;
+	let showCommentEdit = false;
 	let votePending = false;
+	let deletePending = false;
+	let submittingReply = false;
+	let submittingEdit = false;
+	let maybeDeleting = false;
+	$: someActionPending =
+		showReplyComposer || showCommentEdit || deletePending || votePending || submittingReply || submittingEdit;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
+
+	const commentReplySubmit: SubmitFunction<{ commentView: CommentView }> = () => {
+		return async ({ update, result }) => {
+			await update();
+			submittingReply = false;
+
+			showReplyComposer = false;
+
+			if (result.type === 'success' && result.data) {
+				dispatch('update-comment', result.data.commentView);
+			}
+		};
+	};
+
+	const commentEditSubmit: SubmitFunction<{ commentView: CommentView }> = () => {
+		return async ({ update, result }) => {
+			await update();
+			submittingEdit = false;
+
+			if (result.type === 'success' && result.data) {
+				dispatch('update-comment', result.data.commentView);
+				showCommentEdit = false;
+			}
+		};
+	};
 
 	async function vote(e: CustomEvent<number>) {
 		votePending = true;
@@ -82,5 +230,24 @@
 			commentView.my_vote = newCV.my_vote;
 		}
 		votePending = false;
+	}
+
+	async function deleteComment(deleted: boolean) {
+		deletePending = true;
+		const res = await fetch(`/api/comments/${commentView.comment.id}`, {
+			method: 'DELETE',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				deleted
+			})
+		});
+
+		if (res.ok) {
+			const cv = await res.json();
+			console.log(cv);
+			dispatch('update-comment', cv.commentView as CommentView);
+		}
+		deletePending = false;
+		maybeDeleting = false;
 	}
 </script>

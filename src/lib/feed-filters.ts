@@ -104,8 +104,8 @@ export const CommentSortOptions = [
 		label: 'Hot'
 	},
 	{
-		value: 'Active',
-		label: 'Active'
+		value: 'Top',
+		label: 'Top'
 	},
 	{
 		value: 'New',

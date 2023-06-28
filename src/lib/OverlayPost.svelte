@@ -25,13 +25,14 @@
 <Portal>
 	<div class="post-overlay">
 		<div class="close-bg" on:click={close} aria-hidden />
-		<div class="post-container f-column">
-			<PostPage {postView} />
+		<div class="post-container f-column" transition:fly|global={{ x: 20, duration: 100 }}>
+			<PostPage {postView} on:update-post-view />
 		</div>
 	</div>
 </Portal>
 
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { Portal } from 'sheodox-ui';
 	import PostPage from './PostPage.svelte';

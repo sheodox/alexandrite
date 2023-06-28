@@ -47,6 +47,14 @@ export const lemmySettings = {
 	}
 };
 
+const COOKIE_KEY = 'lemmy-settings';
+
 export const getLemmySettings = (cookies: Cookies) => {
-	return lemmySettings.deserialize(cookies.get('lemmy-settings'));
+	return lemmySettings.deserialize(cookies.get(COOKIE_KEY));
+};
+
+export const setLemmySettings = (cookies: Cookies, localUser: LocalUser) => {
+	cookies.set(COOKIE_KEY, lemmySettings.serialize(localUser), {
+		path: '/'
+	});
 };

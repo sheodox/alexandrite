@@ -7,7 +7,7 @@
 	</p>
 	<button class="primary" on:click={() => invalidateAll()}>
 		<Icon icon="circle-arrow" />
-		Retry
+		Reload
 	</button>
 </Stack>
 

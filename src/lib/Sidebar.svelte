@@ -36,6 +36,8 @@
 			<Markdown md={sidebar || ''} />
 		</p>
 	{/if}
+
+	<slot name="end" />
 </article>
 
 <script lang="ts">

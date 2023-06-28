@@ -11,16 +11,18 @@ export const load = (async ({ fetch, params, url, locals }) => {
 	const { posts, query }: ApiPostsRes = await fetch(
 		`/api/posts?page=1&communityName=${community}&type=${selectedType}&listing=${selectedListing}&sort=${selectedSort}`
 	).then((res) => res.json());
+
+	const cv = await locals.client.getCommunity({
+		name: community,
+		auth: locals.jwt
+	});
+
 	return {
 		posts,
 		query,
 		communityName: params.communityName,
-		communityView: locals.client
-			.getCommunity({
-				name: community,
-				auth: locals.jwt
-			})
-			.then(({ community_view }) => community_view)
+		communityView: cv.community_view,
+		moderators: cv.moderators
 	};
 }) satisfies PageServerLoad;
 

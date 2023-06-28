@@ -5,6 +5,7 @@
 	postViews={data.posts}
 	siteView={data.site.site_view}
 	communityView={data.communityView}
+	moderators={data.moderators}
 	{endOfFeed}
 	selectedType={data.query.type}
 	selectedListing={data.query.listing}

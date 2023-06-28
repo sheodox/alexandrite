@@ -14,6 +14,9 @@
 <script lang="ts">
 	import { Tooltip } from 'sheodox-ui';
 	import type { Person } from 'lemmy-js-client';
+	import { getAppContext } from '$lib/app-context';
+
+	const { username } = getAppContext();
 
 	export let user: Person;
 	export let postOP = ''; // actor_id of someone who made a post
@@ -37,6 +40,9 @@
 		}
 		if (user.actor_id === postOP) {
 			badges.push({ color: 'pink', text: 'OP' });
+		}
+		if (user.local && user.name == username) {
+			badges.push({ color: 'mint', text: 'You' });
 		}
 		return badges;
 	}

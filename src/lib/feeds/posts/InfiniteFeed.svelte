@@ -13,8 +13,8 @@
 			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}>Retry</button>
 		</FeedBanner>
 	{:else}
-		<FeedBanner message={loading ? 'Loading more...' : 'Load more?'} icon="download">
-			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}> Load More </button>
+		<FeedBanner message={loading ? 'Loading more...' : 'Load more?'} icon="download" {loading}>
+			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}>Load More</button>
 		</FeedBanner>
 	{/if}
 {:else}

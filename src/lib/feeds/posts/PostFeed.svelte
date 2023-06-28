@@ -35,7 +35,7 @@
 
 		{#if selectedType === 'Posts'}
 			{#each postViews as pv, i (pv.post.id)}
-				<Post postView={pv} on:overlay />
+				<Post postView={pv} on:overlay on:update-post-view />
 				{#if i + 1 < postViews.length}
 					<hr class="w-100" />
 				{/if}
