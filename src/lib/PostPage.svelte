@@ -28,7 +28,7 @@
 			</Stack>
 		</Post>
 
-		<hr class="w-100" />
+		<hr class="w-100" id="comments" />
 
 		{#if loggedIn}
 			<div class="comment-editor">
@@ -51,7 +51,7 @@
 			</div>
 		{/if}
 
-		<h2 class="px-4 mt-6 mb-0" id="comments">Comments ({postView.counts.comments})</h2>
+		<h2 class="px-4 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
 		<section>
 			<Stack gap={4} align="center" cl="p-4" dir="r">
 				<ToggleGroup options={CommentSortOptions} bind:selected={selectedSort} name="sort" on:change={changeSort} />
