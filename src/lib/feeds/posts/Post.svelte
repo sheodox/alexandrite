@@ -140,9 +140,9 @@
 		</Stack>
 		<slot name="beforeEmbed" />
 		{#if modeShow || (showPost && hasEmbeddableContent)}
-			<div class="p-2 embed-content">
+			<div class="embed-content">
 				{#if hasEmbedText}
-					<div class="card">
+					<div class="card m-0">
 						<h2 class="card-title m-0">
 							{postView.post.embed_title}
 						</h2>

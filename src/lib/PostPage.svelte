@@ -31,7 +31,7 @@
 		<hr class="w-100" id="comments" />
 
 		{#if loggedIn}
-			<div class="comment-editor">
+			<div class="comment-editor m-2">
 				<Accordion bind:open={showCommentComposer} buttonClasses="tertiary">
 					<span slot="title">Leave a comment</span>
 					{#key showCommentComposer}
