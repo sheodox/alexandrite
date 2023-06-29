@@ -6,22 +6,17 @@
 
 <div class="py-1">
 	<Stack dir="column" gap={1}>
-		<form method="GET" bind:this={filterForm} data-sveltekit-replacestate>
+		<form method="GET" data-sveltekit-replacestate>
 			<section>
 				<Stack gap={4} align="center" cl="p-4" dir="r">
 					{#if typeOptions}
-						<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" on:change={submitForm} />
+						<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
 					{/if}
 					{#if listingOptions}
-						<ToggleGroup
-							options={listingOptions}
-							bind:selected={selectedListing}
-							name="listing"
-							on:change={submitForm}
-						/>
+						<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
 					{/if}
 					{#if sortOptions}
-						<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required on:change={submitForm}>
+						<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
 							{#each sortOptions as opt}
 								<option value={opt.value}>{opt.label}</option>
 							{/each}
@@ -73,14 +68,6 @@
 	import Comment from '$lib/Comment.svelte';
 	import type { Settings } from '../../../app';
 	import type { ContentView } from '$lib/post-loader';
-
-	let filterForm: HTMLFormElement;
-
-	function submitForm() {
-		if (selectedType && selectedListing && selectedSort) {
-			filterForm.submit();
-		}
-	}
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;

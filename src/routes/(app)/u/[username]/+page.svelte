@@ -47,7 +47,6 @@
 	import { Stack, Icon } from 'sheodox-ui';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
-	import { onMount } from 'svelte';
 	import { nameAtInstance } from '$lib/nav-utils.js';
 	import type { PostView } from 'lemmy-js-client';
 

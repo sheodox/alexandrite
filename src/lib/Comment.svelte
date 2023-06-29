@@ -63,6 +63,7 @@
 				{/if}
 			</div>
 			<Stack dir="r" gap={2} align="center">
+				<slot name="actions-start" />
 				<VoteButtons
 					vote={commentView.my_vote}
 					score={commentView.counts.score}

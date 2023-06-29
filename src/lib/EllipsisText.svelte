@@ -1,6 +1,6 @@
 <style>
 	.ellipsis-text {
-		display: inline;
+		display: inline-block;
 		max-width: 20rem;
 		white-space: nowrap;
 		overflow: hidden;

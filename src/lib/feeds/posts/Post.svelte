@@ -138,7 +138,7 @@
 				</Stack>
 			</Stack>
 		</Stack>
-		<slot name="beforeEmbed" />
+		<slot name="beforeEmbed" {hasEmbeddableContent} />
 		{#if showPost && hasEmbeddableContent}
 			<div class="embed-content">
 				{#if hasEmbedText}

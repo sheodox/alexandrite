@@ -160,6 +160,36 @@ export const CommentFeedSortOptions = [
 	}
 ];
 
+export const InboxTypes = [
+	{ value: 'Unread', label: 'Unread' },
+	{ value: 'All', label: 'All' }
+];
+
+export const InboxListings = [
+	{ value: 'All', label: 'All' },
+	{ value: 'Replies', label: 'Replies' },
+	{ value: 'Mentions', label: 'Mentions' },
+	{ value: 'Messages', label: 'Messages' }
+];
+export const InboxSortOptions = [
+	{
+		value: 'Hot',
+		label: 'Hot'
+	},
+	{
+		value: 'Top',
+		label: 'Top'
+	},
+	{
+		value: 'New',
+		label: 'New'
+	},
+	{
+		value: 'Old',
+		label: 'Old'
+	}
+];
+
 export const CommentSortOptions = [
 	{
 		value: 'Hot',

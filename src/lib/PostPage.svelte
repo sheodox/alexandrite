@@ -23,11 +23,13 @@
 			<Breadcrumbs {links} />
 		</div>
 		<Post {postView} mode="show" on:update-post-view {showPost}>
-			<Stack dir="r" slot="beforeEmbed">
+			<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
 				<a href="#comments" class="button tertiary"><Icon icon="chevron-down" />To Comments</a>
-				<button class="tertiary" on:click={() => (showPost = !showPost)}
-					><Icon icon="comments" iconVariant="regular" />{showPost ? 'Hide' : 'Show'} Content</button
-				>
+				{#if hasEmbeddableContent}
+					<button class="tertiary" on:click={() => (showPost = !showPost)}
+						><Icon icon="comments" iconVariant="regular" />{showPost ? 'Hide' : 'Show'} Content</button
+					>
+				{/if}
 			</Stack>
 		</Post>
 

@@ -19,14 +19,14 @@
 			<span>Retry?</span>
 		</button>
 	</div>
-{:else}
+{:else if valid}
 	<picture class="image-mode-{mode} {full ? 'image-full' : ''}">
 		<source srcset="{src}?format=webp{size}" type="image/webp" />
 		<source srcset={src} />
 		<source srcset="{src}?format=jpg{size}" type="image/jpeg" />
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-		<img {src} alt="" loading="lazy" title="" style="" on:click={toggleSize} on:error={() => (error = true)} />
+		<img {src} alt="" loading="lazy" title="" style="" on:click={toggleSize} on:error={imageLoadError} />
 	</picture>
 {/if}
 
@@ -37,7 +37,12 @@
 
 	export let full = mode === 'full';
 
-	let error = false;
+	$: valid = src.startsWith('https://') || src.startsWith('http://');
+
+	let error = false,
+		loadAttempts = 0;
+
+	const AUTO_LOAD_ATTEMPTS_MAX = 4;
 
 	$: size = mode === 'thumbnail' ? `&thumbnail=256` : '';
 
@@ -45,5 +50,20 @@
 		if (mode === 'full') {
 			full = !full;
 		}
+	}
+
+	function imageLoadError() {
+		error = true;
+
+		// give up eventually
+		if (loadAttempts >= AUTO_LOAD_ATTEMPTS_MAX) {
+			return;
+		}
+
+		// retry a bit later, with random times to not spam retries on every image at once
+		setTimeout(() => {
+			loadAttempts++;
+			error = false;
+		}, 1000 * (loadAttempts + 1) + Math.random() * 3000);
 	}
 </script>

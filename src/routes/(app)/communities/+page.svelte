@@ -1,16 +1,11 @@
 <Layout size="medium">
 	<h1>Communities</h1>
 
-	<form method="GET" bind:this={filterForm} data-sveltekit-replacestate>
+	<form method="GET" data-sveltekit-replacestate>
 		<section>
 			<Stack gap={4} align="center" cl="p-4" dir="r">
-				<ToggleGroup
-					options={ListingOptions(!!data.settings.username)}
-					bind:selected={selectedListing}
-					name="listing"
-					on:change={submitForm}
-				/>
-				<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required on:change={submitForm}>
+				<ToggleGroup options={ListingOptions(!!data.settings.username)} selected={data.query.listing} name="listing" />
+				<select aria-label="Post Sort" value={data.query.sort} name="sort" required>
 					{#each PostSortOptions as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
@@ -22,7 +17,7 @@
 	</form>
 
 	<Grid gap={4} basis="22rem">
-		{#each data.communities as cv}
+		{#each communities as cv}
 			<CommunityCard communityView={cv} />
 		{/each}
 	</Grid>
@@ -30,8 +25,8 @@
 	<InfiniteFeed
 		on:more={more}
 		{endOfFeed}
-		{loadMoreFailed}
-		{loading}
+		loadMoreFailed={loadingContentFailed}
+		loading={loadingContent}
 		feedEndMessage="No more communities"
 		feedEndIcon="users-slash"
 	/>
@@ -45,42 +40,45 @@
 	import InfiniteFeed from '$lib/feeds/posts/InfiniteFeed.svelte';
 	import type { CommunityView } from 'lemmy-js-client';
 	import { feedLoader } from '$lib/post-loader';
+	import type { PageData } from './$types';
 
 	export let data;
 
-	const loader = feedLoader<CommunityView>(
-		`/api/communities?listing=${data.query.listing}&sort=${data.query.sort}`,
-		'communities'
-	);
-
-	let filterForm: HTMLFormElement;
-	let selectedListing = data.query.listing,
-		selectedSort = data.query.sort,
+	let loadingContent = false,
+		loadingContentFailed = false,
 		endOfFeed = false,
-		loading = false,
-		loadMoreFailed = false;
+		communities: CommunityView[];
+	$: loader = initFeed(data);
 
-	function submitForm() {
-		if (selectedListing && selectedSort) {
-			filterForm.submit();
-		}
+	function initFeed(data: PageData) {
+		const newLoader = feedLoader<CommunityView>(
+			`/api/communities?listing=${data.query.listing}&sort=${data.query.sort}`,
+			'communities'
+		);
+
+		loadingContent = false;
+		loadingContentFailed = false;
+		endOfFeed = false;
+		communities = [...data.communities];
+
+		return newLoader;
 	}
 
 	async function more() {
-		if (endOfFeed || loading) {
+		if (endOfFeed || loadingContent) {
 			return;
 		}
-		loading = true;
+		loadingContent = true;
 
 		const more = (await loader.next()).value;
-		loadMoreFailed = more.error;
+		loadingContentFailed = more.error;
 		endOfFeed = more.endOfFeed;
 
-		data.communities = [
-			...data.communities,
-			...more.items.filter((p) => !data.communities.some((p2) => p2.community.id === p.community.id))
+		communities = [
+			...communities,
+			...more.items.filter((p) => !communities.some((p2) => p2.community.id === p.community.id))
 		];
 
-		loading = false;
+		loadingContent = false;
 	}
 </script>

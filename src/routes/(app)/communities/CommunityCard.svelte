@@ -1,8 +1,11 @@
 <style>
 	.icon :global(img) {
-		height: 2rem;
-		width: 2rem;
+		height: 2.4rem;
+		width: 2.4rem;
 		border-radius: 10rem;
+		overflow: hidden;
+		border: 3px solid var(--sx-gray-200);
+		object-fit: cover;
 	}
 	.icon {
 		flex-shrink: 0;

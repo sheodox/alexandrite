@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	ul {
 		list-style: none;
 		padding: 0;
@@ -13,9 +13,17 @@
 
 <Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen>
 	<div slot="headerEnd" class="f-row align-items-center">
-		<IconButton text="Unread" {placement} icon="bell" cl="{unreadTotal > 0 ? 'sx-badge-orange' : ''} p-2"
-			>{unreadTotal}</IconButton
-		>
+		{#if data.loggedIn}
+			<IconLink
+				text="Unread"
+				{placement}
+				icon="bell"
+				cl="{$unreadCount > 0 ? 'sx-badge-orange' : ''} p-2"
+				href="/inbox"
+			>
+				{$unreadCount}
+			</IconLink>
+		{/if}
 
 		<Tooltip placement="bottom">
 			<div slot="tooltip">
@@ -78,20 +86,21 @@
 <script lang="ts">
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { Sidebar, Header, Icon, Tooltip } from 'sheodox-ui';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
 	import type { GetUnreadCountResponse } from 'lemmy-js-client';
-	import IconButton from '$lib/IconButton.svelte';
+	import IconLink from '$lib/IconLink.svelte';
+	import { writable } from 'svelte/store';
 
 	export let data;
 
-	const placement = 'bottom-end';
+	const placement = 'bottom-end',
+		unreadCount = writable(0);
 
-	let loading = false,
-		unreadTotal = 0;
+	let loading = false;
 
 	beforeNavigate(() => {
 		loading = true;
@@ -106,7 +115,8 @@
 		loggedIn: data.loggedIn,
 		instance: data.settings.instance,
 		instanceUrl: data.settings.instanceUrl,
-		siteMeta: data.site
+		siteMeta: data.site,
+		unreadCount
 	});
 
 	let menuOpen = false;
@@ -121,15 +131,28 @@
 			return { label: label.replaceAll('_', ' '), value };
 		});
 
+	const unreadPollMS = 1000 * 60 * 15;
+	let unreadPollInterval: ReturnType<typeof setInterval>;
+
 	onMount(async () => {
 		if (!data.loggedIn) {
 			return;
 		}
-		const res = await fetch('/api/me/unread');
 
-		if (res.ok) {
-			const unread: GetUnreadCountResponse = await res.json();
-			unreadTotal = unread.replies + unread.mentions + unread.private_messages;
+		async function pollUnread() {
+			const res = await fetch('/api/me/unread');
+
+			if (res.ok) {
+				const unread: GetUnreadCountResponse = await res.json();
+				$unreadCount = unread.replies + unread.mentions + unread.private_messages;
+			}
 		}
+		pollUnread();
+
+		unreadPollInterval = setInterval(pollUnread, unreadPollMS);
+	});
+
+	onDestroy(() => {
+		clearInterval(unreadPollInterval);
 	});
 </script>

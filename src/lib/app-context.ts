@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte';
 import type { GetSiteResponse } from 'lemmy-js-client';
+import type { Writable } from 'svelte/store';
 
 export const APP_CONTEXT_KEY = '__SX_APP_CONTEXT__';
 
@@ -9,6 +10,7 @@ export interface AppContext {
 	instanceUrl: string;
 	loggedIn: boolean;
 	siteMeta: GetSiteResponse;
+	unreadCount: Writable<number>;
 }
 
 export const getAppContext = () => {
