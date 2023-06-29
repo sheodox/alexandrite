@@ -1,10 +1,10 @@
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
-	<button on:click class:small class={cl} {disabled}>
+	<a {href} on:click class:small class="button {cl}">
 		<Icon {icon} variant="icon-only" />
 		<span class="sr-only">{text}</span>
 		<slot />
-	</button>
+	</a>
 </Tooltip>
 
 <script lang="ts">
@@ -12,9 +12,9 @@
 	import type { Placement } from '@floating-ui/dom';
 
 	export let small = false;
-	export let disabled = false;
 	export let text = '';
 	export let cl = '';
 	export let placement: Placement | undefined = undefined;
 	export let icon: string;
+	export let href: string;
 </script>

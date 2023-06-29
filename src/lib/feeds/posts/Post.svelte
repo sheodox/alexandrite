@@ -89,7 +89,7 @@
 					{/if}
 				</Stack>
 				<Stack dir="r" gap={2} align="center">
-					{@const text = `${showPost ? 'Hide' : 'Show'} Post`}
+					{@const text = `${showPost ? 'Hide' : 'Show'} Content`}
 					{#if hasEmbeddableContent && modeList}
 						<span>
 							<Tooltip>
@@ -139,7 +139,7 @@
 			</Stack>
 		</Stack>
 		<slot name="beforeEmbed" />
-		{#if modeShow || (showPost && hasEmbeddableContent)}
+		{#if showPost && hasEmbeddableContent}
 			<div class="embed-content">
 				{#if hasEmbedText}
 					<div class="card m-0">
@@ -198,8 +198,8 @@
 	// viewing a single post, show everything
 	$: modeShow = mode === 'show';
 
-	let showPost = false,
-		votePending = false,
+	export let showPost = false;
+	let votePending = false,
 		savePending = false;
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');

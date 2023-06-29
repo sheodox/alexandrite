@@ -1,13 +1,16 @@
 <FeedHeader icon={personView.person.avatar ?? ''} published={personView.person.published}>
 	<NameAtInstance place={personView.person} prefix="@" slot="name" />
 	<Stack slot="actions" dir="r" gap={2} align="center">
-		<UserBadges user={personView.person} />
 		<a class="button tertiary" rel="noreferrer" target="_blank" href={personView.person.actor_id}>
 			<Icon icon="network-wired" />
 			On {personInstance}
 		</a>
 		<LogButton on:click={() => console.log({ personView })} text="Log PersonView" small={false} />
 	</Stack>
+
+	<div slot="badges">
+		<UserBadges user={personView.person} />
+	</div>
 </FeedHeader>
 
 <script lang="ts">

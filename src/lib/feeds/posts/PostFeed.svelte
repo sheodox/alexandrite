@@ -33,16 +33,18 @@
 			</section>
 		</form>
 
-		{#if selectedType === 'Posts'}
-			{#each postViews as pv, i (pv.post.id)}
-				<Post postView={pv} on:overlay on:update-post-view />
-				{#if i + 1 < postViews.length}
+		<Stack dir="c" gap={2} cl="p-4">
+			{#each contentViews as contentView, i}
+				{#if contentView.type === 'post'}
+					<Post postView={contentView.postView} on:overlay on:update-post-view />
+				{:else if contentView.type === 'comment'}
+					<Comment commentView={contentView.commentView} showPost postOP="" />
+				{/if}
+				{#if i + 1 < contentViews.length}
 					<hr class="w-100" />
 				{/if}
 			{/each}
-		{:else}
-			<p>Comment listing coming soon</p>
-		{/if}
+		</Stack>
 	</Stack>
 </div>
 
@@ -51,14 +53,13 @@
 	{endOfFeed}
 	feedEndIcon="file-circle-xmark"
 	feedEndMessage="No more posts!"
-	loading={loadingPosts}
-	loadMoreFailed={loadingPostsFailed}
+	loading={loadingContent}
+	loadMoreFailed={loadingContentFailed}
 />
 
 <script lang="ts">
 	import { Stack, Icon } from 'sheodox-ui';
 	import Post from './Post.svelte';
-	import type { PostView } from 'lemmy-js-client';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import InfiniteFeed from './InfiniteFeed.svelte';
 	import {
@@ -66,11 +67,12 @@
 		type FeedType,
 		UserFeedTypeOptions,
 		ListingOptions,
-		CommentSortOptions,
 		PostSortOptions,
 		UserSortOptions
 	} from '$lib/feed-filters';
+	import Comment from '$lib/Comment.svelte';
 	import type { Settings } from '../../../app';
+	import type { ContentView } from '$lib/post-loader';
 
 	let filterForm: HTMLFormElement;
 
@@ -80,11 +82,12 @@
 		}
 	}
 
+	export let isMyFeed = false;
 	export let feedType: FeedType;
 	export let settings: Settings;
-	export let postViews: PostView[];
-	export let loadingPosts: boolean;
-	export let loadingPostsFailed: boolean;
+	export let contentViews: ContentView[];
+	export let loadingContent: boolean;
+	export let loadingContentFailed: boolean;
 	export let endOfFeed: boolean;
 	export let selectedType: string;
 	export let selectedListing: string;
@@ -97,7 +100,7 @@
 	function getTypeOptions(feedType: FeedType) {
 		switch (feedType) {
 			case 'user':
-				return UserFeedTypeOptions;
+				return UserFeedTypeOptions(isMyFeed);
 
 			default:
 				return NormalFeedTypeOptions;
@@ -119,9 +122,8 @@
 			return UserSortOptions;
 		}
 		switch (selectedType) {
-			case 'Comments':
-				return CommentSortOptions;
-
+			// case 'Comments':
+			// 	return CommentSortOptions;
 			default:
 				return PostSortOptions;
 		}

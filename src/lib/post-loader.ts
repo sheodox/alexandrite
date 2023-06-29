@@ -1,10 +1,62 @@
-interface MorePage<T> {
+import { parseISO } from 'date-fns';
+import type { CommentView, PostView } from 'lemmy-js-client';
+
+export type ContentView = ({ type: 'post'; postView: PostView } | { type: 'comment'; commentView: CommentView }) & {
+	score: number;
+	published: string;
+};
+
+interface MorePage<T, U> {
 	items: T[];
 	error: boolean;
 	endOfFeed: boolean;
+	response?: U;
 }
 
-export async function* postLoader<T>(resourceUrl: string, viewKey: string): AsyncIterator<MorePage<T>, MorePage<T>> {
+export const postViewToContentView = (postView: PostView) => {
+	return {
+		type: 'post' as const,
+		postView,
+		score: postView.counts.score,
+		published: postView.post.published
+	};
+};
+export const commentViewToContentView = (commentView: CommentView) => {
+	return {
+		type: 'comment' as const,
+		commentView,
+		score: commentView.counts.score,
+		published: commentView.post.published
+	};
+};
+
+export const getContentViews = (postViews: PostView[], commentViews: CommentView[], type?: string, sort?: string) => {
+	const content = [...postViews.map(postViewToContentView), ...commentViews.map(commentViewToContentView)];
+
+	// for the "Overview" type (on user pages), we need to sort things ourselves as we need
+	// to merge in both types of content and show them in some reasonable order
+	if (type === 'Overview' && sort) {
+		content.sort((a, b) => {
+			const aPublished = parseISO(a.published + 'Z').getTime(),
+				bPublished = parseISO(b.published + 'Z').getTime();
+
+			if (sort === 'New') {
+				return bPublished - aPublished;
+			} else if (sort === 'Old') {
+				return aPublished - bPublished;
+			} else {
+				return b.score - a.score;
+			}
+		});
+	}
+
+	return content;
+};
+
+export async function* feedLoader<T = {}, U = {}>(
+	resourceUrl: string,
+	viewKey: string | false
+): AsyncIterator<MorePage<T, U>, MorePage<T, U>> {
 	const u = new URL(location.origin + resourceUrl);
 	// assume the first page has already loaded with the page, and this is just used for additional pages.
 	// only the comments under a post start with nothing loaded, it doesn't use this loader
@@ -29,7 +81,8 @@ export async function* postLoader<T>(resourceUrl: string, viewKey: string): Asyn
 			continue;
 		}
 
-		const items = (await res.json())[viewKey];
+		const resJson = await res.json(),
+			items = viewKey ? resJson[viewKey] : [];
 
 		if (items.length === 0) {
 			endOfFeed = true;
@@ -38,7 +91,8 @@ export async function* postLoader<T>(resourceUrl: string, viewKey: string): Asyn
 		yield {
 			items,
 			error: false,
-			endOfFeed
+			endOfFeed,
+			response: resJson
 		};
 	}
 
@@ -46,5 +100,149 @@ export async function* postLoader<T>(resourceUrl: string, viewKey: string): Asyn
 		endOfFeed: true,
 		items: [],
 		error: false
+	};
+}
+
+interface PostCommentFeedLoaderOpts {
+	type: string;
+	queryUrlBase: string;
+	postViews: PostView[];
+	commentViews: CommentView[];
+}
+interface PostCommentFeed {
+	contentViews: ContentView[];
+	error: boolean;
+	endOfFeed: boolean;
+}
+export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): AsyncGenerator<PostCommentFeed> {
+	const u = new URL(location.origin + opts.queryUrlBase);
+	u.searchParams.set('type', opts.type);
+	const typeUrlBase = u.pathname + u.search;
+	// filter out already loaded items so subsequent pages don't show duplicates of pages changed
+	// since the last page load
+	const loadedIds = new Set<number>();
+
+	let postViews = [...opts.postViews],
+		commentViews = [...opts.commentViews];
+
+	const postLoader = feedLoader<PostView>(typeUrlBase, 'postViews'),
+		commentLoader = feedLoader<CommentView>(typeUrlBase, 'commentViews');
+
+	// store the first page of IDs for both types of content
+	postViews.forEach((pv) => loadedIds.add(pv.post.id));
+	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
+
+	let endOfFeed = false;
+	let contentViews = getContentViews(postViews, commentViews);
+
+	while (!endOfFeed) {
+		if (opts.type === 'Posts') {
+			const more = (await postLoader.next()).value,
+				newItems = more.items.filter((p) => !loadedIds.has(p.post.id));
+			endOfFeed = more.endOfFeed;
+
+			newItems.forEach((pv) => loadedIds.add(pv.post.id));
+
+			postViews = postViews.concat(newItems);
+			contentViews = getContentViews(postViews, []);
+			yield {
+				contentViews,
+				error: more.error,
+				endOfFeed
+			};
+		} else {
+			const more = (await commentLoader.next()).value,
+				newItems = more.items.filter((p) => !loadedIds.has(p.comment.id));
+			endOfFeed = more.endOfFeed;
+
+			newItems.forEach((pv) => loadedIds.add(pv.post.id));
+			commentViews = commentViews.concat(newItems);
+			contentViews = getContentViews([], commentViews);
+
+			yield {
+				contentViews,
+				error: more.error,
+				endOfFeed
+			};
+		}
+	}
+
+	return {
+		postViews,
+		commentViews,
+		error: false,
+		endOfFeed: true
+	};
+}
+
+interface UserFeed {
+	contentViews: ContentView[];
+	postViews: PostView[];
+	commentViews: CommentView[];
+	error: boolean;
+	endOfFeed: boolean;
+}
+export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: string }): AsyncGenerator<UserFeed> {
+	const u = new URL(location.origin + opts.queryUrlBase);
+	u.searchParams.set('type', opts.type);
+	const typeUrlBase = u.pathname + u.search;
+	// filter out already loaded items so subsequent pages don't show duplicates of pages changed
+	// since the last page load
+	const loadedIds = new Set<number>();
+
+	let postViews = [...opts.postViews],
+		commentViews = [...opts.commentViews];
+	const userDataLoader = feedLoader<{}, { postViews: PostView[]; commentViews: CommentView[] }>(typeUrlBase, false);
+
+	// store the first page of IDs for both types of content
+	postViews.forEach((pv) => loadedIds.add(pv.post.id));
+	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
+
+	let endOfFeed = false;
+	let contentViews: ContentView[];
+
+	function updateContentViews() {
+		return getContentViews(postViews, commentViews, opts.type, opts.sort);
+	}
+	contentViews = updateContentViews();
+
+	// yield without loading anything once, so contentViews gets sorted
+	yield {
+		contentViews,
+		error: false,
+		endOfFeed,
+		postViews,
+		commentViews
+	};
+
+	while (!endOfFeed) {
+		const more = (await userDataLoader.next()).value,
+			newPosts = more.response?.postViews.filter((p) => !loadedIds.has(p.post.id)),
+			newComments = more.response?.commentViews.filter((p) => !loadedIds.has(p.comment.id));
+		endOfFeed = more.endOfFeed;
+
+		newPosts?.forEach((pv) => loadedIds.add(pv.post.id));
+		newComments?.forEach((pv) => loadedIds.add(pv.comment.id));
+
+		postViews = postViews.concat(newPosts || []);
+		commentViews = commentViews.concat(newComments || []);
+
+		contentViews = updateContentViews();
+
+		yield {
+			contentViews,
+			error: more.error,
+			endOfFeed,
+			postViews,
+			commentViews
+		};
+	}
+
+	return {
+		contentViews,
+		error: false,
+		endOfFeed: true,
+		postViews,
+		commentViews
 	};
 }

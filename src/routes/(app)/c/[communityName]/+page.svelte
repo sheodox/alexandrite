@@ -2,7 +2,7 @@
 	settings={data.settings}
 	on:more={more}
 	feedType="community"
-	postViews={data.posts}
+	{contentViews}
 	siteView={data.site.site_view}
 	communityView={data.communityView}
 	moderators={data.moderators}
@@ -10,36 +10,51 @@
 	selectedType={data.query.type}
 	selectedListing={data.query.listing}
 	selectedSort={data.query.sort}
-	{loadingPosts}
-	{loadingPostsFailed}
+	{loadingContent}
+	{loadingContentFailed}
+	on:update-post-view={updatePostView}
 />
 
 <script lang="ts">
 	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
-	import { postLoader } from '$lib/post-loader.js';
+	import { postCommentFeedLoader, getContentViews } from '$lib/post-loader.js';
 
 	export let data;
-	const loader = postLoader<PostView>(
-		`/api/posts?communityName=${data.communityName}&type=${data.query.type}&listing=${data.query.listing}&sort=${data.query.sort}`,
-		'posts'
-	);
-	let loadingPosts = false,
-		loadingPostsFailed = false,
+	let contentViews = getContentViews(data.postViews, data.commentViews, data.query.sort);
+
+	const loader = postCommentFeedLoader({
+		queryUrlBase: `/api/feed?listing=${data.query.listing}&sort=${data.query.sort}&communityName=${data.communityName}`,
+		type: data.query.type,
+		postViews: data.postViews,
+		commentViews: data.commentViews
+	});
+
+	let loadingContent = false,
+		loadingContentFailed = false,
 		endOfFeed = false;
 
 	async function more() {
-		if (endOfFeed || loadingPosts) {
+		if (endOfFeed || loadingContent) {
 			return;
 		}
-		loadingPosts = true;
+		loadingContent = true;
 
-		const more = (await loader.next()).value;
-		loadingPostsFailed = more.error;
-		endOfFeed = more.endOfFeed;
+		const feedData = (await loader.next()).value;
+		loadingContentFailed = feedData.error;
+		endOfFeed = feedData.endOfFeed;
+		contentViews = feedData.contentViews;
 
-		data.posts = [...data.posts, ...more.items.filter((p) => !data.posts.some((p2) => p2.post.id === p.post.id))];
+		loadingContent = false;
+	}
 
-		loadingPosts = false;
+	function updatePostView(e: CustomEvent<PostView>) {
+		const pv = e.detail;
+		for (const ct of contentViews) {
+			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
+				ct.postView = pv;
+			}
+		}
+		contentViews = contentViews;
 	}
 </script>

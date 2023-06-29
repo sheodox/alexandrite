@@ -22,9 +22,12 @@
 		<div class="ml-6 mb-1">
 			<Breadcrumbs {links} />
 		</div>
-		<Post {postView} mode="show" on:update-post-view>
+		<Post {postView} mode="show" on:update-post-view {showPost}>
 			<Stack dir="r" slot="beforeEmbed">
-				<a href="#comments" class="button tertiary"><Icon icon="comments" iconVariant="regular" />To Comments</a>
+				<a href="#comments" class="button tertiary"><Icon icon="chevron-down" />To Comments</a>
+				<button class="tertiary" on:click={() => (showPost = !showPost)}
+					><Icon icon="comments" iconVariant="regular" />{showPost ? 'Hide' : 'Show'} Content</button
+				>
 			</Stack>
 		</Post>
 
@@ -42,7 +45,6 @@
 							}}
 							use:enhance={addCommentEnhance}
 							method="POST"
-							class="p-2"
 						>
 							<CommentEditor submitting={submittingComment} />
 						</form>
@@ -58,8 +60,23 @@
 			</Stack>
 		</section>
 
+		{#if viewingSingleCommentThread}
+			<Stack dir="r" gap={2} align="center" cl="p-4">
+				<a href="/post/{postView.post.id}" class="button secondary"
+					><Icon icon="arrow-up-from-bracket" variant="icon-only" />
+					View all comments
+				</a>
+				{#if rootComment && commentContextId !== rootComment.comment.id}
+					<a href="/comment/{commentContextId}" class="button secondary">
+						Parent comment
+						<Icon icon="turn-up" variant="icon-only" />
+					</a>
+				{/if}
+			</Stack>
+		{/if}
 		{#if commentViews}
 			<CommentTree
+				{rootCommentId}
 				{commentViews}
 				postOP={postView.creator.actor_id}
 				on:more={loadNextCommentPage}
@@ -68,14 +85,16 @@
 				on:update-comment={onUpdateComment}
 			/>
 		{/if}
-		<InfiniteFeed
-			on:more={loadNextCommentPage}
-			endOfFeed={endOfCommentsFeed}
-			loadMoreFailed={commentLoadFailed}
-			loading={loadingComments}
-			feedEndMessage="No more comments"
-			feedEndIcon="comment-slash"
-		/>
+		{#if !viewingSingleCommentThread}
+			<InfiniteFeed
+				on:more={loadNextCommentPage}
+				endOfFeed={endOfCommentsFeed}
+				loadMoreFailed={commentLoadFailed}
+				loading={loadingComments}
+				feedEndMessage="No more comments"
+				feedEndIcon="comment-slash"
+			/>
+		{/if}
 	</article>
 	<aside>
 		<CommunitySidebar community={postView.community} />
@@ -96,16 +115,23 @@
 	import CommentEditor from './CommentEditor.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { getAppContext } from './app-context';
-	import { nameAtInstance } from './nav-utils';
+	import { getCommentContextId, nameAtInstance } from './nav-utils';
 
 	export let postView: PostView;
+	export let commentViews: CommentView[] = [];
+	export let rootCommentId: null | number = null;
+	$: viewingSingleCommentThread = rootCommentId !== null;
+	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
+	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
+
 	const { loggedIn } = getAppContext();
-	let commentViews: CommentView[],
-		selectedSort = 'Hot';
 
 	let commentsPageNum = 1,
+		selectedSort = 'Hot',
 		loadingComments = false,
-		showCommentComposer = true,
+		// assume if they came here following a comment link, commenting on the post is less important
+		showCommentComposer = rootCommentId === null,
+		showPost = rootCommentId === null,
 		commentLoadFailed = false,
 		endOfCommentsFeed = false,
 		submittingComment = false;
@@ -187,6 +213,11 @@
 	}
 
 	async function loadNextCommentPage() {
+		// when viewing a single comment thread, we don't want to load more comments
+		if (viewingSingleCommentThread) {
+			return;
+		}
+
 		const { comments, busy, error } = await loadComments(
 			`/api/posts/${postView.post.id}/comments?page=${commentsPageNum++}&sort=${selectedSort}`
 		);

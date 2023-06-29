@@ -1,19 +1,21 @@
+import { loadFeedData } from '$lib/feed-query';
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ params, url, locals }) => {
+export const load = (async ({ params, url, locals, cookies }) => {
 	const username = params.username;
-	const selectedType = url.searchParams.get('type') || 'Posts';
-	const selectedSort = url.searchParams.get('sort') || 'New';
 
+	const details = await locals.client.getPersonDetails({
+		username,
+		auth: locals.jwt
+	});
 	return {
-		query: {
-			type: selectedType,
-			// no listing when viewing a single user
-			listing: '',
-			sort: selectedSort
-		},
-		...(await locals.client.getPersonDetails({
+		personView: details.person_view,
+		moderates: details.moderates,
+		...(await loadFeedData({
+			cookies,
 			username,
+			searchParams: url.searchParams,
+			client: locals.client,
 			auth: locals.jwt
 		}))
 	};

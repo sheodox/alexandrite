@@ -21,7 +21,7 @@
 		<span>{creatorName}</span>
 	</div>
 	<a href="/u/{creatorName}" class="inline-link" data-sveltekit-preload-data="off"
-		><NameAtInstance place={user} prefix="" /></a
+		><NameAtInstance place={user} displayName={user.display_name} prefix="" /></a
 	>
 </Tooltip>
 

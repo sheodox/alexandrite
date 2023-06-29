@@ -1,16 +1,17 @@
 <PostsPage
 	settings={data.settings}
 	on:more={more}
+	on:update-post-view={updatePostView}
 	feedType="user"
-	postViews={data.posts}
+	contentViews={filterContentType(contentViews, data.query.type)}
 	siteView={data.site.site_view}
-	personView={data.person_view}
+	personView={data.personView}
 	{endOfFeed}
 	selectedType={data.query.type}
 	selectedListing={data.query.listing}
 	selectedSort={data.query.sort}
-	{loadingPosts}
-	{loadingPostsFailed}
+	{loadingContent}
+	{loadingContentFailed}
 >
 	<div slot="sidebar">
 		<article>
@@ -44,47 +45,83 @@
 <script lang="ts">
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import { Stack, Icon } from 'sheodox-ui';
-	import type { PostView } from 'lemmy-js-client';
 	import CommunityLink from '$lib/CommunityLink.svelte';
-	import { postLoader } from '$lib/post-loader.js';
+	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
+	import { onMount } from 'svelte';
+	import { nameAtInstance } from '$lib/nav-utils.js';
 
 	export let data;
 
-	const loader = postLoader<PostView>(
-		`/api/posts?username=${data.person_view.person.name}&type=${data.query.type}&listing=${data.query.listing}&sort=${data.query.sort}`,
-		'posts'
-	);
-	let loadingPosts = false,
-		loadingPostsFailed = false,
+	const userUsername = nameAtInstance(data.personView.person),
+		loader = userFeedLoader({
+			postViews: data.postViews,
+			commentViews: data.commentViews,
+			queryUrlBase: `/api/feed?username=${userUsername}&type=${data.query.type}&listing=${data.query.listing}&sort=${data.query.sort}`,
+			sort: data.query.sort,
+			type: data.query.type
+		});
+
+	let contentViews = getContentViews(data.postViews, data.commentViews, data.query.type, data.query.sort);
+
+	let loadingContent = false,
+		loadingContentFailed = false,
 		endOfFeed = false;
 
+	function filterContentType(cv: ContentView[], type: string) {
+		// overview shows both types
+		if (type === 'Overview') {
+			return cv;
+		} else if (type === 'Comments') {
+			return cv.filter((content) => content.type === 'comment');
+		} else {
+			// post and saved only shows posts
+			return cv.filter((content) => content.type === 'post');
+		}
+	}
+
 	async function more() {
-		if (endOfFeed || loadingPosts) {
+		if (endOfFeed || loadingContent) {
 			return;
 		}
-		loadingPosts = true;
+		loadingContent = true;
 
 		const more = (await loader.next()).value;
-		loadingPostsFailed = more.error;
+		loadingContentFailed = more.error;
+		contentViews = more.contentViews;
 		endOfFeed = more.endOfFeed;
 
-		data.posts = [...data.posts, ...more.items.filter((p) => !data.posts.some((p2) => p2.post.id === p.post.id))];
-
-		loadingPosts = false;
+		loadingContent = false;
 	}
 
 	const counts = [
 		{
 			label: 'Posts',
-			score: data.person_view.counts.post_score,
-			count: data.person_view.counts.post_count,
+			score: data.personView.counts.post_score,
+			count: data.personView.counts.post_count,
 			icon: 'file-lines'
 		},
 		{
 			label: 'Comments',
-			score: data.person_view.counts.comment_score,
-			count: data.person_view.counts.comment_count,
+			score: data.personView.counts.comment_score,
+			count: data.personView.counts.comment_count,
 			icon: 'comments'
 		}
 	];
+
+	onMount(() => {
+		// the loader yields once before actuallly requesting stuff,
+		// use this to allow the loader to merge/sort posts, which is required
+		// for the Overview, as we need to manually merge posts and comments
+		more();
+	});
+
+	function updatePostView(e: CustomEvent<PostView>) {
+		const pv = e.detail;
+		for (const ct of contentViews) {
+			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
+				ct.postView = pv;
+			}
+		}
+		contentViews = contentViews;
+	}
 </script>

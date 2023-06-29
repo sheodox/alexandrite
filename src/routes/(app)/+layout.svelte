@@ -13,6 +13,10 @@
 
 <Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen>
 	<div slot="headerEnd" class="f-row align-items-center">
+		<IconButton text="Unread" {placement} icon="bell" cl="{unreadTotal > 0 ? 'sx-badge-orange' : ''} p-2"
+			>{unreadTotal}</IconButton
+		>
+
 		<Tooltip placement="bottom">
 			<div slot="tooltip">
 				{#if lemmySettings}
@@ -24,7 +28,7 @@
 					</ul>
 				{/if}
 			</div>
-			<span class="sx-badge-cyan">
+			<span class="sx-badge-gray">
 				{instanceText}
 			</span>
 		</Tooltip>
@@ -74,15 +78,20 @@
 <script lang="ts">
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { Sidebar, Header, Icon, Tooltip } from 'sheodox-ui';
+	import { onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
+	import type { GetUnreadCountResponse } from 'lemmy-js-client';
+	import IconButton from '$lib/IconButton.svelte';
+
 	export let data;
 
 	const placement = 'bottom-end';
 
-	let loading = false;
+	let loading = false,
+		unreadTotal = 0;
 
 	beforeNavigate(() => {
 		loading = true;
@@ -111,4 +120,16 @@
 		Object.entries(data.lemmySettings).map(([label, value]) => {
 			return { label: label.replaceAll('_', ' '), value };
 		});
+
+	onMount(async () => {
+		if (!data.loggedIn) {
+			return;
+		}
+		const res = await fetch('/api/me/unread');
+
+		if (res.ok) {
+			const unread: GetUnreadCountResponse = await res.json();
+			unreadTotal = unread.replies + unread.mentions + unread.private_messages;
+		}
+	});
 </script>

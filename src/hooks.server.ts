@@ -11,7 +11,7 @@ export const handle = (async ({ event, resolve }) => {
 
 	event.locals.jwt = event.cookies.get('jwt') ?? '';
 
-	if (event.url.pathname === '/' && !instance) {
+	if ((event.url.pathname === '/' || event.route.id?.startsWith('/(app)')) && !instance) {
 		throw redirect(303, '/instance');
 	}
 

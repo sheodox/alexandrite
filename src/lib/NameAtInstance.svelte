@@ -2,9 +2,10 @@
 
 <script lang="ts">
 	export let place: NamedThing;
+	export let displayName = '';
 	export let prefix: string; // @, !, /m/ etc
 
-	$: name = place.name;
+	$: name = displayName || place.name;
 	$: instance = getInstance(place);
 
 	interface NamedThing {

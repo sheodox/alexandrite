@@ -1,10 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import type { CommentSortType, PostView } from 'lemmy-js-client';
-
-export interface ApiPostsRes {
-	posts: PostView[];
-}
+import type { CommentSortType } from 'lemmy-js-client';
 
 export const GET = (async ({ url, params, locals }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');

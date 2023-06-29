@@ -44,11 +44,11 @@
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
 	import InfiniteFeed from '$lib/feeds/posts/InfiniteFeed.svelte';
 	import type { CommunityView } from 'lemmy-js-client';
-	import { postLoader } from '$lib/post-loader';
+	import { feedLoader } from '$lib/post-loader';
 
 	export let data;
 
-	const loader = postLoader<CommunityView>(
+	const loader = feedLoader<CommunityView>(
 		`/api/communities?listing=${data.query.listing}&sort=${data.query.sort}`,
 		'communities'
 	);

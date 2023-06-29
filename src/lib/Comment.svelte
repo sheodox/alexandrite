@@ -4,7 +4,7 @@
 		margin-bottom: 0.4rem;
 	}
 	.comment-content :global(:last-child) {
-		margin: 0;
+		margin-bottom: 0;
 	}
 	.comment-content,
 	.reply-editor {
@@ -25,17 +25,28 @@
 <section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
 		<Stack gap={1} dir="r" align="center">
-			<Tooltip>
-				<span slot="tooltip">{collapseMsg}</span>
-				<button on:click={() => dispatch('collapse')} class="tertiary small m-0 mr-1">
-					<Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} variant="icon-only" />
-					<span class="sr-only">{collapseMsg}</span>
-				</button>
-			</Tooltip>
+			{#if !showPost}
+				<Tooltip>
+					<span slot="tooltip">{collapseMsg}</span>
+					<button on:click={() => dispatch('collapse')} class="tertiary small m-0 mr-1">
+						<Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} variant="icon-only" />
+						<span class="sr-only">{collapseMsg}</span>
+					</button>
+				</Tooltip>
+			{/if}
 			<UserLink user={commentView.creator} />
 			<UserBadges user={commentView.creator} {postOP} />
+			{#if showPost}
+				to <CommunityLink community={commentView.community} />
+				<span class="muted"> &centerdot; </span>
+				<a href="/post/{commentView.post.id}" class="inline-link" title={commentView.post.name}>
+					<EllipsisText>{commentView.post.name}</EllipsisText>
+				</a>
+			{/if}
 			<span class="muted"> &centerdot; </span>
-			<RelativeTime date={commentView.comment.published} />
+			<a href="/comment/{commentView.comment.id}">
+				<RelativeTime date={commentView.comment.published} />
+			</a>
 			{#if commentView.comment.updated && commentView.comment.updated !== commentView.comment.published}
 				<RelativeTime date={commentView.comment.updated} variant="icon" icon="edit" verb="Edited" />
 			{/if}
@@ -57,6 +68,7 @@
 					on:vote={vote}
 					{votePending}
 				/>
+				<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" small />
 				{#if maybeDeleting}
 					<button class="danger small sx-font-size-2" on:click={() => deleteComment(true)} disabled={someActionPending}
 						>Delete</button
@@ -158,11 +170,15 @@
 	import LogButton from './LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
 	import IconButton from './IconButton.svelte';
+	import IconLink from './IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';
+	import CommunityLink from './CommunityLink.svelte';
+	import EllipsisText from '$lib/EllipsisText.svelte';
+	import { getCommentContextId } from './nav-utils';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
@@ -173,6 +189,7 @@
 	export let commentView: CommentView;
 	export let postOP: string;
 	export let collapsed = false;
+	export let showPost = false;
 
 	const { loggedIn, username } = getAppContext();
 
@@ -189,6 +206,7 @@
 		showReplyComposer || showCommentEdit || deletePending || votePending || submittingReply || submittingEdit;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
+	$: contextCommentId = getCommentContextId(commentView);
 
 	const commentReplySubmit: SubmitFunction<{ commentView: CommentView }> = () => {
 		return async ({ update, result }) => {

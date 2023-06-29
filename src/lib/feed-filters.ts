@@ -16,24 +16,31 @@ export const NormalFeedTypeOptions = [
 		label: 'Comments'
 	}
 ];
-export const UserFeedTypeOptions = [
-	{
-		value: 'Overview',
-		label: 'Overview'
-	},
-	{
-		value: 'Comments',
-		label: 'Comments'
-	},
-	{
-		value: 'Posts',
-		label: 'Posts'
-	},
-	{
-		value: 'Saved',
-		label: 'Saved'
-	}
-];
+export const UserFeedTypeOptions = (isMe: boolean) => {
+	const baseTypes = [
+		{
+			value: 'Overview',
+			label: 'Overview'
+		},
+		{
+			value: 'Comments',
+			label: 'Comments'
+		},
+		{
+			value: 'Posts',
+			label: 'Posts'
+		}
+	];
+	return !isMe
+		? baseTypes
+		: [
+				...baseTypes,
+				{
+					value: 'Saved',
+					label: 'Saved'
+				}
+		  ];
+};
 
 export const ListingOptions = (loggedIn: boolean) => [
 	{
@@ -75,6 +82,61 @@ export const PostSortOptions = [
 	{
 		value: 'NewComments',
 		label: 'New Comments'
+	},
+	{
+		value: 'TopHour',
+		label: 'Top Hour'
+	},
+	{
+		value: 'TopSixHour',
+		label: 'Top Six Hours'
+	},
+	{
+		value: 'TopTwelveHour',
+		label: 'Top Twelve Hours'
+	},
+	{
+		value: 'TopDay',
+		label: 'Top Day'
+	},
+	{
+		value: 'TopWeek',
+		label: 'Top Week'
+	},
+	{
+		value: 'TopMonth',
+		label: 'Top Month'
+	},
+	{
+		value: 'TopYear',
+		label: 'Top Year'
+	},
+	{
+		value: 'TopAll',
+		label: 'Top All Time'
+	}
+];
+
+export const CommentFeedSortOptions = [
+	{
+		value: 'New',
+		label: 'New'
+	},
+	{
+		value: 'Old',
+		label: 'Old'
+	},
+	{
+		value: 'TopHour',
+		label: 'Top Hour'
+	},
+	{
+		value: 'TopSixHour',
+		label: 'Top Six Hours'
+	},
+	{
+		value: 'TopTwelveHour',
+		label: 'Top Twelve Hours'
 	},
 	{
 		value: 'TopDay',
@@ -125,6 +187,18 @@ export const UserSortOptions = [
 	{
 		value: 'Old',
 		label: 'Old'
+	},
+	{
+		value: 'TopHour',
+		label: 'Top Hour'
+	},
+	{
+		value: 'TopSixHour',
+		label: 'Top Six Hours'
+	},
+	{
+		value: 'TopTwelveHour',
+		label: 'Top Twelve Hours'
 	},
 	{
 		value: 'TopDay',

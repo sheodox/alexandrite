@@ -85,6 +85,25 @@
 	export let commentViews: CommentView[];
 	export let path = '0';
 	export let nestedLevel = 0;
+	export let rootCommentId: number | null = null;
+
+	$: rootPath = getRootPath(rootCommentId, path);
+
+	function getRootPath(rootId: number | null, path: string) {
+		if (rootCommentId === null) {
+			return path;
+		}
+
+		const rootCV = commentViews.find((cv) => cv.comment.id === rootId);
+
+		if (rootCV) {
+			const rootPath = rootCV.comment.path.split('.');
+			rootPath.pop();
+			return rootPath.join('.');
+		}
+
+		return '0';
+	}
 
 	// each
 	function getBranches(path: string, commentViews: CommentView[] = []): CommentBranch[] {
@@ -97,5 +116,5 @@
 			});
 	}
 
-	$: commentTree = getBranches(path, commentViews);
+	$: commentTree = getBranches(rootPath, commentViews);
 </script>

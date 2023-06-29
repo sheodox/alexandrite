@@ -25,7 +25,7 @@
 				{/if}
 			</div>
 			<span>
-				<NameAtInstance place={displayCommunity} prefix="" />
+				<EllipsisText><NameAtInstance place={displayCommunity} prefix="" /></EllipsisText>
 				<CommunityBadges {community} />
 			</span>
 		</Tooltip>
@@ -39,7 +39,7 @@
 				{/if}
 			</div>
 			<span>
-				{displayCommunity.name}
+				<NameAtInstance place={displayCommunity} prefix="!" />
 			</span>
 		</Stack>
 	{/if}
@@ -52,6 +52,7 @@
 	import CommunityBadges from './feeds/posts/CommunityBadges.svelte';
 	import type { Community } from 'lemmy-js-client';
 	import NameAtInstance from './NameAtInstance.svelte';
+	import EllipsisText from './EllipsisText.svelte';
 
 	export let community: Community;
 	export let inlineLink = true;

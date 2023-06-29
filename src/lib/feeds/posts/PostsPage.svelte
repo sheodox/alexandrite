@@ -18,16 +18,17 @@
 		<PostFeed
 			{settings}
 			{feedType}
-			{postViews}
+			{contentViews}
 			on:more
 			on:update-post-view
 			on:overlay={onOverlay}
 			{endOfFeed}
+			{isMyFeed}
 			{selectedSort}
 			{selectedListing}
 			{selectedType}
-			{loadingPosts}
-			{loadingPostsFailed}
+			{loadingContent}
+			{loadingContentFailed}
 		/>
 	</div>
 
@@ -56,12 +57,14 @@
 	import UserHeader from './UserHeader.svelte';
 	import type { FeedType } from '$lib/feed-filters';
 	import type { Settings } from '../../../app';
+	import { getAppContext } from '$lib/app-context';
+	import type { ContentView } from '$lib/post-loader';
 
 	export let feedType: FeedType;
 	export let settings: Settings;
-	export let postViews: PostView[];
-	export let loadingPosts: boolean;
-	export let loadingPostsFailed: boolean;
+	export let contentViews: ContentView[];
+	export let loadingContent: boolean;
+	export let loadingContentFailed: boolean;
 	export let siteView: SiteView;
 	export let communityView: CommunityView | null = null;
 	export let moderators: CommunityModeratorView[] | null = null;
@@ -71,10 +74,17 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
+	const { username } = getAppContext();
+
+	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
+
 	let overlayPost: null | PostView;
 
 	async function onOverlay(e: CustomEvent<number>) {
-		overlayPost = postViews.find((p) => p.post.id === e.detail) ?? null;
+		overlayPost = contentViews.reduce((found, p) => {
+			const post = p.type === 'post' && p.postView.post.id === e.detail ? p.postView : null;
+			return found ? found : post;
+		}, null as PostView | null);
 	}
 
 	function closeOverlay() {

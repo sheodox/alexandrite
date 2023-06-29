@@ -1,25 +1,21 @@
 import type { PageServerLoad } from './$types';
-import type { ApiPostsRes } from '../../api/posts/+server';
 import type { Actions } from './$types';
+import { loadFeedData } from '$lib/feed-query';
 
-export const load = (async ({ fetch, params, url, locals }) => {
-	const community = params.communityName;
-	const selectedType = url.searchParams.get('type') || '';
-	const selectedListing = url.searchParams.get('listing') || '';
-	const selectedSort = url.searchParams.get('sort') || '';
-
-	const { posts, query }: ApiPostsRes = await fetch(
-		`/api/posts?page=1&communityName=${community}&type=${selectedType}&listing=${selectedListing}&sort=${selectedSort}`
-	).then((res) => res.json());
-
+export const load = (async ({ cookies, url, locals, params }) => {
 	const cv = await locals.client.getCommunity({
-		name: community,
+		name: params.communityName,
 		auth: locals.jwt
 	});
 
 	return {
-		posts,
-		query,
+		...(await loadFeedData({
+			auth: locals.jwt,
+			searchParams: url.searchParams,
+			communityName: params.communityName,
+			client: locals.client,
+			cookies
+		})),
 		communityName: params.communityName,
 		communityView: cv.community_view,
 		moderators: cv.moderators
@@ -27,7 +23,7 @@ export const load = (async ({ fetch, params, url, locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	subscription: async ({ locals, request, params }) => {
+	subscription: async ({ locals, request }) => {
 		const body = Object.fromEntries(await request.formData()),
 			// if pending or subbed, follow must be false to unfollow
 			follow = body.subscribed === 'NotSubscribed';
