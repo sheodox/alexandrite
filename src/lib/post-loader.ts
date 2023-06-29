@@ -133,7 +133,6 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
 
 	let endOfFeed = false;
-	let contentViews = getContentViews(postViews, commentViews);
 
 	while (!endOfFeed) {
 		if (opts.type === 'Posts') {
@@ -143,10 +142,8 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 
 			newItems.forEach((pv) => loadedIds.add(pv.post.id));
 
-			postViews = postViews.concat(newItems);
-			contentViews = getContentViews(postViews, []);
 			yield {
-				contentViews,
+				contentViews: getContentViews(newItems, []),
 				error: more.error,
 				endOfFeed
 			};
@@ -156,11 +153,9 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 			endOfFeed = more.endOfFeed;
 
 			newItems.forEach((pv) => loadedIds.add(pv.post.id));
-			commentViews = commentViews.concat(newItems);
-			contentViews = getContentViews([], commentViews);
 
 			yield {
-				contentViews,
+				contentViews: getContentViews([], newItems),
 				error: more.error,
 				endOfFeed
 			};
@@ -168,8 +163,8 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 	}
 
 	return {
-		postViews,
-		commentViews,
+		postViews: [],
+		commentViews: [],
 		error: false,
 		endOfFeed: true
 	};
@@ -199,21 +194,6 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
 
 	let endOfFeed = false;
-	let contentViews: ContentView[];
-
-	function updateContentViews() {
-		return getContentViews(postViews, commentViews, opts.type, opts.sort);
-	}
-	contentViews = updateContentViews();
-
-	// yield without loading anything once, so contentViews gets sorted
-	yield {
-		contentViews,
-		error: false,
-		endOfFeed,
-		postViews,
-		commentViews
-	};
 
 	while (!endOfFeed) {
 		const more = (await userDataLoader.next()).value,
@@ -224,13 +204,8 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 		newPosts?.forEach((pv) => loadedIds.add(pv.post.id));
 		newComments?.forEach((pv) => loadedIds.add(pv.comment.id));
 
-		postViews = postViews.concat(newPosts || []);
-		commentViews = commentViews.concat(newComments || []);
-
-		contentViews = updateContentViews();
-
 		yield {
-			contentViews,
+			contentViews: getContentViews(newPosts || [], newComments || [], opts.type, opts.sort),
 			error: more.error,
 			endOfFeed,
 			postViews,
@@ -239,7 +214,7 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 	}
 
 	return {
-		contentViews,
+		contentViews: [],
 		error: false,
 		endOfFeed: true,
 		postViews,

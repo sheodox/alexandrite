@@ -88,7 +88,7 @@
 
 		const more = (await loader.next()).value;
 		loadingContentFailed = more.error;
-		contentViews = more.contentViews;
+		contentViews = contentViews.concat(more.contentViews);
 		endOfFeed = more.endOfFeed;
 
 		loadingContent = false;
@@ -109,18 +109,11 @@
 		}
 	];
 
-	onMount(() => {
-		// the loader yields once before actuallly requesting stuff,
-		// use this to allow the loader to merge/sort posts, which is required
-		// for the Overview, as we need to manually merge posts and comments
-		more();
-	});
-
 	function updatePostView(e: CustomEvent<PostView>) {
 		const pv = e.detail;
 		for (const ct of contentViews) {
 			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
-				Object.assign(ct.postView, pv);
+				ct.postView = pv;
 			}
 		}
 		contentViews = contentViews;

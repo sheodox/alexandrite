@@ -39,7 +39,7 @@
 				{/if}
 			</div>
 			<span>
-				<NameAtInstance place={displayCommunity} prefix="!" />
+				<NameAtInstance place={displayCommunity} prefix="" />
 			</span>
 		</Stack>
 	{/if}

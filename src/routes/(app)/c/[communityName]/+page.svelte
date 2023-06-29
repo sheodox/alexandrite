@@ -43,7 +43,7 @@
 		const feedData = (await loader.next()).value;
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
-		contentViews = feedData.contentViews;
+		contentViews = contentViews.concat(feedData.contentViews);
 
 		loadingContent = false;
 	}
@@ -52,7 +52,7 @@
 		const pv = e.detail;
 		for (const ct of contentViews) {
 			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
-				Object.assign(ct.postView, pv);
+				ct.postView = pv;
 			}
 		}
 		contentViews = contentViews;
