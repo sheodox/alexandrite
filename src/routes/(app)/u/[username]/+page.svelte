@@ -49,6 +49,7 @@
 	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
 	import { onMount } from 'svelte';
 	import { nameAtInstance } from '$lib/nav-utils.js';
+	import type { PostView } from 'lemmy-js-client';
 
 	export let data;
 
@@ -119,7 +120,7 @@
 		const pv = e.detail;
 		for (const ct of contentViews) {
 			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
-				ct.postView = pv;
+				Object.assign(ct.postView, pv);
 			}
 		}
 		contentViews = contentViews;

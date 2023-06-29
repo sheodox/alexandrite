@@ -49,7 +49,7 @@
 		const pv = e.detail;
 		for (const ct of contentViews) {
 			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
-				ct.postView = pv;
+				Object.assign(ct.postView, pv);
 			}
 		}
 		contentViews = contentViews;
