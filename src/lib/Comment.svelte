@@ -1,5 +1,8 @@
 <style>
-	.comment-content :global(:not(:last-of-type)) {
+	.comment-content :global(:first-child) {
+		margin-top: 0;
+	}
+	.comment-content :global(:not(:last-child)) {
 		margin-top: 0;
 		margin-bottom: 0.4rem;
 	}
