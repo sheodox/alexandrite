@@ -1,17 +1,24 @@
 <style lang="scss">
+	$sidebarWidth: 30rem;
+
 	aside {
 		background-color: var(--sx-gray-800);
-		width: 30rem;
+		width: #{$sidebarWidth};
 		padding: 1rem;
 		overflow: auto;
+		position: fixed;
+		top: 0;
+		padding-top: 50px;
+		height: 100vh;
+		right: 0;
 	}
-	.posts-page {
-		background-color: var(--sx-gray-800);
+	.posts-page-content {
+		width: calc(100% - #{$sidebarWidth});
 	}
 </style>
 
-<div class="f-row f-1 posts-page">
-	<div class="f-1">
+<div class="f-1 posts-page">
+	<div class="posts-page-content">
 		{#if communityView}
 			<CommunityHeader {communityView} />
 		{/if}

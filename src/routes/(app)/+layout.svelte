@@ -9,9 +9,12 @@
 		inset: 0;
 		background: var(--sx-gray-transparent-dark);
 	}
+	.root-layout-content {
+		margin-top: 45px;
+	}
 </style>
 
-<Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen>
+<Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
 	<div slot="headerEnd" class="f-row align-items-center">
 		{#if data.loggedIn}
 			<IconLink
@@ -60,7 +63,7 @@
 	</div>
 </Header>
 
-<div class="f-row f-1">
+<div class="f-row f-1 root-layout-content">
 	<Sidebar bind:menuOpen docked>
 		<div slot="header" class="f-row align-items-center">
 			<!-- <Logo /> -->
