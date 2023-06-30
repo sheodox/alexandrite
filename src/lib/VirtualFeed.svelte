@@ -23,19 +23,10 @@
 	}
 </style>
 
-<div class="virtual-feed-root" bind:this={rootEl}>
-	<div
-		class="virtual-feed"
-		style:transform="translateY({feedTopTranslate}px)"
-		data-virtual-feed-size={feedSize}
-		bind:this={rootEl}
-	>
+<div class="virtual-feed-root">
+	<div class="virtual-feed" style:transform="translateY({feedTopTranslate}px)" data-virtual-feed-size={feedSize}>
 		<div bind:this={topEl} class="virtual-feed-sensor top" />
-		<div
-			class="virtual-feed-content"
-			data-virtual-feed-rendered-count={visibleIndices.length}
-			bind:this={feedContentEl}
-		>
+		<div class="virtual-feed-content" data-virtual-feed-rendered-count={visibleIndices.length}>
 			{#each visibleIndices as index (index)}
 				<div use:observeFeedElement={index} data-virtual-feed-content-index={index}>
 					<slot {index} />
@@ -82,8 +73,6 @@
 	// the size of the scroll area when scrolling back up, so the scrollbar
 	// doesn't shrink as you scroll up
 	let feedMaxHeight = 0;
-	let rootEl: HTMLElement;
-	let feedContentEl: HTMLElement;
 	let topEl: HTMLElement;
 	let bottomEl: HTMLElement;
 	// observers above/below the rendered elements in the feed to detect the direction
@@ -143,7 +132,7 @@
 
 	function safeSetTopIndex(newIndex: number) {
 		// clamp to valid values
-		topRenderedIndex = Math.min(feedSize - minRenderedItems, Math.max(0, newIndex));
+		topRenderedIndex = Math.min(Math.max(0, feedSize - minRenderedItems), Math.max(0, newIndex));
 	}
 
 	function shiftViewport(dir: number) {
