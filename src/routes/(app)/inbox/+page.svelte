@@ -26,7 +26,11 @@
 			</Comment>
 		{:else}
 			<PrivateMessage privateMessageView={content.view}>
-				<InboxReadButton {content} slot="actions-start" />
+				<svelte:fragment slot="actions-start" let:toMe>
+					{#if toMe}
+						<InboxReadButton {content} />
+					{/if}
+				</svelte:fragment>
 			</PrivateMessage>
 		{/if}
 		{#if i + 1 < contentViews.length}
@@ -42,7 +46,6 @@
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/Comment.svelte';
-	import IconButton from '$lib/IconButton.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
 	import FeedBanner from '$lib/feeds/posts/FeedBanner.svelte';
 	import { enhance } from '$app/forms';

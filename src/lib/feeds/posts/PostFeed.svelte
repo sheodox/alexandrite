@@ -2,9 +2,12 @@
 	hr {
 		border-color: var(--sx-gray-transparent-light);
 	}
+	.post-feed {
+		background-color: var(--sx-gray-700);
+	}
 </style>
 
-<div class="py-1">
+<div class="post-feed py-1">
 	<Stack dir="column" gap={1}>
 		<form method="GET" data-sveltekit-replacestate>
 			<section>
@@ -29,34 +32,37 @@
 		</form>
 
 		<Stack dir="c" gap={2} cl="p-4">
-			{#each contentViews as contentView, i}
-				{#if contentView.type === 'post'}
-					<Post postView={contentView.postView} on:overlay on:update-post-view />
-				{:else if contentView.type === 'comment'}
-					<Comment commentView={contentView.commentView} showPost postOP="" />
-				{/if}
-				{#if i + 1 < contentViews.length}
-					<hr class="w-100" />
-				{/if}
-			{/each}
+			<VirtualFeed
+				feedSize={contentViews.length}
+				on:more
+				{endOfFeed}
+				feedEndIcon="file-circle-xmark"
+				feedEndMessage="No more posts!"
+				loading={loadingContent}
+				loadMoreFailed={loadingContentFailed}
+			>
+				<svelte:fragment let:index>
+					{@const contentView = contentViews[index]}
+					<!-- {#each contentViews as contentView, i} -->
+					{#if contentView.type === 'post'}
+						<Post postView={contentView.postView} on:overlay on:update-post-view />
+					{:else if contentView.type === 'comment'}
+						<Comment commentView={contentView.commentView} showPost postOP="" />
+					{/if}
+					{#if index + 1 < contentViews.length}
+						<hr class="w-100" />
+					{/if}
+					<!-- {/each} -->
+				</svelte:fragment>
+			</VirtualFeed>
 		</Stack>
 	</Stack>
 </div>
-
-<InfiniteFeed
-	on:more
-	{endOfFeed}
-	feedEndIcon="file-circle-xmark"
-	feedEndMessage="No more posts!"
-	loading={loadingContent}
-	loadMoreFailed={loadingContentFailed}
-/>
 
 <script lang="ts">
 	import { Stack, Icon } from 'sheodox-ui';
 	import Post from './Post.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
-	import InfiniteFeed from './InfiniteFeed.svelte';
 	import {
 		NormalFeedTypeOptions,
 		type FeedType,
@@ -65,6 +71,7 @@
 		PostSortOptions,
 		UserSortOptions
 	} from '$lib/feed-filters';
+	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import Comment from '$lib/Comment.svelte';
 	import type { Settings } from '../../../app';
 	import type { ContentView } from '$lib/post-loader';

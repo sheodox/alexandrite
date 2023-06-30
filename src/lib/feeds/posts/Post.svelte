@@ -74,10 +74,10 @@
 					>
 					<PostBadges {postView} />
 				</Stack>
-				{#if postView.post.url && probablyImage && !thumbnailUrl}
+				{#if postView.post.url && (!probablyImage || !thumbnailUrl)}
 					<PrettyExternalLink href={postView.post.url} />
 				{/if}
-				<Stack dir="r" gap={2} align="center">
+				<Stack dir="r" gap={1} align="center">
 					<UserLink user={postView.creator} />
 					<UserBadges user={postView.creator} postOP="" />
 					to

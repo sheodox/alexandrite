@@ -1,31 +1,26 @@
-<style>
-	.scroll-more {
-		position: relative;
-		margin-top: -1250px;
-		height: 1250px;
-		pointer-events: none;
-	}
-</style>
-
 {#if !endOfFeed}
 	{#if loadMoreFailed}
 		<FeedBanner message="Retry loading more?" icon="bug">
-			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}>Retry</button>
+			<button class="tertiary f-row gap-1" on:click={() => dispatch('more')} disabled={loading}>
+				{#if loading}
+					<Spinner />
+				{/if}
+				Retry
+			</button>
 		</FeedBanner>
 	{:else}
 		<FeedBanner message={loading ? 'Loading more...' : 'Load more?'} icon="download" {loading}>
-			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}>Load More</button>
+			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}> Load More</button>
 		</FeedBanner>
 	{/if}
 {:else}
 	<FeedBanner message={feedEndMessage} icon={feedEndIcon} />
 {/if}
 
-<div bind:this={scrollMore} class="scroll-more" />
-
 <script lang="ts">
-	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import FeedBanner from './FeedBanner.svelte';
+	import Spinner from '$lib/Spinner.svelte';
 
 	const dispatch = createEventDispatcher<{
 		more: void;
@@ -36,32 +31,4 @@
 	export let loadMoreFailed: boolean;
 	export let feedEndMessage: string;
 	export let feedEndIcon: string;
-
-	let scrollMore: HTMLElement;
-	let observer: IntersectionObserver | null;
-
-	function maybeMore(entries: IntersectionObserverEntry[]) {
-		if (endOfFeed) {
-			observer?.disconnect();
-			observer = null;
-			return;
-		}
-		for (const entry of entries) {
-			if (entry.isIntersecting) {
-				dispatch('more');
-				return;
-			}
-		}
-	}
-
-	onMount(() => {
-		observer = new IntersectionObserver(maybeMore, {
-			threshold: [0.01, 0.9]
-		});
-		observer.observe(scrollMore);
-	});
-
-	onDestroy(() => {
-		observer?.disconnect();
-	});
 </script>

@@ -5,9 +5,12 @@
 		padding: 1rem;
 		overflow: auto;
 	}
+	.posts-page {
+		background-color: var(--sx-gray-800);
+	}
 </style>
 
-<div class="f-row f-1">
+<div class="f-row f-1 posts-page">
 	<div class="f-1">
 		{#if communityView}
 			<CommunityHeader {communityView} />

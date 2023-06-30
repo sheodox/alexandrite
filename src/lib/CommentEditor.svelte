@@ -22,17 +22,19 @@
 			>
 			<Stack dir="r" justify="end" align="center" gap={2}>
 				<Checkbox bind:checked={showPreview}>Show Preview</Checkbox>
-				<select
-					aria-label="language"
-					name="languageId"
-					required
-					bind:value={selectedLanguage}
-					on:change={saveSelectedLanguage}
-				>
-					{#each siteMeta.all_languages as lang}
-						<option value={lang.id}>{lang.name}</option>
-					{/each}
-				</select>
+				{#if useLanguage}
+					<select
+						aria-label="language"
+						name="languageId"
+						required
+						bind:value={selectedLanguage}
+						on:change={saveSelectedLanguage}
+					>
+						{#each siteMeta.all_languages as lang}
+							<option value={lang.id}>{lang.name}</option>
+						{/each}
+					</select>
+				{/if}
 				{#if showSubmit}
 					<button class="secondary f-row gap-2" disabled={!value}>
 						{#if submitting}
@@ -77,6 +79,7 @@
 	export let cancellable = false;
 	export let submitting: boolean;
 	export let showSubmit = true;
+	export let useLanguage = false;
 	const initialValue = value;
 
 	onMount(() => {

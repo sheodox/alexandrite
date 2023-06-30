@@ -64,7 +64,7 @@ export const loadFeedData = async ({
 			sort: postQuery.sort,
 			auth,
 			username,
-			limit: 20,
+			limit: 50,
 			page,
 			saved_only: typeSaved
 		});
@@ -80,7 +80,7 @@ export const loadFeedData = async ({
 		const postViews = await client
 			.getPosts({
 				auth,
-				limit: 20,
+				limit: 50,
 				page,
 				community_name: communityName ?? undefined,
 				sort: postQuery.sort,

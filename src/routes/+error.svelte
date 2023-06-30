@@ -6,6 +6,10 @@
 	p {
 		font-size: var(--sx-font-size-5);
 	}
+	code {
+		width: 20rem;
+		max-width: 100%;
+	}
 </style>
 
 <Header slim={false} appName="sx-lemmy" />
