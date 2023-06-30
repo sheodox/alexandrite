@@ -7,6 +7,11 @@
 		max-height: 40rem;
 		cursor: zoom-in;
 	}
+
+	div :global(code) {
+		word-wrap: break-word;
+		white-space: pre-wrap;
+	}
 </style>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
