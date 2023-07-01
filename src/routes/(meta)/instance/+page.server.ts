@@ -29,8 +29,7 @@ export const actions = {
 		try {
 			site = await client.getSite({});
 		} catch (e) {
-			console.log('site workednt');
-			return fail((e as HttpError).status, {
+			return fail(400, {
 				errorMsg: 'Error fetching site metadata: ' + (e as HttpError) + ' - ' + (e as HttpError).body.message,
 				instance,
 				username
@@ -58,7 +57,9 @@ export const actions = {
 				jwt = (await client.login(loginForm)).jwt ?? '';
 			} catch (e) {
 				return fail(401, {
-					errorMsg: 'Username or password incorrect.'
+					errorMsg: 'Username or password incorrect.',
+					instance,
+					username
 				});
 			}
 

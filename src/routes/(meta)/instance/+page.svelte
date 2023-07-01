@@ -34,7 +34,13 @@
 	<Icon icon="warning" /> sx-lemmy is only compatible with instances running <code>0.18.0</code> or later.
 </Alert>
 
-<form action="?/setInstance" method="POST" class:instance-valid={parseableInstance}>
+<form
+	action="?/setInstance"
+	method="POST"
+	class:instance-valid={parseableInstance}
+	on:submit={() => (submitting = true)}
+	use:enhance
+>
 	<Stack gap={2}>
 		{#if form?.errorMsg}
 			<Alert variant="error">{form.errorMsg}</Alert>
@@ -50,7 +56,13 @@
 			<TextInput name="username" bind:value={username}>Username or email (optional)</TextInput>
 			<TextInput name="password" bind:value={password} type="password">Password</TextInput>
 		</div>
-		<button class="primary mt-6" disabled={!instance || !parseableInstance || (!!username && !password)}>
+		<button
+			class="primary mt-6 f-row align-items-center justify-content-center gap-2"
+			disabled={!instance || !parseableInstance || (!!username && !password) || submitting}
+		>
+			{#if submitting}
+				<Spinner />
+			{/if}
 			{username ? 'Sign In' : `Use ${instanceNoProtocol || '???'}`}
 		</button>
 	</Stack>
@@ -58,10 +70,14 @@
 
 <script lang="ts">
 	import { Alert, Icon, TextInput, Stack, ExternalLink } from 'sheodox-ui';
+	import { enhance } from '$app/forms';
+	import Spinner from '$lib/Spinner.svelte';
 	import Separator from '$lib/Separator.svelte';
 
 	export let form;
 	export let data;
+
+	let submitting = false;
 
 	const regUrlStart = /^https?:\/\//g;
 
