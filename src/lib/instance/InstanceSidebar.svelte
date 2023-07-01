@@ -2,7 +2,7 @@
 	<span slot="name"
 		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>
-	<Stack slot="actions" dir="c" gap={2}>
+	<Stack slot="actions" dir="c" gap={2} cl="mt-2">
 		{#each taglines as tagline}
 			<Alert variant="info"><Markdown md={tagline.content} /></Alert>
 		{/each}

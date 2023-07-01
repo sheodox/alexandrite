@@ -4,6 +4,13 @@
 	$height: 6rem;
 	$aspect: math.div(16, 9);
 
+	.post-title {
+		transition: color 0.1s;
+		color: var(--sx-gray-25);
+		&:hover {
+			color: white;
+		}
+	}
 	.thumbnail {
 		background: var(--sx-gray-transparent);
 		border-radius: 5px;
@@ -68,7 +75,7 @@
 					</Tooltip>
 					<a
 						href="/post/{postView.post.id}"
-						class="sx-font-size-5"
+						class="sx-font-size-5 post-title"
 						data-sveltekit-preload-data="off"
 						class:read={postView.read}>{postView.post.name}</a
 					>

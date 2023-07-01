@@ -1,7 +1,9 @@
 <Layout size="narrow">
-	<slot />
+	<Stack dir="c" gap={4}>
+		<slot />
+	</Stack>
 </Layout>
 
 <script>
-	import { Layout } from 'sheodox-ui';
+	import { Layout, Stack } from 'sheodox-ui';
 </script>

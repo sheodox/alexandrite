@@ -7,8 +7,12 @@
 		font-size: var(--sx-font-size-5);
 	}
 	code {
-		width: 20rem;
+		width: 30rem;
 		max-width: 100%;
+		display: block;
+	}
+	button {
+		width: 12rem;
 	}
 </style>
 
@@ -19,7 +23,11 @@
 	<p>Sorry, something went wrong.</p>
 	<p><code>{$page.error?.message}</code></p>
 
-	<button on:click={() => location.reload()} class="secondary"> Reload </button>
+	<Stack gap={2} align="center" dir="r">
+		<a href="/instance" class="inline-link">Try a different instance?</a>
+
+		<button on:click={() => location.reload()} class="secondary"> Reload </button>
+	</Stack>
 </Stack>
 
 <script lang="ts">

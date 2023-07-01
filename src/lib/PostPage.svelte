@@ -20,7 +20,7 @@
 <Stack dir="r" cl="f-1">
 	<article class="f-column p-4 f-1 post">
 		<div class="ml-6 mb-1">
-			<Breadcrumbs {links} />
+			<Breadcrumbs {links} linkifyLast />
 		</div>
 		<Post {postView} mode="show" on:update-post-view {showPost}>
 			<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
@@ -252,9 +252,6 @@
 		{
 			text: communityName,
 			href: `/c/${communityName}/`
-		},
-		{
-			text: ''
 		}
 	];
 </script>

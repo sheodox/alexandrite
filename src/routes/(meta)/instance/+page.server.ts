@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { LemmyHttp, type Login } from 'lemmy-js-client';
-import { lemmySettings, setLemmySettings } from '$lib/lemmy-settings';
+import { setLemmySettings } from '$lib/lemmy-settings';
 
 export const actions = {
 	setInstance: async ({ request, cookies }) => {
@@ -17,24 +17,43 @@ export const actions = {
 			});
 		}
 
+		const baseUrl = 'https://' + instance;
+
+		const client: LemmyHttp = new LemmyHttp(baseUrl);
+		const site = await client.getSite({});
+
+		if (site.version.startsWith('0.17.') || site.version.startsWith('0.16.')) {
+			return fail(400, {
+				errorMsg: `Server version (${site.version}) is too low!`,
+				instance,
+				username
+			});
+		}
+
 		cookies.set('instance', instance);
 
 		if (username) {
-			const baseUrl = 'https://' + instance;
-
-			const client: LemmyHttp = new LemmyHttp(baseUrl);
 			const loginForm: Login = {
 				username_or_email: username,
 				password: body.password + ''
 			};
-			const jwt = (await client.login(loginForm)).jwt;
 
-			cookies.set('jwt', jwt ?? '');
+			let jwt = '';
+			try {
+				jwt = (await client.login(loginForm)).jwt ?? '';
+			} catch (e) {
+				return fail(401, {
+					errorMsg: 'Username or password incorrect.'
+				});
+			}
+
+			cookies.set('jwt', jwt);
 			cookies.set('username', username);
 
 			const site = await client.getSite({
 				auth: jwt
 			});
+
 			const localUser = site.my_user?.local_user_view.local_user;
 			if (localUser) {
 				// store settings in the cookie doing some home grown de/serialization stuff so the settings are tiny in the cookie

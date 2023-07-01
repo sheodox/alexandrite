@@ -1,6 +1,8 @@
-<form method="POST" action="?/markAllAsRead" use:enhance>
-	<button class="tertiary">Mark All As Read</button>
-</form>
+{#if $unreadCount > 0}
+	<form method="POST" action="?/markAllAsRead" use:enhance>
+		<button class="tertiary">Mark All As Read</button>
+	</form>
+{/if}
 
 <form method="GET" data-sveltekit-replacestate>
 	<section>
@@ -52,8 +54,11 @@
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
+	import { getAppContext } from '$lib/app-context';
 
 	export let data;
+
+	const { unreadCount } = getAppContext();
 
 	$: contentViews = getContentViews(data);
 
