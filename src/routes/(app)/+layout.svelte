@@ -64,7 +64,7 @@
 </Header>
 
 <div class="f-row f-1 root-layout-content">
-	<Sidebar bind:menuOpen docked>
+	<Sidebar bind:menuOpen>
 		<div slot="header" class="f-row align-items-center">
 			<!-- <Logo /> -->
 			<h1 class="ml-2">sx-lemmy</h1>
@@ -111,6 +111,7 @@
 
 	afterNavigate(() => {
 		loading = false;
+		menuOpen = false;
 	});
 
 	setAppContext({
