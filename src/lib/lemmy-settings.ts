@@ -53,6 +53,10 @@ export const getLemmySettings = (cookies: Cookies) => {
 	return lemmySettings.deserialize(cookies.get(COOKIE_KEY));
 };
 
+export const clearLemmySettings = (cookies: Cookies) => {
+	return cookies.delete(COOKIE_KEY);
+};
+
 export const setLemmySettings = (cookies: Cookies, localUser: LocalUser) => {
 	cookies.set(COOKIE_KEY, lemmySettings.serialize(localUser), {
 		path: '/'

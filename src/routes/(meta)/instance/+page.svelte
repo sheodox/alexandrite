@@ -74,7 +74,6 @@
 
 	function parseableUrl(url: string) {
 		const host = url.replace(regUrlStart, '');
-		console.log(url);
 
 		try {
 			new URL('https://' + host);

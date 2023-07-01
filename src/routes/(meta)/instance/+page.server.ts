@@ -1,7 +1,8 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { HttpError, fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { LemmyHttp, type Login } from 'lemmy-js-client';
+import { LemmyHttp, type GetSiteResponse, type Login } from 'lemmy-js-client';
 import { setLemmySettings } from '$lib/lemmy-settings';
+import { logout } from '../logout/logout';
 
 export const actions = {
 	setInstance: async ({ request, cookies }) => {
@@ -17,10 +18,24 @@ export const actions = {
 			});
 		}
 
+		// logout of previous user
+		logout(cookies);
+
 		const baseUrl = 'https://' + instance;
 
 		const client: LemmyHttp = new LemmyHttp(baseUrl);
-		const site = await client.getSite({});
+		let site: GetSiteResponse;
+
+		try {
+			site = await client.getSite({});
+		} catch (e) {
+			console.log('site workednt');
+			return fail((e as HttpError).status, {
+				errorMsg: 'Error fetching site metadata: ' + (e as HttpError) + ' - ' + (e as HttpError).body.message,
+				instance,
+				username
+			});
+		}
 
 		if (site.version.startsWith('0.17.') || site.version.startsWith('0.16.')) {
 			return fail(400, {

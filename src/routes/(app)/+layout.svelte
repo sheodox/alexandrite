@@ -43,13 +43,6 @@
 				{instanceText}
 			</span>
 		</Tooltip>
-		<Tooltip {placement}>
-			<span slot="tooltip">Change Instance</span>
-			<a href="/instance" class="button">
-				<Icon icon="edit" variant="icon-only" />
-				<span class="sr-only">Change Instance</span>
-			</a>
-		</Tooltip>
 		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
 		<form action="/logout?/logout" method="POST">
 			<Tooltip {placement}>
@@ -70,9 +63,7 @@
 			<h1 class="ml-2">sx-lemmy</h1>
 		</div>
 
-		{#if data.site.my_user}
-			<AppSidebar subscriptions={data.site.my_user.follows} />
-		{/if}
+		<AppSidebar subscriptions={data.site.my_user?.follows} />
 	</Sidebar>
 
 	<main class="f-column f-1">

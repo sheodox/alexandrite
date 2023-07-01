@@ -1,12 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { logout } from './logout';
 
 export const actions = {
 	logout: async ({ cookies }) => {
-		cookies.delete('instance');
-		cookies.delete('jwt');
-		cookies.delete('username');
-
+		logout(cookies);
 		throw redirect(303, '/');
 	}
 } satisfies Actions;

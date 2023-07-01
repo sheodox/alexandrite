@@ -13,10 +13,12 @@
 				<a href={link.href} class="icon-link"><Icon icon={link.icon} /><span>{link.text}</span></a>
 			{/each}
 
-			<h2 class="muted sx-font-size-4 mb-0 pl-2">Subscriptions</h2>
-			{#each subs as cv}
-				<CommunityLink community={cv.community} inlineLink={false} />
-			{/each}
+			{#if subscriptions.length}
+				<h2 class="muted sx-font-size-4 mb-0 pl-2">Subscriptions</h2>
+				{#each subs as cv}
+					<CommunityLink community={cv.community} inlineLink={false} />
+				{/each}
+			{/if}
 		</Stack>
 	</nav>
 </div>
@@ -28,9 +30,9 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { getAppContext } from '$lib/app-context';
 
-	export let subscriptions: CommunityFollowerView[];
+	export let subscriptions: CommunityFollowerView[] = [];
 
-	const { username } = getAppContext();
+	const { username, loggedIn } = getAppContext();
 
 	function name(cv: CommunityFollowerView) {
 		return nameAtInstance({
@@ -41,7 +43,7 @@
 	}
 
 	$: subs = [...subscriptions].sort((a, b) => name(a).localeCompare(name(b)));
-	const links = [
+	$: links = [
 		{
 			href: '/',
 			text: 'Home',
@@ -50,12 +52,13 @@
 		{
 			href: `/u/${username}`,
 			text: 'Profile',
-			icon: 'user'
+			icon: 'user',
+			disabled: !loggedIn
 		},
 		{
 			href: '/communities',
 			text: 'Communities',
 			icon: 'users'
 		}
-	];
+	].filter((f) => !f.disabled);
 </script>
