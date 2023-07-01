@@ -32,7 +32,6 @@
 
 	.embed-content {
 		max-width: 100%;
-		width: 60rem;
 	}
 
 	a.read {

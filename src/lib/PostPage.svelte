@@ -1,4 +1,5 @@
 <style lang="scss">
+	$sidebarWidth: 30rem;
 	hr {
 		border-color: var(--sx-gray-transparent-lighter);
 	}
@@ -9,15 +10,26 @@
 		min-height: 100vh;
 	}
 	article.post {
-		margin: 0 auto;
+		width: calc(100% - #{$sidebarWidth});
 	}
 	.comment-editor {
 		width: 60rem;
 		max-width: 100%;
 	}
+	aside {
+		background-color: var(--sx-gray-800);
+		width: #{$sidebarWidth};
+		padding: 1rem;
+		overflow: auto;
+		position: fixed;
+		top: 0;
+		padding-top: 50px;
+		height: 100vh;
+		right: 0;
+	}
 </style>
 
-<Stack dir="r" cl="f-1">
+<div>
 	<article class="f-column p-4 f-1 post">
 		<div class="ml-6 mb-1">
 			<Breadcrumbs {links} linkifyLast />
@@ -85,23 +97,20 @@
 				on:expand={expandComment}
 				on:new-comment={onNewComment}
 				on:update-comment={onUpdateComment}
-			/>
-		{/if}
-		{#if !viewingSingleCommentThread}
-			<InfiniteFeed
 				on:more={loadNextCommentPage}
 				endOfFeed={endOfCommentsFeed}
-				loadMoreFailed={commentLoadFailed}
-				loading={loadingComments}
+				loadingContentFailed={commentLoadFailed}
+				loadingContent={loadingComments}
 				feedEndMessage="No more comments"
 				feedEndIcon="comment-slash"
+				expandLoadingIds={Array.from(commentExpandLoadingIds)}
 			/>
 		{/if}
 	</article>
 	<aside>
 		<CommunitySidebar community={postView.community} />
 	</aside>
-</Stack>
+</div>
 
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -110,7 +119,6 @@
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
-	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import type { CommentView, PostView } from 'lemmy-js-client';
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
@@ -122,6 +130,7 @@
 	export let postView: PostView;
 	export let commentViews: CommentView[] = [];
 	export let rootCommentId: null | number = null;
+	let commentExpandLoadingIds = new Set<number>();
 	$: viewingSingleCommentThread = rootCommentId !== null;
 	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
 	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
@@ -236,7 +245,11 @@
 	}
 
 	async function expandComment(e: CustomEvent<number>) {
-		loadComments(`/api/posts/${postView.post.id}/comments?parentId=${e.detail}`);
+		commentExpandLoadingIds.add(e.detail);
+		commentExpandLoadingIds = commentExpandLoadingIds;
+		await loadComments(`/api/posts/${postView.post.id}/comments?parentId=${e.detail}`);
+		commentExpandLoadingIds.delete(e.detail);
+		commentExpandLoadingIds = commentExpandLoadingIds;
 	}
 
 	onMount(() => {

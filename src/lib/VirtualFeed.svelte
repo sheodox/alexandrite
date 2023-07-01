@@ -23,7 +23,7 @@
 	}
 </style>
 
-<div class="virtual-feed-root">
+<div class="virtual-feed-root" bind:this={virtualFeedRootEl}>
 	<div class="virtual-feed" style:transform="translateY({feedTopTranslate}px)" data-virtual-feed-size={feedSize}>
 		<div bind:this={topEl} class="virtual-feed-sensor top" />
 		<div class="virtual-feed-content" data-virtual-feed-rendered-count={visibleIndices.length}>
@@ -73,6 +73,7 @@
 	// the size of the scroll area when scrolling back up, so the scrollbar
 	// doesn't shrink as you scroll up
 	let feedMaxHeight = 0;
+	let virtualFeedRootEl: HTMLElement;
 	let topEl: HTMLElement;
 	let bottomEl: HTMLElement;
 	// observers above/below the rendered elements in the feed to detect the direction
@@ -106,6 +107,7 @@
 
 	function observeFeedElement(el: HTMLElement, index: number) {
 		const resizeObserver = new ResizeObserver((entries) => {
+			const last = lastKnownElementHeights.get(index);
 			const height = entries[0].borderBoxSize[0].blockSize;
 			lastKnownElementHeights.set(index, height);
 			lastKnownElementHeights = lastKnownElementHeights;
@@ -185,7 +187,7 @@
 				console.warn("couldn't find the viewport's scroll position");
 				return;
 			}
-			safeSetTopIndex(findIndexAtHeight(viewportTop) - Math.floor(maxRenderedItems / 2));
+			safeSetTopIndex(findIndexAtHeight(viewportTop - virtualFeedRootEl.offsetTop) - Math.floor(maxRenderedItems / 2));
 		}
 	}
 
