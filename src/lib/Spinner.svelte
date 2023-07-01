@@ -1,16 +1,8 @@
 <style>
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	div :global(i) {
-		animation: spin 0.5s linear infinite;
-	}
 </style>
 
 <div>
-	<Icon icon="circle-notch" variant="icon-only" />
+	<Icon icon="circle-notch" variant="icon-only" cl="fa-spin" />
 </div>
 
 <script lang="ts">

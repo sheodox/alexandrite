@@ -63,7 +63,7 @@
 			{#if submitting}
 				<Spinner />
 			{/if}
-			{username ? 'Sign In' : `Use ${instanceNoProtocol || '???'}`}
+			<span>{username ? 'Sign In' : `Use ${instanceNoProtocol || '???'}`}</span>
 		</button>
 	</Stack>
 </form>

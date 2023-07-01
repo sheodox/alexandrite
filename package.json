@@ -37,6 +37,6 @@
 		"lemmy-js-client": "^0.18.0",
 		"markdown-it": "^13.0.1",
 		"sass": "^1.63.6",
-		"sheodox-ui": "^0.19.23"
+		"sheodox-ui": "^0.19.24"
 	}
 }
