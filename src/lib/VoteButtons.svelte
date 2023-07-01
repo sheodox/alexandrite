@@ -14,6 +14,12 @@
 	.vote-down[aria-pressed='true'] {
 		color: var(--sx-blue-400);
 	}
+	.vote-counter {
+		height: 1.4rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 </style>
 
 <div class={dir === 'row' ? 'f-row' : 'f-column'}>
@@ -27,7 +33,7 @@
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-up" variant="icon-only" />
 	</button>
-	<span class="sx-badge-{counterColor} text-align-center align-self-center">
+	<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
 		{#if votePending}
 			<Spinner />
 		{:else}
