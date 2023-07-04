@@ -40,7 +40,6 @@
 				feedEndMessage="No more posts!"
 				loading={loadingContent}
 				loadMoreFailed={loadingContentFailed}
-				minRenderedItems={50}
 			>
 				<svelte:fragment let:index>
 					{@const contentView = contentViews[index]}
