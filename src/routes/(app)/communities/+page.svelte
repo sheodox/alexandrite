@@ -1,3 +1,4 @@
+<Title title="Communities" />
 <Layout size="medium">
 	<h1>Communities</h1>
 
@@ -41,6 +42,7 @@
 	import type { CommunityView } from 'lemmy-js-client';
 	import { feedLoader } from '$lib/post-loader';
 	import type { PageData } from './$types';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 

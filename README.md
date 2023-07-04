@@ -1,5 +1,7 @@
-# sx-lemmy
+# Alexandrite (formerly sx-lemmy)
 
-This is a (name TBD) alternative web frontend for Lemmy with a focus on app-quality easy browsing.
+Alexandrite is an alternative web UI for Lemmy with a focus on app-quality easy browsing.
+
+This is still a work in progress, so not all features are supported yet.
 
 ![screenshot](docs/example.png)

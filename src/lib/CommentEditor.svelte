@@ -40,7 +40,7 @@
 						{#if submitting}
 							<Spinner />
 						{/if}
-						Post
+						{submitButtonText}
 					</button>
 				{/if}
 				{#if cancellable}
@@ -74,6 +74,7 @@
 	let showPreview = false;
 
 	export let label = 'Comment';
+	export let submitButtonText = 'Post';
 	export let value = '';
 	export let selectedLanguage = 0;
 	export let cancellable = false;

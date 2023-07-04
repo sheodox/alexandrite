@@ -1,3 +1,5 @@
+<Title title="Inbox" />
+
 {#if $unreadCount > 0}
 	<form method="POST" action="?/markAllAsRead" use:enhance>
 		<button class="tertiary">Mark All As Read</button>
@@ -55,6 +57,7 @@
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
 	import { getAppContext } from '$lib/app-context';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 

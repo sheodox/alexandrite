@@ -5,6 +5,12 @@
 			<Icon icon="network-wired" />
 			On {personInstance}
 		</a>
+		{#if !isMe}
+			<a class="button tertiary" href="/message/{personView.person.id}">
+				<Icon icon="message" />
+				Send Message
+			</a>
+		{/if}
 		<LogButton on:click={() => console.log({ personView })} text="Log PersonView" small={false} />
 	</Stack>
 
@@ -20,8 +26,11 @@
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import UserBadges from './UserBadges.svelte';
 	import LogButton from '$lib/LogButton.svelte';
+	import { getAppContext } from '$lib/app-context';
 
 	export let personView: PersonView;
+	const { username } = getAppContext();
 
 	$: personInstance = new URL(personView.person.actor_id).host;
+	$: isMe = personView.person.local && personView.person.name === username;
 </script>

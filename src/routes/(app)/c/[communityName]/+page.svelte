@@ -1,3 +1,4 @@
+<Title title={data.communityName} />
 <PostsPage
 	settings={data.settings}
 	on:more={more}
@@ -19,7 +20,8 @@
 	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import { postCommentFeedLoader, getContentViews, type ContentView } from '$lib/post-loader.js';
-	import type { PageData } from '../../$types.js';
+	import type { PageData } from './$types';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 

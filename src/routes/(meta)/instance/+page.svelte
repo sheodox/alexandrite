@@ -13,11 +13,13 @@
 	}
 </style>
 
+<Title title="Login" />
+
 <h1 class="m-0 sx-font-size-9">Welcome</h1>
 
 <Stack dir="c" gap={4} cl="has-inline-links">
 	<p>
-		sx-lemmy is a beautiful desktop-first alternative web UI for <ExternalLink href="https://join-lemmy.org/"
+		Alexandrite is a beautiful desktop-first alternative web UI for <ExternalLink href="https://join-lemmy.org/"
 			>Lemmy</ExternalLink
 		>, a social link aggregator and discussion forum for the <ExternalLink
 			href="https://simple.wikipedia.org/wiki/Fediverse">Fediverse</ExternalLink
@@ -31,7 +33,7 @@
 </Stack>
 
 <Alert variant="info">
-	<Icon icon="warning" /> sx-lemmy is only compatible with instances running <code>0.18.0</code> or later.
+	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.0</code> or later.
 </Alert>
 
 <form
@@ -39,7 +41,7 @@
 	method="POST"
 	class:instance-valid={parseableInstance}
 	on:submit={() => (submitting = true)}
-	use:enhance
+	use:enhance={formSubmit}
 >
 	<Stack gap={2}>
 		{#if form?.errorMsg}
@@ -55,6 +57,7 @@
 			<Separator>Login Info (Optional)</Separator>
 			<TextInput name="username" bind:value={username}>Username or email (optional)</TextInput>
 			<TextInput name="password" bind:value={password} type="password">Password</TextInput>
+			<TextInput name="totp_2fa_token" value="">Two-factor authentication token (if enabled)</TextInput>
 		</div>
 		<button
 			class="primary mt-6 f-row align-items-center justify-content-center gap-2"
@@ -73,6 +76,7 @@
 	import { enhance } from '$app/forms';
 	import Spinner from '$lib/Spinner.svelte';
 	import Separator from '$lib/Separator.svelte';
+	import Title from '$lib/Title.svelte';
 
 	export let form;
 	export let data;
@@ -99,4 +103,11 @@
 		}
 		return true;
 	}
+
+	const formSubmit: SubmitFunction = () => {
+		return async ({ update }) => {
+			await update();
+			submitting = false;
+		};
+	};
 </script>

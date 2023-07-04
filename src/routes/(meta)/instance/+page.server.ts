@@ -29,8 +29,9 @@ export const actions = {
 		try {
 			site = await client.getSite({});
 		} catch (e) {
+			const httpErr = e as HttpError;
 			return fail(400, {
-				errorMsg: 'Error fetching site metadata: ' + (e as HttpError) + ' - ' + (e as HttpError).body.message,
+				errorMsg: 'Error fetching site metadata: ' + httpErr,
 				instance,
 				username
 			});
@@ -49,13 +50,15 @@ export const actions = {
 		if (username) {
 			const loginForm: Login = {
 				username_or_email: username,
-				password: body.password + ''
+				password: body.password + '',
+				totp_2fa_token: (body.totp_2fa_token as string) || undefined
 			};
 
 			let jwt = '';
 			try {
 				jwt = (await client.login(loginForm)).jwt ?? '';
 			} catch (e) {
+				console.log(e);
 				return fail(401, {
 					errorMsg: 'Username or password incorrect.',
 					instance,
@@ -63,17 +66,17 @@ export const actions = {
 				});
 			}
 
-			cookies.set('jwt', jwt);
-			cookies.set('username', username);
-
 			const site = await client.getSite({
 				auth: jwt
 			});
 
-			const localUser = site.my_user?.local_user_view.local_user;
-			if (localUser) {
+			cookies.set('jwt', jwt);
+
+			const user = site.my_user?.local_user_view;
+			if (user) {
 				// store settings in the cookie doing some home grown de/serialization stuff so the settings are tiny in the cookie
-				setLemmySettings(cookies, localUser);
+				setLemmySettings(cookies, user.local_user);
+				cookies.set('username', user.person.name);
 			}
 		}
 

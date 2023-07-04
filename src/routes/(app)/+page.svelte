@@ -1,3 +1,5 @@
+<Title />
+
 <PostsPage
 	settings={data.settings}
 	on:more={more}
@@ -18,6 +20,7 @@
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import { getContentViews, postCommentFeedLoader, type ContentView } from '$lib/post-loader.js';
 	import type { PageData } from './$types';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 

@@ -1,3 +1,5 @@
+<Title title={userUsername} />
+
 <PostsPage
 	settings={data.settings}
 	on:more={more}
@@ -49,6 +51,7 @@
 	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
 	import { nameAtInstance } from '$lib/nav-utils.js';
 	import type { PostView } from 'lemmy-js-client';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 

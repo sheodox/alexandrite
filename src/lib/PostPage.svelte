@@ -99,8 +99,8 @@
 				on:update-comment={onUpdateComment}
 				on:more={loadNextCommentPage}
 				endOfFeed={endOfCommentsFeed}
-				loadingContentFailed={commentLoadFailed}
 				loadingContent={loadingComments}
+				loadingContentFailed={commentLoadFailed}
 				feedEndMessage="No more comments"
 				feedEndIcon="comment-slash"
 				expandLoadingIds={Array.from(commentExpandLoadingIds)}
@@ -140,6 +140,7 @@
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
 		loadingComments = false,
+		loadingCommentsFailed = false,
 		// assume if they came here following a comment link, commenting on the post is less important
 		showCommentComposer = rootCommentId === null,
 		showPost = rootCommentId === null,
@@ -204,7 +205,11 @@
 		try {
 			const res = await fetch(url);
 			if (!res.ok) {
-				throw new Error('Failed to load comments');
+				return {
+					comments: [],
+					busy: false,
+					error: true
+				};
 			}
 			const cvs = (await res.json()).comments;
 			return {
@@ -225,7 +230,7 @@
 
 	async function loadNextCommentPage() {
 		// when viewing a single comment thread, we don't want to load more comments
-		if (viewingSingleCommentThread) {
+		if (viewingSingleCommentThread || loadingComments) {
 			return;
 		}
 

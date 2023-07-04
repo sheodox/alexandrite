@@ -9,7 +9,7 @@
 	{/if}
 	<form on:submit|preventDefault={submit} bind:this={messageForm}>
 		<input type="hidden" name="recipientId" value={to.id} />
-		<CommentEditor label="Message" {submitting} cancellable on:cancel />
+		<CommentEditor label="Message" {submitting} cancellable on:cancel submitButtonText="Send" />
 	</form>
 </Stack>
 
@@ -50,5 +50,6 @@
 				errorMsg = JSON.parse(errorMsg)?.message ?? errorMsg;
 			} catch (e) {}
 		}
+		submitting = false;
 	}
 </script>

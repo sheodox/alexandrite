@@ -3,7 +3,7 @@
 		{#each badges as b}
 			<Tooltip>
 				<span slot="tooltip">{b.text}</span>
-				<span class="sx-badge-{b.color}">
+				<span class="sx-badge-{b.color} ws-nowrap">
 					<span>{b.text}</span>
 				</span>
 			</Tooltip>

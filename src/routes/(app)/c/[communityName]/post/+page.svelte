@@ -11,6 +11,8 @@
 	}
 </style>
 
+<Title title="Post" />
+
 <Layout size="medium">
 	<div class="community-header my-2">
 		<CommunityHeader communityView={data.communityView} readonly />
@@ -45,6 +47,7 @@
 	import CommunityHeader from '$lib/feeds/posts/CommunityHeader.svelte';
 	import CommentEditor from '$lib/CommentEditor.svelte';
 	import { Alert, Layout, Stack, Breadcrumbs, Checkbox, TextInput } from 'sheodox-ui';
+	import Title from '$lib/Title.svelte';
 
 	export let data;
 	export let form;

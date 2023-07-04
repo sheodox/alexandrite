@@ -14,7 +14,8 @@
 	}
 </style>
 
-<Header appName="sx-lemmy" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
+<Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
+	<Logo slot="logo" />
 	<div slot="headerEnd" class="f-row align-items-center">
 		{#if data.loggedIn}
 			<IconLink
@@ -59,8 +60,8 @@
 <div class="f-row f-1 root-layout-content">
 	<Sidebar bind:menuOpen>
 		<div slot="header" class="f-row align-items-center">
-			<!-- <Logo /> -->
-			<h1 class="ml-2">sx-lemmy</h1>
+			<Logo />
+			<h1 class="ml-2">Alexandrite</h1>
 		</div>
 
 		<AppSidebar subscriptions={data.site.my_user?.follows} />
@@ -87,6 +88,7 @@
 	import Spinner from '$lib/Spinner.svelte';
 	import type { GetUnreadCountResponse } from 'lemmy-js-client';
 	import IconLink from '$lib/IconLink.svelte';
+	import Logo from '$lib/Logo.svelte';
 	import { writable } from 'svelte/store';
 
 	export let data;

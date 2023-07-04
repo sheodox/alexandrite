@@ -16,7 +16,9 @@
 	}
 </style>
 
-<Header slim={false} appName="sx-lemmy" />
+<Header slim={false} appName="Alexandrite">
+	<Logo slot="logo" size="large" />
+</Header>
 
 <Stack dir="c" justify="center" align="center" cl="f-1" gap={4}>
 	<h1>Error</h1>
@@ -32,5 +34,6 @@
 
 <script lang="ts">
 	import { page } from '$app/stores';
+	import Logo from '$lib/Logo.svelte';
 	import { Header, Stack } from 'sheodox-ui';
 </script>
