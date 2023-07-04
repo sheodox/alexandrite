@@ -1,7 +1,5 @@
-import { redirect, type Handle, error } from '@sveltejs/kit';
-import { LemmyHttp } from 'lemmy-js-client';
-
-const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
+import { createLemmyClient } from '$lib/lemmy-client';
+import { redirect, type Handle } from '@sveltejs/kit';
 
 export const handle = (async ({ event, resolve }) => {
 	const instance = event.cookies.get('instance') ?? '';
@@ -17,27 +15,7 @@ export const handle = (async ({ event, resolve }) => {
 		throw redirect(303, '/instance');
 	}
 
-	event.locals.client = new LemmyHttp(event.locals.settings.instanceUrl, {
-		fetchFunction: async (input: URL | RequestInfo, init?: RequestInit | undefined) => {
-			if (!init) {
-				init = {};
-			}
-
-			init.headers = {
-				'user-agent': APP_USER_AGENT,
-				...(init.headers || {})
-			};
-
-			const res = await fetch(input, init);
-			if (!res.ok) {
-				const text = await res.text();
-				throw error(res.status, {
-					message: 'Lemmy Error: ' + res.statusText + ':\n' + text
-				});
-			}
-			return res;
-		}
-	});
+	event.locals.client = createLemmyClient(event.locals.settings.instanceUrl);
 
 	const response = await resolve(event);
 	return response;

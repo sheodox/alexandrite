@@ -1,8 +1,9 @@
 import { HttpError, fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { LemmyHttp, type GetSiteResponse, type Login } from 'lemmy-js-client';
+import type { GetSiteResponse, Login } from 'lemmy-js-client';
 import { setLemmySettings } from '$lib/lemmy-settings';
 import { logout } from '../logout/logout';
+import { createLemmyClient } from '$lib/lemmy-client';
 
 export const actions = {
 	setInstance: async ({ request, cookies }) => {
@@ -23,7 +24,7 @@ export const actions = {
 
 		const baseUrl = 'https://' + instance;
 
-		const client: LemmyHttp = new LemmyHttp(baseUrl);
+		const client = createLemmyClient(baseUrl);
 		let site: GetSiteResponse;
 
 		try {
