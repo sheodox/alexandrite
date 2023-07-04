@@ -13,7 +13,7 @@
 	}
 </style>
 
-<div class="virtual-feed-root" bind:this={virtualFeedRootEl} use:findScrollContainer>
+<div class="virtual-feed-root" bind:this={virtualFeedRootEl} use:initScrollContainer>
 	<div class="virtual-feed" style:top="{feedTopTranslate}px" data-virtual-feed-size={feedSize}>
 		<div class="virtual-feed-content f-column" data-virtual-feed-rendered-count={visibleIndices.length}>
 			{#each visibleIndices as index (index)}
@@ -33,7 +33,7 @@
 <div class="virtual-feed-space-remainder" style:top="{feedMaxHeight}px" />
 
 <script lang="ts">
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { onDestroy, createEventDispatcher } from 'svelte';
 	import { browser } from '$app/environment';
 	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import { Throttler } from './utils';
@@ -77,11 +77,13 @@
 	$: feedMaxHeight = sumHeights(lastKnownElementHeights);
 
 	let scrollContainer: HTMLElement | null = null;
+	let mounted = false;
 
-	function findScrollContainer(el: HTMLElement) {
+	function initScrollContainer(el: HTMLElement) {
 		scrollContainer = el.closest('.virtual-feed-scroll-container');
 
 		(scrollContainer || window).addEventListener('scroll', onScroll);
+		mounted = true;
 	}
 
 	function sumHeights(heights: Map<number, number>, indexMax = Infinity, startIndex = 0) {
@@ -138,6 +140,9 @@
 	}
 
 	function handleScroll() {
+		if (!mounted) {
+			return;
+		}
 		let viewportTop: number;
 
 		if (scrollContainer) {
@@ -163,6 +168,7 @@
 		if (!browser) {
 			return;
 		}
+		mounted = false;
 
 		(scrollContainer || window).removeEventListener('scroll', onScroll);
 	});
