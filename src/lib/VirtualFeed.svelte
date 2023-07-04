@@ -14,7 +14,7 @@
 </style>
 
 <div class="virtual-feed-root" bind:this={virtualFeedRootEl} use:findScrollContainer>
-	<div class="virtual-feed" style:transform="translateY({feedTopTranslate}px)" data-virtual-feed-size={feedSize}>
+	<div class="virtual-feed" style:top="{feedTopTranslate}px" data-virtual-feed-size={feedSize}>
 		<div class="virtual-feed-content f-column" data-virtual-feed-rendered-count={visibleIndices.length}>
 			{#each visibleIndices as index (index)}
 				<div
