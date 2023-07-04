@@ -9,7 +9,7 @@
 		padding: 1rem;
 		min-height: 100vh;
 	}
-	article.post {
+	section.post {
 		width: calc(100% - #{$sidebarWidth});
 	}
 	.comment-editor {
@@ -30,7 +30,7 @@
 </style>
 
 <div>
-	<article class="f-column p-4 f-1 post">
+	<section class="f-column p-4 f-1 post">
 		<div class="ml-6 mb-1">
 			<Breadcrumbs {links} linkifyLast />
 		</div>
@@ -106,7 +106,7 @@
 				expandLoadingIds={Array.from(commentExpandLoadingIds)}
 			/>
 		{/if}
-	</article>
+	</section>
 	<aside>
 		<CommunitySidebar community={postView.community} />
 	</aside>

@@ -29,7 +29,6 @@
 		{feedEndMessage}
 		loading={loadingContent}
 		loadMoreFailed={loadingContentFailed}
-		maxRenderedItems={100}
 	>
 		<svelte:fragment let:index>
 			{@const { cv, depth } = commentTree[index]}
