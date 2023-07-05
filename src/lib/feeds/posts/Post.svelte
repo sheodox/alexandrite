@@ -31,6 +31,7 @@
 	}
 
 	.embed-content {
+		width: 60rem;
 		max-width: 100%;
 	}
 
@@ -40,7 +41,7 @@
 </style>
 
 <article class="post px-2 py-1 f-row align-items-center post-mode-{mode}">
-	<Stack dir="c" gap={2}>
+	<Stack dir="c" gap={2} cl="w-100">
 		<Stack dir="r" gap={2} align="center">
 			{@const thumbnailUrl = postView.post.thumbnail_url}
 			<div class="vote-column f-column justify-content-center">
@@ -120,27 +121,46 @@
 							</Tooltip>
 						</span>
 					{/if}
-					<Tooltip>
-						<span slot="tooltip"> Save </span>
-						<button aria-pressed={postView.saved} class="small" on:click={save} disabled={savePending}>
-							{#if postView.saved}
-								<Icon icon="star" variant="icon-only" />
-								<span class="sr-only">Saved</span>
-							{:else}
-								<Icon icon="star" iconVariant="regular" variant="icon-only" />
-								<span class="sr-only">Save</span>
-							{/if}
-						</button>
-					</Tooltip>
-					{@const postLinkText = 'Original Post'}
-					<Tooltip>
-						<span slot="tooltip">{postLinkText}</span>
-						<a class="button small" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
-							<Icon icon="network-wired" variant="icon-only" />
-							<span class="sr-only">{postLinkText}</span>
-						</a>
-					</Tooltip>
-					<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
+					{#if !readOnly}
+						<Tooltip>
+							<span slot="tooltip"> Save </span>
+							<button aria-pressed={postView.saved} class="small" on:click={save} disabled={savePending}>
+								{#if postView.saved}
+									<Icon icon="star" variant="icon-only" />
+									<span class="sr-only">Saved</span>
+								{:else}
+									<Icon icon="star" iconVariant="regular" variant="icon-only" />
+									<span class="sr-only">Save</span>
+								{/if}
+							</button>
+						</Tooltip>
+						{@const postLinkText = 'Original Post'}
+						<Tooltip>
+							<span slot="tooltip">{postLinkText}</span>
+							<a class="button small" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
+								<Icon icon="network-wired" variant="icon-only" />
+								<span class="sr-only">{postLinkText}</span>
+							</a>
+						</Tooltip>
+						<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
+						{#if overflowMenuOptions.length}
+							{@const text = 'Extra actions'}
+							<Tooltip title={text}>
+								<MenuButton triggerClasses="small">
+									<span slot="trigger">
+										<span class="sr-only">{text}</span>
+										<Icon icon="caret-down" variant="icon-only" />
+									</span>
+
+									<ul slot="menu">
+										{#each overflowMenuOptions as opt}
+											<li><a href={opt.href} class="button"><Icon icon={opt.icon} /> {opt.text}</a></li>
+										{/each}
+									</ul>
+								</MenuButton>
+							</Tooltip>
+						{/if}
+					{/if}
 				</Stack>
 			</Stack>
 		</Stack>
@@ -148,7 +168,7 @@
 		{#if showPost && hasEmbeddableContent}
 			<div class="embed-content">
 				{#if hasEmbedText}
-					<div class="card m-0">
+					<div class="card m-0 p-2">
 						<h2 class="card-title m-0">
 							{postView.post.embed_title}
 						</h2>
@@ -176,7 +196,7 @@
 </article>
 
 <script lang="ts">
-	import { Tooltip, Stack, Icon } from 'sheodox-ui';
+	import { Tooltip, Stack, Icon, MenuButton } from 'sheodox-ui';
 	import UserBadges from './UserBadges.svelte';
 	import Image from '$lib/Image.svelte';
 	import UserLink from '$lib/UserLink.svelte';
@@ -190,14 +210,18 @@
 	import PostBadges from '$lib/PostBadges.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
+	import { nameAtInstance } from '$lib/nav-utils';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
 		'update-post-view': PostView;
 	}>();
 
+	const { username } = getAppContext();
+
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
+	export let readOnly = false;
 	const { loggedIn } = getAppContext();
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';
@@ -212,6 +236,31 @@
 	$: hasBody = !!postView.post.body;
 	$: hasEmbedText = !!postView.post.embed_title;
 	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
+	$: isMyPost = postView.creator.local && postView.creator.name === username;
+
+	$: overflowMenuOptions = getOverflowMenu(postView, isMyPost);
+
+	function getOverflowMenu(postView: PostView, isMyPost: boolean) {
+		const options: { text: string; href: string; icon: string }[] = [],
+			postId = postView.post.id,
+			communityName = nameAtInstance(postView.community),
+			postBaseUrl = `/c/${communityName}/post/${postId}/`;
+
+		if (isMyPost) {
+			options.push({
+				text: 'Edit Post',
+				href: postBaseUrl + 'edit',
+				icon: 'edit'
+			});
+			options.push({
+				text: 'Delete Post',
+				href: postBaseUrl + 'delete',
+				icon: 'trash-can'
+			});
+		}
+
+		return options;
+	}
 
 	onMount(async () => {
 		if (mode === 'show' && loggedIn) {

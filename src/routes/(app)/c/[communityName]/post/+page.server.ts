@@ -1,20 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 import type { Actions } from './$types';
-
-export const load = (async ({ params, locals }) => {
-	const community = params.communityName;
-
-	const cv = await locals.client.getCommunity({
-		name: community,
-		auth: locals.jwt
-	});
-
-	return {
-		communityName: params.communityName,
-		communityView: cv.community_view
-	};
-}) satisfies PageServerLoad;
 
 export const actions = {
 	post: async ({ locals, request, params }) => {

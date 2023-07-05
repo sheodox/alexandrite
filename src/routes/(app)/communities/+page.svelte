@@ -17,28 +17,28 @@
 		</section>
 	</form>
 
-	<Grid gap={4} basis="22rem">
-		{#each communities as cv}
-			<CommunityCard communityView={cv} />
-		{/each}
-	</Grid>
-
-	<InfiniteFeed
+	<VirtualFeed
 		on:more={more}
+		feedSize={communities.length}
 		{endOfFeed}
 		loadMoreFailed={loadingContentFailed}
 		loading={loadingContent}
 		feedEndMessage="No more communities"
 		feedEndIcon="users-slash"
-	/>
+	>
+		<svelte:fragment let:index>
+			{@const cv = communities[index]}
+			<CommunityCard communityView={cv} />
+		</svelte:fragment>
+	</VirtualFeed>
 </Layout>
 
 <script lang="ts">
-	import { Stack, Icon, Grid, Layout } from 'sheodox-ui';
+	import { Stack, Icon, Layout } from 'sheodox-ui';
 	import CommunityCard from './CommunityCard.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
-	import InfiniteFeed from '$lib/feeds/posts/InfiniteFeed.svelte';
+	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import type { CommunityView } from 'lemmy-js-client';
 	import { feedLoader } from '$lib/post-loader';
 	import type { PageData } from './$types';

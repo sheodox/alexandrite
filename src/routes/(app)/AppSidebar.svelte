@@ -59,6 +59,11 @@
 			href: '/communities',
 			text: 'Communities',
 			icon: 'users'
+		},
+		{
+			href: '/about',
+			text: 'About Alexandrite',
+			icon: 'address-card'
 		}
 	].filter((f) => !f.disabled);
 </script>

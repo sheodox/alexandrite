@@ -23,26 +23,39 @@
 </form>
 
 <Stack dir="c" gap={2}>
-	{#each contentViews as content, i}
-		{#if content.type !== 'message'}
-			<Comment commentView={content.view} postOP="" showPost>
-				<InboxReadButton {content} slot="actions-start" />
-			</Comment>
-		{:else}
-			<PrivateMessage privateMessageView={content.view}>
-				<svelte:fragment slot="actions-start" let:toMe>
-					{#if toMe}
-						<InboxReadButton {content} />
-					{/if}
-				</svelte:fragment>
-			</PrivateMessage>
-		{/if}
-		{#if i + 1 < contentViews.length}
-			<hr class="w-100" />
-		{/if}
-	{:else}
-		<FeedBanner icon="comments" message="No content" />
-	{/each}
+	<VirtualFeed
+		feedSize={contentViews.length}
+		on:more={more}
+		{endOfFeed}
+		feedEndIcon="file-circle-xmark"
+		feedEndMessage="No more messages!"
+		loading={loadingContent}
+		loadMoreFailed={loadingContentFailed}
+	>
+		<svelte:fragment let:index>
+			{@const content = contentViews[index]}
+			<!-- {#each contentViews as content, i} -->
+			{#if content.type !== 'message'}
+				<Comment commentView={content.view} postOP="" showPost>
+					<InboxReadButton {content} slot="actions-start" />
+				</Comment>
+			{:else}
+				<PrivateMessage privateMessageView={content.view}>
+					<svelte:fragment slot="actions-start" let:toMe>
+						{#if toMe}
+							<InboxReadButton {content} />
+						{/if}
+					</svelte:fragment>
+				</PrivateMessage>
+			{/if}
+			{#if index + 1 < contentViews.length}
+				<hr class="w-100" />
+			{/if}
+			<!-- {:else} -->
+			<!-- 	<FeedBanner icon="comments" message="No content" /> -->
+			<!-- {/each} -->
+		</svelte:fragment>
+	</VirtualFeed>
 </Stack>
 
 <script lang="ts">
@@ -51,21 +64,63 @@
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/Comment.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
-	import FeedBanner from '$lib/feeds/posts/FeedBanner.svelte';
 	import { enhance } from '$app/forms';
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
 	import { getAppContext } from '$lib/app-context';
 	import Title from '$lib/Title.svelte';
+	import VirtualFeed from '$lib/VirtualFeed.svelte';
+	import { feedLoader } from '$lib/post-loader';
+	import { endpoint } from '$lib/utils';
+	import type { ApiInboxRes } from '../api/inbox/+server';
 
 	export let data;
 
 	const { unreadCount } = getAppContext();
 
-	$: contentViews = getContentViews(data);
+	let loadingContent = false,
+		loadingContentFailed = false,
+		endOfFeed = false,
+		contentViews: ReturnType<typeof getContentViews> = [];
 
-	function getContentViews(data: PageData) {
+	$: loader = initFeed(data);
+
+	function initFeed(data: PageData) {
+		const newLoader = feedLoader<{}, ApiInboxRes>(
+			endpoint('/api/inbox', {
+				type: data.query.type,
+				listing: data.query.listing,
+				sort: data.query.sort
+			}),
+			false
+		);
+
+		loadingContent = false;
+		loadingContentFailed = false;
+		endOfFeed = false;
+		contentViews = getContentViews(data);
+
+		return newLoader;
+	}
+
+	async function more() {
+		if (endOfFeed || loadingContent) {
+			return;
+		}
+		loadingContent = true;
+
+		const feedData = (await loader.next()).value;
+		loadingContentFailed = feedData.error;
+		endOfFeed = feedData.endOfFeed;
+		if (!feedData.error) {
+			contentViews = contentViews.concat(getContentViews(feedData.response!));
+		}
+
+		loadingContent = false;
+	}
+
+	function getContentViews(data: ApiInboxRes) {
 		const replies = data.replies.map((view) => ({
 				type: 'reply' as const,
 				view,

@@ -3,6 +3,14 @@ import { LemmyHttp } from 'lemmy-js-client';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
+function tryParse(str: string) {
+	try {
+		return JSON.parse(str);
+	} catch (e) {
+		return null;
+	}
+}
+
 export const createLemmyClient = (instanceUrl: string) => {
 	return new LemmyHttp(instanceUrl, {
 		fetchFunction: async (input: URL | RequestInfo, init?: RequestInit | undefined) => {
@@ -18,8 +26,10 @@ export const createLemmyClient = (instanceUrl: string) => {
 			const res = await fetch(input, init);
 			if (!res.ok) {
 				const text = await res.text();
+
 				throw error(res.status, {
-					message: 'Lemmy Error: ' + res.statusText + ':\n' + text
+					message: 'Lemmy Error: ' + res.status + ':\n' + text,
+					lemmyError: tryParse(text)?.error ?? ''
 				});
 			}
 			return res;

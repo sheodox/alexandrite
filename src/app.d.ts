@@ -11,7 +11,9 @@ export interface Settings {
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
+		interface Error {
+			lemmyError: strin;
+		}
 		interface Locals {
 			// lemmy server instance URL
 			settings: Settings;

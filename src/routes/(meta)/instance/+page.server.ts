@@ -4,6 +4,7 @@ import type { GetSiteResponse, Login } from 'lemmy-js-client';
 import { setLemmySettings } from '$lib/lemmy-settings';
 import { logout } from '../logout/logout';
 import { createLemmyClient } from '$lib/lemmy-client';
+import { getMessageFromError } from '$lib/error-messages';
 
 export const actions = {
 	setInstance: async ({ request, cookies }) => {
@@ -30,9 +31,8 @@ export const actions = {
 		try {
 			site = await client.getSite({});
 		} catch (e) {
-			const httpErr = e as HttpError;
 			return fail(400, {
-				errorMsg: 'Error fetching site metadata: ' + httpErr,
+				errorMsg: `Error connecting to "${instance}", check to make sure your instance is spelled correctly.`,
 				instance,
 				username
 			});
@@ -59,9 +59,8 @@ export const actions = {
 			try {
 				jwt = (await client.login(loginForm)).jwt ?? '';
 			} catch (e) {
-				console.log(e);
 				return fail(401, {
-					errorMsg: 'Username or password incorrect.',
+					errorMsg: 'Login failed: ' + getMessageFromError(e),
 					instance,
 					username
 				});

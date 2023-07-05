@@ -16,6 +16,8 @@
 	}
 </style>
 
+<Title title="Error" />
+
 <Header slim={false} appName="Alexandrite">
 	<Logo slot="logo" size="large" />
 </Header>
@@ -36,4 +38,5 @@
 	import { page } from '$app/stores';
 	import Logo from '$lib/Logo.svelte';
 	import { Header, Stack } from 'sheodox-ui';
+	import Title from '$lib/Title.svelte';
 </script>

@@ -71,12 +71,15 @@
 	</Stack>
 </form>
 
+<a href="/about" class="text-align-center inline-link">About Alexandrite / Support Development</a>
+
 <script lang="ts">
 	import { Alert, Icon, TextInput, Stack, ExternalLink } from 'sheodox-ui';
 	import { enhance } from '$app/forms';
 	import Spinner from '$lib/Spinner.svelte';
 	import Separator from '$lib/Separator.svelte';
 	import Title from '$lib/Title.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	export let form;
 	export let data;
@@ -101,7 +104,6 @@
 		} catch (e) {
 			return false;
 		}
-		return true;
 	}
 
 	const formSubmit: SubmitFunction = () => {

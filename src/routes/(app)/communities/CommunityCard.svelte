@@ -16,31 +16,33 @@
 	}
 </style>
 
-<div class="card">
-	<Stack dir="r" align="center" cl="card-title" gap={2}>
-		{#if communityView.community.icon}
-			<div class="icon">
-				<Image src={communityView.community.icon} mode="thumbnail" />
-			</div>
-		{/if}
-		<a href="/c/{communityName}" class="inline-link">
-			<NameAtInstance place={displayCommunity} prefix="" />
-		</a>
-	</Stack>
-
-	<Stack cl="card-body" dir="c" gap={2}>
-		<CommunityBadges extended community={communityView.community} />
-		<Stack dir="r" align="center" gap={2}>
-			<CommunityJoin {communityView} />
-			<CommunityCounts {communityView} />
+<div class="p-2">
+	<div class="card p-4">
+		<Stack dir="r" align="center" cl="card-title" gap={2}>
+			{#if communityView.community.icon}
+				<div class="icon">
+					<Image src={communityView.community.icon} mode="thumbnail" />
+				</div>
+			{/if}
+			<a href="/c/{communityName}" class="inline-link">
+				<NameAtInstance place={displayCommunity} prefix="" />
+			</a>
 		</Stack>
 
-		{#if communityView.community.description}
-			<div class="description">
-				<Markdown md={communityView.community.description} noImages />
-			</div>
-		{/if}
-	</Stack>
+		<Stack cl="card-body" dir="c" gap={2}>
+			<CommunityBadges extended community={communityView.community} />
+			<Stack dir="r" align="center" gap={2}>
+				<CommunityJoin {communityView} />
+				<CommunityCounts {communityView} />
+			</Stack>
+
+			{#if communityView.community.description}
+				<div class="description">
+					<Markdown md={communityView.community.description} noImages />
+				</div>
+			{/if}
+		</Stack>
+	</div>
 </div>
 
 <script lang="ts">
@@ -55,8 +57,8 @@
 	import CommunityJoin from '$lib/CommunityJoin.svelte';
 
 	export let communityView: CommunityView;
-	const communityName = nameAtInstance(communityView.community);
-	const displayCommunity = {
+	$: communityName = nameAtInstance(communityView.community);
+	$: displayCommunity = {
 		name: communityView.community.title ?? communityView.community.name,
 		local: communityView.community.local,
 		actor_id: communityView.community.actor_id

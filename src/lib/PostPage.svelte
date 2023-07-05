@@ -140,7 +140,6 @@
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
 		loadingComments = false,
-		loadingCommentsFailed = false,
 		// assume if they came here following a comment link, commenting on the post is less important
 		showCommentComposer = rootCommentId === null,
 		showPost = rootCommentId === null,
@@ -206,7 +205,7 @@
 			const res = await fetch(url);
 			if (!res.ok) {
 				return {
-					comments: [],
+					comments: 0,
 					busy: false,
 					error: true
 				};

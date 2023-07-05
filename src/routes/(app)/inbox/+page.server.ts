@@ -1,29 +1,19 @@
+import { endpoint } from '$lib/utils';
+import type { ApiInboxRes } from '../api/inbox/+server';
 import type { Actions, PageServerLoad } from './$types';
-import type { CommentSortType } from 'lemmy-js-client';
 
-export const load = (async ({ url, locals }) => {
-	const query = {
-		type: url.searchParams.get('type') || 'Unread',
-		listing: url.searchParams.get('listing') || 'All',
-		sort: url.searchParams.get('sort') || 'New'
-	};
+export const load = (async ({ url, fetch }) => {
+	const data: ApiInboxRes = await fetch(
+		endpoint(`/api/inbox`, {
+			// subsequent pages use this api endpoint, no need for page here
+			page: 1,
+			type: url.searchParams.get('type'),
+			listing: url.searchParams.get('listing'),
+			sort: url.searchParams.get('sort')
+		})
+	).then((res) => res.json());
 
-	const form = {
-		auth: locals.jwt,
-		sort: query.sort as CommentSortType,
-		unread_only: query.type === 'Unread',
-		page: Number(url.searchParams.get('page') || '1'),
-		limit: 20
-	};
-
-	const isListing = (listing: string) => query.listing === listing || query.listing === 'All';
-
-	return {
-		query,
-		replies: isListing('Replies') ? locals.client.getReplies(form).then((c) => c.replies) : [],
-		mentions: isListing('Mentions') ? locals.client.getPersonMentions(form).then((c) => c.mentions) : [],
-		messages: isListing('Messages') ? locals.client.getPrivateMessages(form).then((c) => c.private_messages) : []
-	};
+	return data;
 }) satisfies PageServerLoad;
 
 export const actions = {

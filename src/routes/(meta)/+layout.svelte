@@ -1,4 +1,4 @@
-<Header slim={false} appName="Alexandrite">
+<Header slim={false} appName="Alexandrite" href="/">
 	<Logo slot="logo" size="large" />
 </Header>
 
