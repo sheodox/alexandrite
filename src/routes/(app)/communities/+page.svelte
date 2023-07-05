@@ -28,7 +28,9 @@
 	>
 		<svelte:fragment let:index>
 			{@const cv = communities[index]}
-			<CommunityCard communityView={cv} />
+			{#key cv.community.actor_id}
+				<CommunityCard communityView={cv} />
+			{/key}
 		</svelte:fragment>
 	</VirtualFeed>
 </Layout>
