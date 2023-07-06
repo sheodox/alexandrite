@@ -21,9 +21,39 @@
 </div>
 
 <script lang="ts">
-	import MarkdownIt from 'markdown-it';
-	const fullRender = new MarkdownIt();
-	const noImageRender = new MarkdownIt().disable('image');
+	import MarkdownIt, { type Options } from 'markdown-it';
+	const mdOptions: Options = {
+		linkify: true,
+		html: false,
+		typographer: true
+	};
+
+	const communityReg = /([\w]+@[\w]+\.[\w]+)/g;
+
+	const fullRender = new MarkdownIt(mdOptions);
+	const noImageRender = new MarkdownIt(mdOptions).disable('image');
+
+	extendMd(fullRender);
+	extendMd(noImageRender);
+
+	function extendMd(md: MarkdownIt) {
+		md.linkify.set({ fuzzyEmail: false });
+		// linkify community links in the format: !communityname@example.com
+		md.linkify.add('!', {
+			validate: function (text, pos) {
+				const tail = text.slice(pos);
+				const match = tail.match(communityReg);
+				if (match) {
+					return match[0].length;
+				}
+
+				return 0;
+			},
+			normalize: function (match) {
+				match.url = `/c/${match.url.replace('!', '')}`;
+			}
+		});
+	}
 
 	export let md: string;
 	export let noImages = false;
