@@ -1,12 +1,15 @@
 {#if data.postView}
 	<Title title={data.postView.post.name} />
-	<PostPage postView={data.postView} />
+	<Layout size="wide">
+		<PostPage postView={data.postView} />
+	</Layout>
 {:else}
 	<Title title="Not Found" />
 	<p>Post not found!</p>
 {/if}
 
 <script>
+	import { Layout } from 'sheodox-ui';
 	import PostPage from '$lib/PostPage.svelte';
 	import Title from '$lib/Title.svelte';
 
