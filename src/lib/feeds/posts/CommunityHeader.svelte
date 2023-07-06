@@ -3,10 +3,10 @@
 	<Stack dir="r" gap={2} align="center" slot="actions">
 		{#if !readOnly}
 			<CommunityJoin {communityView} />
-			<a href="/c/{nameAtInstance(communityView.community)}/post" class="button secondary">
+			<a href="/c/{nameAtInstance(communityView.community)}/post" class="button tertiary">
 				<Icon icon="plus" /> Post
 			</a>
-			<a href="/search?community={nameAtInstance(communityView.community)}" class="button">
+			<a href="/search?community={nameAtInstance(communityView.community)}" class="button tertiary">
 				<Icon icon="magnifying-glass" /> Search
 			</a>
 		{/if}
