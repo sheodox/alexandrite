@@ -13,11 +13,8 @@
 </style>
 
 {#if error}
-	<div class="error align-items-center justify-content-center f-row">
-		<button on:click={() => (error = false)}>
-			<Icon icon="bug" />
-			<span>Retry?</span>
-		</button>
+	<div class="error align-items-center justify-content-center f-row" title="Image load failed">
+		<Icon icon="bug" />
 	</div>
 {:else if valid}
 	<picture class="image-mode-{mode} {full ? 'image-full' : ''}">

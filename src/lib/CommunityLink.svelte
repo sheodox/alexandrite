@@ -1,18 +1,39 @@
-<style>
-	.community-avatar :global(img) {
+<style lang="scss">
+	.community-avatar {
 		height: 1.6rem;
 		width: 1.6rem;
 		border-radius: 10rem;
+
+		:global(img) {
+			border-radius: 10rem;
+			height: 100%;
+			width: 100%;
+			object-fit: cover;
+		}
+	}
+	.community-avatar {
+		&.small {
+			height: 1em;
+			width: 1em;
+		}
+		&.medium {
+			height: 1.6rem;
+			width: 1.6rem;
+		}
+		&.large {
+			height: 3rem;
+			width: 3rem;
+		}
 	}
 </style>
 
 <a href="/c/{communityName}" class:inline-link={inlineLink} data-sveltekit-preload-data="off">
 	{#if inlineLink}
 		<Tooltip>
-			<div slot="tooltip">
+			<div slot="tooltip" class="community-tooltip">
 				<Stack gap={2} dir="r" align="center">
 					{#if community.icon}
-						<div class="community-avatar">
+						<div class="community-avatar large">
 							<Image src={community.icon} />
 						</div>
 					{/if}
@@ -25,13 +46,18 @@
 				{/if}
 			</div>
 			<span class="f-row gap-1">
+				{#if community.icon}
+					<div class="community-avatar small">
+						<Image src={community.icon} />
+					</div>
+				{/if}
 				<EllipsisText><NameAtInstance place={displayCommunity} prefix="" /></EllipsisText>
 				<CommunityBadges {community} />
 			</span>
 		</Tooltip>
 	{:else}
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
-			<div class="community-avatar">
+			<div class="community-avatar medium">
 				{#if community.icon}
 					<Image src={community.icon} />
 				{:else}

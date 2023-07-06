@@ -1,8 +1,17 @@
-<style>
-	.user-avatar :global(img) {
-		height: 2rem;
-		width: 2rem;
-		border-radius: 10rem;
+<style lang="scss">
+	.user-avatar {
+		height: 3rem;
+		width: 3rem;
+		:global(img) {
+			object-fit: cover;
+			border-radius: 10rem;
+			height: 100%;
+			width: 100%;
+		}
+	}
+	.user-avatar.inline {
+		height: 1em;
+		width: 1em;
 	}
 </style>
 
@@ -18,11 +27,18 @@
 				{user.display_name ?? user.name}
 			</h1>
 		</Stack>
-		<span>{creatorName}</span>
+		<span> {creatorName}</span>
 	</div>
-	<a href="/u/{creatorName}" class="inline-link" data-sveltekit-preload-data="off"
-		><NameAtInstance place={user} displayName={user.display_name} prefix="" /></a
-	>
+	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off">
+		{#if user.avatar}
+			<div class="user-avatar inline">
+				<Image src={user.avatar} />
+			</div>
+		{/if}
+		<span>
+			<NameAtInstance place={user} displayName={user.display_name} prefix="" />
+		</span>
+	</a>
 </Tooltip>
 
 <script lang="ts">
