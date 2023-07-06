@@ -1,15 +1,13 @@
 {#if badges.length}
-	<Stack gap={2} dir="r" align="center">
-		<span class="sx-font-size-2 f-row">
-			{#each badges as b}
-				<Tooltip>
-					<span slot="tooltip">{b.text}</span>
-					<span class="sx-badge-{b.color} m-0 ws-nowrap">
-						<span>{b.text}</span>
-					</span>
-				</Tooltip>
-			{/each}
-		</span>
+	<Stack gap={1} dir="r" align="center" cl="sx-font-size-2">
+		{#each badges as b}
+			<Tooltip>
+				<span slot="tooltip">{b.text}</span>
+				<span class="sx-badge-{b.color} m-0 ws-nowrap">
+					<span>{b.text}</span>
+				</span>
+			</Tooltip>
+		{/each}
 	</Stack>
 {/if}
 

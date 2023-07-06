@@ -24,7 +24,7 @@
 					<NameAtInstance place={community} prefix="!" />
 				{/if}
 			</div>
-			<span>
+			<span class="f-row gap-1">
 				<EllipsisText><NameAtInstance place={displayCommunity} prefix="" /></EllipsisText>
 				<CommunityBadges {community} />
 			</span>
