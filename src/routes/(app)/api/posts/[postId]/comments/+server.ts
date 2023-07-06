@@ -14,7 +14,8 @@ export const GET = (async ({ url, params, locals }) => {
 		page,
 		parent_id: parentId,
 		max_depth: 3,
-		sort
+		sort,
+		type_: 'All'
 	});
 
 	return json({ comments });
