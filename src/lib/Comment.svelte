@@ -220,7 +220,7 @@
 			showReplyComposer = false;
 
 			if (result.type === 'success' && result.data) {
-				dispatch('update-comment', result.data.commentView);
+				dispatch('new-comment', result.data.commentView);
 			}
 		};
 	};
