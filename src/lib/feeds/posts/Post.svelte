@@ -38,11 +38,16 @@
 	a.read {
 		color: var(--sx-gray-200);
 	}
+
+	button,
+	.button {
+		margin: 0;
+	}
 </style>
 
 <article class="post px-2 py-1 f-row align-items-center post-mode-{mode}">
 	<Stack dir="c" gap={2} cl="w-100">
-		<Stack dir="r" gap={2} align="center">
+		<Stack dir="r" gap={3} align="center">
 			{@const thumbnailUrl = postView.post.thumbnail_url}
 			<div class="vote-column f-column justify-content-center">
 				<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" on:vote={vote} {votePending} />
@@ -57,29 +62,27 @@
 				{/if}
 			</div>
 			<Stack dir="c" gap={2}>
-				<Stack dir="r" gap={0} align="center">
-					{#if supportsOverlay}
+				<Stack dir="r" gap={2} align="center">
+					{#if supportsOverlay && modeList}
 						<Tooltip>
 							<span slot="tooltip">Open in overlay</span>
-							{#if modeList}
-								<button class="mr-2" on:click={() => dispatch('overlay', postView.post.id)}>
-									<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
-										<Icon icon="comments" iconVariant="regular" variant="icon-only" />
-										{postView.counts.comments}
-										{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
-											<span class="sx-badge-orange">+{postView.unread_comments}</span>
-										{/if}
-									</span>
-									<span class="sr-only">Comments</span>
-								</button>
-							{/if}
+							<button on:click={() => dispatch('overlay', postView.post.id)}>
+								<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
+									<Icon icon="comments" iconVariant="regular" variant="icon-only" />
+									{postView.counts.comments}
+									{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
+										<span class="sx-badge-orange">+{postView.unread_comments}</span>
+									{/if}
+								</span>
+								<span class="sr-only">Comments</span>
+							</button>
 						</Tooltip>
 					{/if}
 					<a
 						href="/post/{postView.post.id}"
 						class="sx-font-size-5 post-title"
 						data-sveltekit-preload-data="off"
-						class:read={postView.read}>{postView.post.name}</a
+						class:read={postView.read && modeList}>{postView.post.name}</a
 					>
 					<PostBadges {postView} />
 				</Stack>
@@ -103,11 +106,7 @@
 						<span>
 							<Tooltip>
 								<span slot="tooltip">{text}</span>
-								<a
-									href={postView.post.url}
-									class="button small tertiary"
-									on:click|preventDefault={() => (showPost = !showPost)}
-								>
+								<a href={postView.post.url} class="button small" on:click|preventDefault={() => (showPost = !showPost)}>
 									{#if showPost}
 										<Icon icon="eye-slash" variant="icon-only" />
 									{:else}

@@ -1,5 +1,5 @@
 {#if valid}
-	<a class="inline-link" {href} rel="noreferrer" target="_blank"
+	<a class="inline-link {cl}" {href} rel="noreferrer" target="_blank"
 		><Icon icon="arrow-up-right-from-square" />{prettyUrl(href)}</a
 	>
 {/if}
@@ -8,6 +8,7 @@
 	import { Icon } from 'sheodox-ui';
 
 	export let href: string;
+	export let cl = '';
 
 	$: valid = /https?:\/\//.test(href);
 
