@@ -22,11 +22,12 @@
 		</article>
 		{#if data.moderates && data.moderates.length}
 			<article>
-				<h1>Moderates</h1>
-				{#each data.moderates as mod}
-					<div />
-					<CommunityLink community={mod.community} />
-				{/each}
+				<h1 class="mb-0">Moderates</h1>
+				<Stack dir="c" gap={2}>
+					{#each data.moderates as mod}
+						<CommunityLink community={mod.community} />
+					{/each}
+				</Stack>
 			</article>
 			<hr class="my-8" />
 		{/if}
@@ -34,6 +35,7 @@
 </PostsPage>
 
 <script lang="ts">
+	import { Stack } from 'sheodox-ui';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
