@@ -1,21 +1,28 @@
 <Title title="Communities" />
 <Layout size="medium">
-	<h1>Communities</h1>
+	<h1 class="px-2 mb-0">Communities</h1>
 
-	<form method="GET" data-sveltekit-replacestate>
-		<section>
-			<Stack gap={4} align="center" cl="p-4" dir="r">
-				<ToggleGroup options={ListingOptions(!!data.settings.username)} selected={data.query.listing} name="listing" />
-				<select aria-label="Post Sort" value={data.query.sort} name="sort" required>
-					{#each PostSortOptions as opt}
-						<option value={opt.value}>{opt.label}</option>
-					{/each}
-				</select>
+	<Stack dir="r" justify="between" align="center">
+		<form method="GET" data-sveltekit-replacestate>
+			<section>
+				<Stack gap={4} align="center" cl="p-4" dir="r">
+					<ToggleGroup
+						options={ListingOptions(!!data.settings.username)}
+						selected={data.query.listing}
+						name="listing"
+					/>
+					<select aria-label="Post Sort" value={data.query.sort} name="sort" required>
+						{#each PostSortOptions as opt}
+							<option value={opt.value}>{opt.label}</option>
+						{/each}
+					</select>
 
-				<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
-			</Stack>
-		</section>
-	</form>
+					<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+				</Stack>
+			</section>
+		</form>
+		<a href="/search?type=Communities" class="inline-link">Search Communities</a>
+	</Stack>
 
 	<VirtualFeed
 		on:more={more}
@@ -36,7 +43,7 @@
 </Layout>
 
 <script lang="ts">
-	import { Stack, Icon, Layout } from 'sheodox-ui';
+	import { Search, Stack, Icon, Layout } from 'sheodox-ui';
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';

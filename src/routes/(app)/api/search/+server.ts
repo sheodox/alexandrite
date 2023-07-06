@@ -59,6 +59,7 @@ export const GET = (async ({ cookies, url, locals }) => {
 		page: query.page,
 		sort: query.sort as SortType,
 		type_: query.type as SearchType,
+		listing_type: query.listing,
 		community_name: query.community ?? undefined,
 		creator_id: query.creator ?? undefined,
 		q: query.q
