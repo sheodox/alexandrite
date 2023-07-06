@@ -11,6 +11,12 @@
 				Send Message
 			</a>
 		{/if}
+		{#if !readOnly}
+			<a class="button tertiary" href="/search?creator={personView.person.id}">
+				<Icon icon="magnifying-glass" />
+				Search
+			</a>
+		{/if}
 		<LogButton on:click={() => console.log({ personView })} text="Log PersonView" small={false} />
 	</Stack>
 
@@ -29,6 +35,7 @@
 	import { getAppContext } from '$lib/app-context';
 
 	export let personView: PersonView;
+	export let readOnly = false;
 	const { username } = getAppContext();
 
 	$: personInstance = new URL(personView.person.actor_id).host;

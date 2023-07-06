@@ -1,11 +1,15 @@
-<a class="inline-link" {href} rel="noreferrer" target="_blank"
-	><Icon icon="arrow-up-right-from-square" />{prettyUrl(href)}</a
->
+{#if valid}
+	<a class="inline-link" {href} rel="noreferrer" target="_blank"
+		><Icon icon="arrow-up-right-from-square" />{prettyUrl(href)}</a
+	>
+{/if}
 
 <script lang="ts">
 	import { Icon } from 'sheodox-ui';
 
 	export let href: string;
+
+	$: valid = /https?:\/\//.test(href);
 
 	const ellipsis = '...',
 		maxDisplayedPathLength = 10;

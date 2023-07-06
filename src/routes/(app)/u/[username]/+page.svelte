@@ -18,18 +18,7 @@
 	<div slot="sidebar">
 		<article>
 			<h1>Stats</h1>
-			<Stack dir="c" gap={3}>
-				{#each counts as count}
-					<Stack dir="r" gap={1} align="center">
-						<span class="muted">{count.label}:</span>
-						<strong>{count.count.toLocaleString()}</strong>
-						<Icon icon={count.icon} variant="icon-only" />
-						<span class="muted">&centerdot;</span>
-						<strong>{count.score.toLocaleString()}</strong>
-						<Icon icon="trophy" variant="icon-only" />
-					</Stack>
-				{/each}
-			</Stack>
+			<UserCounts personView={data.personView} />
 		</article>
 		{#if data.moderates && data.moderates.length}
 			<article>
@@ -46,7 +35,7 @@
 
 <script lang="ts">
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
-	import { Stack, Icon } from 'sheodox-ui';
+	import UserCounts from '$lib/UserCounts.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
 	import { nameAtInstance } from '$lib/nav-utils.js';
@@ -95,21 +84,6 @@
 
 		loadingContent = false;
 	}
-
-	const counts = [
-		{
-			label: 'Posts',
-			score: data.personView.counts.post_score,
-			count: data.personView.counts.post_count,
-			icon: 'file-lines'
-		},
-		{
-			label: 'Comments',
-			score: data.personView.counts.comment_score,
-			count: data.personView.counts.comment_count,
-			icon: 'comments'
-		}
-	];
 
 	function updatePostView(e: CustomEvent<PostView>) {
 		const pv = e.detail;

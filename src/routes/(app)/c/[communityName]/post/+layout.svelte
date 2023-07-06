@@ -9,7 +9,7 @@
 
 <Layout size="medium">
 	<div class="community-header my-2">
-		<CommunityHeader communityView={data.communityView} readonly />
+		<CommunityHeader communityView={data.communityView} readOnly />
 	</div>
 
 	<slot />

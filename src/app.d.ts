@@ -12,7 +12,7 @@ export interface Settings {
 declare global {
 	namespace App {
 		interface Error {
-			lemmyError: strin;
+			lemmyError?: string;
 		}
 		interface Locals {
 			// lemmy server instance URL

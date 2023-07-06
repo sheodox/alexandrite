@@ -1,10 +1,13 @@
 <FeedHeader icon={communityView.community.icon ?? ''} published={communityView.community.published}>
 	<NameAtInstance place={communityView.community} prefix="!" slot="name" />
 	<Stack dir="r" gap={2} align="center" slot="actions">
-		{#if !readonly}
+		{#if !readOnly}
 			<CommunityJoin {communityView} />
 			<a href="/c/{nameAtInstance(communityView.community)}/post" class="button secondary">
 				<Icon icon="plus" /> Post
+			</a>
+			<a href="/search?community={nameAtInstance(communityView.community)}" class="button">
+				<Icon icon="magnifying-glass" /> Search
 			</a>
 		{/if}
 	</Stack>
@@ -23,5 +26,5 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 
 	export let communityView: CommunityView;
-	export let readonly = false;
+	export let readOnly = false;
 </script>

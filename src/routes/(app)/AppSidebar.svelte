@@ -50,6 +50,11 @@
 			icon: 'home'
 		},
 		{
+			href: '/search',
+			text: 'Search',
+			icon: 'magnifying-glass'
+		},
+		{
 			href: `/u/${username}`,
 			text: 'Profile',
 			icon: 'user',

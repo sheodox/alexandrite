@@ -58,21 +58,23 @@
 			</div>
 			<Stack dir="c" gap={2}>
 				<Stack dir="r" gap={0} align="center">
-					<Tooltip>
-						<span slot="tooltip">Open in overlay</span>
-						{#if modeList}
-							<button class="mr-2" on:click={() => dispatch('overlay', postView.post.id)}>
-								<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
-									<Icon icon="comments" iconVariant="regular" variant="icon-only" />
-									{postView.counts.comments}
-									{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
-										<span class="sx-badge-orange">+{postView.unread_comments}</span>
-									{/if}
-								</span>
-								<span class="sr-only">Comments</span>
-							</button>
-						{/if}
-					</Tooltip>
+					{#if supportsOverlay}
+						<Tooltip>
+							<span slot="tooltip">Open in overlay</span>
+							{#if modeList}
+								<button class="mr-2" on:click={() => dispatch('overlay', postView.post.id)}>
+									<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
+										<Icon icon="comments" iconVariant="regular" variant="icon-only" />
+										{postView.counts.comments}
+										{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
+											<span class="sx-badge-orange">+{postView.unread_comments}</span>
+										{/if}
+									</span>
+									<span class="sr-only">Comments</span>
+								</button>
+							{/if}
+						</Tooltip>
+					{/if}
 					<a
 						href="/post/{postView.post.id}"
 						class="sx-font-size-5 post-title"
@@ -222,6 +224,7 @@
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
+	export let supportsOverlay = true;
 	const { loggedIn } = getAppContext();
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';

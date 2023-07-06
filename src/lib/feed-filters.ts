@@ -42,6 +42,33 @@ export const UserFeedTypeOptions = (isMe: boolean) => {
 		  ];
 };
 
+export const SearchTypeOptions = [
+	{
+		value: 'All',
+		label: 'All'
+	},
+	{
+		value: 'Posts',
+		label: 'Posts'
+	},
+	{
+		value: 'Comments',
+		label: 'Comments'
+	},
+	{
+		value: 'Communities',
+		label: 'Communities'
+	},
+	{
+		value: 'Users',
+		label: 'Users'
+	},
+	{
+		value: 'Url',
+		label: 'URL'
+	}
+];
+
 export const ListingOptions = (loggedIn: boolean) => [
 	{
 		value: 'Subscribed',
@@ -159,6 +186,8 @@ export const CommentFeedSortOptions = [
 		label: 'Top All Time'
 	}
 ];
+
+export const SearchSortOptions = CommentFeedSortOptions;
 
 export const InboxTypes = [
 	{ value: 'Unread', label: 'Unread' },

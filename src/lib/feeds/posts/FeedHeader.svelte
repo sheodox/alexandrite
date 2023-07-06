@@ -22,9 +22,12 @@
 				<h1 class="mb-2"><slot name="name" /></h1>
 				<Stack dir="r" align="center">
 					<slot name="actions" />
+				</Stack>
+				<Stack gap={2} dir="r" align="center">
 					<span class="sx-badge-gray"
 						><Icon icon="cake-candles" />Since {dateFormatter.format(parseISO(published + 'Z'))}</span
 					>
+
 					<slot name="badges" />
 				</Stack>
 			</Stack>

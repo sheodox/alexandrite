@@ -37,7 +37,7 @@
 
 <script lang="ts">
 	import { Stack, Icon, Layout } from 'sheodox-ui';
-	import CommunityCard from './CommunityCard.svelte';
+	import CommunityCard from '$lib/CommunityCard.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';

@@ -44,6 +44,11 @@
 				{instanceText}
 			</span>
 		</Tooltip>
+
+		<form method="GET" action="/search">
+			<Search name="q" />
+		</form>
+
 		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
 		<form action="/logout?/logout" method="POST">
 			<Tooltip {placement}>
@@ -80,7 +85,7 @@
 
 <script lang="ts">
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
-	import { Sidebar, Header, Icon, Tooltip } from 'sheodox-ui';
+	import { Sidebar, Header, Icon, Tooltip, Search } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';
