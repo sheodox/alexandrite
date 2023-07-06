@@ -56,7 +56,7 @@
 		<div class="login-inputs f-column gap-2">
 			<Separator>Login Info (Optional)</Separator>
 			<TextInput name="username" bind:value={username}>Username or email (optional)</TextInput>
-			<TextInput name="password" bind:value={password} type="password">Password</TextInput>
+			<TextInput name="password" bind:value={password} type="password" maxlength={60}>Password</TextInput>
 			<TextInput name="totp_2fa_token" value="">Two-factor authentication token (if enabled)</TextInput>
 		</div>
 		<button
