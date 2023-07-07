@@ -1,11 +1,20 @@
+<style>
+	.search-header {
+		border-radius: 20px;
+		overflow: hidden;
+	}
+</style>
+
 <Title title="Search" />
 
-{#if data.communityView}
-	<CommunityHeader communityView={data.communityView} readOnly />
-{/if}
-{#if data.personView}
-	<UserHeader personView={data.personView} readOnly />
-{/if}
+<div class="search-header my-2">
+	{#if data.communityView}
+		<CommunityHeader communityView={data.communityView} readOnly />
+	{/if}
+	{#if data.personView}
+		<UserHeader personView={data.personView} readOnly />
+	{/if}
+</div>
 
 <h1 class="mb-0">Search</h1>
 
