@@ -1,8 +1,13 @@
 <Title title="Inbox" />
 
 {#if $unreadCount > 0}
-	<form method="POST" action="?/markAllAsRead" use:enhance>
-		<button class="tertiary">Mark All As Read</button>
+	<form method="POST" action="?/markAllAsRead" use:enhance={markAllSubmitFn} on:submit={() => (markingAllRead = true)}>
+		<button class="tertiary f-row gap-2" disabled={markingAllRead}>
+			{#if markingAllRead}
+				<Spinner />
+			{/if}
+			Mark All As Read
+		</button>
 	</form>
 {/if}
 
@@ -34,7 +39,6 @@
 	>
 		<svelte:fragment let:index>
 			{@const content = contentViews[index]}
-			<!-- {#each contentViews as content, i} -->
 			{#if content.type !== 'message'}
 				<Comment commentView={content.view} postOP="" showPost>
 					<InboxReadButton {content} slot="actions-start" />
@@ -51,9 +55,6 @@
 			{#if index + 1 < contentViews.length}
 				<hr class="w-100" />
 			{/if}
-			<!-- {:else} -->
-			<!-- 	<FeedBanner icon="comments" message="No content" /> -->
-			<!-- {/each} -->
 		</svelte:fragment>
 	</VirtualFeed>
 </Stack>
@@ -66,6 +67,7 @@
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
 	import { enhance } from '$app/forms';
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
+	import Spinner from '$lib/Spinner.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
 	import { getAppContext } from '$lib/app-context';
@@ -74,12 +76,15 @@
 	import { feedLoader } from '$lib/post-loader';
 	import { endpoint } from '$lib/utils';
 	import type { ApiInboxRes } from '../api/inbox/+server';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { tick } from 'svelte';
 
 	export let data;
 
 	const { unreadCount } = getAppContext();
 
 	let loadingContent = false,
+		markingAllRead = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
 		contentViews: ReturnType<typeof getContentViews> = [];
@@ -169,4 +174,17 @@
 
 		return [];
 	}
+
+	const markAllSubmitFn: SubmitFunction = () => {
+		return async ({ update, result }) => {
+			await update();
+			if (result.type === 'success') {
+				markingAllRead = false;
+
+				// no clue why, but if I don't wait a tick the unread count's style updates, but not the count inside
+				await tick();
+				$unreadCount = 0;
+			}
+		};
+	};
 </script>
