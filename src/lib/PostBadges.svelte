@@ -36,10 +36,10 @@
 			badges.push({ color: 'red', text: 'Deleted', icon: 'trash' });
 		}
 		if (post.featured_local) {
-			badges.push({ color: 'orange', text: 'Featured Local', icon: 'thumbtack' });
+			badges.push({ color: 'orange', text: 'Featured in Local', icon: 'thumbtack' });
 		}
 		if (post.featured_community) {
-			badges.push({ color: 'green', text: 'Featured Community', icon: 'thumbtack' });
+			badges.push({ color: 'green', text: 'Featured in Community', icon: 'thumbtack' });
 		}
 		return badges;
 	}
