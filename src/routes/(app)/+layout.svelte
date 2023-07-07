@@ -59,6 +59,12 @@
 				</button>
 			</Tooltip>
 		</form>
+		<IconButton
+			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
+			on:click={() => ($sidebarVisible = !$sidebarVisible)}
+			text="Toggle sidebar"
+			{placement}
+		/>
 	</div>
 </Header>
 
@@ -88,13 +94,14 @@
 	import { Sidebar, Header, Icon, Tooltip, Search } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
-	import { setAppContext } from '$lib/app-context';
+	import { localStorageBackedStore, setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
 	import type { GetUnreadCountResponse } from 'lemmy-js-client';
 	import IconLink from '$lib/IconLink.svelte';
 	import Logo from '$lib/Logo.svelte';
-	import { writable } from 'svelte/store';
+	import { writable, type Unsubscriber } from 'svelte/store';
+	import IconButton from '$lib/IconButton.svelte';
 
 	export let data;
 
@@ -112,13 +119,17 @@
 		menuOpen = false;
 	});
 
+	const sidebarVisible = localStorageBackedStore('sidebar-visible', true),
+		cssVariables = writable<Record<string, string>>({});
+
 	setAppContext({
 		username: data.settings.username,
 		loggedIn: data.loggedIn,
 		instance: data.settings.instance,
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
-		unreadCount
+		unreadCount,
+		sidebarVisible
 	});
 
 	let menuOpen = false;
@@ -134,9 +145,42 @@
 		});
 
 	const unreadPollMS = 1000 * 60 * 15;
-	let unreadPollInterval: ReturnType<typeof setInterval>;
+	let unreadPollInterval: ReturnType<typeof setInterval>,
+		headerResizeObserver: ResizeObserver,
+		cssVarUnsub: Unsubscriber;
 
 	onMount(async () => {
+		// track the height of the header, wanted for some styling in various places
+		// where fixed/absolutely positioned elements need to be below the header (which is fixed)
+		const header = document.querySelector('header');
+		if (header) {
+			headerResizeObserver = new ResizeObserver((entries) => {
+				const height = entries.at(0)?.borderBoxSize[0].blockSize;
+				cssVariables.update((v) => {
+					return { ...v, '--app-header-height': `${height}px` };
+				});
+			});
+			headerResizeObserver.observe(header);
+		}
+
+		cssVarUnsub = cssVariables.subscribe((vars) => {
+			const styleId = 'alexandrite-style-overrides';
+			let style = document.getElementById(styleId);
+			if (!style) {
+				style = document.createElement('style');
+				style.id = styleId;
+				document.head.appendChild(style);
+			}
+
+			const rules = [];
+
+			for (const [varName, val] of Object.entries(vars)) {
+				rules.push(`${varName}: ${val};`);
+			}
+
+			style.textContent = `:root { ${rules.join('\n')} }`;
+		});
+
 		if (!data.loggedIn) {
 			return;
 		}
@@ -156,5 +200,7 @@
 
 	onDestroy(() => {
 		clearInterval(unreadPollInterval);
+		headerResizeObserver?.disconnect();
+		cssVarUnsub?.();
 	});
 </script>

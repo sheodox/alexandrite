@@ -12,12 +12,15 @@
 		height: 100vh;
 		right: 0;
 	}
-	.posts-page-content {
+	.sidebar-hidden aside {
+		display: none;
+	}
+	.sidebar-visible .posts-page-content {
 		width: calc(100% - #{$sidebarWidth});
 	}
 </style>
 
-<div class="f-1 posts-page">
+<div class="f-1 posts-page" class:sidebar-hidden={!$sidebarVisible} class:sidebar-visible={$sidebarVisible}>
 	<div class="posts-page-content">
 		{#if communityView}
 			<CommunityHeader {communityView} />
@@ -84,7 +87,7 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	const { username } = getAppContext();
+	const { username, sidebarVisible } = getAppContext();
 
 	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
 

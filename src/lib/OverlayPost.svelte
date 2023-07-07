@@ -3,12 +3,13 @@
 	.close-bg {
 		position: fixed;
 		inset: 0;
+		top: var(--app-header-height);
 	}
 	.post-overlay {
 		z-index: 1000;
 	}
 	.post-container {
-		height: 100vh;
+		height: 100%;
 		width: 75vw;
 		right: 0;
 		position: absolute;

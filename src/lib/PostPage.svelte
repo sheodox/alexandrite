@@ -8,28 +8,29 @@
 		width: 30rem;
 		padding: 1rem;
 		min-height: 100vh;
+		height: 100vh;
+		top: var(--app-header-height);
+		background-color: var(--sx-gray-800);
+		width: #{$sidebarWidth};
+		padding: 1rem;
+		overflow: auto;
+		position: fixed;
+		right: 0;
 	}
-	section.post {
+
+	.sidebar-visible section.post {
 		width: calc(100% - #{$sidebarWidth});
 	}
 	.comment-editor {
 		width: 60rem;
 		max-width: 100%;
 	}
-	aside {
-		background-color: var(--sx-gray-800);
-		width: #{$sidebarWidth};
-		padding: 1rem;
-		overflow: auto;
-		position: fixed;
-		top: 0;
-		padding-top: 50px;
-		height: 100vh;
-		right: 0;
+	.sidebar-hidden aside {
+		display: none;
 	}
 </style>
 
-<div>
+<div class:sidebar-hidden={!$sidebarVisible} class:sidebar-visible={$sidebarVisible}>
 	<section class="f-column p-4 f-1 post">
 		<div class="ml-6 mb-1">
 			<Breadcrumbs {links} linkifyLast />
@@ -140,7 +141,7 @@
 	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
 	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
 
-	const { loggedIn } = getAppContext();
+	const { loggedIn, sidebarVisible } = getAppContext();
 
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
