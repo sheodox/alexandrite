@@ -26,7 +26,7 @@ export const commentViewToContentView = (commentView: CommentView) => {
 		type: 'comment' as const,
 		commentView,
 		score: commentView.counts.score,
-		published: commentView.post.published
+		published: commentView.comment.published
 	};
 };
 
