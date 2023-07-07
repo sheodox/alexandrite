@@ -172,8 +172,21 @@
 		return lastKnownElementHeights.size;
 	}
 
+	function requestMore() {
+		if (!endOfFeed && !loading) {
+			dispatch('more');
+		}
+	}
+
 	function computeViewportItems() {
-		if (!mounted || !hadInitialMeasurement) {
+		if (!mounted) {
+			return;
+		}
+		if (!hadInitialMeasurement) {
+			// if we haven't seen enough elements to measure, just try and get more
+			if (feedSize < INITIAL_MINIMUM_RENDER_ITEMS) {
+				requestMore();
+			}
 			return;
 		}
 
@@ -221,7 +234,7 @@
 		safeSetTopIndex(topIndex);
 
 		if (startIndex + length >= feedSize - moreBufferItems) {
-			dispatch('more');
+			requestMore();
 		}
 	}
 
