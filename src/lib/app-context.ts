@@ -13,8 +13,10 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 	let value = defaultValue;
 
 	try {
-		// @ts-expect-error - want this to throw if it's invalid!
-		value = JSON.parse(localStorage.getItem(key));
+		const item = localStorage.getItem(key);
+		if (item !== null) {
+			value = JSON.parse(item);
+		}
 	} catch (e) {
 		/* ignore, use default */
 	}
