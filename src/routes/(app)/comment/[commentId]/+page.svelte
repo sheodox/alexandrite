@@ -1,7 +1,7 @@
 {#if data.postView}
 	<Title title={`Comment on "${data.postView.post.name}"`} />
 	<Layout size="wide">
-		<PostPage postView={data.postView} commentViews={data.commentViews} rootCommentId={data.commentId} />
+		<PostPage postView={data.postView} initialCommentViews={data.commentViews} rootCommentId={data.commentId} />
 	</Layout>
 {:else}
 	<Title title="Not Found" />

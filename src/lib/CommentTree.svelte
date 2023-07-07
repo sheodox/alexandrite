@@ -145,14 +145,19 @@
 		depth: number,
 		collapsed: number[]
 	): CommentBranch[] {
-		return commentViews
-			.filter((cv) => {
-				return cv.comment.path === path + '.' + cv.comment.id && !collapsed.some((c) => path.includes('' + c));
-			})
-			.map((cv) => {
-				return [{ cv, depth, path }, ...getBranches(path + '.' + cv.comment.id, commentViews, depth + 1, collapsed)];
-			})
-			.flat();
+		return (
+			commentViews
+				// filter out anything that's not at this level in the tree...
+				// (anything that's a child of `path` has a path itself like `<path>.<comment.id>`)
+				.filter((cv) => {
+					return cv.comment.path === path + '.' + cv.comment.id && !collapsed.some((c) => path.includes('' + c));
+				})
+				// ...so we can show all of the child comments as the siblings of this parent comment so they show next to each other
+				.map((cv) => {
+					return [{ cv, depth, path }, ...getBranches(path + '.' + cv.comment.id, commentViews, depth + 1, collapsed)];
+				})
+				.flat()
+		);
 	}
 
 	function filterComments(commentTree: CommentBranch[], searchText: string) {

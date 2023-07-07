@@ -102,7 +102,7 @@
 				on:new-comment={onNewComment}
 				on:update-comment={onUpdateComment}
 				on:more={loadNextCommentPage}
-				endOfFeed={endOfCommentsFeed}
+				endOfFeed={endOfCommentsFeed || viewingSingleCommentThread}
 				loadingContent={loadingComments}
 				loadingContentFailed={commentLoadFailed}
 				feedEndMessage="No more comments"
@@ -132,8 +132,9 @@
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 
 	export let postView: PostView;
-	export let commentViews: CommentView[] = [];
+	export let initialCommentViews: CommentView[] = [];
 	export let rootCommentId: null | number = null;
+	let commentViews = initialCommentViews;
 	let commentExpandLoadingIds = new Set<number>();
 	$: viewingSingleCommentThread = rootCommentId !== null;
 	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
