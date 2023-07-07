@@ -73,6 +73,7 @@
 		<section>
 			<Stack gap={4} align="center" cl="p-4" dir="r">
 				<ToggleGroup options={CommentSortOptions} bind:selected={selectedSort} name="sort" on:change={changeSort} />
+				<Search bind:value={searchText} />
 			</Stack>
 		</section>
 
@@ -94,6 +95,7 @@
 			<CommentTree
 				{rootCommentId}
 				{commentViews}
+				{searchText}
 				postOP={postView.creator.actor_id}
 				on:more={loadNextCommentPage}
 				on:expand={expandComment}
@@ -117,7 +119,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
-	import { Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
+	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
@@ -141,6 +143,7 @@
 
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
+		searchText = '',
 		loadingComments = false,
 		// assume if they came here following a comment link, commenting on the post is less important
 		showCommentComposer = rootCommentId === null,

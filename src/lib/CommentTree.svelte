@@ -20,9 +20,8 @@
 </style>
 
 <Stack gap={0} cl="px-4">
-	<!-- {#each commentTree as { cv, depth }} -->
 	<VirtualFeed
-		feedSize={commentTree.length}
+		feedSize={validComments.length}
 		on:more
 		{endOfFeed}
 		{feedEndIcon}
@@ -31,7 +30,7 @@
 		loadMoreFailed={loadingContentFailed}
 	>
 		<svelte:fragment let:index>
-			{@const { cv, depth } = commentTree[index]}
+			{@const { cv, depth } = validComments[index]}
 			{@const collapsed = collapsedComments.some((c) => cv.comment.id === c)}
 			<div class="comment">
 				<div
@@ -47,6 +46,7 @@
 						{collapsed}
 						on:new-comment
 						on:update-comment
+						searchNonMatch={searchText !== '' && !commentSearchMatchIds.includes(cv.comment.id)}
 					/>
 					{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
 						{@const loading = expandLoadingIds.includes(cv.comment.id)}
@@ -78,8 +78,22 @@
 	import { createEventDispatcher } from 'svelte';
 	import Spinner from './Spinner.svelte';
 
+	export let postOP: string;
+	export let searchText: string;
+	export let commentViews: CommentView[];
+	export let path = '0';
+	export let rootCommentId: number | null = null;
+	export let loadingContent: boolean;
+	export let loadingContentFailed: boolean;
+	export let feedEndMessage: string;
+	export let feedEndIcon: string;
+	export let endOfFeed: boolean;
+	export let expandLoadingIds: number[];
+
 	let collapsedCommentSet = new Set<number>(),
 		collapsedComments: number[] = [];
+
+	$: rootPath = getRootPath(rootCommentId, path);
 
 	function toggleCollapse(commentId: number) {
 		collapsedCommentSet.has(commentId) ? collapsedCommentSet.delete(commentId) : collapsedCommentSet.add(commentId);
@@ -96,19 +110,6 @@
 		depth: number;
 		path: string;
 	}
-
-	export let postOP: string;
-	export let commentViews: CommentView[];
-	export let path = '0';
-	export let rootCommentId: number | null = null;
-	export let loadingContent: boolean;
-	export let loadingContentFailed: boolean;
-	export let feedEndMessage: string;
-	export let feedEndIcon: string;
-	export let endOfFeed: boolean;
-	export let expandLoadingIds: number[];
-
-	$: rootPath = getRootPath(rootCommentId, path);
 
 	function getRootPath(rootId: number | null, path: string) {
 		if (rootCommentId === null) {
@@ -154,5 +155,27 @@
 			.flat();
 	}
 
+	function filterComments(commentTree: CommentBranch[], searchText: string) {
+		if (!searchText) {
+			validComments = commentTree;
+			commentSearchMatchIds = [];
+			return;
+		}
+		searchText = searchText.toLowerCase();
+
+		const commentSearchMatches = commentTree.filter((cb) => cb.cv.comment.content.toLowerCase().includes(searchText));
+
+		commentSearchMatchIds = commentSearchMatches.map((cb) => cb.cv.comment.id);
+
+		const matchPaths = commentSearchMatches.map((cb) => cb.cv.comment.path);
+
+		validComments = commentTree.filter((cb) => {
+			return matchPaths.some((p) => p.includes('' + cb.cv.comment.id));
+		});
+	}
+
 	$: commentTree = getBranches(rootPath, commentViews, 0, Array.from(collapsedComments));
+	let validComments: CommentBranch[] = [],
+		commentSearchMatchIds: number[] = [];
+	$: filterComments(commentTree, searchText);
 </script>

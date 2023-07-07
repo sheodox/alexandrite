@@ -23,9 +23,14 @@
 	.deleted-msg {
 		font-style: italic;
 	}
+	.search-non-match:not(:hover) {
+		height: 2rem;
+		overflow: hidden;
+		opacity: 0.5;
+	}
 </style>
 
-<section class:maybe-deleting={maybeDeleting}>
+<section class:maybe-deleting={maybeDeleting} class:search-non-match={searchNonMatch}>
 	<Stack gap={2} dir="c">
 		<Stack gap={1} dir="r" align="center">
 			{#if !showPost}
@@ -190,6 +195,7 @@
 		'update-comment': CommentView;
 	}>();
 
+	export let searchNonMatch = false;
 	export let commentView: CommentView;
 	export let postOP: string;
 	export let collapsed = false;
