@@ -102,8 +102,11 @@
 	import Logo from '$lib/Logo.svelte';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
+	import { getLemmyClient } from '$lib/lemmy-client';
 
 	export let data;
+
+	const { client, jwt } = getLemmyClient();
 
 	const placement = 'bottom-end',
 		unreadCount = writable(0);
@@ -181,17 +184,20 @@
 			style.textContent = `:root { ${rules.join('\n')} }`;
 		});
 
-		if (!data.loggedIn) {
+		if (!jwt) {
 			return;
 		}
 
 		async function pollUnread() {
-			const res = await fetch('/api/me/unread');
-
-			if (res.ok) {
-				const unread: GetUnreadCountResponse = await res.json();
-				$unreadCount = unread.replies + unread.mentions + unread.private_messages;
+			if (!jwt) {
+				return;
 			}
+
+			const unread = await client.getUnreadCount({
+				auth: jwt
+			});
+
+			$unreadCount = unread.replies + unread.mentions + unread.private_messages;
 		}
 		pollUnread();
 

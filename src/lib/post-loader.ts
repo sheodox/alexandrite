@@ -1,16 +1,17 @@
 import { parseISO } from 'date-fns';
 import type { CommentView, PostView } from 'lemmy-js-client';
+import type { ApiFeedLoad } from './feed-query';
 
 export type ContentView = ({ type: 'post'; postView: PostView } | { type: 'comment'; commentView: CommentView }) & {
 	score: number;
 	published: string;
 };
 
-interface MorePage<T, U> {
+interface MorePage<T> {
 	items: T[];
 	error: boolean;
 	endOfFeed: boolean;
-	response?: U;
+	response?: ApiFeedLoad;
 }
 
 export const postViewToContentView = (postView: PostView) => {
@@ -53,22 +54,32 @@ export const getContentViews = (postViews: PostView[], commentViews: CommentView
 	return content;
 };
 
-export async function* feedLoader<T = {}, U = {}>(
-	resourceUrl: string,
-	viewKey: string | false
-): AsyncIterator<MorePage<T, U>, MorePage<T, U>> {
-	const u = new URL(location.origin + resourceUrl);
-	// assume the first page has already loaded with the page, and this is just used for additional pages.
-	// only the comments under a post start with nothing loaded, it doesn't use this loader
-	let pageNum = 2,
+export async function* feedLoader<T = {}>(
+	queryFn: (pageNum: number) => Promise<ApiFeedLoad>,
+	viewKey: 'commentViews' | 'postViews' | false
+): AsyncIterator<MorePage<T>, MorePage<T>> {
+	let pageNum = 1,
 		endOfFeed = false;
 
 	while (!endOfFeed) {
-		u.searchParams.set('page', '' + pageNum++);
+		try {
+			const res = await queryFn(pageNum++);
 
-		const res = await fetch(u);
+			const items = viewKey ? res[viewKey] : [];
 
-		if (!res.ok) {
+			if (items.length === 0) {
+				endOfFeed = true;
+			}
+
+			yield {
+				items: items as T[],
+				error: false,
+				endOfFeed,
+				response: res
+			};
+		} catch (e) {
+			console.error('FeedLoader Error: ', e);
+
 			// decrement so retrying tries the same page, probably an
 			// intermittent failure
 			pageNum--;
@@ -80,20 +91,6 @@ export async function* feedLoader<T = {}, U = {}>(
 
 			continue;
 		}
-
-		const resJson = await res.json(),
-			items = viewKey ? resJson[viewKey] : [];
-
-		if (items.length === 0) {
-			endOfFeed = true;
-		}
-
-		yield {
-			items,
-			error: false,
-			endOfFeed,
-			response: resJson
-		};
 	}
 
 	return {
@@ -105,9 +102,7 @@ export async function* feedLoader<T = {}, U = {}>(
 
 interface PostCommentFeedLoaderOpts {
 	type: string;
-	queryUrlBase: string;
-	postViews: PostView[];
-	commentViews: CommentView[];
+	queryFn: (pageNumber: number) => Promise<ApiFeedLoad>;
 }
 interface PostCommentFeed {
 	contentViews: ContentView[];
@@ -115,18 +110,15 @@ interface PostCommentFeed {
 	endOfFeed: boolean;
 }
 export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): AsyncGenerator<PostCommentFeed> {
-	const u = new URL(location.origin + opts.queryUrlBase);
-	u.searchParams.set('type', opts.type);
-	const typeUrlBase = u.pathname + u.search;
 	// filter out already loaded items so subsequent pages don't show duplicates of pages changed
 	// since the last page load
 	const loadedIds = new Set<number>();
 
-	let postViews = [...opts.postViews],
-		commentViews = [...opts.commentViews];
+	let postViews: PostView[] = [],
+		commentViews: CommentView[] = [];
 
-	const postLoader = feedLoader<PostView>(typeUrlBase, 'postViews'),
-		commentLoader = feedLoader<CommentView>(typeUrlBase, 'commentViews');
+	const postLoader = feedLoader<PostView>(opts.queryFn, 'postViews'),
+		commentLoader = feedLoader<CommentView>(opts.queryFn, 'commentViews');
 
 	// store the first page of IDs for both types of content
 	postViews.forEach((pv) => loadedIds.add(pv.post.id));
@@ -178,16 +170,13 @@ interface UserFeed {
 	endOfFeed: boolean;
 }
 export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: string }): AsyncGenerator<UserFeed> {
-	const u = new URL(location.origin + opts.queryUrlBase);
-	u.searchParams.set('type', opts.type);
-	const typeUrlBase = u.pathname + u.search;
 	// filter out already loaded items so subsequent pages don't show duplicates of pages changed
 	// since the last page load
 	const loadedIds = new Set<number>();
 
-	let postViews = [...opts.postViews],
-		commentViews = [...opts.commentViews];
-	const userDataLoader = feedLoader<{}, { postViews: PostView[]; commentViews: CommentView[] }>(typeUrlBase, false);
+	let postViews: PostView[] = [],
+		commentViews: CommentView[] = [];
+	const userDataLoader = feedLoader<{}>(opts.queryFn, false);
 
 	// store the first page of IDs for both types of content
 	postViews.forEach((pv) => loadedIds.add(pv.post.id));

@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
+import { getLemmySettings } from './lemmy-settings';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -35,4 +36,27 @@ export const createLemmyClient = (instanceUrl: string) => {
 			return res;
 		}
 	});
+};
+
+// cache the client, so long as we're accessing the same instance
+let client: LemmyHttp, clientInstanceUrl: string;
+
+// this should only be used when we know we'll have this stuff, don't use in `/(meta)` routes
+export const getLemmyClient = () => {
+	const instance = localStorage.getItem('instance')!,
+		instanceUrl = `https://${instance}`;
+
+	if (instanceUrl !== clientInstanceUrl) {
+		client = createLemmyClient(instanceUrl);
+		clientInstanceUrl = instanceUrl;
+	}
+
+	return {
+		client: createLemmyClient(instanceUrl),
+		lemmySettings: getLemmySettings(),
+		username: localStorage.getItem('username'),
+		jwt: localStorage.getItem('jwt') ?? undefined,
+		instance,
+		instanceUrl
+	};
 };

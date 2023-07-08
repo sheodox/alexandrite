@@ -1,13 +1,11 @@
 <Title />
 
 <PostsPage
-	settings={data.settings}
 	on:more={more}
 	on:update-post-view={updatePostView}
 	{endOfFeed}
 	feedType="top"
 	{contentViews}
-	siteView={data.site.site_view}
 	selectedType={data.query.type}
 	selectedListing={data.query.listing}
 	selectedSort={data.query.sort}
@@ -18,9 +16,10 @@
 <script lang="ts">
 	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
-	import { getContentViews, postCommentFeedLoader, type ContentView } from '$lib/post-loader.js';
+	import { postCommentFeedLoader, type ContentView } from '$lib/post-loader.js';
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
+	import { loadFeedData } from '$lib/feed-query';
 
 	export let data;
 
@@ -28,20 +27,31 @@
 		loadingContentFailed = false,
 		endOfFeed = false,
 		contentViews: ContentView[] = [];
-	$: loader = initFeed(data);
+
+	let loader: ReturnType<typeof initFeed>;
+	$: {
+		loader = initFeed(data);
+		// load the first page of data
+		more();
+	}
 
 	function initFeed(data: PageData) {
 		const newLoader = postCommentFeedLoader({
-			queryUrlBase: `/api/feed?listing=${data.query.listing}&sort=${data.query.sort}`,
 			type: data.query.type,
-			postViews: data.postViews,
-			commentViews: data.commentViews
+			queryFn: async (page: number) => {
+				return await loadFeedData({
+					page,
+					listing: data.query.listing,
+					sort: data.query.sort,
+					type: data.query.type
+				});
+			}
 		});
 
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = getContentViews(data.postViews, data.commentViews);
+		contentViews = [];
 
 		return newLoader;
 	}

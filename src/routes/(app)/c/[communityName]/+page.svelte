@@ -1,10 +1,8 @@
 <Title title={data.communityName} />
 <PostsPage
-	settings={data.settings}
 	on:more={more}
 	feedType="community"
 	{contentViews}
-	siteView={data.site.site_view}
 	communityView={data.communityView}
 	moderators={data.moderators}
 	{endOfFeed}
@@ -19,9 +17,10 @@
 <script lang="ts">
 	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
-	import { postCommentFeedLoader, getContentViews, type ContentView } from '$lib/post-loader.js';
+	import { postCommentFeedLoader, type ContentView } from '$lib/post-loader.js';
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
+	import { loadFeedData } from '$lib/feed-query';
 
 	export let data;
 
@@ -29,25 +28,37 @@
 		loadingContentFailed = false,
 		endOfFeed = false,
 		contentViews: ContentView[] = [];
-	$: loader = initFeed(data);
+
+	let loader: ReturnType<typeof initFeed>;
+	$: {
+		loader = initFeed(data);
+		more();
+	}
 
 	function initFeed(data: PageData) {
 		const newLoader = postCommentFeedLoader({
-			queryUrlBase: `/api/feed?listing=${data.query.listing}&sort=${data.query.sort}&communityName=${data.communityName}`,
 			type: data.query.type,
-			postViews: data.postViews,
-			commentViews: data.commentViews
+			queryFn: async (page: number) => {
+				return await loadFeedData({
+					page,
+					listing: data.query.listing,
+					sort: data.query.sort,
+					type: data.query.type,
+					communityName: data.communityName
+				});
+			}
 		});
 
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = getContentViews(data.postViews, data.commentViews);
+		contentViews = [];
 
 		return newLoader;
 	}
 
 	async function more() {
+		console.log('more!!!');
 		if (endOfFeed || loadingContent) {
 			return;
 		}
