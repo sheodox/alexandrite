@@ -14,9 +14,10 @@
 	import Sidebar from '$lib/Sidebar.svelte';
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import Markdown from '$lib/Markdown.svelte';
-	import type { SiteView } from 'lemmy-js-client';
 	import { getAppContext } from '$lib/app-context';
-	export let siteView: SiteView;
+
+	const { siteMeta } = getAppContext();
+	const siteView = siteMeta.site_view;
 
 	const taglines = getAppContext().siteMeta.taglines;
 
@@ -35,6 +36,11 @@
 			label: 'Comments',
 			icon: 'comments',
 			value: siteView.counts.comments
+		},
+		{
+			label: 'Server Version',
+			icon: 'code-branch',
+			value: siteMeta.version
 		}
 	];
 </script>

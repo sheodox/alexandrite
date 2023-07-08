@@ -45,7 +45,7 @@
 	import Markdown from '$lib/Markdown.svelte';
 	import Image from './Image.svelte';
 
-	export let counts: { label: string; icon: string; value: number }[] = [];
+	export let counts: { label: string; icon: string; value: number | string }[] = [];
 	export let description: string;
 	export let sidebar = '';
 	export let bannerImageSrc = '';

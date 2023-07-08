@@ -52,7 +52,7 @@
 
 			<hr class="my-8" />
 		{/if}
-		<InstanceSidebar {siteView} />
+		<InstanceSidebar />
 	</aside>
 </div>
 
