@@ -3,12 +3,14 @@
 </svelte:head>
 
 <script lang="ts">
+	import { writable } from 'svelte/store';
 	import { getAppContext } from './app-context';
 
 	export let title = '';
 
 	const appName = 'Alexandrite';
-	const { loggedIn, unreadCount } = getAppContext();
+	// this is used sometimes where we don't have an app context, need a fallback
+	const { loggedIn, unreadCount } = getAppContext() || { loggedIn: false, unreadCount: writable(0) };
 
 	$: fullTitle = (function () {
 		const segments = [];
