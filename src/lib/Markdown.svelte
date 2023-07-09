@@ -28,7 +28,7 @@
 		typographer: true
 	};
 
-	const communityReg = /([\w]+@[\w]+\.[\w]+)/g;
+	const communityReg = /([\w]+@[\w]+(\.[\w]+)+)/g;
 
 	const fullRender = new MarkdownIt(mdOptions);
 	const noImageRender = new MarkdownIt(mdOptions).disable('image');
