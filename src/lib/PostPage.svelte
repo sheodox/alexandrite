@@ -55,15 +55,8 @@
 				<Accordion bind:open={showCommentComposer} buttonClasses="tertiary">
 					<span slot="title">Leave a comment</span>
 					{#key showCommentComposer}
-						<form
-							action="/post/{postView.post.id}/?/postComment"
-							on:submit={() => {
-								submittingComment = true;
-							}}
-							use:enhance={addCommentEnhance}
-							method="POST"
-						>
-							<CommentEditor submitting={submittingComment} />
+						<form on:submit|preventDefault={onSubmitNewComment} bind:this={newCommentForm} method="POST">
+							<CommentEditor submitting={submittingComment} bind:value={newCommentText} />
 						</form>
 					{/key}
 				</Accordion>
@@ -119,32 +112,35 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { enhance } from '$app/forms';
 	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
-	import type { CommentView, PostView } from 'lemmy-js-client';
+	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './CommentEditor.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
+	import { getLemmyClient } from './lemmy-client';
 
 	export let postView: PostView;
 	export let initialCommentViews: CommentView[] = [];
 	export let rootCommentId: null | number = null;
 	let commentViews = initialCommentViews;
 	let commentExpandLoadingIds = new Set<number>();
+	let newCommentForm: HTMLFormElement;
 	$: viewingSingleCommentThread = rootCommentId !== null;
 	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
 	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
 
 	const { loggedIn, sidebarVisible } = getAppContext();
+	const { client, jwt } = getLemmyClient();
 
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
+		newCommentText = '',
 		searchText = '',
 		loadingComments = false,
 		// assume if they came here following a comment link, commenting on the post is less important
@@ -162,18 +158,28 @@
 		loadNextCommentPage();
 	}
 
-	const addCommentEnhance: SubmitFunction<{ commentView: CommentView }> = () => {
-		return async ({ update, result }) => {
-			await update();
-			submittingComment = false;
+	async function onSubmitNewComment() {
+		if (!jwt) {
+			return;
+		}
+		submittingComment = true;
+		try {
+			const form = Object.fromEntries(new FormData(newCommentForm));
 
-			if (result.type === 'success' && result.data) {
-				commentViews.unshift(result.data.commentView);
-				commentViews = commentViews;
-				showCommentComposer = false;
-			}
-		};
-	};
+			await client.createComment({
+				content: form.content as string,
+				auth: jwt,
+				post_id: postView.post.id,
+				language_id: form.languageId ? Number(form.languageId) : undefined
+			});
+			newCommentText = '';
+			showCommentComposer = false;
+		} catch (e) {
+			console.error(e);
+		} finally {
+			submittingComment = false;
+		}
+	}
 
 	function onNewComment(e: CustomEvent<CommentView>) {
 		commentViews.push(e.detail);
@@ -201,7 +207,9 @@
 		return newCommentViews.length;
 	}
 
-	async function loadComments(url: string): Promise<{ comments: number; busy: boolean; error: boolean }> {
+	async function loadComments(
+		queryFn: () => Promise<CommentView[]>
+	): Promise<{ comments: number; busy: boolean; error: boolean }> {
 		if (loadingComments) {
 			return { comments: 0, busy: true, error: false };
 		}
@@ -209,29 +217,23 @@
 		loadingComments = true;
 
 		try {
-			const res = await fetch(url);
-			if (!res.ok) {
-				return {
-					comments: 0,
-					busy: false,
-					error: true
-				};
-			}
-			const cvs = (await res.json()).comments;
+			const newCvs = await queryFn();
+
 			return {
-				comments: mergeNewCommentViews(cvs),
+				comments: mergeNewCommentViews(newCvs),
 				busy: false,
 				error: false
 			};
 		} catch (e) {
 			// todo show an error message
-			console.log(e);
+			return {
+				comments: 0,
+				busy: false,
+				error: true
+			};
 		} finally {
 			loadingComments = false;
 		}
-
-		// failed to load
-		return { comments: 0, busy: false, error: true };
 	}
 
 	async function loadNextCommentPage() {
@@ -240,9 +242,18 @@
 			return;
 		}
 
-		const { comments, busy, error } = await loadComments(
-			`/api/posts/${postView.post.id}/comments?page=${commentsPageNum++}&sort=${selectedSort}`
-		);
+		const { comments, busy, error } = await loadComments(async () => {
+			const { comments } = await client.getComments({
+				auth: jwt,
+				post_id: postView.post.id,
+				limit: 100,
+				page: commentsPageNum++,
+				max_depth: 3,
+				sort: selectedSort as CommentSortType,
+				type_: 'All'
+			});
+			return comments;
+		});
 		commentLoadFailed = error;
 
 		if (!busy && comments === 0) {
@@ -258,7 +269,19 @@
 	async function expandComment(e: CustomEvent<number>) {
 		commentExpandLoadingIds.add(e.detail);
 		commentExpandLoadingIds = commentExpandLoadingIds;
-		await loadComments(`/api/posts/${postView.post.id}/comments?parentId=${e.detail}`);
+		await loadComments(async () => {
+			const { comments } = await client.getComments({
+				auth: jwt,
+				post_id: postView.post.id,
+				limit: 100,
+				parent_id: e.detail,
+				max_depth: 3,
+				sort: selectedSort as CommentSortType,
+				type_: 'All'
+			});
+			return comments;
+		});
+
 		commentExpandLoadingIds.delete(e.detail);
 		commentExpandLoadingIds = commentExpandLoadingIds;
 	}

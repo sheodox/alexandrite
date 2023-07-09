@@ -4,6 +4,6 @@
 	</Stack>
 </Layout>
 
-<script>
+<script lang="ts">
 	import { Layout, Stack } from 'sheodox-ui';
 </script>

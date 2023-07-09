@@ -132,10 +132,8 @@
 		{/if}
 		{#if showCommentEdit}
 			<form
-				use:enhance={commentEditSubmit}
-				on:submit={() => {
-					submittingEdit = true;
-				}}
+				bind:this={editCommentForm}
+				on:submit|preventDefault={onEditComment}
 				action="/post/{commentView.post.id}/?/editComment"
 				method="POST"
 				class="reply-editor"
@@ -188,6 +186,7 @@
 	import CommunityLink from './CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId } from './nav-utils';
+	import { getLemmyClient } from './lemmy-client';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
@@ -202,6 +201,7 @@
 	export let showPost = false;
 
 	const { loggedIn, username } = getAppContext();
+	const { jwt, client } = getLemmyClient();
 
 	$: myComment = commentView.creator.local && commentView.creator.name === username;
 
@@ -212,11 +212,32 @@
 	let submittingReply = false;
 	let submittingEdit = false;
 	let maybeDeleting = false;
+	let editCommentForm: HTMLFormElement;
 	$: someActionPending =
 		showReplyComposer || showCommentEdit || deletePending || votePending || submittingReply || submittingEdit;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
 	$: contextCommentId = getCommentContextId(commentView);
+
+	async function onEditComment() {
+		const body = Object.fromEntries(new FormData(editCommentForm)),
+			commentId = Number(body.commentId);
+
+		if (jwt) {
+			submittingEdit = true;
+			const res = await client.editComment({
+				content: body.content as string,
+				auth: jwt,
+				comment_id: commentId,
+				language_id: body.languageId ? Number(body.languageId) : undefined
+			});
+			submittingEdit = false;
+
+			return {
+				commentView: res.comment_view
+			};
+		}
+	}
 
 	const commentReplySubmit: SubmitFunction<{ commentView: CommentView }> = () => {
 		return async ({ update, result }) => {

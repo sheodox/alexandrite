@@ -1,9 +1,14 @@
 import { getLemmyClient } from '$lib/lemmy-client';
 import { getLemmySettings, setLemmySettings } from '$lib/lemmy-settings';
+import { redirect } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 
 export const load = (async () => {
 	const { client, jwt, instance, instanceUrl, username } = getLemmyClient();
+	if (!instance) {
+		throw redirect(303, '/instance');
+	}
+
 	const site = await client.getSite({
 		auth: jwt
 	});

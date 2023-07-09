@@ -15,7 +15,7 @@
 	<slot />
 </Layout>
 
-<script>
+<script lang="ts">
 	import CommunityHeader from '$lib/feeds/posts/CommunityHeader.svelte';
 	import { Layout } from 'sheodox-ui';
 	import Title from '$lib/Title.svelte';

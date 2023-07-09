@@ -92,8 +92,8 @@
 	$: parseableInstance = parseableUrl(instance);
 	$: instanceNoProtocol = instance.replace(regUrlStart, '');
 
-	let instance = data.settings.instance || 'lemmy.ml',
-		username = data.settings.username ?? '',
+	let instance = 'lemmy.world',
+		username = '',
 		password = '',
 		totp_2fa_token = '';
 
