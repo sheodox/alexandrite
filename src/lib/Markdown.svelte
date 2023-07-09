@@ -28,6 +28,7 @@
 		typographer: true
 	};
 
+	// (community name) @ (domain or subdomain) (.subdomain)* (.tld)
 	const communityReg = /([a-z0-9_]+@[\w-]+(\.[\w-]+)*(\.[a-z]+))/g;
 
 	const fullRender = new MarkdownIt(mdOptions);
