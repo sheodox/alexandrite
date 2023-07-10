@@ -50,15 +50,7 @@
 		</form>
 
 		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
-		<form action="/logout?/logout" method="POST">
-			<Tooltip {placement}>
-				<span slot="tooltip">Logout</span>
-				<button
-					><Icon icon="right-from-bracket" />
-					<span class="sr-only">Logout</span>
-				</button>
-			</Tooltip>
-		</form>
+		<IconButton on:click={onLogout} icon="right-from-bracket" text="Logout" {placement} />
 		<IconButton
 			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
 			on:click={() => ($sidebarVisible = !$sidebarVisible)}
@@ -90,19 +82,19 @@
 {/if}
 
 <script lang="ts">
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
-	import { Sidebar, Header, Icon, Tooltip, Search } from 'sheodox-ui';
+	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
+	import { Sidebar, Header, Tooltip, Search } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { localStorageBackedStore, setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
-	import type { GetUnreadCountResponse } from 'lemmy-js-client';
 	import IconLink from '$lib/IconLink.svelte';
 	import Logo from '$lib/Logo.svelte';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
 	import { getLemmyClient } from '$lib/lemmy-client';
+	import { logout } from '$lib/settings/auth';
 
 	export let data;
 
@@ -126,7 +118,7 @@
 		cssVariables = writable<Record<string, string>>({});
 
 	setAppContext({
-		username: data.settings.username,
+		username: data.settings.username ?? '',
 		loggedIn: data.loggedIn,
 		instance: data.settings.instance,
 		instanceUrl: data.settings.instanceUrl,
@@ -203,6 +195,12 @@
 
 		unreadPollInterval = setInterval(pollUnread, unreadPollMS);
 	});
+
+	function onLogout() {
+		logout();
+
+		goto('/instance');
+	}
 
 	onDestroy(() => {
 		clearInterval(unreadPollInterval);
