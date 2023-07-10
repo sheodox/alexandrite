@@ -18,6 +18,9 @@
 <h1 class="m-0 sx-font-size-9">Welcome</h1>
 
 <Stack dir="c" gap={4} cl="has-inline-links">
+	{#if expired}
+		<Alert variant="warning">You were logged out, please log in again.</Alert>
+	{/if}
 	<p>
 		Alexandrite is a beautiful desktop-first alternative web UI for <ExternalLink href="https://join-lemmy.org/"
 			>Lemmy</ExternalLink
@@ -80,10 +83,10 @@
 	import { getMessageFromError } from '$lib/error-messages.js';
 	import { setLemmySettings } from '$lib/lemmy-settings.js';
 	import { goto } from '$app/navigation';
-
-	export let data;
+	import { onMount } from 'svelte';
 
 	let errMsg = '';
+	let expired = false;
 
 	let submitting = false;
 
@@ -176,4 +179,9 @@
 
 		goto('/');
 	}
+
+	onMount(() => {
+		const u = new URL(location.href);
+		expired = u.searchParams.get('expired') === 'true';
+	});
 </script>
