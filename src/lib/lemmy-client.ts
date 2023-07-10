@@ -28,9 +28,20 @@ export const createLemmyClient = (instanceUrl: string) => {
 			if (!res.ok) {
 				const text = await res.text();
 
+				const lemmyError = tryParse(text)?.error ?? '';
+
+				if (lemmyError === 'not_logged_in') {
+					// redirect to the login page, they tried doing something
+					// that required auth with an invalid session.
+					// using a full page redirect to clear everything out
+					// as I saw it continue trying to load a ton of stuff in the
+					// feed after redirecting away without this.
+					location.href = '/instance?expired=true';
+				}
+
 				throw error(res.status, {
 					message: 'Lemmy Error: ' + res.status + ':\n' + text,
-					lemmyError: tryParse(text)?.error ?? ''
+					lemmyError
 				});
 			}
 			return res;
