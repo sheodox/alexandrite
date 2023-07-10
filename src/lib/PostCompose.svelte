@@ -2,9 +2,6 @@
 	.dn {
 		display: none;
 	}
-	button {
-		width: 8rem;
-	}
 </style>
 
 <Stack dir="c" gap={2}>
@@ -25,13 +22,14 @@
 	</Stack>
 
 	<Stack dir="r" justify="end">
-		<button class="primary" disabled={!title}>Post</button>
+		<BusyButton cl="primary" style="width: 8rem;" disabled={!title} busy={submitting}>{postButtonText}</BusyButton>
 	</Stack>
 </Stack>
 
 <script lang="ts">
 	import CommentEditor from '$lib/CommentEditor.svelte';
 	import { Alert, Stack, Checkbox, TextInput } from 'sheodox-ui';
+	import BusyButton from './BusyButton.svelte';
 
 	export let communityId: number;
 	export let errorMessage = '';
@@ -39,6 +37,7 @@
 	export let title = '';
 	export let content = '';
 	export let url = '';
+	export let postButtonText = 'Post';
 
 	$: disabled = submitting;
 </script>

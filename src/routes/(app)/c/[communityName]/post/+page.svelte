@@ -2,28 +2,53 @@
 
 <Breadcrumbs {links} />
 <h1>Post</h1>
-<form method="POST" action="?/post" use:enhance={submitFn} on:submit={() => (submitting = true)}>
-	<PostCompose errorMessage={form?.errMsg} {submitting} communityId={data.communityView.community.id} />
+<form bind:this={formElement}>
+	<PostCompose errorMessage={errMsg} submitting={$postState.busy} communityId={data.communityView.community.id} />
 </form>
 
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import PostCompose from '$lib/PostCompose.svelte';
 	import { Breadcrumbs } from 'sheodox-ui';
 	import Title from '$lib/Title.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { createStatefulForm } from '$lib/utils.js';
+	import { goto } from '$app/navigation';
+	import { getLemmyClient } from '$lib/lemmy-client.js';
+
+	const { client, jwt } = getLemmyClient();
 
 	export let data;
-	export let form;
+	let errMsg = '';
 
-	let submitting = false;
+	let formElement: HTMLFormElement;
 
-	const submitFn: SubmitFunction = () => {
-		return async ({ update }) => {
-			await update();
-			submitting = false;
-		};
-	};
+	$: postState = createStatefulForm(formElement, async (body) => {
+		const title = body.title as string,
+			honeypot = body.honeypot as string;
+
+		if (honeypot || !jwt) {
+			return;
+		}
+
+		if (!title) {
+			errMsg = 'Missing title';
+			return;
+		}
+
+		// treat both Subscribed and Pending as the same
+		const postRes = await client.createPost({
+			auth: jwt,
+			// tricks bots by submitting an empty string, just doing what lemmy-ui is doing
+			honeypot,
+			community_id: Number(body.communityId),
+			name: title,
+			body: body.content as string,
+			url: (body.url as string) ? (body.url as string) : undefined,
+			nsfw: body.nsfw === 'on',
+			language_id: body.languageId ? Number(body.languageId) : undefined
+		});
+
+		goto(`/post/${postRes.post_view.post.id}`);
+	});
 
 	$: links = [
 		{

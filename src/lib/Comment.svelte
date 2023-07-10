@@ -79,13 +79,17 @@
 				/>
 				<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" small />
 				{#if maybeDeleting}
-					<button class="danger small sx-font-size-2" on:click={() => deleteComment(true)} disabled={someActionPending}
-						>Delete</button
+					<BusyButton
+						cl="danger small sx-font-size-2"
+						on:click={() => $deleteState.submit(true)}
+						busy={$deleteState.busy}
 					>
+						Delete
+					</BusyButton>
 					<button
 						class="tertiary small sx-font-size-2"
 						on:click={() => (maybeDeleting = false)}
-						disabled={someActionPending}>Cancel</button
+						disabled={$deleteState.busy}>Cancel</button
 					>
 				{:else}
 					<LogButton on:click={() => console.log({ commentView })} />
@@ -111,7 +115,8 @@
 									small
 									text="Restore"
 									disabled={deletePending}
-									on:click={() => deleteComment(false)}
+									busy={$deleteState.busy}
+									on:click={() => $deleteState.submit(false)}
 								/>
 							{:else}
 								<IconButton
@@ -160,7 +165,8 @@
 	import RelativeTime from './RelativeTime.svelte';
 	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import LogButton from './LogButton.svelte';
-	import type { CommentView, Post } from 'lemmy-js-client';
+	import type { CommentView } from 'lemmy-js-client';
+	import BusyButton from './BusyButton.svelte';
 	import IconButton from './IconButton.svelte';
 	import IconLink from './IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
@@ -254,21 +260,18 @@
 		dispatch('update-comment', res.comment_view);
 	};
 
-	async function deleteComment(deleted: boolean) {
-		deletePending = true;
-		const res = await fetch(`/api/comments/${commentView.comment.id}`, {
-			method: 'DELETE',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				deleted
-			})
+	$: deleteState = createStatefulAction<boolean>(async (deleted) => {
+		if (!jwt) {
+			return;
+		}
+
+		const res = await client.deleteComment({
+			auth: jwt,
+			comment_id: commentView.comment.id,
+			deleted
 		});
 
-		if (res.ok) {
-			const cv = await res.json();
-			dispatch('update-comment', cv.commentView as CommentView);
-		}
-		deletePending = false;
+		dispatch('update-comment', res.comment_view);
 		maybeDeleting = false;
-	}
+	});
 </script>
