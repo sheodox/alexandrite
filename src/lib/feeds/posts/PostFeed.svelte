@@ -73,12 +73,11 @@
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import Comment from '$lib/Comment.svelte';
-	import type { Settings } from '../../../app';
 	import type { ContentView } from '$lib/post-loader';
+	import { getAppContext } from '$lib/app-context';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
-	export let settings: Settings;
 	export let contentViews: ContentView[];
 	export let loadingContent: boolean;
 	export let loadingContentFailed: boolean;
@@ -90,6 +89,8 @@
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
+
+	const { loggedIn } = getAppContext();
 
 	function getTypeOptions(feedType: FeedType) {
 		switch (feedType) {
@@ -104,7 +105,7 @@
 	function getListingOptions(feedType: FeedType) {
 		switch (feedType) {
 			case 'top':
-				return ListingOptions(!!settings.username);
+				return ListingOptions(loggedIn);
 
 			default:
 				return null;

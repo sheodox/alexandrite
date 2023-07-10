@@ -74,18 +74,22 @@
 					score={commentView.counts.score}
 					dir="row"
 					small
-					on:vote={vote}
-					{votePending}
+					on:vote={(e) => $voteState.submit(e.detail)}
+					votePending={$voteState.busy}
 				/>
 				<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" small />
 				{#if maybeDeleting}
-					<button class="danger small sx-font-size-2" on:click={() => deleteComment(true)} disabled={someActionPending}
-						>Delete</button
+					<BusyButton
+						cl="danger small sx-font-size-2"
+						on:click={() => $deleteState.submit(true)}
+						busy={$deleteState.busy}
 					>
+						Delete
+					</BusyButton>
 					<button
 						class="tertiary small sx-font-size-2"
 						on:click={() => (maybeDeleting = false)}
-						disabled={someActionPending}>Cancel</button
+						disabled={$deleteState.busy}>Cancel</button
 					>
 				{:else}
 					<LogButton on:click={() => console.log({ commentView })} />
@@ -111,7 +115,8 @@
 									small
 									text="Restore"
 									disabled={deletePending}
-									on:click={() => deleteComment(false)}
+									busy={$deleteState.busy}
+									on:click={() => $deleteState.submit(false)}
 								/>
 							{:else}
 								<IconButton
@@ -131,15 +136,7 @@
 			</Stack>
 		{/if}
 		{#if showCommentEdit}
-			<form
-				use:enhance={commentEditSubmit}
-				on:submit={() => {
-					submittingEdit = true;
-				}}
-				action="/post/{commentView.post.id}/?/editComment"
-				method="POST"
-				class="reply-editor"
-			>
+			<form bind:this={editForm} class="reply-editor">
 				<input type="hidden" name="commentId" value={commentView.comment.id} />
 				<CommentEditor
 					value={commentView.comment.content}
@@ -147,22 +144,14 @@
 					cancellable
 					label="Edit"
 					on:cancel={() => (showCommentEdit = false)}
-					submitting={submittingEdit}
+					submitting={$editState.busy}
 				/>
 			</form>
 		{/if}
 		{#if showReplyComposer && loggedIn}
-			<form
-				use:enhance={commentReplySubmit}
-				on:submit={() => {
-					submittingReply = true;
-				}}
-				action="/post/{commentView.post.id}/?/postComment"
-				method="POST"
-				class="reply-editor"
-			>
+			<form bind:this={replyForm} class="reply-editor">
 				<input type="hidden" name="parentId" value={commentView.comment.id} />
-				<CommentEditor cancellable on:cancel={() => (showReplyComposer = false)} submitting={submittingReply} />
+				<CommentEditor cancellable on:cancel={() => (showReplyComposer = false)} submitting={$replyState.busy} />
 			</form>
 		{/if}
 	</Stack>
@@ -170,7 +159,6 @@
 
 <script lang="ts">
 	import { Stack, Tooltip, Icon } from 'sheodox-ui';
-	import { enhance } from '$app/forms';
 	import UserLink from './UserLink.svelte';
 	import Markdown from './Markdown.svelte';
 	import VoteButtons from './VoteButtons.svelte';
@@ -178,16 +166,18 @@
 	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import LogButton from './LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
+	import BusyButton from './BusyButton.svelte';
 	import IconButton from './IconButton.svelte';
 	import IconLink from './IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';
 	import CommunityLink from './CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId } from './nav-utils';
+	import { getLemmyClient } from './lemmy-client';
+	import { createStatefulForm, type ActionFn, createStatefulAction } from './utils';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
@@ -202,80 +192,86 @@
 	export let showPost = false;
 
 	const { loggedIn, username } = getAppContext();
-
+	const { jwt, client } = getLemmyClient();
 	$: myComment = commentView.creator.local && commentView.creator.name === username;
 
 	let showReplyComposer = false;
 	let showCommentEdit = false;
-	let votePending = false;
 	let deletePending = false;
-	let submittingReply = false;
-	let submittingEdit = false;
 	let maybeDeleting = false;
+	let replyForm: HTMLFormElement;
+	let editForm: HTMLFormElement;
+	$: replyState = createStatefulForm(replyForm, replySubmit);
+	$: editState = createStatefulForm(editForm, editSubmit);
+	$: voteState = createStatefulAction<number>(async (score) => {
+		if (!jwt) {
+			return;
+		}
+
+		const newCV = await client
+			.likeComment({
+				auth: jwt,
+				comment_id: commentView.comment.id,
+				score
+			})
+			.then((r) => r.comment_view);
+
+		dispatch('update-comment', newCV);
+	});
+
 	$: someActionPending =
-		showReplyComposer || showCommentEdit || deletePending || votePending || submittingReply || submittingEdit;
+		showReplyComposer || showCommentEdit || deletePending || $voteState.busy || $replyState.busy || $editState.busy;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
 	$: contextCommentId = getCommentContextId(commentView);
 
-	const commentReplySubmit: SubmitFunction<{ commentView: CommentView }> = () => {
-		return async ({ update, result }) => {
-			await update();
-			submittingReply = false;
+	const replySubmit: ActionFn = async (body) => {
+		if (!jwt) {
+			return;
+		}
+		const parent_id = body.parentId ? Number(body.parentId) : undefined;
 
-			showReplyComposer = false;
-
-			if (result.type === 'success' && result.data) {
-				dispatch('new-comment', result.data.commentView);
-			}
-		};
-	};
-
-	const commentEditSubmit: SubmitFunction<{ commentView: CommentView }> = () => {
-		return async ({ update, result }) => {
-			await update();
-			submittingEdit = false;
-
-			if (result.type === 'success' && result.data) {
-				dispatch('update-comment', result.data.commentView);
-				showCommentEdit = false;
-			}
-		};
-	};
-
-	async function vote(e: CustomEvent<number>) {
-		votePending = true;
-		const res = await fetch(`/api/comments/${commentView.comment.id}/vote`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				score: e.detail
-			})
+		const res = await client.createComment({
+			content: body.content as string,
+			auth: jwt,
+			post_id: commentView.post.id,
+			parent_id,
+			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 
-		if (res.ok) {
-			const newCV: CommentView = (await res.json()).commentView;
-			commentView.counts.score = newCV.counts.score;
-			commentView.my_vote = newCV.my_vote;
-		}
-		votePending = false;
-	}
+		showReplyComposer = false;
 
-	async function deleteComment(deleted: boolean) {
-		deletePending = true;
-		const res = await fetch(`/api/comments/${commentView.comment.id}`, {
-			method: 'DELETE',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				deleted
-			})
+		dispatch('new-comment', res.comment_view);
+	};
+
+	const editSubmit: ActionFn = async (body) => {
+		if (!jwt) {
+			return;
+		}
+
+		const res = await client.editComment({
+			content: body.content as string,
+			auth: jwt,
+			comment_id: Number(body.commentId),
+			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 
-		if (res.ok) {
-			const cv = await res.json();
-			dispatch('update-comment', cv.commentView as CommentView);
+		showCommentEdit = false;
+		dispatch('update-comment', res.comment_view);
+	};
+
+	$: deleteState = createStatefulAction<boolean>(async (deleted) => {
+		if (!jwt) {
+			return;
 		}
-		deletePending = false;
+
+		const res = await client.deleteComment({
+			auth: jwt,
+			comment_id: commentView.comment.id,
+			deleted
+		});
+
+		dispatch('update-comment', res.comment_view);
 		maybeDeleting = false;
-	}
+	});
 </script>

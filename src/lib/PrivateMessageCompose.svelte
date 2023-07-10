@@ -7,9 +7,15 @@
 	{#if errorMsg}
 		<Alert variant="error">Error: {errorMsg}</Alert>
 	{/if}
-	<form on:submit|preventDefault={submit} bind:this={messageForm}>
-		<input type="hidden" name="recipientId" value={to.id} />
-		<CommentEditor label="Message" {submitting} cancellable on:cancel submitButtonText="Send" />
+	<form bind:this={messageForm}>
+		<CommentEditor
+			label="Message"
+			submitting={$messageState.busy}
+			cancellable
+			on:cancel
+			submitButtonText="Send"
+			useLanguage={false}
+		/>
 	</form>
 </Stack>
 
@@ -19,37 +25,35 @@
 	import UserLink from './UserLink.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import CommentEditor from './CommentEditor.svelte';
+	import { createStatefulForm } from './utils';
+	import { getLemmyClient } from './lemmy-client';
+	import { getMessageFromError } from './error-messages';
 
 	const dispatch = createEventDispatcher<{
 		sent: void;
 	}>();
 
-	let submitting = false,
-		errorMsg = '',
+	const { client, jwt } = getLemmyClient();
+
+	let errorMsg = '',
 		messageForm: HTMLFormElement;
 
 	export let to: Person;
 
-	async function submit() {
-		submitting = true;
-		const formData = new FormData(messageForm);
-
-		const res = await fetch('/api/messages/', {
-			method: 'POST',
-			body: formData
-		});
-
-		submitting = true;
-
-		if (res.ok) {
-			dispatch('sent');
-		} else {
-			errorMsg = await res.text();
-
-			try {
-				errorMsg = JSON.parse(errorMsg)?.message ?? errorMsg;
-			} catch (e) {}
+	$: messageState = createStatefulForm(messageForm, async (body) => {
+		if (!jwt) {
+			return;
 		}
-		submitting = false;
-	}
+
+		try {
+			await client.createPrivateMessage({
+				auth: jwt,
+				content: body.content as string,
+				recipient_id: to.id
+			});
+			dispatch('sent');
+		} catch (e) {
+			errorMsg = getMessageFromError(e);
+		}
+	});
 </script>

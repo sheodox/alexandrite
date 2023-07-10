@@ -8,7 +8,7 @@
 	<p>Post not found!</p>
 {/if}
 
-<script>
+<script lang="ts">
 	import { Layout } from 'sheodox-ui';
 	import PostPage from '$lib/PostPage.svelte';
 	import Title from '$lib/Title.svelte';

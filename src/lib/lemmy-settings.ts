@@ -47,18 +47,16 @@ export const lemmySettings = {
 	}
 };
 
-const COOKIE_KEY = 'lemmy-settings';
+const SETTINGS_KEY = 'lemmy-settings';
 
-export const getLemmySettings = (cookies: Cookies) => {
-	return lemmySettings.deserialize(cookies.get(COOKIE_KEY));
+export const getLemmySettings = () => {
+	return lemmySettings.deserialize(localStorage.getItem(SETTINGS_KEY));
 };
 
-export const clearLemmySettings = (cookies: Cookies) => {
-	return cookies.delete(COOKIE_KEY);
+export const clearLemmySettings = () => {
+	localStorage.removeItem(SETTINGS_KEY);
 };
 
-export const setLemmySettings = (cookies: Cookies, localUser: LocalUser) => {
-	cookies.set(COOKIE_KEY, lemmySettings.serialize(localUser), {
-		path: '/'
-	});
+export const setLemmySettings = (localUser: LocalUser) => {
+	localStorage.setItem(SETTINGS_KEY, lemmySettings.serialize(localUser));
 };

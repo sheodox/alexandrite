@@ -1,15 +1,11 @@
 <Title title="Inbox" />
 
-{#if $unreadCount > 0}
-	<form method="POST" action="?/markAllAsRead" use:enhance={markAllSubmitFn} on:submit={() => (markingAllRead = true)}>
-		<button class="tertiary f-row gap-2" disabled={markingAllRead}>
-			{#if markingAllRead}
-				<Spinner />
-			{/if}
-			Mark All As Read
-		</button>
-	</form>
-{/if}
+<BusyButton
+	cl="tertiary"
+	busy={$markAllReadState.busy}
+	on:click={$markAllReadState.submit}
+	disabled={$unreadCount === 0}>Mark All As Read</BusyButton
+>
 
 <form method="GET" data-sveltekit-replacestate>
 	<section>
@@ -41,13 +37,13 @@
 			{@const content = contentViews[index]}
 			{#if content.type !== 'message'}
 				<Comment commentView={content.view} postOP="" showPost>
-					<InboxReadButton {content} slot="actions-start" />
+					<InboxReadButton {content} slot="actions-start" on:read={(e) => markedRead(content, e.detail)} />
 				</Comment>
 			{:else}
 				<PrivateMessage privateMessageView={content.view}>
 					<svelte:fragment slot="actions-start" let:toMe>
 						{#if toMe}
-							<InboxReadButton {content} />
+							<InboxReadButton {content} on:read={(e) => markedRead(content, e.detail)} />
 						{/if}
 					</svelte:fragment>
 				</PrivateMessage>
@@ -65,48 +61,100 @@
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/Comment.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
-	import { enhance } from '$app/forms';
+	import BusyButton from '$lib/BusyButton.svelte';
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
-	import Spinner from '$lib/Spinner.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
 	import { getAppContext } from '$lib/app-context';
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
-	import { feedLoader } from '$lib/post-loader';
-	import { endpoint } from '$lib/utils';
-	import type { ApiInboxRes } from '../api/inbox/+server';
+	import { feedLoader, type ContentView } from '$lib/post-loader';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { tick } from 'svelte';
+	import type { CommentSortType } from 'lemmy-js-client';
+	import { getLemmyClient } from '$lib/lemmy-client';
+	import { createStatefulAction } from '$lib/utils';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data;
 
-	const { unreadCount } = getAppContext();
+	const { unreadCount, checkUnread } = getAppContext();
+	const { client, jwt } = getLemmyClient();
 
 	let loadingContent = false,
 		markingAllRead = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		contentViews: ReturnType<typeof getContentViews> = [];
+		contentViews: ReturnType<typeof getContentViews> = [],
+		loader: ReturnType<typeof initFeed>;
 
-	$: loader = initFeed(data);
+	$: markAllReadState = createStatefulAction(async () => {
+		if (!jwt) {
+			return;
+		}
+
+		await client.markAllAsRead({
+			auth: jwt
+		});
+		invalidateAll();
+		checkUnread();
+	});
+
+	$: {
+		loader = initFeed(data);
+		// load the first page of data
+		more();
+	}
+
+	type InboxData = Awaited<ReturnType<typeof fetchInboxPage>>;
 
 	function initFeed(data: PageData) {
-		const newLoader = feedLoader<{}, ApiInboxRes>(
-			endpoint('/api/inbox', {
-				type: data.query.type,
-				listing: data.query.listing,
-				sort: data.query.sort
-			}),
-			false
+		const newLoader = feedLoader<InboxData>(
+			async (page) => {
+				return await fetchInboxPage(page);
+			},
+			(res) => (res ? res.replies.length + res.mentions.length + res.messages.length : 0)
 		);
 
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = getContentViews(data);
+		contentViews = [];
 
 		return newLoader;
+	}
+
+	function markedRead(contentView: ReturnType<typeof getContentViews>[number], read: boolean) {
+		contentView.read = read;
+		contentViews = contentViews;
+	}
+
+	async function fetchInboxPage(page: number) {
+		if (!jwt) {
+			return;
+		}
+
+		const form = {
+			auth: jwt,
+			sort: data.query.sort as CommentSortType,
+			unread_only: data.query.type === 'Unread',
+			page,
+			limit: 20
+		};
+
+		const isListing = (listing: string) => data.query.listing === listing || data.query.listing === 'All';
+
+		const [replies, mentions, messages] = await Promise.all([
+			isListing('Replies') ? client.getReplies(form).then((c) => c.replies) : [],
+			isListing('Mentions') ? client.getPersonMentions(form).then((c) => c.mentions) : [],
+			isListing('Messages') ? client.getPrivateMessages(form).then((c) => c.private_messages) : []
+		]);
+
+		return {
+			replies,
+			mentions,
+			messages
+		};
 	}
 
 	async function more() {
@@ -118,29 +166,33 @@
 		const feedData = (await loader.next()).value;
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
-		if (!feedData.error) {
-			contentViews = contentViews.concat(getContentViews(feedData.response!));
+		if (!feedData.error && feedData.response) {
+			contentViews = contentViews.concat(getContentViews(feedData.response));
 		}
 
 		loadingContent = false;
 	}
 
-	function getContentViews(data: ApiInboxRes) {
-		const replies = data.replies.map((view) => ({
+	function getContentViews(inboxData: InboxData) {
+		if (!inboxData) {
+			return [];
+		}
+
+		const replies = inboxData.replies.map((view) => ({
 				type: 'reply' as const,
 				view,
 				id: view.comment_reply.id,
 				read: view.comment_reply.read,
 				published: view.comment_reply.published
 			})),
-			mentions = data.mentions.map((view) => ({
+			mentions = inboxData.mentions.map((view) => ({
 				type: 'mention' as const,
 				view,
 				id: view.person_mention.id,
 				read: view.person_mention.read,
 				published: view.person_mention.published
 			})),
-			messages = data.messages.map((view) => ({
+			messages = inboxData.messages.map((view) => ({
 				type: 'message' as const,
 				view,
 				id: view.private_message.id,

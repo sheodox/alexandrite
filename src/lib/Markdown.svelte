@@ -28,7 +28,8 @@
 		typographer: true
 	};
 
-	const communityReg = /([\w]+@[\w]+\.[\w]+)/g;
+	// (community name) @ (domain or subdomain) (.subdomain)* (.tld)
+	const communityReg = /([a-z0-9_]+@[\w-]+(\.[\w-]+)*(\.[a-z]+))/g;
 
 	const fullRender = new MarkdownIt(mdOptions);
 	const noImageRender = new MarkdownIt(mdOptions).disable('image');

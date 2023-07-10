@@ -1,6 +1,6 @@
 import { getLemmySettings } from '$lib/lemmy-settings';
-import type { CommentSortType, ListingType, CommentView, PostView, LemmyHttp, SortType } from 'lemmy-js-client';
-import type { Cookies } from '@sveltejs/kit';
+import type { CommentSortType, ListingType, CommentView, PostView, SortType } from 'lemmy-js-client';
+import { getLemmyClient } from './lemmy-client';
 
 export interface ApiFeedLoad {
 	postViews: PostView[];
@@ -24,33 +24,27 @@ function getCommentSort(sort: string): CommentSortType {
 }
 
 interface FeedDataQuery {
-	searchParams: URLSearchParams;
 	username?: string;
 	communityName?: string;
-	cookies: Cookies;
-	client: LemmyHttp;
-	auth: string;
+	page?: number;
+	type?: string;
+	sort?: string;
+	listing?: string;
 }
 
-export const loadFeedData = async ({
-	communityName,
-	username,
-	cookies,
-	searchParams,
-	client,
-	auth
-}: FeedDataQuery): Promise<ApiFeedLoad> => {
-	const ls = getLemmySettings(cookies),
-		page = Number(searchParams.get('page') ?? '1'),
-		selectedType = searchParams.get('type') ?? (username ? 'Overview' : 'Posts'),
-		selectedListing = searchParams.get('listing'),
-		selectedSort = searchParams.get('sort'),
+export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad> => {
+	const ls = getLemmySettings(),
+		{ client, jwt } = getLemmyClient(),
+		page = Number(filters.page ?? '1'),
+		selectedType = filters.type ?? (filters.username ? 'Overview' : 'Posts'),
+		selectedListing = filters.listing,
+		selectedSort = filters.sort,
 		defaultNonUserSort = ls?.default_sort_type || 'Hot',
 		postQuery = {
 			sort:
 				(selectedSort as SortType) ||
 				// user queries don't have a 'Hot' sort, so the default shouldn't be used
-				(username ? 'New' : defaultNonUserSort),
+				(filters.username ? 'New' : defaultNonUserSort),
 			listing: (selectedListing as ListingType) || ls?.default_listing_type || 'Local',
 			type: selectedType
 		},
@@ -59,11 +53,11 @@ export const loadFeedData = async ({
 
 	// can't filter posts by username, have to get them from a different api,
 	// but when filtering saved posts we just want to use the normal post query
-	if (username) {
+	if (filters.username) {
 		const userDetails = await client.getPersonDetails({
 			sort: postQuery.sort,
-			auth,
-			username,
+			auth: jwt,
+			username: filters.username,
 			limit: 50,
 			page,
 			saved_only: typeSaved
@@ -79,10 +73,10 @@ export const loadFeedData = async ({
 	if (typePosts || typeSaved) {
 		const postViews = await client
 			.getPosts({
-				auth,
+				auth: jwt,
 				limit: 50,
 				page,
-				community_name: communityName ?? undefined,
+				community_name: filters.communityName ?? undefined,
 				sort: postQuery.sort,
 				type_: postQuery.listing
 			})
@@ -105,11 +99,11 @@ export const loadFeedData = async ({
 			query,
 			commentViews: await client
 				.getComments({
-					auth,
+					auth: jwt,
 					page,
 					sort: query.sort,
 					type_: query.listing,
-					community_name: communityName ?? undefined
+					community_name: filters.communityName ?? undefined
 				})
 				.then(({ comments }) => comments)
 		};

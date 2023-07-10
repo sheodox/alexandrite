@@ -13,7 +13,7 @@ export function getMessageFromError(e: unknown) {
 		if (httpErr.body.lemmyError) {
 			return errorMessages[httpErr.body.lemmyError] || httpErr.body.lemmyError;
 		}
-
-		return;
 	}
+
+	return e?.toString() || 'Unknown Error';
 }

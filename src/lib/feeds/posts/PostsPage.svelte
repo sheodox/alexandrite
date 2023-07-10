@@ -29,7 +29,6 @@
 			<UserHeader {personView} />
 		{/if}
 		<PostFeed
-			{settings}
 			{feedType}
 			{contentViews}
 			on:more
@@ -64,21 +63,18 @@
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
 	import OverlayPost from '$lib/OverlayPost.svelte';
-	import type { CommunityModeratorView, CommunityView, PersonView, PostView, SiteView } from 'lemmy-js-client';
+	import type { CommunityModeratorView, CommunityView, PersonView, PostView } from 'lemmy-js-client';
 	import CommunitySidebar from '$lib/CommunitySidebar.svelte';
 	import CommunityHeader from './CommunityHeader.svelte';
 	import UserHeader from './UserHeader.svelte';
 	import type { FeedType } from '$lib/feed-filters';
-	import type { Settings } from '../../../app';
 	import { getAppContext } from '$lib/app-context';
 	import type { ContentView } from '$lib/post-loader';
 
 	export let feedType: FeedType;
-	export let settings: Settings;
 	export let contentViews: ContentView[];
 	export let loadingContent: boolean;
 	export let loadingContentFailed: boolean;
-	export let siteView: SiteView;
 	export let communityView: CommunityView | null = null;
 	export let moderators: CommunityModeratorView[] | null = null;
 	export let personView: PersonView | null = null;
