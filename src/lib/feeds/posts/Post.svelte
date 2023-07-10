@@ -50,7 +50,13 @@
 		<Stack dir="r" gap={3} align="center">
 			{@const thumbnailUrl = postView.post.thumbnail_url}
 			<div class="vote-column f-column justify-content-center">
-				<VoteButtons vote={postView.my_vote} score={postView.counts.score} dir="column" on:vote={vote} {votePending} />
+				<VoteButtons
+					vote={postView.my_vote}
+					score={postView.counts.score}
+					dir="column"
+					on:vote={(e) => $voteState.submit(e.detail)}
+					votePending={$voteState.busy}
+				/>
 			</div>
 			<div class="thumbnail">
 				{#if thumbnailUrl}
@@ -212,27 +218,46 @@
 	import { getAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
+	import { createStatefulAction } from '$lib/utils';
+	import { getLemmyClient } from '$lib/lemmy-client';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
 		'update-post-view': PostView;
 	}>();
 
-	const { username } = getAppContext();
+	const { username, loggedIn } = getAppContext();
+	const { client, jwt } = getLemmyClient();
 
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
 	export let supportsOverlay = true;
-	const { loggedIn } = getAppContext();
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';
 	// viewing a single post, show everything
 	$: modeShow = mode === 'show';
 
 	export let showPost = false;
-	let votePending = false,
-		savePending = false;
+	let savePending = false;
+
+	$: voteState = createStatefulAction(async (score: number) => {
+		if (!jwt) {
+			return;
+		}
+
+		const pv = await client
+			.likePost({
+				auth: jwt,
+				post_id: postView.post.id,
+				score: score
+			})
+			.then((r) => r.post_view);
+
+		postView.my_vote = pv.my_vote;
+		postView.counts.score = pv.counts.score;
+		dispatch('update-post-view', pv);
+	});
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');
 	$: hasBody = !!postView.post.body;
@@ -283,25 +308,6 @@
 		}
 		const u = new URL(url);
 		return /\.(png|jpg|jpeg|webp)$/.test(u.pathname);
-	}
-
-	async function vote(e: CustomEvent<number>) {
-		votePending = true;
-		const res = await fetch(`/api/posts/${postView.post.id}/vote`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				score: e.detail
-			})
-		});
-
-		if (res.ok) {
-			const pv: PostView = (await res.json()).postView;
-			postView.my_vote = pv.my_vote;
-			postView.counts.score = pv.counts.score;
-			dispatch('update-post-view', pv);
-		}
-		votePending = false;
 	}
 
 	async function save() {

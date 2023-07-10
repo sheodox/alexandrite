@@ -55,8 +55,8 @@
 				<Accordion bind:open={showCommentComposer} buttonClasses="tertiary">
 					<span slot="title">Leave a comment</span>
 					{#key showCommentComposer}
-						<form on:submit|preventDefault={onSubmitNewComment} bind:this={newCommentForm} method="POST">
-							<CommentEditor submitting={submittingComment} bind:value={newCommentText} />
+						<form bind:this={newCommentForm}>
+							<CommentEditor submitting={$newCommentState.busy} bind:value={newCommentText} />
 						</form>
 					{/key}
 				</Accordion>
@@ -120,10 +120,10 @@
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './CommentEditor.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
+	import { createStatefulForm, type ActionFn } from './utils';
 
 	export let postView: PostView;
 	export let initialCommentViews: CommentView[] = [];
@@ -147,8 +147,9 @@
 		showCommentComposer = rootCommentId === null,
 		showPost = rootCommentId === null,
 		commentLoadFailed = false,
-		endOfCommentsFeed = false,
-		submittingComment = false;
+		endOfCommentsFeed = false;
+
+	$: newCommentState = createStatefulForm(newCommentForm, onSubmitNewComment);
 
 	function changeSort() {
 		// start over if sorting changes
@@ -158,28 +159,20 @@
 		loadNextCommentPage();
 	}
 
-	async function onSubmitNewComment() {
+	const onSubmitNewComment: ActionFn = async (body) => {
 		if (!jwt) {
 			return;
 		}
-		submittingComment = true;
-		try {
-			const form = Object.fromEntries(new FormData(newCommentForm));
-
-			await client.createComment({
-				content: form.content as string,
-				auth: jwt,
-				post_id: postView.post.id,
-				language_id: form.languageId ? Number(form.languageId) : undefined
-			});
-			newCommentText = '';
-			showCommentComposer = false;
-		} catch (e) {
-			console.error(e);
-		} finally {
-			submittingComment = false;
-		}
-	}
+		const res = await client.createComment({
+			content: body.content as string,
+			auth: jwt,
+			post_id: postView.post.id,
+			language_id: body.languageId ? Number(body.languageId) : undefined
+		});
+		commentViews.push(res.comment_view);
+		commentViews = commentViews;
+		showCommentComposer = false;
+	};
 
 	function onNewComment(e: CustomEvent<CommentView>) {
 		commentViews.push(e.detail);

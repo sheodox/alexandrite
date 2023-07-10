@@ -21,7 +21,7 @@
 		<Checkbox name="nsfw" {disabled}>NSFW</Checkbox>
 	</div>
 	<Stack dir="c" cl="mt-2">
-		<CommentEditor {submitting} label="Body" showSubmit={false} bind:value={content} />
+		<CommentEditor {submitting} label="Body" showSubmit={false} bind:value={content} required={false} />
 	</Stack>
 
 	<Stack dir="r" justify="end">

@@ -36,12 +36,9 @@
 					</select>
 				{/if}
 				{#if showSubmit}
-					<button class="secondary f-row gap-2" disabled={!value}>
-						{#if submitting}
-							<Spinner />
-						{/if}
+					<BusyButton cl="secondary" busy={submitting} disabled={!value && required}>
 						{submitButtonText}
-					</button>
+					</BusyButton>
 				{/if}
 				{#if cancellable}
 					<button class="tertiary" type="button" on:click={cancel}>Cancel</button>
@@ -61,8 +58,8 @@
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
-	import Spinner from './Spinner.svelte';
 	import { getAppContext } from './app-context';
+	import BusyButton from './BusyButton.svelte';
 
 	const dispatch = createEventDispatcher<{ cancel: void }>();
 
@@ -78,6 +75,7 @@
 	export let value = '';
 	export let selectedLanguage = 0;
 	export let cancellable = false;
+	export let required = false;
 	export let submitting: boolean;
 	export let showSubmit = true;
 	export let useLanguage = false;
