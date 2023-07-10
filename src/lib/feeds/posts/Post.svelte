@@ -131,7 +131,12 @@
 					{#if !readOnly}
 						<Tooltip>
 							<span slot="tooltip"> Save </span>
-							<button aria-pressed={postView.saved} class="small" on:click={save} disabled={savePending}>
+							<button
+								aria-pressed={postView.saved}
+								class="small"
+								on:click={$saveState.submit}
+								disabled={$saveState.busy}
+							>
 								{#if postView.saved}
 									<Icon icon="star" variant="icon-only" />
 									<span class="sr-only">Saved</span>
@@ -239,7 +244,6 @@
 	$: modeShow = mode === 'show';
 
 	export let showPost = false;
-	let savePending = false;
 
 	$: voteState = createStatefulAction(async (score: number) => {
 		if (!jwt) {
@@ -256,6 +260,23 @@
 
 		postView.my_vote = pv.my_vote;
 		postView.counts.score = pv.counts.score;
+		dispatch('update-post-view', pv);
+	});
+
+	$: saveState = createStatefulAction(async () => {
+		if (!jwt) {
+			return;
+		}
+
+		const pv = await client
+			.savePost({
+				post_id: postView.post.id,
+				auth: jwt,
+				save: !postView.saved
+			})
+			.then(({ post_view }) => post_view);
+
+		postView.saved = pv.saved;
 		dispatch('update-post-view', pv);
 	});
 
@@ -308,23 +329,5 @@
 		}
 		const u = new URL(url);
 		return /\.(png|jpg|jpeg|webp)$/.test(u.pathname);
-	}
-
-	async function save() {
-		savePending = true;
-		const res = await fetch(`/api/posts/${postView.post.id}/save`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				save: !postView.saved
-			})
-		});
-
-		if (res.ok) {
-			const pv: PostView = (await res.json()).postView;
-			postView.saved = pv.saved;
-			dispatch('update-post-view', pv);
-		}
-		savePending = false;
 	}
 </script>

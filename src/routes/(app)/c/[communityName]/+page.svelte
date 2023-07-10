@@ -58,7 +58,6 @@
 	}
 
 	async function more() {
-		console.log('more!!!');
 		if (endOfFeed || loadingContent) {
 			return;
 		}
