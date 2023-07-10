@@ -18,6 +18,9 @@
 <h1 class="m-0 sx-font-size-9">Welcome</h1>
 
 <Stack dir="c" gap={4} cl="has-inline-links">
+	{#if expired}
+		<Alert variant="warning">You were logged out, please log in again.</Alert>
+	{/if}
 	<p>
 		Alexandrite is a beautiful desktop-first alternative web UI for <ExternalLink href="https://join-lemmy.org/"
 			>Lemmy</ExternalLink
@@ -80,9 +83,12 @@
 	import Separator from '$lib/Separator.svelte';
 	import Title from '$lib/Title.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { onMount } from 'svelte';
 
 	export let form;
 	export let data;
+
+	let expired = false;
 
 	let submitting = false;
 
@@ -112,4 +118,9 @@
 			submitting = false;
 		};
 	};
+
+	onMount(() => {
+		const u = new URL(location.href);
+		expired = u.searchParams.get('expired') === 'true';
+	});
 </script>

@@ -1,4 +1,6 @@
 import { getLemmySettings, setLemmySettings } from '$lib/lemmy-settings';
+import { redirect } from '@sveltejs/kit';
+import { logout } from '../(meta)/logout/logout';
 import type { LayoutServerLoad } from './$types';
 
 export const load = (async ({ locals, cookies }) => {
@@ -11,6 +13,13 @@ export const load = (async ({ locals, cookies }) => {
 		// update lemmy settings, this is initially set when setting the instance
 		// but since we requested the site anyway, should update in case it changed
 		setLemmySettings(cookies, localUser);
+	}
+
+	if (!localUser && locals.jwt) {
+		// the user was logged out, redirect to login form, they're not actually logged in,
+		// even if some of the content loads.
+		logout(cookies);
+		throw redirect(303, '/instance?expired=true');
 	}
 
 	return {
