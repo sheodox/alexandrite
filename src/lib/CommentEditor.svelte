@@ -78,7 +78,7 @@
 	export let required = false;
 	export let submitting: boolean;
 	export let showSubmit = true;
-	export let useLanguage = false;
+	export let useLanguage = true;
 	const initialValue = value;
 
 	onMount(() => {

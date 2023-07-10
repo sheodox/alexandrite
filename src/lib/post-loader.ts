@@ -8,10 +8,9 @@ export type ContentView = ({ type: 'post'; postView: PostView } | { type: 'comme
 };
 
 interface MorePage<T> {
-	items: T[];
 	error: boolean;
 	endOfFeed: boolean;
-	response?: ApiFeedLoad;
+	response?: T;
 }
 
 export const postViewToContentView = (postView: PostView) => {
@@ -54,9 +53,9 @@ export const getContentViews = (postViews: PostView[], commentViews: CommentView
 	return content;
 };
 
-export async function* feedLoader<T = {}>(
-	queryFn: (pageNum: number) => Promise<ApiFeedLoad>,
-	viewKey: 'commentViews' | 'postViews' | false
+export async function* feedLoader<T>(
+	queryFn: (pageNum: number) => Promise<T>,
+	countResultsFn: (res: T) => number
 ): AsyncIterator<MorePage<T>, MorePage<T>> {
 	let pageNum = 1,
 		endOfFeed = false;
@@ -65,14 +64,13 @@ export async function* feedLoader<T = {}>(
 		try {
 			const res = await queryFn(pageNum++);
 
-			const items = viewKey ? res[viewKey] : [];
-
-			if (items.length === 0) {
+			// if `viewKey` is false, we need to ask the caller to count the results,
+			// because we don't know what in the results they wanted
+			if (countResultsFn(res) === 0) {
 				endOfFeed = true;
 			}
 
 			yield {
-				items: items as T[],
 				error: false,
 				endOfFeed,
 				response: res
@@ -85,7 +83,6 @@ export async function* feedLoader<T = {}>(
 			pageNum--;
 			yield {
 				error: true,
-				items: [],
 				endOfFeed
 			};
 
@@ -95,7 +92,6 @@ export async function* feedLoader<T = {}>(
 
 	return {
 		endOfFeed: true,
-		items: [],
 		error: false
 	};
 }
@@ -117,8 +113,8 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 	let postViews: PostView[] = [],
 		commentViews: CommentView[] = [];
 
-	const postLoader = feedLoader<PostView>(opts.queryFn, 'postViews'),
-		commentLoader = feedLoader<CommentView>(opts.queryFn, 'commentViews');
+	const postLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res) => res.postViews.length),
+		commentLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res) => res.commentViews.length);
 
 	// store the first page of IDs for both types of content
 	postViews.forEach((pv) => loadedIds.add(pv.post.id));
@@ -129,7 +125,7 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 	while (!endOfFeed) {
 		if (opts.type === 'Posts') {
 			const more = (await postLoader.next()).value,
-				newItems = more.items.filter((p) => !loadedIds.has(p.post.id));
+				newItems = more.response?.postViews.filter((p) => !loadedIds.has(p.post.id)) || [];
 			endOfFeed = more.endOfFeed;
 
 			newItems.forEach((pv) => loadedIds.add(pv.post.id));
@@ -141,7 +137,7 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 			};
 		} else {
 			const more = (await commentLoader.next()).value,
-				newItems = more.items.filter((p) => !loadedIds.has(p.comment.id));
+				newItems = more.response?.commentViews.filter((p) => !loadedIds.has(p.comment.id)) || [];
 			endOfFeed = more.endOfFeed;
 
 			newItems.forEach((pv) => loadedIds.add(pv.post.id));
@@ -176,7 +172,9 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 
 	let postViews: PostView[] = [],
 		commentViews: CommentView[] = [];
-	const userDataLoader = feedLoader<{}>(opts.queryFn, false);
+	const userDataLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res: ApiFeedLoad) => {
+		return res.postViews.length + res.commentViews.length;
+	});
 
 	// store the first page of IDs for both types of content
 	postViews.forEach((pv) => loadedIds.add(pv.post.id));

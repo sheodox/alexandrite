@@ -117,6 +117,18 @@
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', true),
 		cssVariables = writable<Record<string, string>>({});
 
+	async function checkUnread() {
+		if (!jwt) {
+			return;
+		}
+
+		const unread = await client.getUnreadCount({
+			auth: jwt
+		});
+
+		$unreadCount = unread.replies + unread.mentions + unread.private_messages;
+	}
+
 	setAppContext({
 		username: data.settings.username ?? '',
 		loggedIn: data.loggedIn,
@@ -124,7 +136,8 @@
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		unreadCount,
-		sidebarVisible
+		sidebarVisible,
+		checkUnread
 	});
 
 	let menuOpen = false;
@@ -180,20 +193,9 @@
 			return;
 		}
 
-		async function pollUnread() {
-			if (!jwt) {
-				return;
-			}
+		checkUnread();
 
-			const unread = await client.getUnreadCount({
-				auth: jwt
-			});
-
-			$unreadCount = unread.replies + unread.mentions + unread.private_messages;
-		}
-		pollUnread();
-
-		unreadPollInterval = setInterval(pollUnread, unreadPollMS);
+		unreadPollInterval = setInterval(checkUnread, unreadPollMS);
 	});
 
 	function onLogout() {

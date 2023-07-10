@@ -39,6 +39,7 @@ export interface AppContext {
 	siteMeta: GetSiteResponse;
 	unreadCount: Writable<number>;
 	sidebarVisible: Writable<boolean>;
+	checkUnread: () => Promise<void>;
 }
 
 export const getAppContext = () => {

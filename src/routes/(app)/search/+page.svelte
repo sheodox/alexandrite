@@ -21,34 +21,34 @@
 <form method="GET" data-sveltekit-replacestate>
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r">
-			<TextInput value={data.search.query.q} name="q">Search</TextInput>
+			<TextInput value={data.query.q} name="q">Search</TextInput>
 
-			<select aria-label="Type" name="type" required value={data.search.query.type}>
+			<select aria-label="Type" name="type" required value={data.query.type}>
 				{#each SearchTypeOptions as opt}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
 			</select>
 
-			<ToggleGroup options={ListingOptions(loggedIn)} name="listing" selected={data.search.query.listing} />
+			<ToggleGroup options={ListingOptions(loggedIn)} name="listing" selected={data.query.listing} />
 
-			<select aria-label="Post Sort" name="sort" required value={data.search.query.sort}>
+			<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
 				{#each SearchSortOptions as opt}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
 			</select>
 
-			{#if data.search.query.community}
-				<input type="hidden" name="community" value={data.search.query.community} />
+			{#if data.query.community}
+				<input type="hidden" name="community" value={data.query.community} />
 			{/if}
-			{#if data.search.query.creator}
-				<input type="hidden" name="creator" value={data.search.query.creator} />
+			{#if data.query.creator}
+				<input type="hidden" name="creator" value={data.query.creator} />
 			{/if}
 
 			<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
 		</Stack>
 	</section>
 </form>
-{#if data.search.query.q}
+{#if data.query.q}
 	<Stack dir="c" gap={2}>
 		<VirtualFeed
 			feedSize={contentViews.length}
@@ -61,7 +61,6 @@
 		>
 			<svelte:fragment let:index>
 				{@const contentView = contentViews[index]}
-				<!-- {#each contentViews as contentView, i} -->
 				{#if contentView.type === 'post'}
 					<Post postView={contentView.view} on:overlay on:update-post-view supportsOverlay={false} />
 				{:else if contentView.type === 'comment'}
@@ -96,38 +95,103 @@
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
-	import { endpoint } from '$lib/utils';
 	import Post from '$lib/feeds/posts/Post.svelte';
-	import type { ApiSearchRes } from '../api/search/+server';
+	import type {
+		CommentView,
+		CommunityView,
+		ListingType,
+		PersonView,
+		PostView,
+		SearchType,
+		SortType
+	} from 'lemmy-js-client';
+	import { getLemmyClient } from '$lib/lemmy-client';
 
 	export let data;
 
 	const { loggedIn } = getAppContext();
+	const { client, jwt } = getLemmyClient();
 
 	let loadingContent = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		contentViews: ReturnType<typeof getContentViews> = [];
+		contentViews: ReturnType<typeof getContentViews> = [],
+		loader: ReturnType<typeof initFeed>;
 
-	$: loader = initFeed(data);
+	$: {
+		loader = initFeed(data);
+		// load the first page of data
+		more();
+	}
 
+	interface ApiSearchRes {
+		query: {
+			q: string;
+			page: number;
+			sort: string;
+			listing: string;
+			type: string;
+			community: string | null;
+			creator: number | null;
+		};
+		comments: CommentView[];
+		posts: PostView[];
+		users: PersonView[];
+		communities: CommunityView[];
+	}
 	function initFeed(data: PageData) {
-		const newLoader = feedLoader<{}, ApiSearchRes>(
-			endpoint('/api/search', {
-				q: data.search.query.q,
-				type: data.search.query.type,
-				listing: data.search.query.listing,
-				sort: data.search.query.sort,
-				community: data.search.query.community,
-				creator: data.search.query.creator
-			}),
-			false
+		const newLoader = feedLoader<ApiSearchRes>(
+			async (page: number) => {
+				const creator = data.query.creator,
+					query = {
+						q: data.query.q ?? '',
+						page,
+						sort: data.query.sort,
+						listing: data.query.listing,
+						type: data.query.type,
+						community: data.query.community,
+						creator: creator ? Number(creator) : null
+					};
+
+				// can't search for nothing, but don't let that stop us from returning the default query values
+				if (!query.q) {
+					const blankResponse: ApiSearchRes = {
+						query,
+						comments: [],
+						posts: [],
+						users: [],
+						communities: []
+					};
+					return blankResponse;
+				}
+
+				const searchRes = await client.search({
+					auth: jwt,
+					limit: 50,
+					page: query.page,
+					sort: query.sort as SortType,
+					type_: query.type as SearchType,
+					listing_type: query.listing as ListingType,
+					community_name: query.community ?? undefined,
+					creator_id: query.creator ?? undefined,
+					q: query.q
+				});
+
+				return {
+					query,
+					comments: searchRes.comments,
+					posts: searchRes.posts,
+					users: searchRes.users,
+					communities: searchRes.communities
+				};
+			},
+			(res) => res.communities.length + res.posts.length + res.comments.length + res.users.length
 		);
 
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = getContentViews(data.search);
+		contentViews = [];
 
 		return newLoader;
 	}

@@ -1,4 +1,4 @@
-<button class="f-row align-items-center gap-2 {cl}" disabled={busy || disabled}>
+<button class="f-row align-items-center gap-2 {cl}" disabled={busy || disabled} on:click>
 	{#if busy}
 		<Spinner />
 	{/if}

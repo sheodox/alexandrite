@@ -43,7 +43,7 @@
 </Layout>
 
 <script lang="ts">
-	import { Search, Stack, Icon, Layout } from 'sheodox-ui';
+	import { Stack, Icon, Layout } from 'sheodox-ui';
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
@@ -52,25 +52,44 @@
 	import { feedLoader } from '$lib/post-loader';
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
+	import { getLemmyClient } from '$lib/lemmy-client';
+
+	const { client, jwt } = getLemmyClient();
 
 	export let data;
 
 	let loadingContent = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		communities: CommunityView[];
-	$: loader = initFeed(data);
+		communities: CommunityView[],
+		loader: ReturnType<typeof initFeed>;
+
+	$: {
+		loader = initFeed(data);
+		// load the first page of data
+		more();
+	}
 
 	function initFeed(data: PageData) {
-		const newLoader = feedLoader<CommunityView>(
-			`/api/communities?listing=${data.query.listing}&sort=${data.query.sort}`,
-			'communities'
+		const newLoader = feedLoader<CommunityView[]>(
+			async (page) => {
+				return await client
+					.listCommunities({
+						auth: jwt,
+						page,
+						limit: 50,
+						type_: data.query.listing,
+						sort: data.query.sort
+					})
+					.then((res) => res.communities);
+			},
+			(res) => res.length
 		);
 
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		communities = [...data.communities];
+		communities = [];
 
 		return newLoader;
 	}
@@ -85,11 +104,12 @@
 		loadingContentFailed = more.error;
 		endOfFeed = more.endOfFeed;
 
-		communities = [
-			...communities,
-			...more.items.filter((p) => !communities.some((p2) => p2.community.id === p.community.id))
-		];
-
+		if (more.response) {
+			communities = [
+				...communities,
+				...more.response.filter((p) => !communities.some((p2) => p2.community.id === p.community.id))
+			];
+		}
 		loadingContent = false;
 	}
 </script>

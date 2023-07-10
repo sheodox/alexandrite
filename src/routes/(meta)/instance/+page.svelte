@@ -36,7 +36,7 @@
 </Stack>
 
 <Alert variant="info">
-	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.0</code> or later.
+	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.1</code> or later.
 </Alert>
 
 <form class:instance-valid={parseableInstance} on:submit|preventDefault={onSubmit}>

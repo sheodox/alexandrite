@@ -1,12 +1,10 @@
 <Title title={userUsername} />
 
 <PostsPage
-	settings={data.settings}
 	on:more={more}
 	on:update-post-view={updatePostView}
 	feedType="user"
 	contentViews={filterContentType(contentViews, data.query.type)}
-	siteView={data.site.site_view}
 	personView={data.personView}
 	{endOfFeed}
 	selectedType={data.query.type}
@@ -39,23 +37,40 @@
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
-	import { userFeedLoader, type ContentView, getContentViews } from '$lib/post-loader.js';
+	import { userFeedLoader, type ContentView } from '$lib/post-loader.js';
 	import { nameAtInstance } from '$lib/nav-utils.js';
 	import type { PostView } from 'lemmy-js-client';
 	import Title from '$lib/Title.svelte';
+	import { loadFeedData } from '$lib/feed-query.js';
+	import type { PageData } from './$types';
 
 	export let data;
 
-	const userUsername = nameAtInstance(data.personView.person),
-		loader = userFeedLoader({
-			postViews: data.postViews,
-			commentViews: data.commentViews,
-			queryUrlBase: `/api/feed?username=${userUsername}&type=${data.query.type}&listing=${data.query.listing}&sort=${data.query.sort}`,
-			sort: data.query.sort,
-			type: data.query.type
-		});
+	const userUsername = nameAtInstance(data.personView.person);
 
-	let contentViews = getContentViews(data.postViews, data.commentViews, data.query.type, data.query.sort);
+	let loader: ReturnType<typeof initFeed>;
+	$: {
+		loader = initFeed(data);
+		// load the first page of data
+		more();
+	}
+
+	function initFeed(data: PageData) {
+		return userFeedLoader({
+			sort: data.query.sort,
+			type: data.query.type,
+			queryFn: async (page: number) => {
+				return await loadFeedData({
+					page,
+					listing: data.query.listing,
+					sort: data.query.sort,
+					username: userUsername
+				});
+			}
+		});
+	}
+
+	let contentViews: ContentView[] = [];
 
 	let loadingContent = false,
 		loadingContentFailed = false,
