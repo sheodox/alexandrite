@@ -72,6 +72,8 @@
 				<VoteButtons
 					vote={commentView.my_vote}
 					score={commentView.counts.score}
+					upvotes={commentView.counts.upvotes}
+					downvotes={commentView.counts.downvotes}
 					dir="row"
 					small
 					on:vote={(e) => $voteState.submit(e.detail)}
