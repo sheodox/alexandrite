@@ -8,7 +8,9 @@ export const load = (async ({ params }) => {
 	const { comments } = await client.getComments({
 			parent_id: +params.commentId,
 			auth: jwt,
-			max_depth: 8
+			max_depth: 8,
+			type_: 'All',
+			sort: 'Hot'
 		}),
 		postId = comments.at(0)?.post.id;
 
