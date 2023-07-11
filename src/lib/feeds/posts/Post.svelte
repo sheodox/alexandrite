@@ -52,6 +52,8 @@
 			<div class="vote-column f-column justify-content-center">
 				<VoteButtons
 					vote={postView.my_vote}
+					upvotes={postView.counts.upvotes}
+					downvotes={postView.counts.downvotes}
 					score={postView.counts.score}
 					dir="column"
 					on:vote={(e) => $voteState.submit(e.detail)}

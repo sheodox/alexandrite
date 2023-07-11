@@ -33,14 +33,22 @@
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-up" variant="icon-only" />
 	</button>
-	<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
-		{#if votePending}
-			<Spinner />
-		{:else}
-			{score}
-			<span class="sr-only">score</span>
-		{/if}
-	</span>
+	<Tooltip>
+		<span slot="tooltip">
+			<Icon icon="arrow-up" variant="icon-only" /><span class="sr-only">Up:</span>
+			{upvotes}
+			<Icon icon="arrow-down" variant="icon-only" /><span class="sr-only">Down:</span>
+			{downvotes}
+		</span>
+		<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
+			{#if votePending}
+				<Spinner />
+			{:else}
+				{score}
+				<span class="sr-only">score</span>
+			{/if}
+		</span>
+	</Tooltip>
 	<button
 		aria-pressed={votedDown}
 		class="vote-down"
@@ -54,7 +62,7 @@
 </div>
 
 <script lang="ts">
-	import { Icon } from 'sheodox-ui';
+	import { Icon, Tooltip } from 'sheodox-ui';
 	import { createEventDispatcher } from 'svelte';
 	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';
@@ -67,6 +75,8 @@
 
 	export let vote = 0;
 	export let score = 0;
+	export let upvotes = 0;
+	export let downvotes = 0;
 	export let small = false;
 	export let dir: 'row' | 'column' = 'row';
 	export let votePending = false;
