@@ -68,7 +68,7 @@
 	import { getAppContext } from '$lib/app-context';
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
-	import { feedLoader, type ContentView } from '$lib/post-loader';
+	import { feedLoader } from '$lib/post-loader';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { tick } from 'svelte';
 	import type { CommentSortType } from 'lemmy-js-client';
@@ -101,6 +101,7 @@
 	});
 
 	$: {
+		checkUnread();
 		loader = initFeed(data);
 		// load the first page of data
 		more();

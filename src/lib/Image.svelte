@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	img {
 		max-width: 100%;
 	}
@@ -10,14 +10,24 @@
 		height: 100%;
 		width: 100%;
 	}
+	.show-nsfw {
+		background: var(--sx-red-transparent-faint);
+		color: var(--sx-red-400);
+		margin: 0;
+	}
+	.image-mode-thumbnail.blur:not(:hover) img {
+		filter: blur(10px);
+	}
 </style>
 
 {#if error}
 	<div class="error align-items-center justify-content-center f-row" title="Image load failed">
 		<Icon icon="bug" />
 	</div>
+{:else if nsfw && $nsfwImageHandling === 'HIDE' && !showAnyway}
+	<button class="img show-nsfw" on:click={() => (showAnyway = true)}>Show NSFW</button>
 {:else if valid}
-	<picture class="image-mode-{mode} {full ? 'image-full' : ''}">
+	<picture class="image-mode-{mode} {full ? 'image-full' : ''}" class:blur={nsfw && $nsfwImageHandling === 'BLUR'}>
 		<source srcset="{src}?format=webp{size}" type="image/webp" />
 		<source srcset={src} />
 		<source srcset="{src}?format=jpg{size}" type="image/jpeg" />
@@ -29,17 +39,18 @@
 
 <script lang="ts">
 	import { Icon } from 'sheodox-ui';
+	import { getSettingsContext } from './settings-context';
 	export let src: string;
 	export let mode: 'thumbnail' | 'full' = 'full';
 
 	export let full = mode === 'full';
+	export let nsfw = false;
+	const { nsfwImageHandling } = getSettingsContext();
 
 	$: valid = src.startsWith('https://') || src.startsWith('http://');
 
 	let error = false,
-		loadAttempts = 0;
-
-	const AUTO_LOAD_ATTEMPTS_MAX = 4;
+		showAnyway = false;
 
 	$: size = mode === 'thumbnail' ? `&thumbnail=256` : '';
 
@@ -51,16 +62,5 @@
 
 	function imageLoadError() {
 		error = true;
-
-		// give up eventually
-		if (loadAttempts >= AUTO_LOAD_ATTEMPTS_MAX) {
-			return;
-		}
-
-		// retry a bit later, with random times to not spam retries on every image at once
-		setTimeout(() => {
-			loadAttempts++;
-			error = false;
-		}, 1000 * (loadAttempts + 1) + Math.random() * 3000);
 	}
 </script>

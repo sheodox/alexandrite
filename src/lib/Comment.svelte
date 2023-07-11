@@ -193,7 +193,7 @@
 	export let collapsed = false;
 	export let showPost = false;
 
-	const { loggedIn, username } = getAppContext();
+	const { loggedIn, username, checkUnread } = getAppContext();
 	const { jwt, client } = getLemmyClient();
 	$: myComment = commentView.creator.local && commentView.creator.name === username;
 
@@ -242,8 +242,11 @@
 		});
 
 		showReplyComposer = false;
-
 		dispatch('new-comment', res.comment_view);
+
+		// replying to an unread comment marks it as read,
+		// so if it was one of those, we should check again
+		checkUnread();
 	};
 
 	const editSubmit: ActionFn = async (body) => {

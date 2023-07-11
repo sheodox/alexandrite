@@ -1,7 +1,4 @@
 <style>
-	:root {
-		--sx-hue-gray: 280 !important;
-	}
 </style>
 
 <slot />

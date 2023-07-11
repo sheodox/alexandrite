@@ -21,7 +21,8 @@
 	.sidebar-visible section.post {
 		width: calc(100% - #{$sidebarWidth});
 	}
-	.comment-editor {
+	.comment-editor,
+	.comment-sort-bar {
 		width: 60rem;
 		max-width: 100%;
 	}
@@ -64,10 +65,15 @@
 		{/if}
 
 		<h2 class="px-4 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
-		<section>
-			<Stack gap={4} align="center" cl="p-4" dir="r">
-				<ToggleGroup options={CommentSortOptions} bind:selected={selectedSort} name="sort" on:change={changeSort} />
-				<Search bind:value={searchText} />
+		<section class="comment-sort-bar">
+			<Stack gap={4} dir="r" justify="between" align="center">
+				<Stack gap={4} align="center" cl="p-4" dir="r">
+					<ToggleGroup options={CommentSortOptions} bind:selected={selectedSort} name="sort" on:change={changeSort} />
+					<Search bind:value={searchText} />
+				</Stack>
+				<button class="tertiary" on:click={changeSort}
+					><Icon icon="refresh" variant="icon-only" /> Refresh Comments</button
+				>
 			</Stack>
 		</section>
 
@@ -124,6 +130,7 @@
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
 	import { createStatefulForm, type ActionFn } from './utils';
+	import { getSettingsContext } from './settings-context';
 
 	export let postView: PostView;
 	export let initialCommentViews: CommentView[] = [];
@@ -135,7 +142,8 @@
 	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
 	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
 
-	const { loggedIn, sidebarVisible } = getAppContext();
+	const { loggedIn } = getAppContext();
+	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
 	const { client, jwt } = getLemmyClient();
 
 	let commentsPageNum = 1,
@@ -145,7 +153,7 @@
 		loadingComments = false,
 		// assume if they came here following a comment link, commenting on the post is less important
 		showCommentComposer = rootCommentId === null,
-		showPost = rootCommentId === null,
+		showPost = rootCommentId === null && (!postView.post.nsfw || $nsfwImageHandling === 'SHOW'),
 		commentLoadFailed = false,
 		endOfCommentsFeed = false;
 

@@ -19,7 +19,8 @@
 		width: #{$height * $aspect};
 		flex-shrink: 0;
 
-		:global(img) {
+		:global(img),
+		:global(.img) {
 			height: 100%;
 			width: 100%;
 			object-fit: cover;
@@ -62,7 +63,7 @@
 			</div>
 			<div class="thumbnail">
 				{#if thumbnailUrl}
-					<Image src={thumbnailUrl} mode="thumbnail" />
+					<Image src={thumbnailUrl} mode="thumbnail" nsfw={postView.post.nsfw} />
 				{:else}
 					<Stack justify="center" align="center">
 						<Icon icon={postView.post.url ? 'arrow-up-right-from-square' : 'comments'} />
@@ -202,6 +203,8 @@
 					</div>
 				{/if}
 				{#if probablyImage && postView.post.url}
+					<!-- not passing nsfw, it's handled by not showing the post contents
+					by default when necessary, or the user has to click twice to see -->
 					<Image src={postView.post.url} />
 				{/if}
 			</div>

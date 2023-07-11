@@ -70,6 +70,7 @@
 	import type { FeedType } from '$lib/feed-filters';
 	import { getAppContext } from '$lib/app-context';
 	import type { ContentView } from '$lib/post-loader';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	export let feedType: FeedType;
 	export let contentViews: ContentView[];
@@ -83,7 +84,8 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	const { username, sidebarVisible } = getAppContext();
+	const { username } = getAppContext();
+	const { sidebarVisible } = getSettingsContext();
 
 	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
 

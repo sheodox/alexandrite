@@ -1,4 +1,31 @@
-import { readable } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
+
+export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
+	if (!globalThis.localStorage) {
+		return writable(defaultValue);
+	}
+
+	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
+	let value = defaultValue;
+
+	try {
+		const item = localStorage.getItem(key);
+		if (item !== null) {
+			value = JSON.parse(item);
+		}
+	} catch (e) {
+		/* ignore, use default */
+	}
+
+	const store = writable<T>(value);
+	// whenever the value changes, write it to local storage
+	// TODO listen to storage events and update from other tabs!
+	store.subscribe((val) => {
+		localStorage.setItem(key, JSON.stringify(val));
+	});
+
+	return store;
+};
 
 export class Throttler {
 	timeout: ReturnType<typeof setTimeout> | null = null;

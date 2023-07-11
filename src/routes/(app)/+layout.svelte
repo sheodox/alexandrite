@@ -16,6 +16,11 @@
 
 <Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
 	<Logo slot="logo" />
+	<div slot="headerCenter">
+		<form method="GET" action="/search">
+			<Search name="q" />
+		</form>
+	</div>
 	<div slot="headerEnd" class="f-row align-items-center">
 		{#if data.loggedIn}
 			<IconLink
@@ -45,12 +50,8 @@
 			</span>
 		</Tooltip>
 
-		<form method="GET" action="/search">
-			<Search name="q" />
-		</form>
-
 		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
-		<IconButton on:click={onLogout} icon="right-from-bracket" text="Logout" {placement} />
+		<HeaderUserMenu />
 		<IconButton
 			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
 			on:click={() => ($sidebarVisible = !$sidebarVisible)}
@@ -86,7 +87,7 @@
 	import { Sidebar, Header, Tooltip, Search } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
-	import { localStorageBackedStore, setAppContext } from '$lib/app-context';
+	import { setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
 	import IconLink from '$lib/IconLink.svelte';
@@ -94,7 +95,10 @@
 	import { writable, type Unsubscriber } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
 	import { getLemmyClient } from '$lib/lemmy-client';
-	import { logout } from '$lib/settings/auth';
+	import { setSettingsContext } from '$lib/settings-context';
+	import HeaderUserMenu from './HeaderUserMenu.svelte';
+	import { localStorageBackedStore } from '$lib/utils';
+	import { AlexandriteSettingsDefaults } from '$lib/settings-context';
 
 	export let data;
 
@@ -114,8 +118,10 @@
 		menuOpen = false;
 	});
 
-	const sidebarVisible = localStorageBackedStore('sidebar-visible', true),
-		cssVariables = writable<Record<string, string>>({});
+	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
+		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
+		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
+		cssVariables = writable<Record<string, string | number>>({});
 
 	async function checkUnread() {
 		if (!jwt) {
@@ -136,8 +142,13 @@
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		unreadCount,
-		sidebarVisible,
 		checkUnread
+	});
+
+	setSettingsContext({
+		themeHue,
+		nsfwImageHandling,
+		sidebarVisible
 	});
 
 	let menuOpen = false;
@@ -153,9 +164,12 @@
 		});
 
 	const unreadPollMS = 1000 * 60 * 15;
+	const styleId = 'alexandrite-style-overrides';
 	let unreadPollInterval: ReturnType<typeof setInterval>,
 		headerResizeObserver: ResizeObserver,
 		cssVarUnsub: Unsubscriber;
+
+	$: $cssVariables['--sx-hue-gray'] = $themeHue;
 
 	onMount(async () => {
 		// track the height of the header, wanted for some styling in various places
@@ -172,7 +186,6 @@
 		}
 
 		cssVarUnsub = cssVariables.subscribe((vars) => {
-			const styleId = 'alexandrite-style-overrides';
 			let style = document.getElementById(styleId);
 			if (!style) {
 				style = document.createElement('style');
@@ -198,15 +211,10 @@
 		unreadPollInterval = setInterval(checkUnread, unreadPollMS);
 	});
 
-	function onLogout() {
-		logout();
-
-		goto('/instance');
-	}
-
 	onDestroy(() => {
 		clearInterval(unreadPollInterval);
 		headerResizeObserver?.disconnect();
 		cssVarUnsub?.();
+		document.getElementById(styleId)?.remove();
 	});
 </script>
