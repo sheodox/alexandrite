@@ -69,7 +69,7 @@
 				url = safeUrl(href);
 
 			if (url) {
-				const communityRegMatch = url.pathname.match(/\/c\/([\a-z0-9_@.]{3,})\/?$/),
+				const communityRegMatch = url.pathname.match(/\/[mc]\/([\a-zA-Z0-9_@.]{3,})\/?$/),
 					userRegMatch = url.pathname.match(/\/u\/([\a-zA-Z0-9_@.]{3,})\/?$/),
 					postRegMatch = url.pathname.match(/\/post\/(\d+)\/?$/),
 					commentRegMatch = url.pathname.match(/\/comment\/(\d+)\/?$/),
@@ -84,11 +84,13 @@
 						newPathname = `/c/${communityRegMatch[1]}@${url.host}`;
 					}
 				} else if (userRegMatch && userRegMatch.length > 1) {
+					// trim superfluous leading @'s before usernames
+					const match = userRegMatch[1].replace(/^@/, '');
 					// already a link with a host, don't duplicate the instances
-					if (userRegMatch[1].includes('@') || isLocal) {
-						newPathname = `/u/${userRegMatch[1]}`;
+					if (match.includes('@') || isLocal) {
+						newPathname = `/u/${match}`;
 					} else {
-						newPathname = `/u/${userRegMatch[1]}@${url.host}`;
+						newPathname = `/u/${match}@${url.host}`;
 					}
 				}
 				// post IDs are not the same between instances, only try rewriting
