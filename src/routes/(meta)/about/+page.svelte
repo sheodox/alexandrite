@@ -19,6 +19,8 @@
 			>!
 		</p>
 
+		<p>Come join the community at <a href="/c/alexandrite@lemmy.world">!alexandrite@lemmy.world</a>.</p>
+
 		<h2>Support Development</h2>
 		<p>
 			If you'd like to donate to support development of Alexandrite you can tip me on <ExternalLink
