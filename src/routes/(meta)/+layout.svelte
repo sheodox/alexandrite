@@ -1,3 +1,9 @@
+<style>
+	:root {
+		--sx-hue-gray: 280;
+	}
+</style>
+
 <Header slim={false} appName="Alexandrite" href="/">
 	<Logo slot="logo" size="large" />
 </Header>
