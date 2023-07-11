@@ -22,6 +22,7 @@
 
 <script lang="ts">
 	import MarkdownIt, { type Options } from 'markdown-it';
+	import { getAppContext } from './app-context';
 	const mdOptions: Options = {
 		linkify: true,
 		html: false,
@@ -33,6 +34,7 @@
 
 	const fullRender = new MarkdownIt(mdOptions);
 	const noImageRender = new MarkdownIt(mdOptions).disable('image');
+	const { instance } = getAppContext();
 
 	extendMd(fullRender);
 	extendMd(noImageRender);
@@ -54,6 +56,56 @@
 				match.url = `/c/${match.url.replace('!', '')}`;
 			}
 		});
+
+		const defaultRender =
+			md.renderer.rules.link_open ||
+			function (tokens, idx, options, env, self) {
+				return self.renderToken(tokens, idx, options);
+			};
+
+		//rewrite various links to Alexandrite links
+		md.renderer.rules.link_open = function (token, idx, options, env, self) {
+			const href = token[idx].attrGet('href'),
+				url = safeUrl(href);
+
+			if (url) {
+				const communityRegMatch = url.pathname.match(/\/c\/([\a-z0-9_@.]{3,})\/?$/),
+					userRegMatch = url.pathname.match(/\/u\/([\a-zA-Z0-9_@.]{3,})\/?$/),
+					postRegMatch = url.pathname.match(/\/post\/(\d+)\/?$/),
+					commentRegMatch = url.pathname.match(/\/comment\/(\d+)\/?$/),
+					isLocal = url.host === instance;
+				let newPathname: null | string = null;
+
+				if (communityRegMatch && communityRegMatch.length > 1) {
+					// already a link with a host, don't duplicate the instances
+					if (communityRegMatch[1].includes('@') || isLocal) {
+						newPathname = `/c/${communityRegMatch[1]}`;
+					} else {
+						newPathname = `/c/${communityRegMatch[1]}@${url.host}`;
+					}
+				} else if (userRegMatch && userRegMatch.length > 1) {
+					// already a link with a host, don't duplicate the instances
+					if (userRegMatch[1].includes('@') || isLocal) {
+						newPathname = `/u/${userRegMatch[1]}`;
+					} else {
+						newPathname = `/u/${userRegMatch[1]}@${url.host}`;
+					}
+				}
+				// post IDs are not the same between instances, only try rewriting
+				// links to local posts, otherwise it'll go to the wrong place or nowhere
+				else if (postRegMatch && postRegMatch.length > 1 && isLocal) {
+					newPathname = `/post/${postRegMatch[1]}`;
+				} else if (commentRegMatch && commentRegMatch.length > 1 && isLocal) {
+					newPathname = `/comment/${commentRegMatch[1]}`;
+				}
+
+				if (newPathname) {
+					token[idx].attrSet('href', newPathname + url.search);
+				}
+			}
+
+			return defaultRender(token, idx, options, env, self);
+		};
 	}
 
 	export let md: string;
@@ -65,6 +117,17 @@
 		const target = e.target as HTMLElement;
 		if (target.tagName.toLowerCase() === 'img') {
 			target.classList.toggle('show-full');
+		}
+	}
+
+	function safeUrl(url: string | null) {
+		if (!url) {
+			return null;
+		}
+		try {
+			return new URL(url);
+		} catch (e) {
+			return null;
 		}
 	}
 </script>
