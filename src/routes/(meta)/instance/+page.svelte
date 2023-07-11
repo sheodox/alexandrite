@@ -177,7 +177,7 @@
 			}
 		}
 
-		goto('/');
+		location.href = '/';
 	}
 
 	onMount(() => {
