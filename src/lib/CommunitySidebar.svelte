@@ -1,5 +1,5 @@
 <article>
-	<Sidebar description={community.description ?? ''} bannerImageSrc={community.banner}>
+	<Sidebar description={community.description ?? ''} bannerImageSrc={community.banner} context="Community">
 		<span slot="name">
 			<NameAtInstance place={community} prefix="!" />
 			<ExternalLink href={community.actor_id}>
@@ -15,7 +15,7 @@
 		<div slot="end">
 			{#if moderators}
 				<Accordion buttonClasses="tertiary">
-					<span slot="title">Moderators</span>
+					<span slot="title">Moderators ({moderators.length})</span>
 					<Stack dir="c" gap={2}>
 						{#each moderators as mod}
 							<UserLink user={mod.moderator} />

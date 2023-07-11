@@ -2,13 +2,23 @@
 	.sidebar :global(img) {
 		border-radius: 10px;
 	}
+	h1 {
+		font-size: var(--sx-font-size-4);
+		margin: 0;
+		color: var(--sx-gray-100);
+	}
+	h2 {
+		font-size: var(--sx-font-size-7);
+		margin-top: 0;
+	}
 </style>
 
 <article class="sidebar">
 	{#if bannerImageSrc}
 		<Image src={bannerImageSrc} />
 	{/if}
-	<h1><slot name="name" /></h1>
+	<h1>{context}</h1>
+	<h2><slot name="name" /></h2>
 
 	{#if counts}
 		<Stack dir="r" gap={3}>
@@ -49,4 +59,7 @@
 	export let description: string;
 	export let sidebar = '';
 	export let bannerImageSrc = '';
+	// the kind of sidebar this is, to make it more obvious if the community/instance
+	// name isn't descriptive enough
+	export let context: string;
 </script>

@@ -20,15 +20,16 @@
 		</article>
 		{#if data.moderates && data.moderates.length}
 			<article>
-				<h1 class="mb-0">Moderates</h1>
+				<h2 class="mb-0">Moderates</h2>
 				<Stack dir="c" gap={2}>
 					{#each data.moderates as mod}
 						<CommunityLink community={mod.community} />
 					{/each}
 				</Stack>
 			</article>
-			<hr class="my-8" />
 		{/if}
+
+		<hr class="my-8" />
 	</div>
 </PostsPage>
 
