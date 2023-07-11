@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	div :global(img) {
 		max-width: 100%;
 		cursor: zoom-out;
@@ -12,6 +12,29 @@
 		word-wrap: break-word;
 		white-space: pre-wrap;
 	}
+	div :global(pre) {
+		background: var(--sx-gray-transparent);
+		border-radius: 5px;
+		padding: var(--sx-spacing-1);
+
+		:global(code) {
+			background: none;
+		}
+	}
+	div :global(summary) {
+		cursor: pointer;
+		border-radius: 5px;
+	}
+	div :global(details) {
+		padding: var(--sx-spacing-2);
+		border-radius: 5px;
+	}
+	div :global(hr) {
+		color: var(--sx-gray-transparent-lighter);
+	}
+	div :global(details[open]) {
+		background: var(--sx-gray-transparent);
+	}
 </style>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -22,6 +45,11 @@
 
 <script lang="ts">
 	import MarkdownIt, { type Options } from 'markdown-it';
+	import mdi_sub from 'markdown-it-sub';
+	import mdi_sup from 'markdown-it-sup';
+	import mdi_footnote from 'markdown-it-footnote';
+	import mdi_container from 'markdown-it-container';
+	import mdi_ruby from 'markdown-it-ruby';
 	import { getAppContext } from './app-context';
 	const mdOptions: Options = {
 		linkify: true,
@@ -40,6 +68,28 @@
 	extendMd(noImageRender);
 
 	function extendMd(md: MarkdownIt) {
+		md.use(mdi_sub)
+			.use(mdi_sup)
+			.use(mdi_footnote)
+			.use(mdi_container, 'spoiler', {
+				validate: (params: string) => {
+					return params.trim().match(/^spoiler\s+(.*)$/);
+				},
+
+				render: (tokens: any, idx: any) => {
+					var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+
+					if (tokens[idx].nesting === 1) {
+						// opening tag
+						return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
+					} else {
+						// closing tag
+						return '</details>\n';
+					}
+				}
+			})
+			.use(mdi_ruby);
+
 		md.linkify.set({ fuzzyEmail: false });
 		// linkify community links in the format: !communityname@example.com
 		md.linkify.add('!', {
@@ -54,6 +104,21 @@
 			},
 			normalize: function (match) {
 				match.url = `/c/${match.url.replace('!', '')}`;
+			}
+		});
+		// linkify user links in the format: @user@example.com
+		md.linkify.add('@', {
+			validate: function (text, pos) {
+				const tail = text.slice(pos);
+				const match = tail.match(communityReg);
+				if (match) {
+					return match[0].length;
+				}
+
+				return 0;
+			},
+			normalize: function (match) {
+				match.url = `/u/${match.url.replace(/^@/, '')}`;
 			}
 		});
 
