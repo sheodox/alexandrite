@@ -132,23 +132,25 @@
 						</span>
 					{/if}
 					{#if !readOnly}
-						<Tooltip>
-							<span slot="tooltip"> Save </span>
-							<button
-								aria-pressed={postView.saved}
-								class="small"
-								on:click={$saveState.submit}
-								disabled={$saveState.busy}
-							>
-								{#if postView.saved}
-									<Icon icon="star" variant="icon-only" />
-									<span class="sr-only">Saved</span>
-								{:else}
-									<Icon icon="star" iconVariant="regular" variant="icon-only" />
-									<span class="sr-only">Save</span>
-								{/if}
-							</button>
-						</Tooltip>
+						{#if loggedIn}
+							<Tooltip>
+								<span slot="tooltip"> Save </span>
+								<button
+									aria-pressed={postView.saved}
+									class="small"
+									on:click={$saveState.submit}
+									disabled={$saveState.busy}
+								>
+									{#if postView.saved}
+										<Icon icon="star" variant="icon-only" />
+										<span class="sr-only">Saved</span>
+									{:else}
+										<Icon icon="star" iconVariant="regular" variant="icon-only" />
+										<span class="sr-only">Save</span>
+									{/if}
+								</button>
+							</Tooltip>
+						{/if}
 						{@const postLinkText = 'Original Post'}
 						<Tooltip>
 							<span slot="tooltip">{postLinkText}</span>

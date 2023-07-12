@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
 import { getLemmySettings } from './lemmy-settings';
+import { createAutoExpireToast } from 'sheodox-ui';
+import { getMessageFromError } from './error-messages';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -38,6 +40,12 @@ export const createLemmyClient = (instanceUrl: string) => {
 					// feed after redirecting away without this.
 					location.href = '/instance?expired=true';
 				}
+
+				createAutoExpireToast({
+					variant: 'error',
+					title: getMessageFromError(lemmyError),
+					message: !lemmyError ? `Lemmy Error: ${text}` : ''
+				});
 
 				throw error(res.status, {
 					message: 'Lemmy Error: ' + res.status + ':\n' + text,

@@ -58,15 +58,13 @@
 				>Two-factor authentication token (if enabled)</TextInput
 			>
 		</div>
-		<button
-			class="primary mt-6 f-row align-items-center justify-content-center gap-2"
+		<BusyButton
+			cl="primary mt-6"
 			disabled={!instance || !parseableInstance || (!!username && !password) || submitting}
+			busy={submitting}
 		>
-			{#if submitting}
-				<Spinner />
-			{/if}
 			<span>{username ? 'Sign In' : `Use ${instanceNoProtocol || '???'}`}</span>
-		</button>
+		</BusyButton>
 	</Stack>
 </form>
 
@@ -74,7 +72,7 @@
 
 <script lang="ts">
 	import { Alert, Icon, TextInput, Stack, ExternalLink } from 'sheodox-ui';
-	import Spinner from '$lib/Spinner.svelte';
+	import BusyButton from '$lib/BusyButton.svelte';
 	import Separator from '$lib/Separator.svelte';
 	import Title from '$lib/Title.svelte';
 	import { logout } from '$lib/settings/auth.js';
@@ -82,7 +80,6 @@
 	import type { GetSiteResponse, Login } from 'lemmy-js-client';
 	import { getMessageFromError } from '$lib/error-messages.js';
 	import { setLemmySettings } from '$lib/lemmy-settings.js';
-	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	let errMsg = '';

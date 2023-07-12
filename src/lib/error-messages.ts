@@ -6,7 +6,13 @@ export const errorMessages: Record<string, string> = {
 	couldnt_find_that_username_or_email: "Couldn't find that username or email"
 };
 
+const unknownError = 'Unknown Error';
+
 export function getMessageFromError(e: unknown) {
+	if (typeof e === 'string') {
+		return errorMessages[e] || e || unknownError;
+	}
+	// else is type HttpError
 	if (e && e?.hasOwnProperty('body')) {
 		const httpErr = e as HttpError;
 
@@ -15,5 +21,5 @@ export function getMessageFromError(e: unknown) {
 		}
 	}
 
-	return e?.toString() || 'Unknown Error';
+	return e?.toString() || unknownError;
 }

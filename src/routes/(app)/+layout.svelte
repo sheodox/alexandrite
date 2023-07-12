@@ -61,6 +61,8 @@
 	</div>
 </Header>
 
+<Toasts />
+
 <div class="f-row f-1 root-layout-content">
 	<Sidebar bind:menuOpen>
 		<div slot="header" class="f-row align-items-center">
@@ -83,8 +85,8 @@
 {/if}
 
 <script lang="ts">
-	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
-	import { Sidebar, Header, Tooltip, Search } from 'sheodox-ui';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { Sidebar, Header, Tooltip, Search, Toasts } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';

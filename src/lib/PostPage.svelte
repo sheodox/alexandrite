@@ -177,7 +177,8 @@
 			post_id: postView.post.id,
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
-		commentViews.push(res.comment_view);
+		// put the new comment the user posted at the top so they can see it
+		commentViews.unshift(res.comment_view);
 		commentViews = commentViews;
 		showCommentComposer = false;
 	};
