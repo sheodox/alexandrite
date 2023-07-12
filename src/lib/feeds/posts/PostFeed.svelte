@@ -4,7 +4,7 @@
 	}
 </style>
 
-<div class="post-feed f-1" use:checkFeedWidth>
+<div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
 		<div class="toolbar">
 			<form method="GET" data-sveltekit-replacestate>
@@ -44,7 +44,13 @@
 					{@const contentView = contentViews[index]}
 					<!-- {#each contentViews as contentView, i} -->
 					{#if contentView.type === 'post'}
-						<Post postView={contentView.postView} on:overlay on:update-post-view size={postViewSize} />
+						<Post
+							postView={contentView.postView}
+							on:overlay
+							on:update-post-view
+							on:expand-content={onPostExpandContent}
+							expandPostContent={postsWithInlineExpandedContent.has(contentView.postView.post.id)}
+						/>
 					{:else if contentView.type === 'comment'}
 						<Comment commentView={contentView.commentView} showPost postOP="" />
 					{/if}
@@ -89,31 +95,16 @@
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
 
+	// cach which posts are expanded, so when they go out of the viewport,
+	// we can restore the expanded state, and keep a consistent height if scroll back to
+	const postsWithInlineExpandedContent = new Set<number>();
+
 	const { loggedIn } = getAppContext();
 
-	const postFullSizeBreakpoint = 1100;
-	let postViewSize: 'narrow' | 'full' = 'full';
-
-	function checkFeedWidth(el: HTMLElement) {
-		function update(width?: number) {
-			postViewSize = (width || el.offsetWidth) < postFullSizeBreakpoint ? 'narrow' : 'full';
-		}
-
-		const observer = new ResizeObserver((entries) => {
-			const width = entries.at(0)?.borderBoxSize[0].inlineSize;
-
-			if (width) {
-				update(width);
-			}
-		});
-		observer.observe(el);
-		update();
-
-		return {
-			destroy() {
-				observer.disconnect();
-			}
-		};
+	function onPostExpandContent(e: CustomEvent<{ id: number; expanded: boolean }>) {
+		e.detail.expanded
+			? postsWithInlineExpandedContent.add(e.detail.id)
+			: postsWithInlineExpandedContent.delete(e.detail.id);
 	}
 
 	function getTypeOptions(feedType: FeedType) {

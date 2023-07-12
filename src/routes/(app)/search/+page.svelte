@@ -205,8 +205,8 @@
 		const feedData = (await loader.next()).value;
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
-		if (!feedData.error) {
-			contentViews = contentViews.concat(getContentViews(feedData.response!));
+		if (!feedData.error && feedData.response) {
+			contentViews = contentViews.concat(getContentViews(feedData.response));
 		}
 
 		loadingContent = false;

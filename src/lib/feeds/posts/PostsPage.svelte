@@ -25,7 +25,7 @@
 	}
 	.feed-column-post {
 		border-left: 1px solid var(--sx-gray-transparent-light);
-		flex: 2;
+		flex: 3;
 	}
 	.posts-page-content {
 		width: 100%;
@@ -89,7 +89,9 @@
 {/if}
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
+	import { afterNavigate } from '$app/navigation';
+	import { derived } from 'svelte/store';
+	import { Stack } from 'sheodox-ui';
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
 	import OverlayPost from '$lib/OverlayPost.svelte';
@@ -100,9 +102,8 @@
 	import type { FeedType } from '$lib/feed-filters';
 	import { getAppContext } from '$lib/app-context';
 	import type { ContentView } from '$lib/post-loader';
-	import { getSettingsContext } from '$lib/settings-context';
+	import { getSettingsContext, type FeedLayout } from '$lib/settings-context';
 	import PostPage from '$lib/PostPage.svelte';
-	import { afterNavigate } from '$app/navigation';
 
 	export let feedType: FeedType;
 	export let contentViews: ContentView[];
@@ -116,8 +117,27 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	const { username } = getAppContext();
-	const { sidebarVisible, feedLayout } = getSettingsContext();
+	const { username, screenDimensions } = getAppContext();
+	const { sidebarVisible, feedLayout: feedLayoutSetting } = getSettingsContext();
+
+	const feedLayout = derived(
+		[feedLayoutSetting, screenDimensions, sidebarVisible],
+		([layout, dims, sidebarVisible]): FeedLayout => {
+			// non-auto layouts should use their desired layout regardless
+			if (layout !== 'AUTO') {
+				return layout;
+			}
+
+			// AUTO layouts should choose one based on the viewport width.
+			// just comparing against some rough estimates of what "looks good"
+			let columnDesiredWidth = 1600 + (sidebarVisible ? 500 : 0);
+
+			if (dims.width > columnDesiredWidth) {
+				return 'COLUMNS';
+			}
+			return 'OVERLAY';
+		}
+	);
 
 	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
 

@@ -79,7 +79,7 @@ export const createStatefulForm = (
 				await actionFn(formData);
 				update({ busy: false });
 				if (opts.autoReset) {
-					form!.reset();
+					form?.reset();
 				}
 			} catch (e) {
 				update({ busy: false, error: true });

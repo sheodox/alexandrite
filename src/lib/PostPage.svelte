@@ -32,9 +32,6 @@
 	}
 	.post {
 		background: var(--sx-gray-700);
-		.post-layout-margin {
-			margin: 0 auto;
-		}
 	}
 	.post-page-root {
 		position: relative;
@@ -53,7 +50,7 @@
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" on:update-post-view {showPost} size="full" supportsOverlay={false}>
+			<Post {postView} mode="show" on:update-post-view expandPostContent={showPost} supportsOverlay={false}>
 				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
 					<a href="#comments" class="button tertiary"
 						><Icon icon="chevron-down" />To Comments ({postView.counts.comments})</a

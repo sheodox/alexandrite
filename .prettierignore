@@ -11,3 +11,9 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# ignore package.json, doesn't match my styles and don't want to fight with npm
+package.json
+
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

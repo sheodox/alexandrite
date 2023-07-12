@@ -4,7 +4,7 @@
 <h1>Edit Post</h1>
 <form bind:this={editForm}>
 	<PostCompose
-		errorMessage={form?.errMsg}
+		errorMessage={errMsg}
 		submitting={$editState.busy}
 		communityId={data.communityView.community.id}
 		title={data.postView.post.name}
@@ -25,7 +25,6 @@
 	const { client, jwt } = getLemmyClient();
 
 	export let data;
-	export let form;
 
 	let editForm: HTMLFormElement;
 	let errMsg = '';

@@ -97,7 +97,7 @@
 	import Spinner from '$lib/Spinner.svelte';
 	import IconLink from '$lib/IconLink.svelte';
 	import Logo from '$lib/Logo.svelte';
-	import { writable, type Unsubscriber } from 'svelte/store';
+	import { writable, type Unsubscriber, readable } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { setSettingsContext } from '$lib/settings-context';
@@ -148,7 +148,15 @@
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		unreadCount,
-		checkUnread
+		checkUnread,
+		screenDimensions: readable({ width: window.innerWidth, height: window.innerHeight }, (set) => {
+			function update() {
+				set({ width: window.innerWidth, height: window.innerHeight });
+			}
+
+			window.addEventListener('resize', update);
+			return () => window.removeEventListener('resize', update);
+		})
 	});
 
 	setSettingsContext({

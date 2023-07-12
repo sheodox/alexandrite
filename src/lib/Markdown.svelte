@@ -40,6 +40,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="markdown-renderer has-inline-links" on:click={toggleFullSize}>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html rendered}
 </div>
 
@@ -51,6 +52,7 @@
 	import mdi_container from 'markdown-it-container';
 	import mdi_ruby from 'markdown-it-ruby';
 	import { getAppContext } from './app-context';
+	import type Token from 'markdown-it/lib/token';
 	const mdOptions: Options = {
 		linkify: true,
 		html: false,
@@ -72,12 +74,17 @@
 			.use(mdi_sup)
 			.use(mdi_footnote)
 			.use(mdi_container, 'spoiler', {
-				validate: (params: string) => {
+				validate(params: string) {
 					return params.trim().match(/^spoiler\s+(.*)$/);
 				},
 
-				render: (tokens: any, idx: any) => {
+				render(tokens: Token[], idx: number) {
 					var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+
+					// should be impossible, the validate just said it was there
+					if (!m) {
+						return 'Alexandrite failed to parse this spoiler somehow. Please notify the dev.';
+					}
 
 					if (tokens[idx].nesting === 1) {
 						// opening tag
@@ -134,8 +141,8 @@
 				url = safeUrl(href);
 
 			if (url) {
-				const communityRegMatch = url.pathname.match(/\/[mc]\/([\a-zA-Z0-9_@.]{3,})\/?$/),
-					userRegMatch = url.pathname.match(/\/u\/([\a-zA-Z0-9_@.]{3,})\/?$/),
+				const communityRegMatch = url.pathname.match(/\/[mc]\/([a-zA-Z0-9_@.]{3,})\/?$/),
+					userRegMatch = url.pathname.match(/\/u\/([a-zA-Z0-9_@.]{3,})\/?$/),
 					postRegMatch = url.pathname.match(/\/post\/(\d+)\/?$/),
 					commentRegMatch = url.pathname.match(/\/comment\/(\d+)\/?$/),
 					isLocal = url.host === instance;

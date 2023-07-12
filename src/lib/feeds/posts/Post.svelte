@@ -17,7 +17,7 @@
 	}
 </style>
 
-<article class="post px-2 f-row align-items-center post-mode-{mode} size-{size}">
+<article class="post px-2 f-row align-items-center post-mode-{mode}">
 	<Stack dir="c" gap={2} cl="w-100 py-1">
 		<Stack dir="r" gap={3} align="center">
 			<PostVoteButtons {postView} {voteState} />
@@ -34,13 +34,13 @@
 					<CommunityLink community={postView.community} />
 				</Stack>
 				<Stack dir="r" gap={2} align="center">
-					{@const text = `${showPost ? 'Hide' : 'Show'} Content`}
+					{@const text = `${expandPostContent ? 'Hide' : 'Show'} Content`}
 					{#if hasEmbeddableContent && modeList}
 						<span>
 							<Tooltip>
 								<span slot="tooltip">{text}</span>
-								<button class="button" on:click={() => (showPost = !showPost)} disabled={size === 'narrow'}>
-									{#if showPost}
+								<button class="button small" on:click={onExpandToggle}>
+									{#if expandPostContent}
 										<Icon icon="eye-slash" variant="icon-only" />
 									{:else}
 										{#if hasBody || hasEmbedText}
@@ -121,7 +121,7 @@
 			</Stack>
 		</Stack>
 		<slot name="beforeEmbed" {hasEmbeddableContent} />
-		{#if showPost && hasEmbeddableContent}
+		{#if expandPostContent && hasEmbeddableContent}
 			<div class="embed-content">
 				{#if hasEmbedText}
 					<div class="card m-0 p-2">
@@ -145,8 +145,10 @@
 				{/if}
 				{#if probablyImage && postView.post.url}
 					<!-- not passing nsfw, it's handled by not showing the post contents
-					by default when necessary, or the user has to click twice to see -->
-					<Image src={postView.post.url} />
+					by default when necessary, or the user has to click twice to see.
+					also don't lazy load, as if it's expanded in the feed it has repercussions
+					in the feed height, so images can't be lazy -->
+					<Image src={postView.post.url} lazy={false} />
 				{/if}
 			</div>
 		{/if}
@@ -173,11 +175,11 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
-	import type { PostSize } from './post-layout';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
 		'update-post-view': PostView;
+		'expand-content': { id: number; expanded: boolean };
 	}>();
 
 	const { username, loggedIn } = getAppContext();
@@ -187,14 +189,17 @@
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
 	export let supportsOverlay = true;
-	export let size: PostSize;
 
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';
 	// viewing a single post, show everything
-	$: modeShow = mode === 'show';
 
-	export let showPost = false;
+	export let expandPostContent = false;
+
+	function onExpandToggle() {
+		expandPostContent = !expandPostContent;
+		dispatch('expand-content', { id: postView.post.id, expanded: expandPostContent });
+	}
 
 	$: voteState = createStatefulAction(async (score: number) => {
 		if (!jwt) {

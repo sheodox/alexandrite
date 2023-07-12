@@ -33,7 +33,15 @@
 		<source srcset="{src}?format=jpg{size}" type="image/jpeg" />
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-		<img {src} alt="" loading="lazy" title="" style="" on:click={toggleSize} on:error={imageLoadError} />
+		<img
+			{src}
+			alt=""
+			loading={lazy ? 'lazy' : 'eager'}
+			title=""
+			style=""
+			on:click={toggleSize}
+			on:error={imageLoadError}
+		/>
 	</picture>
 {/if}
 
@@ -45,6 +53,7 @@
 
 	export let full = mode === 'full';
 	export let nsfw = false;
+	export let lazy = true;
 	const { nsfwImageHandling } = getSettingsContext();
 
 	$: valid = src.startsWith('https://') || src.startsWith('http://');

@@ -1,7 +1,4 @@
 <style lang="scss">
-	.nsfw-description {
-		width: 20rem;
-	}
 	h2 {
 		margin-top: var(--sx-spacing-6);
 		margin-bottom: var(--sx-spacing-2);
