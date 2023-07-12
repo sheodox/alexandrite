@@ -1,11 +1,4 @@
 <style lang="scss">
-	.post-title {
-		transition: color 0.1s;
-		color: var(--sx-gray-25);
-		&:hover {
-			color: white;
-		}
-	}
 	.embed-content {
 		width: 60rem;
 		max-width: 100%;

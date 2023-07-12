@@ -1,4 +1,11 @@
-<style>
+<style lang="scss">
+	a {
+		transition: color 0.1s;
+		color: var(--sx-gray-25);
+		&:hover {
+			color: white !important;
+		}
+	}
 	a.read {
 		color: var(--sx-gray-200);
 	}
