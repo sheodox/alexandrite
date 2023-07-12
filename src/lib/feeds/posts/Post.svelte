@@ -55,12 +55,18 @@
 							</Tooltip>
 						</span>
 					{/if}
-					{#if supportsOverlay && modeList}
+					{#if modeList}
 						<Tooltip>
-							<span slot="tooltip">Open in overlay</span>
-							<button on:click={() => dispatch('overlay', postView.post.id)} class="small">
+							<span slot="tooltip"
+								>Comments {#if postView.unread_comments > 0}<span class="sx-badge-orange">+Unread</span>{/if}</span
+							>
+							{#if supportsOverlay}
+								<button on:click={() => dispatch('overlay', postView.post.id)} class="small">
+									<PostCommentCount {postView} />
+								</button>
+							{:else}
 								<PostCommentCount {postView} />
-							</button>
+							{/if}
 						</Tooltip>
 					{/if}
 					{#if !readOnly}
