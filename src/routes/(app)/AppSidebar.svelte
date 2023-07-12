@@ -44,31 +44,11 @@
 
 	$: subs = [...subscriptions].sort((a, b) => name(a).localeCompare(name(b)));
 	$: links = [
-		{
-			href: '/',
-			text: 'Home',
-			icon: 'home'
-		},
-		{
-			href: '/search',
-			text: 'Search',
-			icon: 'magnifying-glass'
-		},
-		{
-			href: `/u/${username}`,
-			text: 'Profile',
-			icon: 'user',
-			disabled: !loggedIn
-		},
-		{
-			href: '/communities',
-			text: 'Communities',
-			icon: 'users'
-		},
-		{
-			href: '/about',
-			text: 'About Alexandrite',
-			icon: 'address-card'
-		}
+		{ href: '/', text: 'Home', icon: 'home' },
+		{ href: '/search', text: 'Search', icon: 'magnifying-glass' },
+		{ href: `/u/${username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
+		{ href: '/communities', text: 'Communities', icon: 'users' },
+		{ text: 'Settings', icon: 'cog', href: `/settings`, disabled: !loggedIn },
+		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' }
 	].filter((f) => !f.disabled);
 </script>
