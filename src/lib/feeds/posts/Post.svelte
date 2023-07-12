@@ -1,9 +1,4 @@
 <style lang="scss">
-	@use 'sass:math';
-
-	$height: 6rem;
-	$aspect: math.div(16, 9);
-
 	.post-title {
 		transition: color 0.1s;
 		color: var(--sx-gray-25);
@@ -11,33 +6,9 @@
 			color: white;
 		}
 	}
-	.thumbnail {
-		background: var(--sx-gray-transparent);
-		border-radius: 5px;
-		overflow: hidden;
-		height: #{$height};
-		width: #{$height * $aspect};
-		flex-shrink: 0;
-
-		:global(img),
-		:global(.img) {
-			height: 100%;
-			width: 100%;
-			object-fit: cover;
-		}
-		:global(.sx-stack) {
-			height: 100%;
-			width: 100%;
-		}
-	}
-
 	.embed-content {
 		width: 60rem;
 		max-width: 100%;
-	}
-
-	a.read {
-		color: var(--sx-gray-200);
 	}
 
 	button,
@@ -46,56 +17,14 @@
 	}
 </style>
 
-<article class="post px-2 py-1 f-row align-items-center post-mode-{mode}">
-	<Stack dir="c" gap={2} cl="w-100">
+<article class="post px-2 f-row align-items-center post-mode-{mode} size-{size}">
+	<Stack dir="c" gap={2} cl="w-100 py-1">
 		<Stack dir="r" gap={3} align="center">
-			{@const thumbnailUrl = postView.post.thumbnail_url}
-			<div class="vote-column f-column justify-content-center">
-				<VoteButtons
-					vote={postView.my_vote}
-					upvotes={postView.counts.upvotes}
-					downvotes={postView.counts.downvotes}
-					score={postView.counts.score}
-					dir="column"
-					on:vote={(e) => $voteState.submit(e.detail)}
-					votePending={$voteState.busy}
-				/>
-			</div>
-			<div class="thumbnail">
-				{#if thumbnailUrl}
-					<Image src={thumbnailUrl} mode="thumbnail" nsfw={postView.post.nsfw} />
-				{:else}
-					<Stack justify="center" align="center">
-						<Icon icon={postView.post.url ? 'arrow-up-right-from-square' : 'comments'} />
-					</Stack>
-				{/if}
-			</div>
+			<PostVoteButtons {postView} {voteState} />
+			<PostThumbnail {postView} />
 			<Stack dir="c" gap={2}>
-				<Stack dir="r" gap={2} align="center">
-					{#if supportsOverlay && modeList}
-						<Tooltip>
-							<span slot="tooltip">Open in overlay</span>
-							<button on:click={() => dispatch('overlay', postView.post.id)}>
-								<span class:muted={postView.counts.comments === 0} class="ws-nowrap">
-									<Icon icon="comments" iconVariant="regular" variant="icon-only" />
-									{postView.counts.comments}
-									{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
-										<span class="sx-badge-orange">+{postView.unread_comments}</span>
-									{/if}
-								</span>
-								<span class="sr-only">Comments</span>
-							</button>
-						</Tooltip>
-					{/if}
-					<a
-						href="/post/{postView.post.id}"
-						class="sx-font-size-5 post-title"
-						data-sveltekit-preload-data="off"
-						class:read={postView.read && modeList}>{postView.post.name}</a
-					>
-					<PostBadges {postView} />
-				</Stack>
-				{#if postView.post.url && (!probablyImage || !thumbnailUrl)}
+				<PostTitle {postView} on:overlay {modeList} {supportsOverlay} />
+				{#if postView.post.url && (!probablyImage || !postView.post.thumbnail_url)}
 					<PrettyExternalLink href={postView.post.url} />
 				{/if}
 				<Stack dir="r" gap={1} align="center">
@@ -103,11 +32,6 @@
 					<UserBadges user={postView.creator} postOP="" />
 					to
 					<CommunityLink community={postView.community} />
-					<span class="muted"> &centerdot; </span>
-					<RelativeTime date={postView.post.published} />
-					{#if postView.post.updated && postView.post.updated !== postView.post.published}
-						<RelativeTime date={postView.post.updated} variant="icon" icon="edit" verb="Edited" />
-					{/if}
 				</Stack>
 				<Stack dir="r" gap={2} align="center">
 					{@const text = `${showPost ? 'Hide' : 'Show'} Content`}
@@ -115,7 +39,7 @@
 						<span>
 							<Tooltip>
 								<span slot="tooltip">{text}</span>
-								<a href={postView.post.url} class="button small" on:click|preventDefault={() => (showPost = !showPost)}>
+								<button class="button" on:click={() => (showPost = !showPost)} disabled={size === 'narrow'}>
 									{#if showPost}
 										<Icon icon="eye-slash" variant="icon-only" />
 									{:else}
@@ -127,9 +51,17 @@
 										{/if}
 									{/if}
 									<span class="sr-only">{text}</span>
-								</a>
+								</button>
 							</Tooltip>
 						</span>
+					{/if}
+					{#if supportsOverlay && modeList}
+						<Tooltip>
+							<span slot="tooltip">Open in overlay</span>
+							<button on:click={() => dispatch('overlay', postView.post.id)} class="small">
+								<PostCommentCount {postView} />
+							</button>
+						</Tooltip>
 					{/if}
 					{#if !readOnly}
 						{#if loggedIn}
@@ -178,6 +110,7 @@
 							</Tooltip>
 						{/if}
 					{/if}
+					<PostTime {postView} />
 				</Stack>
 			</Stack>
 		</Stack>
@@ -217,21 +150,24 @@
 <script lang="ts">
 	import { Tooltip, Stack, Icon, MenuButton } from 'sheodox-ui';
 	import UserBadges from './UserBadges.svelte';
+	import PostTitle from './PostTitle.svelte';
 	import Image from '$lib/Image.svelte';
 	import UserLink from '$lib/UserLink.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
-	import VoteButtons from '$lib/VoteButtons.svelte';
-	import RelativeTime from '$lib/RelativeTime.svelte';
+	import PostCommentCount from './PostCommentCount.svelte';
+	import PostVoteButtons from './PostVoteButtons.svelte';
+	import PostThumbnail from './PostThumbnail.svelte';
+	import PostTime from './PostTime.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import PrettyExternalLink from '$lib/PrettyExternalLink.svelte';
-	import PostBadges from '$lib/PostBadges.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
+	import type { PostSize } from './post-layout';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -245,6 +181,8 @@
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
 	export let supportsOverlay = true;
+	export let size: PostSize;
+
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';
 	// viewing a single post, show everything

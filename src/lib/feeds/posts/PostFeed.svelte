@@ -1,35 +1,34 @@
-<style>
+<style lang="scss">
 	hr {
 		border-color: var(--sx-gray-transparent-light);
 	}
-	.post-feed {
-		background-color: var(--sx-gray-700);
-	}
 </style>
 
-<div class="post-feed py-1">
+<div class="post-feed f-1" use:checkFeedWidth>
 	<Stack dir="column" gap={1}>
-		<form method="GET" data-sveltekit-replacestate>
-			<section>
-				<Stack gap={4} align="center" cl="p-4" dir="r">
-					{#if typeOptions}
-						<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
-					{/if}
-					{#if listingOptions}
-						<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
-					{/if}
-					{#if sortOptions}
-						<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
-							{#each sortOptions as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-					{/if}
+		<div class="toolbar">
+			<form method="GET" data-sveltekit-replacestate>
+				<section>
+					<Stack gap={4} align="center" cl="p-4 f-wrap" dir="r">
+						{#if typeOptions}
+							<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
+						{/if}
+						{#if listingOptions}
+							<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
+						{/if}
+						{#if sortOptions}
+							<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
+								{#each sortOptions as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</select>
+						{/if}
 
-					<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
-				</Stack>
-			</section>
-		</form>
+						<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+					</Stack>
+				</section>
+			</form>
+		</div>
 
 		<Stack dir="c" gap={2} cl="p-4">
 			<VirtualFeed
@@ -45,7 +44,7 @@
 					{@const contentView = contentViews[index]}
 					<!-- {#each contentViews as contentView, i} -->
 					{#if contentView.type === 'post'}
-						<Post postView={contentView.postView} on:overlay on:update-post-view />
+						<Post postView={contentView.postView} on:overlay on:update-post-view size={postViewSize} />
 					{:else if contentView.type === 'comment'}
 						<Comment commentView={contentView.commentView} showPost postOP="" />
 					{/if}
@@ -91,6 +90,31 @@
 	$: sortOptions = getSortOptions(feedType, selectedType);
 
 	const { loggedIn } = getAppContext();
+
+	const postFullSizeBreakpoint = 1100;
+	let postViewSize: 'narrow' | 'full' = 'full';
+
+	function checkFeedWidth(el: HTMLElement) {
+		function update(width?: number) {
+			postViewSize = (width || el.offsetWidth) < postFullSizeBreakpoint ? 'narrow' : 'full';
+		}
+
+		const observer = new ResizeObserver((entries) => {
+			const width = entries.at(0)?.borderBoxSize[0].inlineSize;
+
+			if (width) {
+				update(width);
+			}
+		});
+		observer.observe(el);
+		update();
+
+		return {
+			destroy() {
+				observer.disconnect();
+			}
+		};
+	}
 
 	function getTypeOptions(feedType: FeedType) {
 		switch (feedType) {

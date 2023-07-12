@@ -1,4 +1,7 @@
 <style lang="scss">
+	main {
+		max-width: 100vw;
+	}
 	ul {
 		list-style: none;
 		padding: 0;
@@ -10,7 +13,7 @@
 		background: var(--sx-gray-transparent-dark);
 	}
 	.root-layout-content {
-		margin-top: 45px;
+		margin-top: var(--app-header-height);
 	}
 </style>
 
@@ -123,6 +126,7 @@
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
+		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
 		cssVariables = writable<Record<string, string | number>>({});
 
 	async function checkUnread() {
@@ -150,7 +154,8 @@
 	setSettingsContext({
 		themeHue,
 		nsfwImageHandling,
-		sidebarVisible
+		sidebarVisible,
+		feedLayout
 	});
 
 	let menuOpen = false;
@@ -181,7 +186,7 @@
 			headerResizeObserver = new ResizeObserver((entries) => {
 				const height = entries.at(0)?.borderBoxSize[0].blockSize;
 				cssVariables.update((v) => {
-					return { ...v, '--app-header-height': `${height}px` };
+					return { ...v, '--app-header-height': `${height || 45}px` };
 				});
 			});
 			headerResizeObserver.observe(header);
