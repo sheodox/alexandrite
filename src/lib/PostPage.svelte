@@ -15,8 +15,6 @@
 	}
 
 	section.post {
-		width: 80rem;
-		max-width: 100%;
 		margin: 0 auto;
 	}
 	.comment-editor,
@@ -54,7 +52,7 @@
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" on:update-post-view {showPost} size="full">
+			<Post {postView} mode="show" on:update-post-view {showPost} size="full" supportsOverlay={false}>
 				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
 					<a href="#comments" class="button tertiary"
 						><Icon icon="chevron-down" />To Comments ({postView.counts.comments})</a
