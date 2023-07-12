@@ -67,14 +67,8 @@ export const getLemmyClient = () => {
 		instanceUrl = `https://${instance}`;
 
 	if (!instance) {
-		goto('/');
-		createAutoExpireToast({
-			variant: 'error',
-			title: 'No Instance Set',
-			message: 'You must choose an instance first.'
-		});
-		// just get out of here
-		throw new Error();
+		goto('/instance');
+		throw new Error('Redirecting, no instance known.');
 	}
 	let c = client;
 
