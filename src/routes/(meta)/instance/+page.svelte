@@ -81,6 +81,7 @@
 	import { getMessageFromError } from '$lib/error-messages.js';
 	import { setLemmySettings } from '$lib/lemmy-settings.js';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let errMsg = '';
 	let expired = false;
@@ -174,7 +175,7 @@
 			}
 		}
 
-		location.href = '/';
+		goto('/');
 	}
 
 	onMount(() => {
