@@ -38,6 +38,7 @@
 	}
 	.post-page-root {
 		position: relative;
+		flex: 1;
 	}
 </style>
 
@@ -190,6 +191,11 @@
 	$: postView && reloadComments();
 
 	function reloadComments() {
+		// if we got here by loading comments with a load function (viewing a commend individually)
+		// then we shouldn't try resetting or we'll clear the comments out
+		if (initialCommentViews.length) {
+			return;
+		}
 		// start over if sorting changes
 		commentsPageNum = 1;
 		endOfCommentsFeed = false;
