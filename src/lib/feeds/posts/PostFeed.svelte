@@ -1,35 +1,34 @@
-<style>
+<style lang="scss">
 	hr {
 		border-color: var(--sx-gray-transparent-light);
 	}
-	.post-feed {
-		background-color: var(--sx-gray-700);
-	}
 </style>
 
-<div class="post-feed py-1">
+<div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
-		<form method="GET" data-sveltekit-replacestate>
-			<section>
-				<Stack gap={4} align="center" cl="p-4" dir="r">
-					{#if typeOptions}
-						<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
-					{/if}
-					{#if listingOptions}
-						<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
-					{/if}
-					{#if sortOptions}
-						<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
-							{#each sortOptions as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-					{/if}
+		<div class="toolbar">
+			<form method="GET" data-sveltekit-replacestate>
+				<section>
+					<Stack gap={4} align="center" cl="p-4 f-wrap" dir="r">
+						{#if typeOptions}
+							<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
+						{/if}
+						{#if listingOptions}
+							<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
+						{/if}
+						{#if sortOptions}
+							<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
+								{#each sortOptions as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</select>
+						{/if}
 
-					<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
-				</Stack>
-			</section>
-		</form>
+						<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+					</Stack>
+				</section>
+			</form>
+		</div>
 
 		<Stack dir="c" gap={2} cl="p-4">
 			<VirtualFeed
@@ -45,7 +44,13 @@
 					{@const contentView = contentViews[index]}
 					<!-- {#each contentViews as contentView, i} -->
 					{#if contentView.type === 'post'}
-						<Post postView={contentView.postView} on:overlay on:update-post-view />
+						<Post
+							postView={contentView.postView}
+							on:overlay
+							on:update-post-view
+							on:expand-content={onPostExpandContent}
+							expandPostContent={postsWithInlineExpandedContent.has(contentView.postView.post.id)}
+						/>
 					{:else if contentView.type === 'comment'}
 						<Comment commentView={contentView.commentView} showPost postOP="" />
 					{/if}
@@ -90,7 +95,17 @@
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
 
+	// cach which posts are expanded, so when they go out of the viewport,
+	// we can restore the expanded state, and keep a consistent height if scroll back to
+	const postsWithInlineExpandedContent = new Set<number>();
+
 	const { loggedIn } = getAppContext();
+
+	function onPostExpandContent(e: CustomEvent<{ id: number; expanded: boolean }>) {
+		e.detail.expanded
+			? postsWithInlineExpandedContent.add(e.detail.id)
+			: postsWithInlineExpandedContent.delete(e.detail.id);
+	}
 
 	function getTypeOptions(feedType: FeedType) {
 		switch (feedType) {

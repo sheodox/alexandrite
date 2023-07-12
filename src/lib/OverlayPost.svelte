@@ -14,7 +14,7 @@
 		right: 0;
 		position: absolute;
 		overflow: auto;
-		background: var(--sx-gray-600);
+		background: var(--sx-gray-700);
 		border-left: 1px solid var(--sx-gray-400);
 	}
 	.close-bg {

@@ -13,7 +13,7 @@ export function getMessageFromError(e: unknown) {
 		return errorMessages[e] || e || unknownError;
 	}
 	// else is type HttpError
-	if (e && e?.hasOwnProperty('body')) {
+	if (e && Object.getOwnPropertyDescriptor(e, 'body')) {
 		const httpErr = e as HttpError;
 
 		if (httpErr.body.lemmyError) {

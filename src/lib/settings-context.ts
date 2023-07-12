@@ -17,16 +17,39 @@ export const NSFWHandlingOptions: { value: NSFWImageHandling; label: string; des
 	{ value: 'SHOW', label: 'Show', description: 'Always show NSFW images' }
 ];
 
+export type FeedLayout = 'AUTO' | 'OVERLAY' | 'COLUMNS';
+
+export const FeedLayoutOptions: { value: FeedLayout; label: string; description: string }[] = [
+	{
+		value: 'AUTO',
+		label: 'Auto',
+		description: 'Your feed layout is automatically chosen based on your screen size.'
+	},
+	{
+		value: 'OVERLAY',
+		label: 'Overlay',
+		description: 'You can view posts in an overlay that shows over the feed. Good for narrow screens.'
+	},
+	{
+		value: 'COLUMNS',
+		label: 'Columns',
+		description: 'View the feed and a post side by side. Lets you multitask.'
+	}
+];
+
 export interface AlexandriteSettings {
 	themeHue: number;
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
+	feedLayout: FeedLayout;
 }
 
 export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	themeHue: 280,
 	nsfwImageHandling: 'HIDE',
-	sidebarVisible: true
+	sidebarVisible: true,
+	// todo check if this is a good breakpoint
+	feedLayout: 'AUTO'
 };
 
 export type AlexandriteSettingsStores = {

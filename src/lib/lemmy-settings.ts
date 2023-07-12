@@ -1,4 +1,3 @@
-import type { Cookies } from '@sveltejs/kit';
 import type { LocalUser } from 'lemmy-js-client';
 
 const SCHEMA_VERSION = 1,
@@ -24,7 +23,7 @@ export const lemmySettings = {
 			strProps.map((prop) => user[prop]).join(',')
 		].join('|');
 	},
-	deserialize: (str?: string): LocalUser | null => {
+	deserialize: (str?: string | null): LocalUser | null => {
 		if (!str || !str.startsWith(SCHEMA_HEADER)) {
 			return null;
 		}
@@ -32,7 +31,7 @@ export const lemmySettings = {
 		const localUser: Record<string, boolean | string> = {};
 
 		// skip the version header
-		const [_, bools, strs] = str.split('|'),
+		const [bools, strs] = str.split('|').slice(1),
 			strsArr = strs.split(',');
 
 		for (let i = 0; i < boolProps.length; i++) {

@@ -69,8 +69,6 @@
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import { tick } from 'svelte';
 	import type { CommentSortType } from 'lemmy-js-client';
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { createStatefulAction } from '$lib/utils';
@@ -82,7 +80,6 @@
 	const { client, jwt } = getLemmyClient();
 
 	let loadingContent = false,
-		markingAllRead = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
 		contentViews: ReturnType<typeof getContentViews> = [],
@@ -112,7 +109,7 @@
 	function initFeed(data: PageData) {
 		const newLoader = feedLoader<InboxData>(
 			async (page) => {
-				return await fetchInboxPage(page);
+				return await fetchInboxPage(page, data);
 			},
 			(res) => (res ? res.replies.length + res.mentions.length + res.messages.length : 0)
 		);
@@ -130,7 +127,7 @@
 		contentViews = contentViews;
 	}
 
-	async function fetchInboxPage(page: number) {
+	async function fetchInboxPage(page: number, data: PageData) {
 		if (!jwt) {
 			return;
 		}
@@ -227,17 +224,4 @@
 
 		return [];
 	}
-
-	const markAllSubmitFn: SubmitFunction = () => {
-		return async ({ update, result }) => {
-			await update();
-			if (result.type === 'success') {
-				markingAllRead = false;
-
-				// no clue why, but if I don't wait a tick the unread count's style updates, but not the count inside
-				await tick();
-				$unreadCount = 0;
-			}
-		};
-	};
 </script>

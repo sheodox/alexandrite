@@ -1,10 +1,6 @@
 import { readable, writable } from 'svelte/store';
 
 export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
-	if (!globalThis.localStorage) {
-		return writable(defaultValue);
-	}
-
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;
 
@@ -79,7 +75,7 @@ export const createStatefulForm = (
 				await actionFn(formData);
 				update({ busy: false });
 				if (opts.autoReset) {
-					form!.reset();
+					form?.reset();
 				}
 			} catch (e) {
 				update({ busy: false, error: true });

@@ -51,8 +51,4 @@
 	}
 </style>
 
-<div />
-
-<script lang="ts">
-	import { Icon } from 'sheodox-ui';
-</script>
+<div class="alexandrite-spinner" />

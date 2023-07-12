@@ -1,6 +1,3 @@
-<style>
-</style>
-
 <slot />
 
 <SheodoxUIStyles />

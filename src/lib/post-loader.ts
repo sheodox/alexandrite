@@ -110,15 +110,8 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 	// since the last page load
 	const loadedIds = new Set<number>();
 
-	let postViews: PostView[] = [],
-		commentViews: CommentView[] = [];
-
 	const postLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res) => res.postViews.length),
 		commentLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res) => res.commentViews.length);
-
-	// store the first page of IDs for both types of content
-	postViews.forEach((pv) => loadedIds.add(pv.post.id));
-	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
 
 	let endOfFeed = false;
 
@@ -160,8 +153,6 @@ export async function* postCommentFeedLoader(opts: PostCommentFeedLoaderOpts): A
 
 interface UserFeed {
 	contentViews: ContentView[];
-	postViews: PostView[];
-	commentViews: CommentView[];
 	error: boolean;
 	endOfFeed: boolean;
 }
@@ -170,15 +161,9 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 	// since the last page load
 	const loadedIds = new Set<number>();
 
-	let postViews: PostView[] = [],
-		commentViews: CommentView[] = [];
 	const userDataLoader = feedLoader<ApiFeedLoad>(opts.queryFn, (res: ApiFeedLoad) => {
 		return res.postViews.length + res.commentViews.length;
 	});
-
-	// store the first page of IDs for both types of content
-	postViews.forEach((pv) => loadedIds.add(pv.post.id));
-	commentViews.forEach((pv) => loadedIds.add(pv.comment.id));
 
 	let endOfFeed = false;
 
@@ -194,17 +179,13 @@ export async function* userFeedLoader(opts: PostCommentFeedLoaderOpts & { sort: 
 		yield {
 			contentViews: getContentViews(newPosts || [], newComments || [], opts.type, opts.sort),
 			error: more.error,
-			endOfFeed,
-			postViews,
-			commentViews
+			endOfFeed
 		};
 	}
 
 	return {
 		contentViews: [],
 		error: false,
-		endOfFeed: true,
-		postViews,
-		commentViews
+		endOfFeed: true
 	};
 }

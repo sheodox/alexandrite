@@ -5,6 +5,4 @@
 
 <script lang="ts">
 	import { Layout } from 'sheodox-ui';
-
-	export let data;
 </script>

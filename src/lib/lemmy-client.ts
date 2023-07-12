@@ -3,6 +3,7 @@ import { LemmyHttp } from 'lemmy-js-client';
 import { getLemmySettings } from './lemmy-settings';
 import { createAutoExpireToast } from 'sheodox-ui';
 import { getMessageFromError } from './error-messages';
+import { goto } from '$app/navigation';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -62,16 +63,23 @@ let client: LemmyHttp, clientInstanceUrl: string;
 
 // this should only be used when we know we'll have this stuff, don't use in `/(meta)` routes
 export const getLemmyClient = () => {
-	const instance = localStorage.getItem('instance')!,
+	const instance = localStorage.getItem('instance'),
 		instanceUrl = `https://${instance}`;
+
+	if (!instance) {
+		goto('/instance');
+		throw new Error('Redirecting, no instance known.');
+	}
+	let c = client;
 
 	if (instanceUrl !== clientInstanceUrl) {
 		client = createLemmyClient(instanceUrl);
+		c = client;
 		clientInstanceUrl = instanceUrl;
 	}
 
 	return {
-		client: createLemmyClient(instanceUrl),
+		client: c,
 		lemmySettings: getLemmySettings(),
 		username: localStorage.getItem('username'),
 		jwt: localStorage.getItem('jwt') ?? undefined,

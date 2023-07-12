@@ -112,11 +112,18 @@
 			const height = entries[0].borderBoxSize[0].blockSize,
 				lastHeight = lastKnownElementHeights.get(index);
 			lastKnownElementHeights.set(index, height);
-			lastKnownElementHeights = lastKnownElementHeights;
+			// if we're waiting for element heights, immediately set it,
+			// but we don't want to get too hasty and set this all the time
+			if (!firstRerenderDone) {
+				lastKnownElementHeights = lastKnownElementHeights;
+			}
 
 			if (typeof lastHeight === 'number' && (lastHeight > 0 || height > 0)) {
 				// check if there's a significant change in height, then try to re-compute the items to show in the feed
 				if (Math.min(height, lastHeight) / Math.max(height, lastHeight) < 0.5) {
+					if (firstRerenderDone) {
+						lastKnownElementHeights = lastKnownElementHeights;
+					}
 					scheduleViewportItemsCalculation();
 				}
 			}
@@ -205,13 +212,27 @@
 			// remainder evenly to find how much to overscan by on each side
 			overscanFactorEachSide = Math.floor((OVERSCAN_FACTOR - 1) / 2),
 			overscanPxEachSide = overscanFactorEachSide * availableHeight,
-			// try looking for this amount of height stuff,
+			// try rendering enough content to fill this height
 			overscanHeight = availableHeight * OVERSCAN_FACTOR,
-			// evenly space the overscan by subtracting by the start's overscan amount
-			topIndex = findIndexAtHeight(viewportTop - rootTop - overscanPxEachSide);
+			// what the `top` is of the start of the overscan area
+			overscanStartTop = viewportTop - rootTop - overscanPxEachSide,
+			// the first item we render is the item that's visible at this height
+			topIndex = findIndexAtHeight(overscanStartTop),
+			// the `top` to use to position the first rendered item properly
+			topIndexTop = sumHeights(lastKnownElementHeights, topIndex);
 
 		let numItemsFitOnScreen = 0,
-			contentHeight = 0,
+			// If the first rendered item is very tall, we need to compensate
+			// for how much of it is above what we wanted to render, otherwise it
+			// won't show enough items and risks getting stuck, and the feed won't scroll.
+			//
+			// For an exaggerated example: if the viewport is 1000px tall, overscan wants to
+			// render 3000px of content, but if the first item is 5000px tall, no matter how
+			// far past it you scroll, it'll always be the only thing in the feed, and without
+			// compensating for how far past it you've scrolled it'd always immediately pass
+			// the overscanHeight threshold and nothing else would ever render below this,
+			// and you couldn't scroll down anymore.
+			contentHeight = topIndexTop - overscanStartTop,
 			averageHeight = feedMaxHeight / lastKnownElementHeights.size;
 
 		for (let i = topIndex; i < feedSize; i++) {
