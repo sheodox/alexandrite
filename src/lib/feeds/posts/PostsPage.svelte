@@ -33,7 +33,7 @@
 </style>
 
 <div
-	class="f-1 posts-page f-row"
+	class="posts-page f-row"
 	class:sidebar-hidden={!$sidebarVisible || feedAdjacentPostView}
 	class:sidebar-visible={$sidebarVisible && !feedAdjacentPostView}
 >
@@ -73,7 +73,7 @@
 	</div>
 
 	{#if !feedAdjacentPostView || $feedLayout !== 'COLUMNS'}
-		<aside>
+		<aside class="feed-column">
 			<slot name="sidebar" />
 			{#if communityView && moderators}
 				<CommunitySidebar {communityView} {moderators} community={communityView.community} />
