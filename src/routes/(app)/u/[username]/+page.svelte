@@ -3,6 +3,7 @@
 <PostsPage
 	on:more={more}
 	on:update-post-view={updatePostView}
+	on:block-community={onBlockCommunity}
 	feedType="user"
 	contentViews={filterContentType(contentViews, data.query.type)}
 	personView={data.personView}
@@ -111,5 +112,9 @@
 			}
 		}
 		contentViews = contentViews;
+	}
+
+	function onBlockCommunity(e: CustomEvent<number>) {
+		contentViews = contentViews.filter((view) => view.communityId !== e.detail);
 	}
 </script>
