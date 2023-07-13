@@ -217,7 +217,7 @@
 			case 'Replies':
 				return replies;
 			case 'Mentions':
-				return replies;
+				return mentions;
 			case 'Messages':
 				return messages;
 		}
