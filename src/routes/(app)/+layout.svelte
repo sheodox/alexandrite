@@ -184,7 +184,7 @@
 		headerResizeObserver: ResizeObserver,
 		cssVarUnsub: Unsubscriber;
 
-	$: $cssVariables['--sx-hue-gray'] = $themeHue;
+	$: $cssVariables['--sx-hue-gray'] = $themeHue + ' !important';
 
 	onMount(async () => {
 		// track the height of the header, wanted for some styling in various places
