@@ -1,42 +1,3 @@
-<style lang="scss">
-	div :global(img) {
-		max-width: 100%;
-		cursor: zoom-out;
-	}
-	div :global(img:not(.show-full)) {
-		max-height: 40rem;
-		cursor: zoom-in;
-	}
-
-	div :global(code) {
-		word-wrap: break-word;
-		white-space: pre-wrap;
-	}
-	div :global(pre) {
-		background: var(--sx-gray-transparent);
-		border-radius: 5px;
-		padding: var(--sx-spacing-1);
-
-		:global(code) {
-			background: none;
-		}
-	}
-	div :global(summary) {
-		cursor: pointer;
-		border-radius: 5px;
-	}
-	div :global(details) {
-		padding: var(--sx-spacing-2);
-		border-radius: 5px;
-	}
-	div :global(hr) {
-		color: var(--sx-gray-transparent-lighter);
-	}
-	div :global(details[open]) {
-		background: var(--sx-gray-transparent);
-	}
-</style>
-
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="markdown-renderer has-inline-links" on:click={toggleFullSize}>
@@ -53,6 +14,8 @@
 	import mdi_ruby from 'markdown-it-ruby';
 	import { getAppContext } from './app-context';
 	import type Token from 'markdown-it/lib/token';
+	import './markdown.scss';
+
 	const mdOptions: Options = {
 		linkify: true,
 		html: false,

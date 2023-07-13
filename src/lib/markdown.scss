@@ -1,0 +1,41 @@
+.markdown-renderer {
+	p {
+		line-height: 1.6;
+	}
+	img {
+		max-width: 100%;
+		cursor: zoom-out;
+	}
+	img:not(.show-full) {
+		max-height: 40rem;
+		cursor: zoom-in;
+	}
+
+	code {
+		word-wrap: break-word;
+		white-space: pre-wrap;
+	}
+	pre {
+		background: var(--sx-gray-transparent);
+		border-radius: 5px;
+		padding: var(--sx-spacing-1);
+
+		code {
+			background: none;
+		}
+	}
+	summary {
+		cursor: pointer;
+		border-radius: 5px;
+	}
+	details {
+		padding: var(--sx-spacing-2);
+		border-radius: 5px;
+	}
+	hr {
+		color: var(--sx-gray-transparent-lighter);
+	}
+	details[open] {
+		background: var(--sx-gray-transparent);
+	}
+}
