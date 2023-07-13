@@ -4,7 +4,7 @@
 	}
 	.comment-content :global(:not(:last-child)) {
 		margin-top: 0;
-		margin-bottom: 0.4rem;
+		margin-bottom: var(--sx-spacing-3);
 	}
 	.comment-content :global(:last-child) {
 		margin-bottom: 0;
