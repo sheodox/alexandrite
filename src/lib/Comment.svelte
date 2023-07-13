@@ -2,10 +2,6 @@
 	.comment-content :global(:first-child) {
 		margin-top: 0;
 	}
-	.comment-content :global(:not(:last-child)) {
-		margin-top: 0;
-		margin-bottom: var(--sx-spacing-3);
-	}
 	.comment-content :global(:last-child) {
 		margin-bottom: 0;
 	}
