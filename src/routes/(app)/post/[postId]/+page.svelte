@@ -1,6 +1,6 @@
 {#if data.postView}
 	<Title title={data.postView.post.name} />
-	<PostPage postView={data.postView} />
+	<PostPage postView={data.postView} centered />
 {:else}
 	<Title title="Not Found" />
 	<p>Post not found!</p>

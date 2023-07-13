@@ -37,9 +37,19 @@
 		position: relative;
 		flex: 1;
 	}
+	.centered .post {
+		margin: 0 auto;
+		width: 80rem;
+		max-width: 100%;
+	}
 </style>
 
-<div class:sidebar-hidden={!$sidebarVisible} class:sidebar-visible={$sidebarVisible} class="f-row post-page-root">
+<div
+	class:sidebar-hidden={!$sidebarVisible}
+	class:sidebar-visible={$sidebarVisible}
+	class="f-row post-page-root"
+	class:centered
+>
 	<div class="page-column page-column-post virtual-feed-scroll-container f-1">
 		<section class="f-column p-4 f-1 post">
 			{#if closeable}
@@ -159,6 +169,7 @@
 	export let postView: PostView;
 	export let initialCommentViews: CommentView[] = [];
 	export let rootCommentId: null | number = null;
+	export let centered = false;
 	// if the user should see a 'Close' button, useful when viewing a feed in column layout
 	export let closeable = false;
 	let commentViews = initialCommentViews;
