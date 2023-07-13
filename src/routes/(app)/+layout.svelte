@@ -21,7 +21,7 @@
 	<Logo slot="logo" />
 	<div slot="headerCenter">
 		<form method="GET" action="/search">
-			<Search name="q" />
+			<Search name="q" placeholder="Search" />
 		</form>
 	</div>
 	<div slot="headerEnd" class="f-row align-items-center">

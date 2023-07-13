@@ -98,7 +98,7 @@
 							name="sort"
 							on:change={reloadComments}
 						/>
-						<Search bind:value={searchText} />
+						<Search bind:value={searchText} placeholder="Search Comments" />
 					</Stack>
 					<button class="tertiary" on:click={reloadComments}
 						><Icon icon="refresh" variant="icon-only" /> Refresh Comments</button
