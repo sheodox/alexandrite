@@ -15,7 +15,7 @@
 	}
 	.feed-column {
 		overflow: auto;
-		max-height: calc(100vh - var(--app-header-height));
+		height: calc(100vh - var(--app-header-height));
 		position: relative;
 	}
 	.feed-column-feed {
