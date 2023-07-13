@@ -32,7 +32,7 @@
 		<Stack cl="card-body" dir="c" gap={2}>
 			<CommunityBadges extended community={communityView.community} />
 			<Stack dir="r" align="center" gap={2}>
-				<CommunityJoin {communityView} />
+				<CommunityJoin {communityView} on:update-community />
 				<CommunityCounts {communityView} />
 			</Stack>
 

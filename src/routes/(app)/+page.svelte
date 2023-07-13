@@ -11,6 +11,7 @@
 	selectedSort={data.query.sort}
 	{loadingContent}
 	{loadingContentFailed}
+	on:block-community={onBlockCommunity}
 />
 
 <script lang="ts">
@@ -78,5 +79,9 @@
 			}
 		}
 		contentViews = contentViews;
+	}
+
+	function onBlockCommunity(e: CustomEvent<number>) {
+		contentViews = contentViews.filter((view) => view.communityId !== e.detail);
 	}
 </script>

@@ -49,5 +49,5 @@
 	import { nameAtInstance } from './nav-utils';
 
 	export let user: Person;
-	const creatorName = nameAtInstance(user);
+	$: creatorName = nameAtInstance(user);
 </script>

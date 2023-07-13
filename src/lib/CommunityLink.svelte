@@ -38,7 +38,7 @@
 						</div>
 					{/if}
 					<h1 class="sx-font-size-4 m-0">
-						{displayCommunity.name}
+						{community.title || community.name}
 					</h1>
 				</Stack>
 				{#if community.title}
@@ -51,7 +51,7 @@
 						<Image src={community.icon} />
 					</div>
 				{/if}
-				<EllipsisText><NameAtInstance place={displayCommunity} prefix="" /></EllipsisText>
+				<EllipsisText><NameAtInstance place={community} displayName={community.title} prefix="" /></EllipsisText>
 				<CommunityBadges {community} />
 			</span>
 		</Tooltip>
@@ -65,7 +65,7 @@
 				{/if}
 			</div>
 			<span>
-				<NameAtInstance place={displayCommunity} prefix="" />
+				<NameAtInstance place={community} displayName={community.title} prefix="" />
 			</span>
 		</Stack>
 	{/if}
@@ -83,10 +83,5 @@
 	export let community: Community;
 	export let inlineLink = true;
 
-	const communityName = nameAtInstance(community);
-	const displayCommunity = {
-		name: community.title ?? community.name,
-		local: community.local,
-		actor_id: community.actor_id
-	};
+	$: communityName = nameAtInstance(community);
 </script>

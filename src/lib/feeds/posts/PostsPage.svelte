@@ -41,7 +41,7 @@
 		<Stack dir="r" gap={2}>
 			<div class="feed-column feed-column-feed virtual-feed-scroll-container">
 				{#if communityView}
-					<CommunityHeader {communityView} />
+					<CommunityHeader {communityView} on:update-community />
 				{/if}
 				{#if personView}
 					<UserHeader {personView} />
@@ -51,6 +51,7 @@
 					{contentViews}
 					on:more
 					on:update-post-view
+					on:block-community
 					on:overlay={onOverlay}
 					{endOfFeed}
 					{isMyFeed}

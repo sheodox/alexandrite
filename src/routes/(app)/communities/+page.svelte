@@ -36,7 +36,7 @@
 		<svelte:fragment let:index>
 			{@const cv = communities[index]}
 			{#key cv.community.actor_id}
-				<CommunityCard communityView={cv} />
+				<CommunityCard communityView={cv} on:update-community={onUpdateCommunity} />
 			{/key}
 		</svelte:fragment>
 	</VirtualFeed>
@@ -111,5 +111,9 @@
 			];
 		}
 		loadingContent = false;
+	}
+
+	function onUpdateCommunity(e: CustomEvent<CommunityView>) {
+		communities = communities.map((c) => (c.community.id === e.detail.community.id ? e.detail : c));
 	}
 </script>

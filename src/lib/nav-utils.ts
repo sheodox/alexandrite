@@ -6,8 +6,8 @@ interface NamedThing {
 	actor_id: string;
 }
 
-export const nameAtInstance = (thing: NamedThing) => {
-	let name = thing.name;
+export const nameAtInstance = (thing: NamedThing, displayName?: string) => {
+	let name = displayName || thing.name;
 	if (!thing.local) {
 		const host = new URL(thing.actor_id).hostname;
 		name += '@' + host;

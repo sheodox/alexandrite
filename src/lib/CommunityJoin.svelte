@@ -10,22 +10,21 @@
 	import BusyButton from './BusyButton.svelte';
 	import { createStatefulAction } from './utils';
 	import { getLemmyClient } from './lemmy-client';
+	import { createEventDispatcher } from 'svelte';
 
 	const { loggedIn } = getAppContext();
 	const { client, jwt } = getLemmyClient();
 
+	const dispatch = createEventDispatcher<{ 'update-community': CommunityView }>();
+
 	export let communityView: CommunityView;
-	// cache our own version with updated subscribe status, instead of allowing
-	// a parent component's re-render to overwrite with stale data, not that important
-	// outside of this component to bother dispatching an update
-	let cv = communityView;
-	$: joined = cv.subscribed !== 'NotSubscribed';
+	$: joined = communityView.subscribed !== 'NotSubscribed';
 
 	$: status = {
 		Pending: 'Pending',
 		Subscribed: 'Unsubscribe',
 		NotSubscribed: 'Subscribe'
-	}[cv.subscribed];
+	}[communityView.subscribed];
 
 	$: joinState = createStatefulAction(async () => {
 		if (!jwt) {
@@ -34,10 +33,10 @@
 
 		const res = await client.followCommunity({
 			auth: jwt,
-			follow: cv.subscribed === 'NotSubscribed',
-			community_id: cv.community.id
+			follow: communityView.subscribed === 'NotSubscribed',
+			community_id: communityView.community.id
 		});
 
-		cv = res.community_view;
+		dispatch('update-community', res.community_view);
 	});
 </script>

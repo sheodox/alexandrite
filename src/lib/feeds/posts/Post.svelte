@@ -102,7 +102,13 @@
 
 									<ul slot="menu">
 										{#each overflowMenuOptions as opt}
-											<li><a href={opt.href} class="button"><Icon icon={opt.icon} /> {opt.text}</a></li>
+											<li>
+												{#if opt.href}
+													<a href={opt.href} class="button"><Icon icon={opt.icon} /> {opt.text}</a>
+												{:else if opt.click}
+													<button on:click={opt.click} class="button"><Icon icon={opt.icon} /> {opt.text}</button>
+												{/if}
+											</li>
 										{/each}
 									</ul>
 								</MenuButton>
@@ -173,6 +179,7 @@
 		overlay: number;
 		'update-post-view': PostView;
 		'expand-content': { id: number; expanded: boolean };
+		'block-community': number;
 	}>();
 
 	const { username, loggedIn } = getAppContext();
@@ -238,7 +245,7 @@
 	$: overflowMenuOptions = getOverflowMenu(postView, isMyPost);
 
 	function getOverflowMenu(postView: PostView, isMyPost: boolean) {
-		const options: { text: string; href: string; icon: string }[] = [],
+		const options: { text: string; href?: string; icon: string; click?: () => unknown }[] = [],
 			postId = postView.post.id,
 			communityName = nameAtInstance(postView.community),
 			postBaseUrl = `/c/${communityName}/post/${postId}/`;
@@ -255,8 +262,30 @@
 				icon: 'trash-can'
 			});
 		}
+		if (loggedIn) {
+			options.push({
+				text: 'Block Community',
+				click: blockCommunity,
+				icon: 'ban'
+			});
+		}
 
 		return options;
+	}
+
+	async function blockCommunity() {
+		if (
+			!jwt ||
+			!confirm(`Are you sure you want to block "${nameAtInstance(postView.community, postView.community.title)}"?`)
+		) {
+			return;
+		}
+		await client.blockCommunity({
+			auth: jwt,
+			community_id: postView.community.id,
+			block: true
+		});
+		dispatch('block-community', postView.community.id);
 	}
 
 	onMount(async () => {

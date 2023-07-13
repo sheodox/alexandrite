@@ -62,11 +62,11 @@
 			<svelte:fragment let:index>
 				{@const contentView = contentViews[index]}
 				{#if contentView.type === 'post'}
-					<Post postView={contentView.view} on:overlay on:update-post-view supportsOverlay={false} />
+					<Post postView={contentView.view} on:overlay on:update-post-view={onUpdatePostView} supportsOverlay={false} />
 				{:else if contentView.type === 'comment'}
 					<Comment commentView={contentView.view} showPost postOP="" />
 				{:else if contentView.type === 'community'}
-					<CommunityCard communityView={contentView.view} />
+					<CommunityCard communityView={contentView.view} on:update-community={onUpdateCommunity} />
 				{:else if contentView.type === 'user'}
 					<PersonCard personView={contentView.view} />
 				{/if}
@@ -249,6 +249,30 @@
 			} else {
 				return b.id - a.id;
 			}
+		});
+	}
+
+	function onUpdatePostView(e: CustomEvent<PostView>) {
+		contentViews = contentViews.map((cv) => {
+			if (cv.id === e.detail.post.id && cv.type === 'post') {
+				return {
+					...cv,
+					view: e.detail
+				};
+			}
+			return cv;
+		});
+	}
+
+	function onUpdateCommunity(e: CustomEvent<CommunityView>) {
+		contentViews = contentViews.map((cv) => {
+			if (cv.id === e.detail.community.id && cv.type === 'community') {
+				return {
+					...cv,
+					view: e.detail
+				};
+			}
+			return cv;
 		});
 	}
 </script>

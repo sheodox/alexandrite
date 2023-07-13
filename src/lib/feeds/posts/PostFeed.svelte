@@ -49,6 +49,7 @@
 							on:overlay
 							on:update-post-view
 							on:expand-content={onPostExpandContent}
+							on:block-community
 							expandPostContent={postsWithInlineExpandedContent.has(contentView.postView.post.id)}
 						/>
 					{:else if contentView.type === 'comment'}

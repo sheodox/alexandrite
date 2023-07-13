@@ -5,6 +5,7 @@ import type { ApiFeedLoad } from './feed-query';
 export type ContentView = ({ type: 'post'; postView: PostView } | { type: 'comment'; commentView: CommentView }) & {
 	score: number;
 	published: string;
+	communityId: number;
 };
 
 interface MorePage<T> {
@@ -18,7 +19,8 @@ export const postViewToContentView = (postView: PostView) => {
 		type: 'post' as const,
 		postView,
 		score: postView.counts.score,
-		published: postView.post.published
+		published: postView.post.published,
+		communityId: postView.community.id
 	};
 };
 export const commentViewToContentView = (commentView: CommentView) => {
@@ -26,7 +28,8 @@ export const commentViewToContentView = (commentView: CommentView) => {
 		type: 'comment' as const,
 		commentView,
 		score: commentView.counts.score,
-		published: commentView.comment.published
+		published: commentView.comment.published,
+		communityId: commentView.community.id
 	};
 };
 

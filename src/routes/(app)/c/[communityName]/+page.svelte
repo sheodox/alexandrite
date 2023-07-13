@@ -12,6 +12,7 @@
 	{loadingContent}
 	{loadingContentFailed}
 	on:update-post-view={updatePostView}
+	on:update-community={(e) => (data.communityView = e.detail)}
 />
 
 <script lang="ts">
@@ -36,6 +37,10 @@
 	}
 
 	function initFeed(data: PageData) {
+		if (data.communityView.blocked) {
+			endOfFeed = true;
+			return;
+		}
 		const newLoader = postCommentFeedLoader({
 			type: data.query.type,
 			queryFn: async (page: number) => {
@@ -58,7 +63,7 @@
 	}
 
 	async function more() {
-		if (endOfFeed || loadingContent) {
+		if (endOfFeed || loadingContent || !loader) {
 			return;
 		}
 		loadingContent = true;
