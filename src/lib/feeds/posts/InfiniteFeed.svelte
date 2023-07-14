@@ -1,18 +1,16 @@
-{#if !endOfFeed}
-	{#if loadMoreFailed}
-		<FeedBanner message="Retry loading more?" icon="bug">
-			<button class="tertiary f-row gap-1" on:click={() => dispatch('more')} disabled={loading}>
-				{#if loading}
-					<Spinner />
-				{/if}
-				Retry
-			</button>
-		</FeedBanner>
-	{:else}
-		<FeedBanner message={loading ? 'Loading more...' : 'Load more?'} icon="download" {loading}>
-			<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}> Load More</button>
-		</FeedBanner>
-	{/if}
+{#if loadMoreFailed}
+	<FeedBanner message="Retry loading more?" icon="bug">
+		<button class="tertiary f-row gap-1" on:click={() => dispatch('more')} disabled={loading}>
+			{#if loading}
+				<Spinner />
+			{/if}
+			Retry
+		</button>
+	</FeedBanner>
+{:else if !endOfFeed}
+	<FeedBanner message={loading ? 'Loading more...' : 'Load more?'} icon="download" {loading}>
+		<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}> Load More</button>
+	</FeedBanner>
 {:else}
 	<FeedBanner message={feedEndMessage} icon={feedEndIcon} />
 {/if}
