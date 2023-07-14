@@ -399,13 +399,15 @@
 	$: {
 		const options: ExtraAction[] = [];
 
-		const saved = contentView.view.saved;
-		options.push({
-			text: saved ? 'Unsave' : 'Save',
-			icon: 'star',
-			variant: saved ? 'solid' : 'regular',
-			click: toggleSaveComment
-		});
+		if (loggedIn) {
+			const saved = contentView.view.saved;
+			options.push({
+				text: saved ? 'Unsave' : 'Save',
+				icon: 'star',
+				variant: saved ? 'solid' : 'regular',
+				click: toggleSaveComment
+			});
+		}
 
 		if (loggedIn && !myComment) {
 			options.push({
@@ -422,7 +424,7 @@
 
 			options.push({
 				text: 'Block user',
-				icon: 'ban',
+				icon: 'user-slash',
 				click: onBlockUser
 			});
 		}

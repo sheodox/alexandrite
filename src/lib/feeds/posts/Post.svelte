@@ -138,8 +138,12 @@
 	</Stack>
 </article>
 
+{#if showReportModal}
+	<ReportModal on:report={onReport} bind:visible={showReportModal} />
+{/if}
+
 <script lang="ts">
-	import { Tooltip, Stack, Icon } from 'sheodox-ui';
+	import { Tooltip, Stack, Icon, createAutoExpireToast } from 'sheodox-ui';
 	import UserBadges from './UserBadges.svelte';
 	import ExtraActions from '$lib/ExtraActions.svelte';
 	import PostTitle from './PostTitle.svelte';
@@ -149,6 +153,7 @@
 	import PostCommentCount from './PostCommentCount.svelte';
 	import PostVoteButtons from './PostVoteButtons.svelte';
 	import PostThumbnail from './PostThumbnail.svelte';
+	import ReportModal from '$lib/ReportModal.svelte';
 	import PostTime from './PostTime.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -175,6 +180,8 @@
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
 	export let supportsOverlay = true;
+
+	let showReportModal = false;
 
 	// viewing multiple posts, show a preview
 	$: modeList = mode === 'list';
@@ -226,6 +233,23 @@
 	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
 
+	async function onReport(e: CustomEvent<string>) {
+		if (!jwt) {
+			return;
+		}
+		await client.createPostReport({
+			auth: jwt,
+			reason: e.detail,
+			post_id: postView.post.id
+		});
+
+		showReportModal = false;
+		createAutoExpireToast({
+			title: 'Post Reported',
+			message: ''
+		});
+	}
+
 	$: overflowMenuOptions = getOverflowMenu(postView, isMyPost);
 
 	function getOverflowMenu(postView: PostView, isMyPost: boolean) {
@@ -246,6 +270,23 @@
 				icon: 'trash-can'
 			});
 		}
+		if (loggedIn && !isMyPost) {
+			options.push({
+				text: 'Send Message',
+				href: `/message/${postView.creator.id}`,
+				icon: 'message'
+			});
+			options.push({
+				text: 'Report Post',
+				click: () => (showReportModal = true),
+				icon: 'flag'
+			});
+			options.push({
+				text: 'Block user',
+				icon: 'user-slash',
+				click: onBlockUser
+			});
+		}
 		if (loggedIn) {
 			options.push({
 				text: 'Block Community',
@@ -255,6 +296,22 @@
 		}
 
 		return options;
+	}
+
+	async function onBlockUser() {
+		if (!jwt) {
+			return;
+		}
+		await client.blockPerson({
+			auth: jwt,
+			person_id: postView.creator.id,
+			block: true
+		});
+
+		createAutoExpireToast({
+			title: 'Blocked',
+			message: `${postView.creator.name} was blocked.`
+		});
 	}
 
 	async function blockCommunity() {
