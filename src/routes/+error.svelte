@@ -25,7 +25,7 @@
 <Stack dir="c" justify="center" align="center" cl="f-1" gap={4}>
 	<h1>Error</h1>
 	<p>Sorry, something went wrong.</p>
-	<p><code>{$page.error?.message}</code></p>
+	<p class="text-align-center"><code>{$page.error?.message}</code></p>
 
 	<Stack gap={2} align="center" dir="r">
 		<a href="/instance" class="inline-link">Try a different instance?</a>

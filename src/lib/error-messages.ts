@@ -3,7 +3,8 @@ import type { HttpError } from '@sveltejs/kit';
 export const errorMessages: Record<string, string> = {
 	email_not_verified: 'Email not verified',
 	password_incorrect: 'Password incorrect',
-	couldnt_find_that_username_or_email: "Couldn't find that username or email"
+	couldnt_find_that_username_or_email: "Couldn't find that username or email",
+	couldnt_find_community: "Couldn't find community"
 };
 
 const unknownError = 'Unknown Error';

@@ -6,7 +6,7 @@
 		{$page.error?.message}
 	</p>
 	<button class="primary" on:click={() => invalidateAll()}>
-		<Icon icon="circle-arrow" />
+		<Icon icon="rotate" />
 		Reload
 	</button>
 </Stack>

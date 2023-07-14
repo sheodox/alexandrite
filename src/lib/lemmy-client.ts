@@ -42,14 +42,16 @@ export const createLemmyClient = (instanceUrl: string) => {
 					location.href = '/instance?expired=true';
 				}
 
+				const errMsg = lemmyError ? getMessageFromError(lemmyError) : text;
+
 				createAutoExpireToast({
 					variant: 'error',
-					title: getMessageFromError(lemmyError),
-					message: !lemmyError ? `Lemmy Error: ${text}` : ''
+					title: 'Error',
+					message: !lemmyError ? `Lemmy Error: ${errMsg}` : ''
 				});
 
 				throw error(res.status, {
-					message: 'Lemmy Error: ' + res.status + ':\n' + text,
+					message: `Lemmy Error: ${errMsg} (status ${res.status})`,
 					lemmyError
 				});
 			}
