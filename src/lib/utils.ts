@@ -1,5 +1,14 @@
 import { readable, writable } from 'svelte/store';
 
+// a wrapper for things in a MenuButton, used by ExtraActions.svelte
+export interface ExtraAction {
+	text: string;
+	href?: string;
+	icon: string;
+	click?: () => unknown;
+	iconVariant?: 'regular' | 'solid';
+}
+
 export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;

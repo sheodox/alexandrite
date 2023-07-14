@@ -2,7 +2,11 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="markdown-renderer has-inline-links" on:click={toggleFullSize}>
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-	{@html rendered}
+	{#if viewSource}
+		<pre class="ws-pre-line">{md}</pre>
+	{:else}
+		{@html rendered}
+	{/if}
 </div>
 
 <script lang="ts">
@@ -15,6 +19,10 @@
 	import { getAppContext } from './app-context';
 	import type Token from 'markdown-it/lib/token';
 	import './markdown.scss';
+
+	export let md: string;
+	export let noImages = false;
+	export let viewSource = false;
 
 	const mdOptions: Options = {
 		linkify: true,
@@ -139,9 +147,6 @@
 			return defaultRender(token, idx, options, env, self);
 		};
 	}
-
-	export let md: string;
-	export let noImages = false;
 
 	$: rendered = noImages ? noImageRender.render(md) : fullRender.render(md);
 

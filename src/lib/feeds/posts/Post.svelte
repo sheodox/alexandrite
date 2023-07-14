@@ -97,29 +97,7 @@
 							</a>
 						</Tooltip>
 						<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
-						{#if overflowMenuOptions.length}
-							{@const text = 'Extra actions'}
-							<Tooltip title={text}>
-								<MenuButton triggerClasses="small">
-									<span slot="trigger">
-										<span class="sr-only">{text}</span>
-										<Icon icon="caret-down" variant="icon-only" />
-									</span>
-
-									<ul slot="menu">
-										{#each overflowMenuOptions as opt}
-											<li>
-												{#if opt.href}
-													<a href={opt.href} class="button"><Icon icon={opt.icon} /> {opt.text}</a>
-												{:else if opt.click}
-													<button on:click={opt.click} class="button"><Icon icon={opt.icon} /> {opt.text}</button>
-												{/if}
-											</li>
-										{/each}
-									</ul>
-								</MenuButton>
-							</Tooltip>
-						{/if}
+						<ExtraActions actions={overflowMenuOptions} />
 					{/if}
 					<PostTime {postView} />
 				</Stack>
@@ -161,8 +139,9 @@
 </article>
 
 <script lang="ts">
-	import { Tooltip, Stack, Icon, MenuButton } from 'sheodox-ui';
+	import { Tooltip, Stack, Icon } from 'sheodox-ui';
 	import UserBadges from './UserBadges.svelte';
+	import ExtraActions from '$lib/ExtraActions.svelte';
 	import PostTitle from './PostTitle.svelte';
 	import Image from '$lib/Image.svelte';
 	import UserLink from '$lib/UserLink.svelte';

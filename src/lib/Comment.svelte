@@ -60,7 +60,7 @@
 				{#if comment.deleted}
 					<p class="muted deleted-msg">Deleted by creator</p>
 				{:else}
-					<Markdown md={comment.content} />
+					<Markdown md={comment.content} {viewSource} />
 				{/if}
 			</div>
 			<Stack dir="r" gap={2} align="center">
@@ -127,6 +127,7 @@
 							{/if}
 						{/if}
 					{/if}
+					<ExtraActions actions={overflowMenuOptions} />
 				{/if}
 				{#if deletePending}
 					<Spinner />
@@ -160,16 +161,22 @@
 	</Stack>
 </section>
 
+{#if showReportModal}
+	<ReportModal on:report={onReport} bind:visible={showReportModal} />
+{/if}
+
 <script lang="ts">
-	import { Stack, Tooltip, Icon } from 'sheodox-ui';
+	import { Stack, Tooltip, Icon, createAutoExpireToast } from 'sheodox-ui';
 	import UserLink from './UserLink.svelte';
 	import Markdown from './Markdown.svelte';
 	import VoteButtons from './VoteButtons.svelte';
 	import RelativeTime from './RelativeTime.svelte';
+	import ExtraActions from './ExtraActions.svelte';
 	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import LogButton from './LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
 	import BusyButton from './BusyButton.svelte';
+	import ReportModal from './ReportModal.svelte';
 	import IconButton from './IconButton.svelte';
 	import IconLink from './IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
@@ -180,7 +187,7 @@
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
-	import { createStatefulForm, type ActionFn, createStatefulAction } from './utils';
+	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from './utils';
 	import { getVirtualFeedBuffer } from './virtual-feed';
 	import {
 		commentViewToContentView,
@@ -232,6 +239,8 @@
 
 	let deletePending = false;
 	let maybeDeleting = false;
+	let viewSource = false;
+	let showReportModal = false;
 	let replyForm: HTMLFormElement;
 	let editForm: HTMLFormElement;
 	$: replyState = createStatefulForm(replyForm, replySubmit);
@@ -338,4 +347,92 @@
 		updateCV(res.comment_view);
 		maybeDeleting = false;
 	});
+
+	async function toggleSaveComment() {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.saveComment({
+			auth: jwt,
+			comment_id: contentView.view.comment.id,
+			save: !contentView.view.saved
+		});
+
+		updateCV(res.comment_view);
+	}
+
+	async function onReport(e: CustomEvent<string>) {
+		if (!jwt) {
+			return;
+		}
+		await client.createCommentReport({
+			auth: jwt,
+			reason: e.detail,
+			comment_id: contentView.view.comment.id
+		});
+
+		showReportModal = false;
+		createAutoExpireToast({
+			title: 'Comment Reported',
+			message: ''
+		});
+	}
+
+	async function onBlockUser() {
+		if (!jwt) {
+			return;
+		}
+		await client.blockPerson({
+			auth: jwt,
+			person_id: contentView.view.creator.id,
+			block: true
+		});
+
+		createAutoExpireToast({
+			title: 'Blocked',
+			message: `${contentView.view.creator.name} was blocked.`
+		});
+	}
+
+	let overflowMenuOptions: ExtraAction[] = [];
+
+	$: {
+		const options: ExtraAction[] = [];
+
+		const saved = contentView.view.saved;
+		options.push({
+			text: saved ? 'Unsave' : 'Save',
+			icon: 'star',
+			iconVariant: saved ? 'solid' : 'regular',
+			click: toggleSaveComment
+		});
+
+		if (loggedIn && !myComment) {
+			options.push({
+				text: 'Send Message',
+				href: `/message/${contentView.view.creator.id}`,
+				icon: 'message'
+			});
+
+			options.push({
+				text: 'Report',
+				icon: 'flag',
+				click: () => (showReportModal = true)
+			});
+
+			options.push({
+				text: 'Block user',
+				icon: 'ban',
+				click: onBlockUser
+			});
+		}
+
+		options.push({
+			text: viewSource ? 'Hide Source' : 'View Source',
+			icon: 'code',
+			click: () => (viewSource = !viewSource)
+		});
+
+		overflowMenuOptions = options;
+	}
 </script>
