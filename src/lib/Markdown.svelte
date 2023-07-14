@@ -44,12 +44,7 @@
 				render(tokens: Token[], idx: number) {
 					var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
 
-					// should be impossible, the validate just said it was there
-					if (!m) {
-						return 'Alexandrite failed to parse this spoiler somehow. Please notify the dev.';
-					}
-
-					if (tokens[idx].nesting === 1) {
+					if (tokens[idx].nesting === 1 && m) {
 						// opening tag
 						return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
 					} else {

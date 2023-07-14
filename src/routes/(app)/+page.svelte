@@ -1,37 +1,39 @@
 <Title />
 
-<PostsPage
-	on:more={more}
-	on:update-post-view={updatePostView}
-	{endOfFeed}
-	feedType="top"
-	{contentViews}
-	selectedType={data.query.type}
-	selectedListing={data.query.listing}
-	selectedSort={data.query.sort}
-	{loadingContent}
-	{loadingContentFailed}
-	on:block-community={onBlockCommunity}
-/>
+<ContentViewProvider store={cvStore}>
+	<PostsPage
+		on:more={more}
+		{endOfFeed}
+		feedType="top"
+		selectedType={data.query.type}
+		selectedListing={data.query.listing}
+		selectedSort={data.query.sort}
+		{loadingContent}
+		{loadingContentFailed}
+	/>
+</ContentViewProvider>
 
 <script lang="ts">
-	import type { PostView } from 'lemmy-js-client';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
-	import { postCommentFeedLoader, type ContentView } from '$lib/post-loader.js';
+	import { postCommentFeedLoader } from '$lib/post-loader.js';
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
 	import { loadFeedData } from '$lib/feed-query';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
+	import { createContentViewStore } from '$lib/content-views';
 
 	export let data;
 
 	let loadingContent = false,
 		loadingContentFailed = false,
-		endOfFeed = false,
-		contentViews: ContentView[] = [];
+		endOfFeed = false;
+
+	const cvStore = createContentViewStore();
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
 		loader = initFeed(data);
+		cvStore.clear();
 		// load the first page of data
 		more();
 	}
@@ -52,7 +54,6 @@
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = [];
 
 		return newLoader;
 	}
@@ -66,22 +67,8 @@
 		const feedData = (await loader.next()).value;
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
-		contentViews = contentViews.concat(feedData.contentViews);
+		cvStore.append(feedData.contentViews);
 
 		loadingContent = false;
-	}
-
-	function updatePostView(e: CustomEvent<PostView>) {
-		const pv = e.detail;
-		for (const ct of contentViews) {
-			if (ct.type === 'post' && ct.postView.post.id === pv.post.id) {
-				ct.postView = pv;
-			}
-		}
-		contentViews = contentViews;
-	}
-
-	function onBlockCommunity(e: CustomEvent<number>) {
-		contentViews = contentViews.filter((view) => view.communityId !== e.detail);
 	}
 </script>

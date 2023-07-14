@@ -27,7 +27,7 @@
 	<div class="post-overlay">
 		<div class="close-bg" on:click={close} aria-hidden />
 		<div class="post-container virtual-feed-scroll-container f-column" transition:fly|global={{ x: 20, duration: 100 }}>
-			<PostPage {postView} on:update-post-view />
+			<PostPage {postView} />
 		</div>
 	</div>
 </Portal>

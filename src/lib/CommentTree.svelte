@@ -40,12 +40,11 @@
 					class:nested={depth > 0}
 				>
 					<Comment
-						commentView={cv}
+						contentView={commentViewToContentView(cv)}
 						{postOP}
 						on:collapse={() => toggleCollapse(cv.comment.id)}
 						{collapsed}
 						on:new-comment
-						on:update-comment
 						searchNonMatch={searchText !== '' && !commentSearchMatchIds.includes(cv.comment.id)}
 					/>
 					{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
@@ -77,6 +76,7 @@
 	import type { CommentView } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
 	import Spinner from './Spinner.svelte';
+	import { commentViewToContentView } from './content-views';
 
 	export let postOP: string;
 	export let searchText: string;

@@ -14,7 +14,13 @@
 	<Stack dir="c" gap={2} cl="w-100 py-1">
 		<Stack dir="r" gap={3} align="center">
 			<PostVoteButtons {postView} {voteState} />
-			<PostThumbnail {postView} />
+			{#if supportsOverlay}
+				<button class="m-0 p-0" on:click={() => dispatch('overlay', postView.post.id)}
+					><PostThumbnail {postView} /></button
+				>
+			{:else}
+				<PostThumbnail {postView} />
+			{/if}
 			<Stack dir="c" gap={2}>
 				<PostTitle {postView} on:overlay {modeList} {supportsOverlay} />
 				{#if postView.post.url && (!probablyImage || !postView.post.thumbnail_url)}
@@ -174,13 +180,14 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
+	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
-		'update-post-view': PostView;
 		'expand-content': { id: number; expanded: boolean };
-		'block-community': number;
 	}>();
+
+	const cvStore = getContentViewStore();
 
 	const { username, loggedIn } = getAppContext();
 	const { client, jwt } = getLemmyClient();
@@ -214,9 +221,7 @@
 			})
 			.then((r) => r.post_view);
 
-		postView.my_vote = pv.my_vote;
-		postView.counts.score = pv.counts.score;
-		dispatch('update-post-view', pv);
+		cvStore.updateView(postViewToContentView(pv));
 	});
 
 	$: saveState = createStatefulAction(async () => {
@@ -233,7 +238,7 @@
 			.then(({ post_view }) => post_view);
 
 		postView.saved = pv.saved;
-		dispatch('update-post-view', pv);
+		cvStore.updateView(postViewToContentView(pv));
 	});
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');
@@ -285,19 +290,14 @@
 			community_id: postView.community.id,
 			block: true
 		});
-		dispatch('block-community', postView.community.id);
+		cvStore.blockCommunity(postView.community.id);
 	}
 
 	onMount(async () => {
 		if (mode === 'show' && loggedIn && jwt) {
 			// getting the post has a side effect of marking comments as read
 			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => post_view);
-
-			dispatch('update-post-view', {
-				...pv,
-				unread_comments: 0,
-				read: true
-			});
+			cvStore.updateView(postViewToContentView(pv));
 		}
 	});
 

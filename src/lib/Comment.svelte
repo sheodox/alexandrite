@@ -38,38 +38,38 @@
 					</button>
 				</Tooltip>
 			{/if}
-			<UserLink user={commentView.creator} />
-			<UserBadges user={commentView.creator} {postOP} />
+			<UserLink user={contentView.view.creator} />
+			<UserBadges user={contentView.view.creator} {postOP} />
 			{#if showPost}
-				to <CommunityLink community={commentView.community} />
+				to <CommunityLink community={contentView.view.community} />
 				<span class="muted"> &centerdot; </span>
-				<a href="/post/{commentView.post.id}" class="inline-link" title={commentView.post.name}>
-					<EllipsisText>{commentView.post.name}</EllipsisText>
+				<a href="/post/{contentView.view.post.id}" class="inline-link" title={contentView.view.post.name}>
+					<EllipsisText>{contentView.view.post.name}</EllipsisText>
 				</a>
 			{/if}
 			<span class="muted"> &centerdot; </span>
-			<a href="/comment/{commentView.comment.id}">
-				<RelativeTime date={commentView.comment.published} />
+			<a href="/comment/{comment.id}">
+				<RelativeTime date={comment.published} />
 			</a>
-			{#if commentView.comment.updated && commentView.comment.updated !== commentView.comment.published}
-				<RelativeTime date={commentView.comment.updated} variant="icon" icon="edit" verb="Edited" />
+			{#if comment.updated && comment.updated !== comment.published}
+				<RelativeTime date={comment.updated} variant="icon" icon="edit" verb="Edited" />
 			{/if}
 		</Stack>
 		{#if !collapsed}
 			<div class="comment-content">
-				{#if commentView.comment.deleted}
+				{#if comment.deleted}
 					<p class="muted deleted-msg">Deleted by creator</p>
 				{:else}
-					<Markdown md={commentView.comment.content} />
+					<Markdown md={comment.content} />
 				{/if}
 			</div>
 			<Stack dir="r" gap={2} align="center">
 				<slot name="actions-start" />
 				<VoteButtons
-					vote={commentView.my_vote}
-					score={commentView.counts.score}
-					upvotes={commentView.counts.upvotes}
-					downvotes={commentView.counts.downvotes}
+					vote={contentView.view.my_vote}
+					score={contentView.view.counts.score}
+					upvotes={contentView.view.counts.upvotes}
+					downvotes={contentView.view.counts.downvotes}
 					dir="row"
 					small
 					on:vote={(e) => $voteState.submit(e.detail)}
@@ -90,13 +90,13 @@
 						disabled={$deleteState.busy}>Cancel</button
 					>
 				{:else}
-					<LogButton on:click={() => console.log({ commentView })} />
+					<LogButton on:click={() => console.log({ commentView: contentView })} />
 					{#if loggedIn}
 						<IconButton
 							icon="reply"
 							small
 							text="Reply"
-							on:click={() => (showReplyComposer = true)}
+							on:click={() => ($buffer[bk.showReplyComposer] = true)}
 							disabled={someActionPending}
 						/>
 						{#if myComment}
@@ -104,10 +104,10 @@
 								icon="edit"
 								small
 								text="Edit"
-								on:click={() => (showCommentEdit = true)}
+								on:click={() => ($buffer[bk.showEditComposer] = true)}
 								disabled={someActionPending}
 							/>
-							{#if commentView.comment.deleted}
+							{#if comment.deleted}
 								<IconButton
 									icon="recycle"
 									small
@@ -133,23 +133,28 @@
 				{/if}
 			</Stack>
 		{/if}
-		{#if showCommentEdit}
+		{#if $buffer[bk.showEditComposer]}
 			<form bind:this={editForm} class="reply-editor">
-				<input type="hidden" name="commentId" value={commentView.comment.id} />
+				<input type="hidden" name="commentId" value={comment.id} />
 				<CommentEditor
-					value={commentView.comment.content}
-					selectedLanguage={commentView.comment.language_id}
+					bind:value={$buffer[bk.editText]}
+					selectedLanguage={comment.language_id}
 					cancellable
 					label="Edit"
-					on:cancel={() => (showCommentEdit = false)}
+					on:cancel={() => ($buffer[bk.showEditComposer] = false)}
 					submitting={$editState.busy}
 				/>
 			</form>
 		{/if}
-		{#if showReplyComposer && loggedIn}
+		{#if $buffer[bk.showReplyComposer] && loggedIn}
 			<form bind:this={replyForm} class="reply-editor">
-				<input type="hidden" name="parentId" value={commentView.comment.id} />
-				<CommentEditor cancellable on:cancel={() => (showReplyComposer = false)} submitting={$replyState.busy} />
+				<input type="hidden" name="parentId" value={comment.id} />
+				<CommentEditor
+					cancellable
+					bind:value={$buffer[bk.replyText]}
+					on:cancel={() => ($buffer[bk.showReplyComposer] = false)}
+					submitting={$replyState.busy}
+				/>
 			</form>
 		{/if}
 	</Stack>
@@ -176,25 +181,55 @@
 	import { getCommentContextId } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
 	import { createStatefulForm, type ActionFn, createStatefulAction } from './utils';
+	import { getVirtualFeedBuffer } from './virtual-feed';
+	import {
+		commentViewToContentView,
+		getContentViewStore,
+		mentionViewToContentView,
+		type ContentViewComment,
+		type ContentViewMention,
+		type ContentViewReply,
+		replyViewToContentView
+	} from './content-views';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
 		'new-comment': CommentView;
-		'update-comment': CommentView;
 	}>();
 
+	const cvStore = getContentViewStore();
+
 	export let searchNonMatch = false;
-	export let commentView: CommentView;
+	export let contentView: ContentViewComment | ContentViewReply | ContentViewMention;
 	export let postOP: string;
 	export let collapsed = false;
 	export let showPost = false;
 
+	// need to assign before the reactivity or the consts below don't work
+	let comment = contentView.view.comment;
+	$: comment = contentView.view.comment;
+
 	const { loggedIn, username, checkUnread } = getAppContext();
 	const { jwt, client } = getLemmyClient();
-	$: myComment = commentView.creator.local && commentView.creator.name === username;
+	$: myComment = contentView.view.creator.local && contentView.view.creator.name === username;
 
-	let showReplyComposer = false;
-	let showCommentEdit = false;
+	const buffer = getVirtualFeedBuffer();
+	const bufferKeyBase = `comment-${comment.id}-`;
+	// bk = buffer keys, stashing some state in a VirtualFeed context so scrolling
+	// doesn't lose important stuff when things unrender
+	const bk = {
+		showEditComposer: bufferKeyBase + 'showEditComposer',
+		showReplyComposer: bufferKeyBase + 'showReplyComposer',
+		editText: bufferKeyBase + 'editText',
+		replyText: bufferKeyBase + 'replyText'
+	};
+
+	// set buffer defaults
+	$buffer[bk.showReplyComposer] = $buffer[bk.showReplyComposer] ?? false;
+	$buffer[bk.showEditComposer] = $buffer[bk.showEditComposer] ?? false;
+	$buffer[bk.replyText] = $buffer[bk.replyText] ?? '';
+	$buffer[bk.editText] = $buffer[bk.editText] ?? comment.content;
+
 	let deletePending = false;
 	let maybeDeleting = false;
 	let replyForm: HTMLFormElement;
@@ -206,22 +241,49 @@
 			return;
 		}
 
-		const newCV = await client
-			.likeComment({
-				auth: jwt,
-				comment_id: commentView.comment.id,
-				score
-			})
-			.then((r) => r.comment_view);
+		const res = await client.likeComment({
+			auth: jwt,
+			comment_id: comment.id,
+			score
+		});
 
-		dispatch('update-comment', newCV);
+		// for some types that show as a comment there is extra data, but it's not returned with the like,
+		// so we pull it from the existing view, as it won't have changed
+		if (contentView.type === 'mention') {
+			cvStore.updateView(
+				mentionViewToContentView({
+					...res.comment_view,
+					person_mention: contentView.view.person_mention,
+					recipient: contentView.view.recipient
+				})
+			);
+		} else if (contentView.type === 'reply') {
+			cvStore.updateView(
+				replyViewToContentView({
+					...res.comment_view,
+					comment_reply: contentView.view.comment_reply,
+					recipient: contentView.view.recipient
+				})
+			);
+		} else {
+			cvStore.updateView(commentViewToContentView(res.comment_view));
+		}
 	});
 
 	$: someActionPending =
-		showReplyComposer || showCommentEdit || deletePending || $voteState.busy || $replyState.busy || $editState.busy;
+		$buffer[bk.showReplyComposer] ||
+		$buffer[bk.showEditComposer] ||
+		deletePending ||
+		$voteState.busy ||
+		$replyState.busy ||
+		$editState.busy;
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
-	$: contextCommentId = getCommentContextId(commentView);
+	$: contextCommentId = getCommentContextId(contentView.view);
+
+	function updateCV(commentView: CommentView) {
+		cvStore.updateView(commentViewToContentView(commentView));
+	}
 
 	const replySubmit: ActionFn = async (body) => {
 		if (!jwt) {
@@ -232,12 +294,12 @@
 		const res = await client.createComment({
 			content: body.content as string,
 			auth: jwt,
-			post_id: commentView.post.id,
+			post_id: contentView.view.post.id,
 			parent_id,
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 
-		showReplyComposer = false;
+		$buffer[bk.showReplyComposer] = false;
 		dispatch('new-comment', res.comment_view);
 
 		// replying to an unread comment marks it as read,
@@ -257,8 +319,8 @@
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 
-		showCommentEdit = false;
-		dispatch('update-comment', res.comment_view);
+		$buffer[bk.showEditComposer] = false;
+		updateCV(res.comment_view);
 	};
 
 	$: deleteState = createStatefulAction<boolean>(async (deleted) => {
@@ -268,11 +330,11 @@
 
 		const res = await client.deleteComment({
 			auth: jwt,
-			comment_id: commentView.comment.id,
+			comment_id: comment.id,
 			deleted
 		});
 
-		dispatch('update-comment', res.comment_view);
+		updateCV(res.comment_view);
 		maybeDeleting = false;
 	});
 </script>

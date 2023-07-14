@@ -32,7 +32,7 @@
 
 		<Stack dir="c" gap={2} cl="p-4">
 			<VirtualFeed
-				feedSize={contentViews.length}
+				feedSize={$cvStore.length}
 				on:more
 				{endOfFeed}
 				feedEndIcon="file-circle-xmark"
@@ -41,24 +41,20 @@
 				loadMoreFailed={loadingContentFailed}
 			>
 				<svelte:fragment let:index>
-					{@const contentView = contentViews[index]}
-					<!-- {#each contentViews as contentView, i} -->
+					{@const contentView = $cvStore[index]}
 					{#if contentView.type === 'post'}
 						<Post
-							postView={contentView.postView}
+							postView={contentView.view}
 							on:overlay
-							on:update-post-view
 							on:expand-content={onPostExpandContent}
-							on:block-community
-							expandPostContent={postsWithInlineExpandedContent.has(contentView.postView.post.id)}
+							expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
 						/>
 					{:else if contentView.type === 'comment'}
-						<Comment commentView={contentView.commentView} showPost postOP="" />
+						<Comment {contentView} showPost postOP="" />
 					{/if}
-					{#if index + 1 < contentViews.length}
+					{#if index + 1 < $cvStore.length}
 						<hr class="w-100" />
 					{/if}
-					<!-- {/each} -->
 				</svelte:fragment>
 			</VirtualFeed>
 		</Stack>
@@ -79,18 +75,19 @@
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import Comment from '$lib/Comment.svelte';
-	import type { ContentView } from '$lib/post-loader';
 	import { getAppContext } from '$lib/app-context';
+	import { getContentViewStore } from '$lib/content-views';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
-	export let contentViews: ContentView[];
 	export let loadingContent: boolean;
 	export let loadingContentFailed: boolean;
 	export let endOfFeed: boolean;
 	export let selectedType: string;
 	export let selectedListing: string;
 	export let selectedSort: string;
+
+	const cvStore = getContentViewStore();
 	// which filters should be shown for this type of content
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);

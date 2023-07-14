@@ -1,37 +1,38 @@
-<FeedHeader icon={communityView.community.icon ?? ''} published={communityView.community.published}>
-	<NameAtInstance place={communityView.community} prefix="!" slot="name" />
+<FeedHeader icon={community.icon ?? ''} published={community.published}>
+	<NameAtInstance place={community} prefix="!" slot="name" />
 	<Stack dir="r" gap={2} align="center" slot="actions">
 		{#if !readOnly}
-			<CommunityJoin {communityView} on:update-community />
-			<a href="/c/{nameAtInstance(communityView.community)}/post" class="button tertiary">
+			<CommunityJoin {communityView} />
+			<a href="/c/{nameAtInstance(community)}/post" class="button tertiary">
 				<Icon icon="plus" /> Post
 			</a>
-			<a href="/search?community={nameAtInstance(communityView.community)}" class="button tertiary">
+			<a href="/search?community={nameAtInstance(community)}" class="button tertiary">
 				<Icon icon="magnifying-glass" /> Search
 			</a>
-			<BusyButton
-				on:click={() => $blockState.submit(!communityView.blocked)}
-				busy={$blockState.busy}
-				cl={communityView.blocked ? 'danger' : 'tertiary'}
-			>
-				{#if !communityView.blocked}
-					<Icon icon="ban" />
-					Block
-				{:else}
-					<Icon icon="circle-check" iconVariant="regular" />
-					Unblock
-				{/if}
-			</BusyButton>
+			{#if loggedIn}
+				<BusyButton
+					on:click={() => $blockState.submit(!communityView.blocked)}
+					busy={$blockState.busy}
+					cl={communityView.blocked ? 'danger' : 'tertiary'}
+				>
+					{#if !communityView.blocked}
+						<Icon icon="ban" />
+						Block
+					{:else}
+						<Icon icon="circle-check" iconVariant="regular" />
+						Unblock
+					{/if}
+				</BusyButton>
+			{/if}
 		{/if}
 	</Stack>
 	<div slot="badges">
-		<CommunityBadges community={communityView.community} extended />
+		<CommunityBadges {community} extended />
 	</div>
 </FeedHeader>
 
 <script lang="ts">
 	import { Icon, Stack } from 'sheodox-ui';
-	import type { CommunityView } from 'lemmy-js-client';
 	import FeedHeader from './FeedHeader.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import CommunityBadges from './CommunityBadges.svelte';
@@ -41,15 +42,16 @@
 	import { createStatefulAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { invalidateAll } from '$app/navigation';
-	import { createEventDispatcher } from 'svelte';
+	import { communityViewToContentView, getContentViewStore, type ContentViewCommunity } from '$lib/content-views';
+	import { getAppContext } from '$lib/app-context';
 
-	const dispatch = createEventDispatcher<{
-		'update-community': CommunityView;
-	}>();
-
-	export let communityView: CommunityView;
+	export let contentView: ContentViewCommunity;
 	export let readOnly = false;
+	const { loggedIn } = getAppContext();
 	const { client, jwt } = getLemmyClient();
+	const cvStore = !readOnly ? getContentViewStore() : null;
+	$: communityView = contentView.view;
+	$: community = communityView.community;
 
 	$: blockState = createStatefulAction<boolean>(async (block) => {
 		if (!jwt) {
@@ -57,7 +59,7 @@
 		}
 		const res = await client.blockCommunity({
 			auth: jwt,
-			community_id: communityView.community.id,
+			community_id: community.id,
 			block
 		});
 
@@ -67,7 +69,6 @@
 			// somewhere else so it'd be a useless page load
 			invalidateAll();
 		}
-
-		dispatch('update-community', res.community_view);
+		cvStore?.updateView(communityViewToContentView(res.community_view));
 	});
 </script>

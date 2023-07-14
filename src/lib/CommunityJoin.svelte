@@ -10,12 +10,11 @@
 	import BusyButton from './BusyButton.svelte';
 	import { createStatefulAction } from './utils';
 	import { getLemmyClient } from './lemmy-client';
-	import { createEventDispatcher } from 'svelte';
+	import { communityViewToContentView, getContentViewStore } from './content-views';
 
 	const { loggedIn } = getAppContext();
 	const { client, jwt } = getLemmyClient();
-
-	const dispatch = createEventDispatcher<{ 'update-community': CommunityView }>();
+	const cvStore = getContentViewStore();
 
 	export let communityView: CommunityView;
 	$: joined = communityView.subscribed !== 'NotSubscribed';
@@ -37,6 +36,6 @@
 			community_id: communityView.community.id
 		});
 
-		dispatch('update-community', res.community_view);
+		cvStore.updateView(communityViewToContentView(res.community_view));
 	});
 </script>

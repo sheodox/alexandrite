@@ -9,10 +9,10 @@
 
 <div class="search-header my-2">
 	{#if data.communityView}
-		<CommunityHeader communityView={data.communityView} readOnly />
+		<CommunityHeader contentView={communityViewToContentView(data.communityView)} readOnly />
 	{/if}
 	{#if data.personView}
-		<UserHeader personView={data.personView} readOnly />
+		<UserHeader contentView={personViewToContentView(data.personView)} readOnly />
 	{/if}
 </div>
 
@@ -49,33 +49,35 @@
 	</section>
 </form>
 {#if data.query.q}
-	<Stack dir="c" gap={2}>
-		<VirtualFeed
-			feedSize={contentViews.length}
-			on:more={more}
-			{endOfFeed}
-			feedEndIcon="file-circle-xmark"
-			feedEndMessage="No more results!"
-			loading={loadingContent}
-			loadMoreFailed={loadingContentFailed}
-		>
-			<svelte:fragment let:index>
-				{@const contentView = contentViews[index]}
-				{#if contentView.type === 'post'}
-					<Post postView={contentView.view} on:overlay on:update-post-view={onUpdatePostView} supportsOverlay={false} />
-				{:else if contentView.type === 'comment'}
-					<Comment commentView={contentView.view} showPost postOP="" />
-				{:else if contentView.type === 'community'}
-					<CommunityCard communityView={contentView.view} on:update-community={onUpdateCommunity} />
-				{:else if contentView.type === 'user'}
-					<PersonCard personView={contentView.view} />
-				{/if}
-				{#if index + 1 < contentViews.length}
-					<hr class="w-100" />
-				{/if}
-			</svelte:fragment>
-		</VirtualFeed>
-	</Stack>
+	<ContentViewProvider store={cvStore}>
+		<Stack dir="c" gap={2}>
+			<VirtualFeed
+				feedSize={$cvStore.length}
+				on:more={more}
+				{endOfFeed}
+				feedEndIcon="file-circle-xmark"
+				feedEndMessage="No more results!"
+				loading={loadingContent}
+				loadMoreFailed={loadingContentFailed}
+			>
+				<svelte:fragment let:index>
+					{@const contentView = $cvStore[index]}
+					{#if contentView.type === 'post'}
+						<Post postView={contentView.view} on:overlay supportsOverlay={false} />
+					{:else if contentView.type === 'comment'}
+						<Comment {contentView} showPost postOP="" />
+					{:else if contentView.type === 'community'}
+						<CommunityCard communityView={contentView.view} />
+					{:else if contentView.type === 'person'}
+						<PersonCard personView={contentView.view} />
+					{/if}
+					{#if index + 1 < $cvStore.length}
+						<hr class="w-100" />
+					{/if}
+				</svelte:fragment>
+			</VirtualFeed>
+		</Stack>
+	</ContentViewProvider>
 {:else}
 	<Alert variant="info">Enter a search query to see results.</Alert>
 {/if}
@@ -84,6 +86,7 @@
 	import { Alert, Stack, Icon, TextInput } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import PersonCard from '$lib/PersonCard.svelte';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import CommunityHeader from '$lib/feeds/posts/CommunityHeader.svelte';
 	import UserHeader from '$lib/feeds/posts/UserHeader.svelte';
 	import { SearchTypeOptions, ListingOptions, SearchSortOptions } from '$lib/feed-filters';
@@ -106,20 +109,28 @@
 		SortType
 	} from 'lemmy-js-client';
 	import { getLemmyClient } from '$lib/lemmy-client';
+	import {
+		commentViewToContentView,
+		communityViewToContentView,
+		createContentViewStore,
+		personViewToContentView,
+		postViewToContentView
+	} from '$lib/content-views';
 
 	export let data;
 
 	const { loggedIn } = getAppContext();
 	const { client, jwt } = getLemmyClient();
+	const cvStore = createContentViewStore();
 
 	let loadingContent = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		contentViews: ReturnType<typeof getContentViews> = [],
 		loader: ReturnType<typeof initFeed>;
 
 	$: {
 		loader = initFeed(data);
+		cvStore.clear();
 		// load the first page of data
 		more();
 	}
@@ -191,7 +202,6 @@
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = [];
 
 		return newLoader;
 	}
@@ -206,37 +216,17 @@
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
 		if (!feedData.error && feedData.response) {
-			contentViews = contentViews.concat(getContentViews(feedData.response));
+			cvStore.append(getContentViews(feedData.response));
 		}
 
 		loadingContent = false;
 	}
 
 	function getContentViews(data: ApiSearchRes) {
-		const posts = data.posts.map((view) => ({
-				type: 'post' as const,
-				view,
-				id: view.post.id,
-				published: view.post.published
-			})),
-			comments = data.comments.map((view) => ({
-				type: 'comment' as const,
-				view,
-				id: view.comment.id,
-				published: view.comment.published
-			})),
-			communities = data.communities.map((view) => ({
-				type: 'community' as const,
-				view,
-				id: view.community.id,
-				published: view.community.published
-			})),
-			users = data.users.map((view) => ({
-				type: 'user' as const,
-				view,
-				id: view.person.id,
-				published: view.person.published
-			}));
+		const posts = data.posts.map(postViewToContentView),
+			comments = data.comments.map(commentViewToContentView),
+			communities = data.communities.map(communityViewToContentView),
+			users = data.users.map(personViewToContentView);
 
 		return [...posts, ...comments, ...communities, ...users].sort((a, b) => {
 			const aPublished = parseISO(a.published + 'Z').getTime(),
@@ -249,30 +239,6 @@
 			} else {
 				return b.id - a.id;
 			}
-		});
-	}
-
-	function onUpdatePostView(e: CustomEvent<PostView>) {
-		contentViews = contentViews.map((cv) => {
-			if (cv.id === e.detail.post.id && cv.type === 'post') {
-				return {
-					...cv,
-					view: e.detail
-				};
-			}
-			return cv;
-		});
-	}
-
-	function onUpdateCommunity(e: CustomEvent<CommunityView>) {
-		contentViews = contentViews.map((cv) => {
-			if (cv.id === e.detail.community.id && cv.type === 'community') {
-				return {
-					...cv,
-					view: e.detail
-				};
-			}
-			return cv;
 		});
 	}
 </script>

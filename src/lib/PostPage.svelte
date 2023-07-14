@@ -60,7 +60,7 @@
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" on:update-post-view expandPostContent={showPost} supportsOverlay={false}>
+			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false}>
 				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
 					<a href="#comments" class="button tertiary"
 						><Icon icon="chevron-down" />To Comments ({postView.counts.comments})</a
@@ -112,7 +112,7 @@
 						><Icon icon="arrow-up-from-bracket" variant="icon-only" />
 						View all comments
 					</a>
-					{#if rootComment && commentContextId !== rootComment.comment.id}
+					{#if rootComment && rootComment.type === 'comment' && commentContextId !== rootComment.view.comment.id}
 						<a href="/comment/{commentContextId}" class="button secondary">
 							Parent comment
 							<Icon icon="turn-up" variant="icon-only" />
@@ -120,7 +120,7 @@
 					{/if}
 				</Stack>
 			{/if}
-			{#if commentViews}
+			<ContentViewProvider store={commentCVStore}>
 				<CommentTree
 					{rootCommentId}
 					{commentViews}
@@ -129,7 +129,6 @@
 					on:more={loadNextCommentPage}
 					on:expand={expandComment}
 					on:new-comment={onNewComment}
-					on:update-comment={onUpdateComment}
 					on:more={loadNextCommentPage}
 					endOfFeed={endOfCommentsFeed || viewingSingleCommentThread}
 					loadingContent={loadingComments}
@@ -138,7 +137,7 @@
 					feedEndIcon="comment-slash"
 					expandLoadingIds={Array.from(commentExpandLoadingIds)}
 				/>
-			{/if}
+			</ContentViewProvider>
 		</section>
 	</div>
 	<div class="page-column page-column-sidebar virtual-feed-scroll-container">
@@ -163,6 +162,8 @@
 	import { createStatefulForm, type ActionFn } from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher } from 'svelte';
+	import { commentViewToContentView, createContentViewStore } from './content-views';
+	import ContentViewProvider from './ContentViewProvider.svelte';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -172,12 +173,20 @@
 	export let centered = false;
 	// if the user should see a 'Close' button, useful when viewing a feed in column layout
 	export let closeable = false;
-	let commentViews = initialCommentViews;
+
+	const commentCVStore = createContentViewStore();
+	if (initialCommentViews) {
+		commentCVStore.set(initialCommentViews.map(commentViewToContentView));
+	}
+	$: commentViews = $commentCVStore.map((cv) => cv.view as CommentView);
+
 	let commentExpandLoadingIds = new Set<number>();
 	let newCommentForm: HTMLFormElement;
 	$: viewingSingleCommentThread = rootCommentId !== null;
-	$: rootComment = viewingSingleCommentThread ? commentViews.find((cv) => cv.comment.id === rootCommentId) : null;
-	$: commentContextId = rootComment ? getCommentContextId(rootComment) : null;
+	$: rootComment = viewingSingleCommentThread
+		? $commentCVStore.find((cv) => cv.type === 'comment' && cv.view.comment.id === rootCommentId)
+		: null;
+	$: commentContextId = rootComment && rootComment.type === 'comment' ? getCommentContextId(rootComment.view) : null;
 
 	const { loggedIn } = getAppContext();
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
@@ -207,7 +216,6 @@
 		// start over if sorting changes
 		commentsPageNum = 1;
 		endOfCommentsFeed = false;
-		commentViews = [];
 		loadNextCommentPage();
 	}
 
@@ -222,36 +230,16 @@
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
 		// put the new comment the user posted at the top so they can see it
-		commentViews.unshift(res.comment_view);
-		commentViews = commentViews;
+		commentCVStore.prepend([commentViewToContentView(res.comment_view)]);
 		showCommentComposer = false;
+		newCommentText = '';
 	};
 
 	function onNewComment(e: CustomEvent<CommentView>) {
-		commentViews.push(e.detail);
-		commentViews = commentViews;
+		commentCVStore.append([commentViewToContentView(e.detail)]);
 	}
 
-	function onUpdateComment(e: CustomEvent<CommentView>) {
-		const index = commentViews.findIndex((cv) => cv.comment.id === e.detail.comment.id);
-		if (index >= 0) {
-			commentViews[index] = e.detail;
-			commentViews = commentViews;
-		}
-	}
-
-	function mergeNewCommentViews(nextPage: CommentView[]): number {
-		if (!commentViews) {
-			commentViews = nextPage;
-			return commentViews.length;
-		}
-
-		const newCommentViews = nextPage.filter((c1) => !commentViews.some((c2) => c2.comment.id === c1.comment.id));
-
-		commentViews = [...commentViews, ...newCommentViews];
-
-		return newCommentViews.length;
-	}
+	const loadedCommentIds = new Set<number>();
 
 	async function loadComments(
 		queryFn: () => Promise<CommentView[]>
@@ -265,8 +253,16 @@
 		try {
 			const newCvs = await queryFn();
 
+			const newComments = newCvs.filter((cv) => !loadedCommentIds.has(cv.comment.id));
+
+			for (const cv of newComments) {
+				loadedCommentIds.add(cv.comment.id);
+			}
+
+			commentCVStore.append(newComments.map(commentViewToContentView));
+
 			return {
-				comments: mergeNewCommentViews(newCvs),
+				comments: newComments.length,
 				busy: false,
 				error: false
 			};

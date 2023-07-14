@@ -9,50 +9,55 @@
 
 <form method="GET" data-sveltekit-replacestate>
 	<section>
-		<Stack gap={4} align="center" cl="py-4" dir="r">
-			<ToggleGroup options={InboxTypes} name="type" selected={data.query.type} />
-			<ToggleGroup options={InboxListings} name="listing" selected={data.query.listing} />
-			<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
-				{#each InboxSortOptions as opt}
-					<option value={opt.value}>{opt.label}</option>
-				{/each}
-			</select>
+		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
+			<Stack gap={4} align="center" dir="r">
+				<ToggleGroup options={InboxTypes} name="type" selected={data.query.type} />
+				<ToggleGroup options={InboxListings} name="listing" selected={data.query.listing} />
+				<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
+					{#each InboxSortOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</select>
 
-			<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+				<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+			</Stack>
+			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary">Refresh</BusyButton>
 		</Stack>
 	</section>
 </form>
 
 <Stack dir="c" gap={2}>
-	<VirtualFeed
-		feedSize={contentViews.length}
-		on:more={more}
-		{endOfFeed}
-		feedEndIcon="file-circle-xmark"
-		feedEndMessage="No more messages!"
-		loading={loadingContent}
-		loadMoreFailed={loadingContentFailed}
-	>
-		<svelte:fragment let:index>
-			{@const content = contentViews[index]}
-			{#if content.type !== 'message'}
-				<Comment commentView={content.view} postOP="" showPost>
-					<InboxReadButton {content} slot="actions-start" on:read={(e) => markedRead(content, e.detail)} />
-				</Comment>
-			{:else}
-				<PrivateMessage privateMessageView={content.view}>
-					<svelte:fragment slot="actions-start" let:toMe>
-						{#if toMe}
-							<InboxReadButton {content} on:read={(e) => markedRead(content, e.detail)} />
-						{/if}
-					</svelte:fragment>
-				</PrivateMessage>
-			{/if}
-			{#if index + 1 < contentViews.length}
-				<hr class="w-100" />
-			{/if}
-		</svelte:fragment>
-	</VirtualFeed>
+	<ContentViewProvider store={cvStore}>
+		<VirtualFeed
+			feedSize={$cvStore.length}
+			on:more={more}
+			{endOfFeed}
+			feedEndIcon="file-circle-xmark"
+			feedEndMessage="No more messages!"
+			loading={loadingContent}
+			loadMoreFailed={loadingContentFailed}
+		>
+			<svelte:fragment let:index>
+				{@const content = $cvStore[index]}
+				{#if content.type === 'mention' || content.type === 'reply'}
+					<Comment contentView={content} postOP="" showPost>
+						<InboxReadButton {content} slot="actions-start" />
+					</Comment>
+				{:else if content.type === 'message'}
+					<PrivateMessage privateMessageView={content.view}>
+						<svelte:fragment slot="actions-start" let:toMe>
+							{#if toMe}
+								<InboxReadButton {content} />
+							{/if}
+						</svelte:fragment>
+					</PrivateMessage>
+				{/if}
+				{#if index + 1 < $cvStore.length}
+					<hr class="w-100" />
+				{/if}
+			</svelte:fragment>
+		</VirtualFeed>
+	</ContentViewProvider>
 </Stack>
 
 <script lang="ts">
@@ -62,6 +67,7 @@
 	import Comment from '$lib/Comment.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
@@ -73,17 +79,30 @@
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { createStatefulAction } from '$lib/utils';
 	import { invalidateAll } from '$app/navigation';
+	import {
+		createContentViewStore,
+		mentionViewToContentView,
+		messageViewToContentView,
+		replyViewToContentView
+	} from '$lib/content-views';
 
 	export let data;
 
 	const { unreadCount, checkUnread } = getAppContext();
 	const { client, jwt } = getLemmyClient();
+	const cvStore = createContentViewStore();
 
 	let loadingContent = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		contentViews: ReturnType<typeof getContentViews> = [],
 		loader: ReturnType<typeof initFeed>;
+
+	$: refreshState = createStatefulAction(async () => {
+		checkUnread();
+		loader = initFeed(data);
+		cvStore.clear();
+		await more();
+	});
 
 	$: markAllReadState = createStatefulAction(async () => {
 		if (!jwt) {
@@ -117,14 +136,9 @@
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		contentViews = [];
+		cvStore.clear();
 
 		return newLoader;
-	}
-
-	function markedRead(contentView: ReturnType<typeof getContentViews>[number], read: boolean) {
-		contentView.read = read;
-		contentViews = contentViews;
 	}
 
 	async function fetchInboxPage(page: number, data: PageData) {
@@ -165,7 +179,7 @@
 		loadingContentFailed = feedData.error;
 		endOfFeed = feedData.endOfFeed;
 		if (!feedData.error && feedData.response) {
-			contentViews = contentViews.concat(getContentViews(feedData.response));
+			cvStore.append(getContentViews(feedData.response));
 		}
 
 		loadingContent = false;
@@ -176,27 +190,9 @@
 			return [];
 		}
 
-		const replies = inboxData.replies.map((view) => ({
-				type: 'reply' as const,
-				view,
-				id: view.comment_reply.id,
-				read: view.comment_reply.read,
-				published: view.comment_reply.published
-			})),
-			mentions = inboxData.mentions.map((view) => ({
-				type: 'mention' as const,
-				view,
-				id: view.person_mention.id,
-				read: view.person_mention.read,
-				published: view.person_mention.published
-			})),
-			messages = inboxData.messages.map((view) => ({
-				type: 'message' as const,
-				view,
-				id: view.private_message.id,
-				read: view.private_message.read,
-				published: view.private_message.published
-			}));
+		const replies = inboxData.replies.map(replyViewToContentView),
+			mentions = inboxData.mentions.map(mentionViewToContentView),
+			messages = inboxData.messages.map(messageViewToContentView);
 
 		if (data.query.listing === 'All') {
 			return [...replies, ...mentions, ...messages].sort((a, b) => {

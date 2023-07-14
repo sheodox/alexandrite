@@ -1,6 +1,15 @@
 {#if data.postView}
 	<Title title={`Comment on "${data.postView.post.name}"`} />
-	<PostPage postView={data.postView} initialCommentViews={data.commentViews} rootCommentId={data.commentId} centered />
+	{#key data.commentViews}
+		<ContentViewProvider store={cvStore}>
+			<PostPage
+				postView={data.postView}
+				initialCommentViews={data.commentViews}
+				rootCommentId={data.commentId}
+				centered
+			/>
+		</ContentViewProvider>
+	{/key}
 {:else}
 	<Title title="Not Found" />
 	<p>Post not found!</p>
@@ -9,6 +18,11 @@
 <script lang="ts">
 	import PostPage from '$lib/PostPage.svelte';
 	import Title from '$lib/Title.svelte';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
+	import { createContentViewStore, postViewToContentView } from '$lib/content-views.js';
 
 	export let data;
+
+	const cvStore = createContentViewStore();
+	cvStore.set([postViewToContentView(data.postView)]);
 </script>

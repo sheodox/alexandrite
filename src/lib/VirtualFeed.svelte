@@ -33,10 +33,12 @@
 <div class="virtual-feed-space-remainder" style:top="{feedMaxHeight}px" />
 
 <script lang="ts">
-	import { onDestroy, createEventDispatcher } from 'svelte';
+	import { onDestroy, createEventDispatcher, setContext } from 'svelte';
 	import { browser } from '$app/environment';
 	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import { Throttler } from './utils';
+	import { _BUFFER_CONTEXT_KEY } from './virtual-feed';
+	import { writable } from 'svelte/store';
 
 	const dispatch = createEventDispatcher<{
 			more: void;
@@ -46,6 +48,10 @@
 		// we want to render more items than actually fit on the screen, so that we can throttle the
 		// scroll event handler without the user seeing a blank feed unless they scroll fast
 		OVERSCAN_FACTOR = 3;
+
+	// create a store in context that can be used as a temporary storage location for
+	// anything in the feed, so data isn't lost by scrolling
+	setContext(_BUFFER_CONTEXT_KEY, writable<Record<string, any>>({}));
 
 	export let endOfFeed: boolean;
 	export let loading: boolean;

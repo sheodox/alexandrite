@@ -12,15 +12,17 @@
 	import { getAppContext } from './app-context';
 	import { createStatefulAction } from './utils';
 	import { getLemmyClient } from './lemmy-client';
-	import { createEventDispatcher } from 'svelte';
+	import {
+		getContentViewStore,
+		mentionViewToContentView,
+		messageViewToContentView,
+		replyViewToContentView
+	} from './content-views';
 	export let content: { read: boolean; type: string; id: number };
 
 	const { checkUnread } = getAppContext();
 	const { client, jwt } = getLemmyClient();
-
-	const dispatch = createEventDispatcher<{
-		read: boolean;
-	}>();
+	const cvStore = getContentViewStore();
 
 	$: markReadState = createStatefulAction(async () => {
 		if (!jwt) {
@@ -31,32 +33,29 @@
 			// reverse 'read', so this can mark read or unread based on current state
 			read = !content.read;
 
-		switch (content.type as string) {
-			case 'reply':
-				await client.markCommentReplyAsRead({
-					auth: jwt,
-					comment_reply_id: id,
-					read
-				});
-				break;
-			case 'mention':
-				await client.markPersonMentionAsRead({
-					auth: jwt,
-					person_mention_id: id,
-					read
-				});
-				break;
-			case 'message':
-				await client.markPrivateMessageAsRead({
-					auth: jwt,
-					private_message_id: id,
-					read
-				});
-				break;
+		if (content.type === 'reply') {
+			const res = await client.markCommentReplyAsRead({
+				auth: jwt,
+				comment_reply_id: id,
+				read
+			});
+
+			cvStore.updateView(replyViewToContentView(res.comment_reply_view));
+		} else if (content.type === 'mention') {
+			const res = await client.markPersonMentionAsRead({
+				auth: jwt,
+				person_mention_id: id,
+				read
+			});
+			cvStore.updateView(mentionViewToContentView(res.person_mention_view));
+		} else if (content.type === 'message') {
+			const res = await client.markPrivateMessageAsRead({
+				auth: jwt,
+				private_message_id: id,
+				read
+			});
+			cvStore.updateView(messageViewToContentView(res.private_message_view));
 		}
-
-		dispatch('read', read);
-
 		checkUnread();
 	});
 </script>

@@ -24,22 +24,26 @@
 		<a href="/search?type=Communities" class="inline-link">Search Communities</a>
 	</Stack>
 
-	<VirtualFeed
-		on:more={more}
-		feedSize={communities.length}
-		{endOfFeed}
-		loadMoreFailed={loadingContentFailed}
-		loading={loadingContent}
-		feedEndMessage="No more communities"
-		feedEndIcon="users-slash"
-	>
-		<svelte:fragment let:index>
-			{@const cv = communities[index]}
-			{#key cv.community.actor_id}
-				<CommunityCard communityView={cv} on:update-community={onUpdateCommunity} />
-			{/key}
-		</svelte:fragment>
-	</VirtualFeed>
+	<ContentViewProvider store={cvStore}>
+		<VirtualFeed
+			on:more={more}
+			feedSize={$cvStore.length}
+			{endOfFeed}
+			loadMoreFailed={loadingContentFailed}
+			loading={loadingContent}
+			feedEndMessage="No more communities"
+			feedEndIcon="users-slash"
+		>
+			<svelte:fragment let:index>
+				{@const cv = $cvStore[index]}
+				{#if cv.type === 'community'}
+					{#key cv.view.community.actor_id}
+						<CommunityCard communityView={cv.view} />
+					{/key}
+				{/if}
+			</svelte:fragment>
+		</VirtualFeed>
+	</ContentViewProvider>
 </Layout>
 
 <script lang="ts">
@@ -53,19 +57,23 @@
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
 	import { getLemmyClient } from '$lib/lemmy-client';
+	import { communityViewToContentView, createContentViewStore } from '$lib/content-views';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 
 	const { client, jwt } = getLemmyClient();
 
 	export let data;
 
+	const cvStore = createContentViewStore();
+
 	let loadingContent = false,
 		loadingContentFailed = false,
 		endOfFeed = false,
-		communities: CommunityView[],
 		loader: ReturnType<typeof initFeed>;
 
 	$: {
 		loader = initFeed(data);
+		cvStore.clear();
 		// load the first page of data
 		more();
 	}
@@ -89,10 +97,11 @@
 		loadingContent = false;
 		loadingContentFailed = false;
 		endOfFeed = false;
-		communities = [];
 
 		return newLoader;
 	}
+
+	const loadedCommunityIds = new Set<number>();
 
 	async function more() {
 		if (endOfFeed || loadingContent) {
@@ -105,15 +114,11 @@
 		endOfFeed = more.endOfFeed;
 
 		if (more.response) {
-			communities = [
-				...communities,
-				...more.response.filter((p) => !communities.some((p2) => p2.community.id === p.community.id))
-			];
+			const newPage = more.response.filter((com) => {
+				return !loadedCommunityIds.has(com.community.id);
+			});
+			cvStore.append(newPage.map(communityViewToContentView));
 		}
 		loadingContent = false;
-	}
-
-	function onUpdateCommunity(e: CustomEvent<CommunityView>) {
-		communities = communities.map((c) => (c.community.id === e.detail.community.id ? e.detail : c));
 	}
 </script>

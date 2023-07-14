@@ -40,18 +40,18 @@
 	<div class="posts-page-content">
 		<Stack dir="r" gap={2}>
 			<div class="feed-column feed-column-feed virtual-feed-scroll-container">
-				{#if communityView}
-					<CommunityHeader {communityView} on:update-community />
-				{/if}
-				{#if personView}
-					<UserHeader {personView} />
-				{/if}
+				<ContentViewProvider store={cvHeaderStore}>
+					{#each $cvHeaderStore as contentView}
+						{#if contentView.type === 'community'}
+							<CommunityHeader {contentView} />
+						{:else if contentView.type === 'person'}
+							<UserHeader {contentView} />
+						{/if}
+					{/each}
+				</ContentViewProvider>
 				<PostFeed
 					{feedType}
-					{contentViews}
 					on:more
-					on:update-post-view
-					on:block-community
 					on:overlay={onOverlay}
 					{endOfFeed}
 					{isMyFeed}
@@ -62,10 +62,10 @@
 					{loadingContentFailed}
 				/>
 			</div>
-			{#if feedAdjacentPostView && $feedLayout === 'COLUMNS'}
+			{#if feedAdjacentPostView?.type === 'post' && $feedLayout === 'COLUMNS'}
 				<div class="feed-column feed-column-post virtual-feed-scroll-container f-column">
-					{#key feedAdjacentPostView.post.id}
-						<PostPage postView={feedAdjacentPostView} on:update-post-view closeable on:close={closeOverlay} />
+					{#key feedAdjacentPostView.id}
+						<PostPage postView={feedAdjacentPostView.view} closeable on:close={closeOverlay} />
 					{/key}
 				</div>
 			{/if}
@@ -85,8 +85,8 @@
 	{/if}
 </div>
 
-{#if feedAdjacentPostView && $feedLayout === 'OVERLAY'}
-	<OverlayPost postView={feedAdjacentPostView} on:close={closeOverlay} on:update-post-view />
+{#if feedAdjacentPostView?.type === 'post' && $feedLayout === 'OVERLAY'}
+	<OverlayPost postView={feedAdjacentPostView.view} on:close={closeOverlay} />
 {/if}
 
 <script lang="ts">
@@ -96,18 +96,24 @@
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
 	import OverlayPost from '$lib/OverlayPost.svelte';
-	import type { CommunityModeratorView, CommunityView, PersonView, PostView } from 'lemmy-js-client';
+	import type { CommunityModeratorView, CommunityView, PersonView } from 'lemmy-js-client';
 	import CommunitySidebar from '$lib/CommunitySidebar.svelte';
 	import CommunityHeader from './CommunityHeader.svelte';
 	import UserHeader from './UserHeader.svelte';
 	import type { FeedType } from '$lib/feed-filters';
 	import { getAppContext } from '$lib/app-context';
-	import type { ContentView } from '$lib/post-loader';
 	import { getSettingsContext, type FeedLayout } from '$lib/settings-context';
 	import PostPage from '$lib/PostPage.svelte';
+	import {
+		communityViewToContentView,
+		createContentViewStore,
+		getContentViewStore,
+		personViewToContentView,
+		type ContentView
+	} from '$lib/content-views';
+	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 
 	export let feedType: FeedType;
-	export let contentViews: ContentView[];
 	export let loadingContent: boolean;
 	export let loadingContentFailed: boolean;
 	export let communityView: CommunityView | null = null;
@@ -120,6 +126,21 @@
 
 	const { username, screenDimensions } = getAppContext();
 	const { sidebarVisible, feedLayout: feedLayoutSetting } = getSettingsContext();
+
+	const cvStore = getContentViewStore();
+
+	const cvHeaderStore = createContentViewStore();
+	cvHeaderStore.clear();
+	const cvs: ContentView[] = [];
+
+	if (communityView) {
+		cvs.push(communityViewToContentView(communityView));
+	}
+	if (personView) {
+		cvs.push(personViewToContentView(personView));
+	}
+
+	cvHeaderStore.set(cvs);
 
 	const feedLayout = derived(
 		[feedLayoutSetting, screenDimensions, sidebarVisible],
@@ -142,17 +163,15 @@
 
 	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
 
-	let feedAdjacentPostView: null | PostView;
+	let feedAdjacentPostViewId: null | number = null;
+	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);
 
 	async function onOverlay(e: CustomEvent<number>) {
-		feedAdjacentPostView = contentViews.reduce((found, p) => {
-			const post = p.type === 'post' && p.postView.post.id === e.detail ? p.postView : null;
-			return found ? found : post;
-		}, null as PostView | null);
+		feedAdjacentPostViewId = e.detail;
 	}
 
 	function closeOverlay() {
-		feedAdjacentPostView = null;
+		feedAdjacentPostViewId = null;
 	}
 
 	afterNavigate(() => {

@@ -1,38 +1,13 @@
 import { parseISO } from 'date-fns';
 import type { CommentView, PostView } from 'lemmy-js-client';
 import type { ApiFeedLoad } from './feed-query';
-
-export type ContentView = ({ type: 'post'; postView: PostView } | { type: 'comment'; commentView: CommentView }) & {
-	score: number;
-	published: string;
-	communityId: number;
-};
+import { postViewToContentView, type ContentView, commentViewToContentView } from './content-views';
 
 interface MorePage<T> {
 	error: boolean;
 	endOfFeed: boolean;
 	response?: T;
 }
-
-export const postViewToContentView = (postView: PostView) => {
-	return {
-		type: 'post' as const,
-		postView,
-		score: postView.counts.score,
-		published: postView.post.published,
-		communityId: postView.community.id
-	};
-};
-export const commentViewToContentView = (commentView: CommentView) => {
-	return {
-		type: 'comment' as const,
-		commentView,
-		score: commentView.counts.score,
-		published: commentView.comment.published,
-		communityId: commentView.community.id
-	};
-};
-
 export const getContentViews = (postViews: PostView[], commentViews: CommentView[], type?: string, sort?: string) => {
 	const content = [...postViews.map(postViewToContentView), ...commentViews.map(commentViewToContentView)];
 
