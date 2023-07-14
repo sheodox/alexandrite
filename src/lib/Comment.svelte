@@ -300,6 +300,7 @@
 		});
 
 		$buffer[bk.showReplyComposer] = false;
+		$buffer[bk.replyText] = '';
 		dispatch('new-comment', res.comment_view);
 
 		// replying to an unread comment marks it as read,
