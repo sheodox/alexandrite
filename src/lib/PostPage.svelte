@@ -53,9 +53,7 @@
 	<div class="page-column page-column-post virtual-feed-scroll-container f-1">
 		<section class="f-column p-4 f-1 post">
 			{#if closeable}
-				<button on:click={() => dispatch('close')} class="tertiary m-4"
-					><Icon icon="times" variant="icon-only" /> Close Post</button
-				>
+				<button on:click={() => dispatch('close')} class="tertiary m-4"><Icon icon="times" /> Close Post</button>
 			{/if}
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
@@ -100,22 +98,20 @@
 						/>
 						<Search bind:value={searchText} placeholder="Search Comments" />
 					</Stack>
-					<button class="tertiary" on:click={reloadComments}
-						><Icon icon="refresh" variant="icon-only" /> Refresh Comments</button
-					>
+					<button class="tertiary" on:click={reloadComments}><Icon icon="refresh" /> Refresh Comments</button>
 				</Stack>
 			</section>
 
 			{#if viewingSingleCommentThread}
 				<Stack dir="r" gap={2} align="center" cl="p-4">
 					<a href="/post/{postView.post.id}" class="button secondary"
-						><Icon icon="arrow-up-from-bracket" variant="icon-only" />
+						><Icon icon="arrow-up-from-bracket" />
 						View all comments
 					</a>
 					{#if rootComment && rootComment.type === 'comment' && commentContextId !== rootComment.view.comment.id}
 						<a href="/comment/{commentContextId}" class="button secondary">
 							Parent comment
-							<Icon icon="turn-up" variant="icon-only" />
+							<Icon icon="turn-up" />
 						</a>
 					{/if}
 				</Stack>

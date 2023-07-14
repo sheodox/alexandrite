@@ -11,7 +11,7 @@
 				{/if}
 				<Stack dir="r" gap={2} align="center">
 					<ExternalLink href={community.actor_id} cl="inline-link">
-						<Icon icon="arrow-up-right-from-square" variant="icon-only" />
+						<Icon icon="arrow-up-right-from-square" />
 						View on {communityInstance}
 					</ExternalLink>
 				</Stack>

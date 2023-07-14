@@ -24,7 +24,7 @@
 							</select>
 						{/if}
 
-						<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+						<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 					</Stack>
 				</section>
 			</form>

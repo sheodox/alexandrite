@@ -19,7 +19,7 @@
 				{#if personView.person.avatar}
 					<Image src={personView.person.avatar} mode="thumbnail" />
 				{:else}
-					<Icon icon="user" variant="icon-only" />
+					<Icon icon="user" />
 				{/if}
 			</div>
 			<a href="/u/{nameAtInstance(personView.person)}" class="inline-link">

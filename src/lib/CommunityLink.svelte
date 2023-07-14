@@ -61,7 +61,7 @@
 				{#if community.icon}
 					<Image src={community.icon} />
 				{:else}
-					<Icon icon="users" variant="icon-only" />
+					<Icon icon="users" />
 				{/if}
 			</div>
 			<span>

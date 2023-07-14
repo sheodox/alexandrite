@@ -18,7 +18,7 @@
 
 		<Stack dir="r" justify="between" align="center">
 			<a href="https://join-lemmy.org/docs/users/02-media.html" class="inline-link" target="_blank" rel="noreferrer"
-				><Icon icon="circle-question" iconVariant="regular" />Formatting Help</a
+				><Icon icon="circle-question" variant="regular" />Formatting Help</a
 			>
 			<Stack dir="r" justify="end" align="center" gap={2}>
 				<Checkbox bind:checked={showPreview}>Show Preview</Checkbox>

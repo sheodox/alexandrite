@@ -1,10 +1,10 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="markdown-renderer has-inline-links" on:click={toggleFullSize}>
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{#if viewSource}
 		<pre class="ws-pre-line">{md}</pre>
 	{:else}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html rendered}
 	{/if}
 </div>

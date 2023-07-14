@@ -17,7 +17,7 @@
 			{d.toLocaleString()}
 		</span>
 		<span class="muted">
-			<Icon {icon} variant="icon-only" />
+			<Icon {icon} />
 			<span class="sr-only">{formatted}</span>
 		</span>
 	</Tooltip>

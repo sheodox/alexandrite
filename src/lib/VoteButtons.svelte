@@ -32,13 +32,13 @@
 		disabled={!loggedIn || votePending}
 	>
 		<span class="sr-only">Vote up</span>
-		<Icon icon="arrow-up" variant="icon-only" />
+		<Icon icon="arrow-up" />
 	</button>
 	<Tooltip>
 		<span slot="tooltip">
-			<Icon icon="arrow-up" variant="icon-only" /><span class="sr-only">Up:</span>
+			<Icon icon="arrow-up" /><span class="sr-only">Up:</span>
 			{upvotes}
-			<Icon icon="arrow-down" variant="icon-only" /><span class="sr-only">Down:</span>
+			<Icon icon="arrow-down" /><span class="sr-only">Down:</span>
 			{downvotes}
 		</span>
 		<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
@@ -58,7 +58,7 @@
 		disabled={!loggedIn || votePending}
 	>
 		<span class="sr-only">Vote up</span>
-		<Icon icon="arrow-down" variant="icon-only" />
+		<Icon icon="arrow-down" />
 	</button>
 </div>
 

@@ -4,7 +4,7 @@
 		{#if busy}
 			<Spinner />
 		{:else}
-			<Icon {icon} variant="icon-only" />
+			<Icon {icon} />
 			<span class="sr-only">{text}</span>
 		{/if}
 		<slot />

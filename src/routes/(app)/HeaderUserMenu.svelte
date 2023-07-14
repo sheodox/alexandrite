@@ -1,6 +1,6 @@
 <NavDropdown showOpenIcon={false}>
 	<span slot="button">
-		<Icon icon="user-circle" variant="icon-only" />
+		<Icon icon="user-circle" />
 		<span class="sr-only">User Options</span>
 	</span>
 	<div slot="menu">

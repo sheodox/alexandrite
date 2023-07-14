@@ -26,8 +26,7 @@
 			</button>
 		</Stack>
 		<p class="muted description">
-			<Icon icon="question-circle" variant="icon-only" iconVariant="regular" /> If you use DarkReader, make sure to disable
-			it for this site.
+			<Icon icon="question-circle" variant="regular" /> If you use DarkReader, make sure to disable it for this site.
 		</p>
 	</Fieldset>
 	<DescriptiveToggles legend="NSFW Thumbnails" options={NSFWHandlingOptions} bind:group={$nsfwImageHandling} />

@@ -1,7 +1,7 @@
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
 	<a {href} on:click class:small class="button {cl} ws-nowrap">
-		<Icon {icon} variant="icon-only" />
+		<Icon {icon} />
 		<span class="sr-only">{text}</span>
 		<slot />
 	</a>

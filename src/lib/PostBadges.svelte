@@ -5,7 +5,7 @@
 				<span slot="tooltip">{b.text}</span>
 				<span class="sx-badge-{b.color} ws-nowrap">
 					{#if b.icon}
-						<Icon icon={b.icon} variant="icon-only" />
+						<Icon icon={b.icon} />
 					{/if}
 					<span class:sr-only={!!b.icon}>{b.text}</span>
 				</span>

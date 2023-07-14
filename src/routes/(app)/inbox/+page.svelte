@@ -19,7 +19,7 @@
 					{/each}
 				</select>
 
-				<button class="tertiary">Go <Icon icon="chevron-right" variant="icon-only" /></button>
+				<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 			</Stack>
 			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary">Refresh</BusyButton>
 		</Stack>

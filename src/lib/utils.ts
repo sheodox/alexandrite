@@ -6,7 +6,7 @@ export interface ExtraAction {
 	href?: string;
 	icon: string;
 	click?: () => unknown;
-	iconVariant?: 'regular' | 'solid';
+	variant?: 'regular' | 'solid';
 }
 
 export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {

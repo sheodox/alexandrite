@@ -21,7 +21,7 @@
 	{@const selected = options.find((opt) => opt.value === group)}
 	{#if selected}
 		<p class="muted description">
-			<Icon icon="question-circle" iconVariant="regular" /><strong>{selected.label}:</strong>
+			<Icon icon="question-circle" variant="regular" /><strong>{selected.label}:</strong>
 			{selected.description}
 		</p>
 	{/if}

@@ -10,7 +10,7 @@
 			{#if loading}
 				<Spinner />
 			{:else}
-				<Icon {icon} variant="icon-only" />
+				<Icon {icon} />
 			{/if}
 		</p>
 		<p class="m-0 sx-font-size-6">{message}</p>

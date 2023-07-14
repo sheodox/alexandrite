@@ -33,7 +33,7 @@
 				<Tooltip>
 					<span slot="tooltip">{collapseMsg}</span>
 					<button on:click={() => dispatch('collapse')} class="tertiary small m-0 mr-1">
-						<Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} variant="icon-only" />
+						<Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} />
 						<span class="sr-only">{collapseMsg}</span>
 					</button>
 				</Tooltip>
@@ -403,7 +403,7 @@
 		options.push({
 			text: saved ? 'Unsave' : 'Save',
 			icon: 'star',
-			iconVariant: saved ? 'solid' : 'regular',
+			variant: saved ? 'solid' : 'regular',
 			click: toggleSaveComment
 		});
 

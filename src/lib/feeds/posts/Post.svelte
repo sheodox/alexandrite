@@ -40,13 +40,13 @@
 								<span slot="tooltip">{text}</span>
 								<button class="button small" on:click={onExpandToggle}>
 									{#if expandPostContent}
-										<Icon icon="eye-slash" variant="icon-only" />
+										<Icon icon="eye-slash" />
 									{:else}
 										{#if hasBody || hasEmbedText}
-											<Icon icon="newspaper" variant="icon-only" />
+											<Icon icon="newspaper" />
 										{/if}
 										{#if probablyImage}
-											<Icon icon="image" variant="icon-only" />
+											<Icon icon="image" />
 										{/if}
 									{/if}
 									<span class="sr-only">{text}</span>
@@ -79,10 +79,10 @@
 									disabled={$saveState.busy}
 								>
 									{#if postView.saved}
-										<Icon icon="star" variant="icon-only" />
+										<Icon icon="star" />
 										<span class="sr-only">Saved</span>
 									{:else}
-										<Icon icon="star" iconVariant="regular" variant="icon-only" />
+										<Icon icon="star" variant="regular" />
 										<span class="sr-only">Save</span>
 									{/if}
 								</button>
@@ -92,7 +92,7 @@
 						<Tooltip>
 							<span slot="tooltip">{postLinkText}</span>
 							<a class="button small" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
-								<Icon icon="network-wired" variant="icon-only" />
+								<Icon icon="network-wired" />
 								<span class="sr-only">{postLinkText}</span>
 							</a>
 						</Tooltip>

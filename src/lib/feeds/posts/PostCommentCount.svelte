@@ -1,5 +1,5 @@
 <span class:muted={postView.counts.comments === 0} class="ws-nowrap">
-	<Icon icon="comments" iconVariant="regular" variant="icon-only" />
+	<Icon icon="comments" variant="regular" />
 	{postView.counts.comments}
 	{#if postView.unread_comments > 0 && postView.unread_comments < postView.counts.comments}
 		<span class="sx-badge-orange">+{postView.unread_comments}</span>

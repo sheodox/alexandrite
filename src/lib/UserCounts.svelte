@@ -4,7 +4,7 @@
 			<strong>{count.count.toLocaleString()}</strong>
 			<span class="muted">{count.label}</span>
 			<strong>{count.score.toLocaleString()}</strong>
-			<Icon icon="trophy" variant="icon-only" />
+			<Icon icon="trophy" />
 		</Stack>
 	{/each}
 </Stack>

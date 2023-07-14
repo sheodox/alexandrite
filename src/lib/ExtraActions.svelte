@@ -4,17 +4,17 @@
 		<MenuButton triggerClasses="small">
 			<span slot="trigger">
 				<span class="sr-only">{text}</span>
-				<Icon icon="caret-down" variant="icon-only" />
+				<Icon icon="caret-down" />
 			</span>
 
 			<ul slot="menu">
 				{#each actions as opt}
-					{@const iconVariant = opt.iconVariant || 'solid'}
+					{@const variant = opt.variant || 'solid'}
 					<li>
 						{#if opt.href}
-							<a href={opt.href} class="button"><Icon icon={opt.icon} {iconVariant} /> {opt.text}</a>
+							<a href={opt.href} class="button"><Icon icon={opt.icon} {variant} /> {opt.text}</a>
 						{:else if opt.click}
-							<button on:click={opt.click} class="button"><Icon icon={opt.icon} {iconVariant} /> {opt.text}</button>
+							<button on:click={opt.click} class="button"><Icon icon={opt.icon} {variant} /> {opt.text}</button>
 						{/if}
 					</li>
 				{/each}

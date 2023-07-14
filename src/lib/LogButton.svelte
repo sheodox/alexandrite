@@ -2,7 +2,7 @@
 	<Tooltip {placement}>
 		<span slot="tooltip">{text}</span>
 		<button on:click class:small>
-			<Icon icon="scroll" variant="icon-only" />
+			<Icon icon="scroll" />
 			<span class="sr-only">{text}</span>
 		</button>
 	</Tooltip>

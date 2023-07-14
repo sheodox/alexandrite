@@ -19,7 +19,7 @@
 						<Icon icon="ban" />
 						Block
 					{:else}
-						<Icon icon="circle-check" iconVariant="regular" />
+						<Icon icon="circle-check" variant="regular" />
 						Unblock
 					{/if}
 				</BusyButton>
