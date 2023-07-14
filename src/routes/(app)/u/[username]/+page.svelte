@@ -56,6 +56,7 @@
 		loader = initFeed(data);
 		// load the first page of data
 		cvStore.clear();
+		endOfFeed = false;
 		more(data.query.type);
 	}
 
@@ -68,6 +69,7 @@
 					page,
 					listing: data.query.listing,
 					sort: data.query.sort,
+					type: data.query.type,
 					username: userUsername
 				});
 			}
@@ -80,7 +82,7 @@
 
 	function filterContentType(cv: ContentView[], type: string) {
 		// overview shows both types
-		if (type === 'Overview') {
+		if (type === 'Overview' || type === 'Saved') {
 			return cv;
 		} else if (type === 'Comments') {
 			return cv.filter((content) => content.type === 'comment');
