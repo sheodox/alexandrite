@@ -99,6 +99,16 @@
 							on:click={() => ($buffer[bk.showReplyComposer] = true)}
 							disabled={someActionPending}
 						/>
+						<IconButton
+							text={contentView.view.saved ? 'Saved' : 'Save'}
+							variant={contentView.view.saved ? 'solid' : 'regular'}
+							pressed={contentView.view.saved}
+							busy={$saveState.busy}
+							small
+							icon="star"
+							on:click={$saveState.submit}
+							disabled={$saveState.busy}
+						/>
 						{#if myComment}
 							<IconButton
 								icon="edit"
@@ -348,7 +358,7 @@
 		maybeDeleting = false;
 	});
 
-	async function toggleSaveComment() {
+	$: saveState = createStatefulAction(async () => {
 		if (!jwt) {
 			return;
 		}
@@ -357,9 +367,8 @@
 			comment_id: contentView.view.comment.id,
 			save: !contentView.view.saved
 		});
-
 		updateCV(res.comment_view);
-	}
+	});
 
 	async function onReport(e: CustomEvent<string>) {
 		if (!jwt) {
@@ -398,16 +407,6 @@
 
 	$: {
 		const options: ExtraAction[] = [];
-
-		if (loggedIn) {
-			const saved = contentView.view.saved;
-			options.push({
-				text: saved ? 'Unsave' : 'Save',
-				icon: 'star',
-				variant: saved ? 'solid' : 'regular',
-				click: toggleSaveComment
-			});
-		}
 
 		if (loggedIn && !myComment) {
 			options.push({

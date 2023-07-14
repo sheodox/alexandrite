@@ -70,23 +70,16 @@
 					{/if}
 					{#if !readOnly}
 						{#if loggedIn}
-							<Tooltip>
-								<span slot="tooltip"> Save </span>
-								<button
-									aria-pressed={postView.saved}
-									class="small"
-									on:click={$saveState.submit}
-									disabled={$saveState.busy}
-								>
-									{#if postView.saved}
-										<Icon icon="star" />
-										<span class="sr-only">Saved</span>
-									{:else}
-										<Icon icon="star" variant="regular" />
-										<span class="sr-only">Save</span>
-									{/if}
-								</button>
-							</Tooltip>
+							<IconButton
+								text={postView.saved ? 'Saved' : 'Save'}
+								variant={postView.saved ? 'solid' : 'regular'}
+								pressed={postView.saved}
+								busy={$saveState.busy}
+								small
+								icon="star"
+								on:click={$saveState.submit}
+								disabled={$saveState.busy}
+							/>
 						{/if}
 						{@const postLinkText = 'Original Post'}
 						<Tooltip>
@@ -145,6 +138,7 @@
 <script lang="ts">
 	import { Tooltip, Stack, Icon, createAutoExpireToast } from 'sheodox-ui';
 	import UserBadges from './UserBadges.svelte';
+	import IconButton from '$lib/IconButton.svelte';
 	import ExtraActions from '$lib/ExtraActions.svelte';
 	import PostTitle from './PostTitle.svelte';
 	import Image from '$lib/Image.svelte';
@@ -223,7 +217,6 @@
 			})
 			.then(({ post_view }) => post_view);
 
-		postView.saved = pv.saved;
 		cvStore.updateView(postViewToContentView(pv));
 	});
 

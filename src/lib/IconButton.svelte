@@ -1,10 +1,10 @@
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
-	<button on:click class:small class={cl} disabled={disabled || busy}>
+	<button on:click class:small class={cl} disabled={disabled || busy} aria-pressed={pressed}>
 		{#if busy}
 			<Spinner />
 		{:else}
-			<Icon {icon} />
+			<Icon {icon} {variant} />
 			<span class="sr-only">{text}</span>
 		{/if}
 		<slot />
@@ -23,4 +23,6 @@
 	export let cl = '';
 	export let placement: Placement | undefined = undefined;
 	export let icon: string;
+	export let variant: 'regular' | 'solid' = 'solid';
+	export let pressed = false;
 </script>
