@@ -16,6 +16,12 @@
 			<article>
 				<h1>Stats</h1>
 				<UserCounts personView={data.personView} />
+
+				{#if data.personView.person.bio}
+					<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
+						<Markdown md={data.personView.person.bio} />
+					</Fieldset>
+				{/if}
 			</article>
 			{#if data.moderates && data.moderates.length}
 				<article>
@@ -34,9 +40,10 @@
 </ContentViewProvider>
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, Fieldset } from 'sheodox-ui';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
+	import Markdown from '$lib/Markdown.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { userFeedLoader } from '$lib/post-loader.js';
