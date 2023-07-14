@@ -215,6 +215,8 @@
 		}
 		// start over if sorting changes
 		commentsPageNum = 1;
+		loadedCommentIds.clear();
+		commentCVStore.clear();
 		endOfCommentsFeed = false;
 		loadNextCommentPage();
 	}
