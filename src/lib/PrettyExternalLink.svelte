@@ -1,6 +1,6 @@
 {#if valid}
 	<a class="inline-link {cl}" {href} rel="noreferrer" target="_blank"
-		><Icon icon="arrow-up-right-from-square" />{prettyUrl(href)}</a
+		><Icon icon="arrow-up-right-from-square" /> {prettyUrl(href)}</a
 	>
 {/if}
 
