@@ -61,11 +61,11 @@
 			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false}>
 				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
 					<a href="#comments" class="button tertiary"
-						><Icon icon="chevron-down" />To Comments ({postView.counts.comments})</a
+						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
 					>
 					{#if hasEmbeddableContent}
 						<button class="tertiary" on:click={() => (showPost = !showPost)}
-							><Icon icon="newspaper" />{showPost ? 'Hide' : 'Show'} Content</button
+							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
 						>
 					{/if}
 				</Stack>
