@@ -126,7 +126,6 @@
 					{commentViews}
 					{searchText}
 					postOP={postView.creator.actor_id}
-					on:more={loadNextCommentPage}
 					on:expand={expandComment}
 					on:new-comment={onNewComment}
 					on:more={loadNextCommentPage}
@@ -282,7 +281,7 @@
 
 	async function loadNextCommentPage() {
 		// when viewing a single comment thread, we don't want to load more comments
-		if (viewingSingleCommentThread || loadingComments || endOfCommentsFeed) {
+		if (!commentLoadFailed && (viewingSingleCommentThread || loadingComments || endOfCommentsFeed)) {
 			return;
 		}
 
