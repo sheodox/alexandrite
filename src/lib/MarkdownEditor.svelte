@@ -13,7 +13,7 @@
 	}
 </style>
 
-<div class="markdown-editor">
+<div class="markdown-editor" style="--sx-arg-fieldset-legend-color: var(--sx-gray-75);">
 	<Stack dir="c">
 		<Stack dir="c">
 			<label for={textareaId} class="fw-bold p-2">{label}</label>
@@ -41,7 +41,7 @@
 			</Stack>
 		</Stack>
 		{#if showPreview && value}
-			<Fieldset legend="Comment Preview" fieldsetClasses="mb-2 mx-2">
+			<Fieldset legend="Preview" fieldsetClasses="mb-2 mx-2">
 				<Markdown md={value} />
 			</Fieldset>
 		{/if}
