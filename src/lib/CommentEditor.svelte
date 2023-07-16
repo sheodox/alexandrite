@@ -8,7 +8,7 @@
 <div class:submitting>
 	<Stack dir="c" gap={2}>
 		<Stack dir="c">
-			<MarkdownEditor name="content" {label} />
+			<MarkdownEditor name="content" {label} bind:value />
 		</Stack>
 
 		<Stack dir="r" justify="between" align="center">
