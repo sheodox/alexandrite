@@ -20,8 +20,8 @@
 <Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
 	<Logo slot="logo" />
 	<div slot="headerCenter">
-		<form method="GET" action="/search">
-			<Search name="q" placeholder="Search" />
+		<form method="GET" action="/search" on:submit={onSearchSubmit}>
+			<Search name="q" placeholder="Search" bind:value={headerSearchText} />
 		</form>
 	</div>
 	<div slot="headerEnd" class="f-row align-items-center">
@@ -88,7 +88,7 @@
 {/if}
 
 <script lang="ts">
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 	import { Sidebar, Header, Tooltip, Search, Toasts } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
@@ -112,7 +112,8 @@
 	const placement = 'bottom-end',
 		unreadCount = writable(0);
 
-	let loading = false;
+	let loading = false,
+		headerSearchText = '';
 
 	beforeNavigate(() => {
 		loading = true;
@@ -139,6 +140,18 @@
 		});
 
 		$unreadCount = unread.replies + unread.mentions + unread.private_messages;
+	}
+
+	function onSearchSubmit(e: Event) {
+		const communityReg = /^!([a-zA-Z0-9_]+@[\w-]+(\.[\w-]+)*(\.[a-z]+))$/g;
+
+		// they are trying to search for a community they copied from somewhere,
+		// redirect right to it instead of doing a search
+		if (communityReg.test(headerSearchText)) {
+			e.preventDefault();
+			// trim the leading !
+			goto(`/c/${headerSearchText.substring(1)}`);
+		}
 	}
 
 	setAppContext({
