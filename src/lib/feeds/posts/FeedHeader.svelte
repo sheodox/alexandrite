@@ -26,7 +26,7 @@
 				</Stack>
 				<Stack gap={2} dir="r" align="center">
 					<span class="sx-badge-gray"
-						><Icon icon="cake-candles" />Since {dateFormatter.format(parseISO(published + 'Z'))}</span
+						><Icon icon="cake-candles" /> Since {dateFormatter.format(parseISO(published + 'Z'))}</span
 					>
 
 					<slot name="badges" />
