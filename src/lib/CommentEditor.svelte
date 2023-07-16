@@ -44,7 +44,7 @@
 	export let label = 'Comment';
 	export let submitButtonText = 'Post';
 	export let value = '';
-	export let selectedLanguage = 0;
+	export let selectedLanguage: number | null = null;
 	export let cancellable = false;
 	export let required = false;
 	export let submitting: boolean;

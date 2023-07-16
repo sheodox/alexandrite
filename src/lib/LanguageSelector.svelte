@@ -8,14 +8,17 @@
 	import { onMount } from 'svelte';
 	import { getAppContext } from './app-context';
 
-	export let selectedLanguage = 0;
+	export let selectedLanguage: number | null = null;
 	const languageCacheKey = 'editor-language';
 	const { siteMeta } = getAppContext();
+	// assume english, Alexandrite isn't translated yet anyway
 	const englishLanguageId = siteMeta.all_languages.find(({ code }) => code === 'en')?.id;
 
 	onMount(() => {
 		const cached = localStorage?.getItem(languageCacheKey);
-		selectedLanguage = (cached ? Number(cached) : englishLanguageId) ?? 0;
+		if (selectedLanguage === null) {
+			selectedLanguage = (cached ? Number(cached) : englishLanguageId) ?? 0;
+		}
 	});
 
 	function saveSelectedLanguage() {
