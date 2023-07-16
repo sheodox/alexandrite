@@ -25,7 +25,7 @@
 		<Icon icon="bug" />
 	</div>
 {:else if nsfw && $nsfwImageHandling === 'HIDE' && !showAnyway}
-	<button class="img show-nsfw" on:click={() => (showAnyway = true)}>Show NSFW</button>
+	<button class="img show-nsfw" on:click|stopPropagation={() => (showAnyway = true)}>Show NSFW</button>
 {:else if valid}
 	<picture class="image-mode-{mode} {full ? 'image-full' : ''}" class:blur={nsfw && $nsfwImageHandling === 'BLUR'}>
 		<source srcset="{src}?format=webp{size}" type="image/webp" />
