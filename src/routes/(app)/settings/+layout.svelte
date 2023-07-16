@@ -9,7 +9,7 @@
 <Layout size="medium">
 	<h1>Settings</h1>
 	<LinkTabList {tabs} {selectedTab} />
-	<div class="mt-2">
+	<div class="mt-4">
 		<slot />
 	</div>
 </Layout>

@@ -6,9 +6,9 @@
 </style>
 
 <form bind:this={settingsForm}>
-	<Stack dir="c" gap={2}>
+	<Stack dir="c" gap={4}>
 		<TextInput name="display_name" value={data.person.display_name ?? ''}>Display Name</TextInput>
-		<!-- bio -->
+		<MarkdownEditor label="Bio" name="bio" value={data.person.bio ?? ''} />
 		<TextInput name="email" value={data.localUser.email ?? ''}>Email</TextInput>
 		<TextInput name="matrix_user_id" value={data.person.matrix_user_id ?? ''}>Matrix User</TextInput>
 		<!-- avatar -->
@@ -59,6 +59,7 @@
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { getLemmyClient } from '$lib/lemmy-client.js';
 	import type { ListingType, SortType } from 'lemmy-js-client';
+	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { setLemmySettings } from '$lib/lemmy-settings.js';
 
 	const { client, jwt } = getLemmyClient();
@@ -76,6 +77,7 @@
 			auth: jwt,
 			display_name: body.display_name as string,
 			email: body.email as string,
+			bio: body.bio as string,
 			matrix_user_id: body.matrix_user_id as string,
 			default_listing_type: body.default_listing_type as ListingType,
 			default_sort_type: body.default_sort_type as SortType,

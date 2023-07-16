@@ -18,18 +18,20 @@
 		<Checkbox name="nsfw" {disabled}>NSFW</Checkbox>
 	</div>
 	<Stack dir="c" cl="mt-2">
-		<CommentEditor {submitting} label="Body" showSubmit={false} bind:value={content} required={false} />
+		<MarkdownEditor label="Post Text" name="content" bind:value={content} required={false} />
 	</Stack>
 
-	<Stack dir="r" justify="end">
+	<Stack dir="r" justify="between">
+		<LanguageSelector />
 		<BusyButton cl="primary" style="width: 8rem;" disabled={!title} busy={submitting}>{postButtonText}</BusyButton>
 	</Stack>
 </Stack>
 
 <script lang="ts">
-	import CommentEditor from '$lib/CommentEditor.svelte';
+	import MarkdownEditor from './MarkdownEditor.svelte';
 	import { Alert, Stack, Checkbox, TextInput } from 'sheodox-ui';
 	import BusyButton from './BusyButton.svelte';
+	import LanguageSelector from './LanguageSelector.svelte';
 
 	export let communityId: number;
 	export let errorMessage = '';
