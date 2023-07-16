@@ -226,6 +226,8 @@
 			post_id: postView.post.id,
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
+		// prevent loading from adding a duplicate of this comment
+		loadedCommentIds.add(res.comment_view.comment.id);
 		// put the new comment the user posted at the top so they can see it
 		commentCVStore.prepend([commentViewToContentView(res.comment_view)]);
 		showCommentComposer = false;
