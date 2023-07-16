@@ -24,6 +24,7 @@
 			title: 'Alexandrite',
 			href: '/settings'
 		},
+		{ title: 'Lemmy', href: '/settings/lemmy' },
 		{ title: 'Blocks', href: '/settings/blocks' }
 	];
 

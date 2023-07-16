@@ -16,7 +16,7 @@
 	<div class="card p-4">
 		<Stack dir="r" align="center" cl="card-title" gap={2}>
 			<div class="icon f-row align-items-center justify-content-center">
-				{#if personView.person.avatar}
+				{#if personView.person.avatar && ls.show_avatars}
 					<Image src={personView.person.avatar} mode="thumbnail" />
 				{:else}
 					<Icon icon="user" />
@@ -40,6 +40,9 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import type { PersonView } from 'lemmy-js-client';
 	import UserCounts from './UserCounts.svelte';
+	import { getLemmySettings } from './lemmy-settings';
 
 	export let personView: PersonView;
+
+	const ls = getLemmySettings();
 </script>

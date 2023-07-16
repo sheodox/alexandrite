@@ -34,22 +34,24 @@
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-up" />
 	</button>
-	<Tooltip>
-		<span slot="tooltip">
-			<Icon icon="arrow-up" /><span class="sr-only">Up:</span>
-			{upvotes}
-			<Icon icon="arrow-down" /><span class="sr-only">Down:</span>
-			{downvotes}
-		</span>
-		<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
-			{#if votePending}
-				<Spinner />
-			{:else}
-				{score}
-				<span class="sr-only">score</span>
-			{/if}
-		</span>
-	</Tooltip>
+	{#if ls.show_scores}
+		<Tooltip>
+			<span slot="tooltip">
+				<Icon icon="arrow-up" /><span class="sr-only">Up:</span>
+				{upvotes}
+				<Icon icon="arrow-down" /><span class="sr-only">Down:</span>
+				{downvotes}
+			</span>
+			<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
+				{#if votePending}
+					<Spinner />
+				{:else}
+					{score}
+					<span class="sr-only">score</span>
+				{/if}
+			</span>
+		</Tooltip>
+	{/if}
 	<button
 		aria-pressed={votedDown}
 		class="vote-down"
@@ -67,6 +69,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';
+	import { getLemmySettings } from './lemmy-settings';
 
 	const dispatch = createEventDispatcher<{
 		vote: number;
@@ -91,6 +94,8 @@
 		'0': 'gray',
 		'1': 'pink'
 	}[vote ?? 0];
+
+	const ls = getLemmySettings();
 
 	function voteAs(clickedVote: number) {
 		const newVote = vote === clickedVote ? 0 : clickedVote;

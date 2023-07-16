@@ -2,7 +2,7 @@ import type { LocalUser } from 'lemmy-js-client';
 
 const SCHEMA_VERSION = 1,
 	SCHEMA_HEADER = 's' + SCHEMA_VERSION + 'v',
-	boolProps: (keyof LocalUser)[] = [
+	boolProps = [
 		'show_nsfw',
 		'show_avatars',
 		'send_notifications_to_email',
@@ -12,8 +12,25 @@ const SCHEMA_VERSION = 1,
 		'show_new_post_notifs',
 		'email_verified',
 		'accepted_application'
-	],
-	strProps: (keyof LocalUser)[] = ['default_listing_type', 'default_sort_type'];
+	] as const,
+	strProps = ['default_listing_type', 'default_sort_type'] as const,
+	defaultSettings: LemmySettings = {
+		show_nsfw: false,
+		show_avatars: true,
+		send_notifications_to_email: false,
+		show_scores: true,
+		show_bot_accounts: true,
+		show_read_posts: true,
+		show_new_post_notifs: false,
+		// todo, use defaults from the instance
+		default_listing_type: 'Local',
+		default_sort_type: 'Hot',
+		// todo probably don't need to care about these yet
+		email_verified: false,
+		accepted_application: false
+	} as const;
+
+export type LemmySettings = Pick<LocalUser, (typeof boolProps)[number] | (typeof strProps)[number]>;
 
 export const lemmySettings = {
 	serialize: (user: LocalUser) => {
@@ -23,9 +40,9 @@ export const lemmySettings = {
 			strProps.map((prop) => user[prop]).join(',')
 		].join('|');
 	},
-	deserialize: (str?: string | null): LocalUser | null => {
+	deserialize: (str?: string | null): LemmySettings | null => {
 		if (!str || !str.startsWith(SCHEMA_HEADER)) {
-			return null;
+			return defaultSettings;
 		}
 
 		const localUser: Record<string, boolean | string> = {};
@@ -49,7 +66,12 @@ export const lemmySettings = {
 const SETTINGS_KEY = 'lemmy-settings';
 
 export const getLemmySettings = () => {
-	return lemmySettings.deserialize(localStorage.getItem(SETTINGS_KEY));
+	const settings = lemmySettings.deserialize(localStorage.getItem(SETTINGS_KEY));
+
+	return {
+		...defaultSettings,
+		...settings
+	};
 };
 
 export const clearLemmySettings = () => {
