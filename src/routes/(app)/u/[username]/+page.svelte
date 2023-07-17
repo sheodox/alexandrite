@@ -1,43 +1,45 @@
 <Title title={userUsername} />
 
-<ContentViewProvider store={cvStore}>
-	<PostsPage
-		on:more={() => more(data.query.type)}
-		feedType="user"
-		personView={data.personView}
-		{endOfFeed}
-		selectedType={data.query.type}
-		selectedListing={data.query.listing}
-		selectedSort={data.query.sort}
-		{loadingContent}
-		{loadingContentFailed}
-	>
-		<div slot="sidebar">
-			<article>
-				<h1>Stats</h1>
-				<UserCounts personView={data.personView} />
-
-				{#if data.personView.person.bio}
-					<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
-						<Markdown md={data.personView.person.bio} />
-					</Fieldset>
-				{/if}
-			</article>
-			{#if data.moderates && data.moderates.length}
+{#key data}
+	<ContentViewProvider store={cvStore}>
+		<PostsPage
+			on:more={() => more(data.query.type)}
+			feedType="user"
+			personView={data.personView}
+			{endOfFeed}
+			selectedType={data.query.type}
+			selectedListing={data.query.listing}
+			selectedSort={data.query.sort}
+			{loadingContent}
+			{loadingContentFailed}
+		>
+			<div slot="sidebar">
 				<article>
-					<h2 class="mb-0">Moderates</h2>
-					<Stack dir="c" gap={2}>
-						{#each data.moderates as mod}
-							<CommunityLink community={mod.community} />
-						{/each}
-					</Stack>
-				</article>
-			{/if}
+					<h1>Stats</h1>
+					<UserCounts personView={data.personView} />
 
-			<hr class="my-8" />
-		</div>
-	</PostsPage>
-</ContentViewProvider>
+					{#if data.personView.person.bio}
+						<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
+							<Markdown md={data.personView.person.bio} />
+						</Fieldset>
+					{/if}
+				</article>
+				{#if data.moderates && data.moderates.length}
+					<article>
+						<h2 class="mb-0">Moderates</h2>
+						<Stack dir="c" gap={2}>
+							{#each data.moderates as mod}
+								<CommunityLink community={mod.community} />
+							{/each}
+						</Stack>
+					</article>
+				{/if}
+
+				<hr class="my-8" />
+			</div>
+		</PostsPage>
+	</ContentViewProvider>
+{/key}
 
 <script lang="ts">
 	import { Stack, Fieldset } from 'sheodox-ui';
