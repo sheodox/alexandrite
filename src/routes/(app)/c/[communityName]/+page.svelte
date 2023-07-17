@@ -1,18 +1,20 @@
 <Title title={data.communityName} />
-<ContentViewProvider store={cvStore}>
-	<PostsPage
-		on:more={more}
-		feedType="community"
-		communityView={data.communityView}
-		moderators={data.moderators}
-		{endOfFeed}
-		selectedType={data.query.type}
-		selectedListing={data.query.listing}
-		selectedSort={data.query.sort}
-		{loadingContent}
-		{loadingContentFailed}
-	/>
-</ContentViewProvider>
+{#key data}
+	<ContentViewProvider store={cvStore}>
+		<PostsPage
+			on:more={more}
+			feedType="community"
+			communityView={data.communityView}
+			moderators={data.moderators}
+			{endOfFeed}
+			selectedType={data.query.type}
+			selectedListing={data.query.listing}
+			selectedSort={data.query.sort}
+			{loadingContent}
+			{loadingContentFailed}
+		/>
+	</ContentViewProvider>
+{/key}
 
 <script lang="ts">
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
