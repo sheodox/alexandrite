@@ -201,6 +201,9 @@
 			})
 			.then((r) => r.post_view);
 
+		// update in place for pages that don't host this post in a list (/post/id /comment/id)
+		postView.counts.score = pv.counts.score;
+		postView.my_vote = pv.my_vote;
 		cvStore.updateView(postViewToContentView(pv));
 	});
 
