@@ -1,5 +1,5 @@
 <FeedHeader icon={personView.person.avatar ?? ''} published={personView.person.published}>
-	<NameAtInstance place={personView.person} prefix="@" slot="name" />
+	<NameAtInstance place={personView.person} displayName={personView.person.display_name} prefix="@" slot="name" />
 	<Stack slot="actions" dir="r" gap={2} align="center">
 		<a class="button tertiary" rel="noreferrer" target="_blank" href={personView.person.actor_id}>
 			<Icon icon="network-wired" />
