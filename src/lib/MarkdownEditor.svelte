@@ -17,18 +17,27 @@
 	<Stack dir="c">
 		<Stack dir="c">
 			<label for={textareaId} class="fw-bold p-2">{label}</label>
-			<textarea id={textareaId} rows="6" bind:value {name} {disabled} bind:this={textarea} {required} />
+			<textarea
+				id={textareaId}
+				rows="6"
+				bind:value
+				{name}
+				disabled={disabled || busy}
+				bind:this={textarea}
+				{required}
+				on:keydown={keydown}
+			/>
 			<Stack dir="r" gap={1}>
-				<IconButton icon="bold" text="Bold" type="button" on:click={() => applySurround('**')} />
-				<IconButton icon="italic" text="Italic" type="button" on:click={() => applySurround('*')} />
-				<IconButton icon="link" text="Link" type="button" on:click={() => applySurround('[', ']($1)')} />
-				<IconButton icon="header" text="Header" type="button" on:click={() => applyLeading('#', true)} />
-				<IconButton icon="quote-left" text="Quote" type="button" on:click={() => applyLeading('>')} />
-				<IconButton icon="code" text="Code" type="button" on:click={applyCode} />
-				<IconButton icon="strikethrough" text="Strikethrough" type="button" on:click={() => applySurround('~~')} />
-				<IconButton icon="subscript" text="Subscript" type="button" on:click={() => applySurround('~')} />
-				<IconButton icon="superscript" text="Superscript" type="button" on:click={() => applySurround('^')} />
-				<IconButton icon="triangle-exclamation" text="Spoiler" type="button" on:click={applySpoiler} />
+				<IconButton icon="bold" text="Bold" type="button" on:click={format.bold} />
+				<IconButton icon="italic" text="Italic" type="button" on:click={format.italic} />
+				<IconButton icon="link" text="Link" type="button" on:click={format.link} />
+				<IconButton icon="header" text="Header" type="button" on:click={format.header} />
+				<IconButton icon="quote-left" text="Quote" type="button" on:click={format.quote} />
+				<IconButton icon="code" text="Code" type="button" on:click={format.code} />
+				<IconButton icon="strikethrough" text="Strikethrough" type="button" on:click={format.strikethrough} />
+				<IconButton icon="subscript" text="Subscript" type="button" on:click={format.subscript} />
+				<IconButton icon="superscript" text="Superscript" type="button" on:click={format.superscript} />
+				<IconButton icon="triangle-exclamation" text="Spoiler" type="button" on:click={format.spoiler} />
 			</Stack>
 		</Stack>
 
@@ -54,6 +63,11 @@
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import { tick } from 'svelte';
+	// import { getLemmyClient } from './lemmy-client';
+	import { getAppContext } from './app-context';
+
+	const { ctrlBasedHotkeys } = getAppContext();
+	// const { client, jwt } = getLemmyClient();
 
 	const textareaId = `markdown-editor-${genId()}`;
 	let showPreview = false;
@@ -64,6 +78,21 @@
 	export let name: string;
 	export let disabled = false;
 	export let required = true;
+
+	let busy = false;
+
+	const format = {
+		bold: () => applySurround('**'),
+		italic: () => applySurround('*'),
+		link: () => applySurround('[', ']($1)'),
+		header: () => applyLeading('#', true),
+		quote: () => applyLeading('>'),
+		code: applyCode,
+		strikethrough: () => applySurround('~~'),
+		subscript: () => applySurround('~'),
+		superscript: () => applySurround('^'),
+		spoiler: applySpoiler
+	};
 
 	async function applyCode() {
 		const start = textarea.selectionStart,
@@ -81,6 +110,28 @@
 			surroundStart = (startsWithNewline ? '' : '\n') + '::: spoiler spoiler\n',
 			surroundEnd = '\n:::' + (endsWithNewline ? '' : '\n');
 		applySurround(surroundStart, surroundEnd);
+	}
+
+	async function keydown(e: KeyboardEvent) {
+		const ctrl = ctrlBasedHotkeys ? e.ctrlKey : e.metaKey,
+			key = e.key;
+
+		let handled = false;
+
+		if (ctrl) {
+			if (key === 'b') {
+				format.bold();
+				handled = true;
+			} else if (key === 'i') {
+				format.italic();
+				handled = true;
+			}
+		}
+
+		if (handled) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 	}
 
 	async function applySurround(surroundStart: string, surroundEnd?: string) {
@@ -135,4 +186,25 @@
 		textarea.selectionStart = start + leadingStr.length;
 		textarea.selectionEnd = end + leadingStr.length;
 	}
+
+	// async function onPaste(e: ClipboardEvent) {
+	// 	const file = e.clipboardData?.files.item(0);
+	// 	if (file && file.type.includes('image')) {
+	// 		busy = true;
+	// 		const { selectionStart } = textarea,
+	// 			res = await client.uploadImage({
+	// 				auth: jwt,
+	// 				image: file
+	// 			});
+	// 		console.log(res);
+	//
+	// 		value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
+	//
+	// 		await tick();
+	// 		textarea.focus();
+	// 		textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
+	//
+	// 		busy = false;
+	// 	}
+	// }
 </script>

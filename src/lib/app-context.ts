@@ -10,6 +10,7 @@ export interface AppContext {
 	instance: string;
 	instanceUrl: string;
 	loggedIn: boolean;
+	ctrlBasedHotkeys: boolean;
 	siteMeta: GetSiteResponse;
 	unreadCount: Writable<number>;
 	checkUnread: () => Promise<void>;

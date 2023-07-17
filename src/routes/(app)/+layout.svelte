@@ -161,6 +161,7 @@
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		unreadCount,
+		ctrlBasedHotkeys: !navigator.userAgent.toLowerCase().includes('macintosh'),
 		checkUnread,
 		screenDimensions: readable({ width: window.innerWidth, height: window.innerHeight }, (set) => {
 			function update() {
