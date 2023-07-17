@@ -64,9 +64,8 @@
 	</div>
 </Header>
 
-<Toasts />
-
 <div class="f-row f-1 root-layout-content">
+	<Toasts />
 	<Sidebar bind:menuOpen>
 		<div slot="header" class="f-row align-items-center">
 			<Logo />

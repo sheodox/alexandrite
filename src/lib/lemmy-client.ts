@@ -46,8 +46,7 @@ export const createLemmyClient = (instanceUrl: string) => {
 
 				createAutoExpireToast({
 					variant: 'error',
-					title: 'Error',
-					message: !lemmyError ? `Lemmy Error: ${errMsg}` : ''
+					message: !lemmyError ? `Lemmy Error: ${errMsg}` : 'Unknown Error'
 				});
 
 				throw error(res.status, {

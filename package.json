@@ -46,6 +46,6 @@
 		"markdown-it-sub": "^1.0.0",
 		"markdown-it-sup": "^1.0.0",
 		"sass": "^1.63.6",
-		"sheodox-ui": "^0.19.27"
+		"sheodox-ui": "^0.19.28"
 	}
 }

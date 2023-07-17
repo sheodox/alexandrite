@@ -382,8 +382,7 @@
 
 		showReportModal = false;
 		createAutoExpireToast({
-			title: 'Comment Reported',
-			message: ''
+			message: 'Comment Reported'
 		});
 	}
 
@@ -398,7 +397,6 @@
 		});
 
 		createAutoExpireToast({
-			title: 'Blocked',
 			message: `${contentView.view.creator.name} was blocked.`
 		});
 	}

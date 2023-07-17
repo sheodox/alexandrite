@@ -241,8 +241,7 @@
 
 		showReportModal = false;
 		createAutoExpireToast({
-			title: 'Post Reported',
-			message: ''
+			message: 'Post Reported'
 		});
 	}
 
@@ -305,7 +304,6 @@
 		});
 
 		createAutoExpireToast({
-			title: 'Blocked',
 			message: `${postView.creator.name} was blocked.`
 		});
 	}

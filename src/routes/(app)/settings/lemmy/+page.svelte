@@ -94,7 +94,6 @@
 		await client.saveUserSettings(settings);
 
 		createAutoExpireToast({
-			title: 'Saved',
 			message: 'Your settings have been saved.'
 		});
 
