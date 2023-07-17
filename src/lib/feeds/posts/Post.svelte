@@ -96,7 +96,7 @@
 				</Stack>
 			</Stack>
 		</Stack>
-		<slot name="beforeEmbed" {hasEmbeddableContent} />
+		<slot name="beforeEmbed" {hasEmbeddableContent} {hasBody} />
 		{#if expandPostContent && hasEmbeddableContent}
 			<div class="embed-content">
 				{#if hasEmbedText}
@@ -116,7 +116,7 @@
 				{/if}
 				{#if hasBody}
 					<div>
-						<Markdown md={postView.post.body ?? ''} />
+						<Markdown md={postView.post.body ?? ''} {viewSource} />
 					</div>
 				{/if}
 				{#if probablyImage && postView.post.url}
@@ -174,6 +174,7 @@
 	export let mode: 'show' | 'list' = 'list';
 	export let readOnly = false;
 	export let supportsOverlay = true;
+	export let viewSource = false;
 
 	let showReportModal = false;
 

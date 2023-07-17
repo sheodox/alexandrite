@@ -58,8 +58,8 @@
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false}>
-				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent>
+			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false} {viewSource}>
+				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent let:hasBody>
 					<a href="#comments" class="button tertiary"
 						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
 					>
@@ -67,6 +67,12 @@
 						<button class="tertiary" on:click={() => (showPost = !showPost)}
 							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
 						>
+					{/if}
+					{#if hasBody}
+						<button class="tertiary" on:click={() => (viewSource = !viewSource)}>
+							<Icon icon="code" />
+							{viewSource ? 'Hide' : 'View'} Source
+						</button>
 					{/if}
 				</Stack>
 			</Post>
@@ -177,6 +183,7 @@
 
 	let commentExpandLoadingIds = new Set<number>();
 	let newCommentForm: HTMLFormElement;
+	let viewSource = false;
 	$: viewingSingleCommentThread = rootCommentId !== null;
 	$: rootComment = viewingSingleCommentThread
 		? $commentCVStore.find((cv) => cv.type === 'comment' && cv.view.comment.id === rootCommentId)
