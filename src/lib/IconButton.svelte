@@ -1,3 +1,11 @@
+<style>
+	button {
+		display: flex !important;
+		position: relative;
+		overflow: hidden;
+	}
+</style>
+
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
 	<button
