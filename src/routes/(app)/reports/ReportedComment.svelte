@@ -14,7 +14,7 @@
 		{#if view.comment.removed}
 			<span class="sx-badge-red mx-0">Removed</span>
 		{/if}
-		Comment by <UserLink user={view.creator} />
+		Comment by <UserLink user={view.comment_creator} />
 		<UserBadges
 			user={view.comment_creator}
 			postOP={view.post.creator_id === view.comment_creator.id}
