@@ -334,7 +334,7 @@
 
 		if (loggedIn && isCommunityModerator) {
 			options.push({
-				text: 'Mod - ' + (postView.post.featured_community ? 'Unpin' : 'Pin') + ' to community',
+				text: 'Mod - ' + (postView.post.featured_community ? 'Unpin from community' : 'Pin to community'),
 				click: () => $pinCommunityState.submit(!postView.post.featured_community),
 				icon: 'thumbtack',
 				busy: $pinCommunityState.busy
