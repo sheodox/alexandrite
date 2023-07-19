@@ -4,7 +4,7 @@
 	sidebar={siteView.site.sidebar}
 	context="Your Instance"
 >
-	<span slot="name"
+	<span slot="name" class="f-row gap-2 align-items-center"
 		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>
 	<Stack slot="actions" dir="c" gap={2} cl="mt-2">

@@ -37,7 +37,7 @@
 	import { browser } from '$app/environment';
 	import InfiniteFeed from './feeds/posts/InfiniteFeed.svelte';
 	import { Throttler } from './utils';
-	import { _BUFFER_CONTEXT_KEY } from './virtual-feed';
+	import { _BUFFER_CONTEXT_KEY, getVirtualFeedScrollableElement, type VirtualFeedAPI } from './virtual-feed';
 	import { writable } from 'svelte/store';
 
 	const dispatch = createEventDispatcher<{
@@ -67,6 +67,28 @@
 	// the parent component that more data should be loaded
 	export let moreBufferItems = 10;
 
+	export const api: VirtualFeedAPI = {
+		scrollToIndex: (index: number) => {
+			// guess at the position of the item based on averages if we don't know it yet
+			const avg = getAverageHeight();
+			let heightAtIndex = 0;
+
+			for (let i = 0; i < index; i++) {
+				const itemEstimatedHeight = getItemHeightEstimate(i, avg);
+				heightAtIndex += itemEstimatedHeight;
+			}
+
+			// need to make sure we will actually have enough space for this to be scrolled to,
+			// or it'll stop scrolling somewhere along the way
+
+			(scrollContainer || window).scrollTo({
+				top: heightAtIndex + virtualFeedRootEl.offsetTop
+			});
+
+			computeViewportItems();
+		}
+	};
+
 	// the index of the first item currently rendered
 	let startIndex = 0;
 	let length = Math.min(feedSize, 20);
@@ -74,6 +96,9 @@
 	// the size of the scroll area when scrolling back up, so the scrollbar
 	// doesn't shrink as you scroll up
 	let feedMaxHeight = 0;
+	// which element we are trying to render at the top of the viewport,
+	// used to fix scrolling when items above the viewport change in height
+	export let viewportTopIndex = 0;
 	let virtualFeedRootEl: HTMLElement;
 	// cache last known sizes of elements, so we know how to reposition the feed
 	// as items stop being rendered
@@ -91,14 +116,17 @@
 	$: visibleIndices = calculateVisibleIndices(startIndex, feedSize, length);
 	// the Y transform used to push down the feed to its expected position
 	$: feedTopTranslate = sumHeights(lastKnownElementHeights, startIndex);
-	// the size of
-	$: feedMaxHeight = sumHeights(lastKnownElementHeights);
+	// the size of all known (and guess at unknown) items. used to keep a consistent
+	// scrollable area, otherwise if you scroll back up your scrollbar shrinks,
+	// and we wouldn't be able to arbitrarily scroll by index to unseen items
+	$: feedMaxHeight =
+		sumHeights(lastKnownElementHeights) + getAverageHeight() * (feedSize - lastKnownElementHeights.size);
 
 	let scrollContainer: HTMLElement | null = null;
 	let mounted = false;
 
 	function initScrollContainer(el: HTMLElement) {
-		scrollContainer = el.closest('.virtual-feed-scroll-container');
+		scrollContainer = getVirtualFeedScrollableElement(el);
 
 		(scrollContainer || window).addEventListener('scroll', scheduleViewportItemsCalculation);
 		computeViewportItems();
@@ -131,6 +159,16 @@
 						lastKnownElementHeights = lastKnownElementHeights;
 					}
 					scheduleViewportItemsCalculation();
+				}
+
+				// shift the viewport by the changed amount so resized items don't cause things to jump
+				const additionalHeight = height - lastHeight;
+				if (additionalHeight && index < viewportTopIndex) {
+					if (scrollContainer) {
+						scrollContainer.scrollTop += additionalHeight;
+					} else {
+						window.scrollY += additionalHeight;
+					}
 				}
 			}
 		});
@@ -171,6 +209,15 @@
 		startIndex = Math.min(feedSize, Math.max(0, newIndex));
 	}
 
+	function getAverageHeight() {
+		if (lastKnownElementHeights.size === 0) {
+			// total guess if we have not measured
+			return 100;
+		}
+		const sum = sumHeights(lastKnownElementHeights);
+		return sum / lastKnownElementHeights.size;
+	}
+
 	function findIndexAtHeight(top: number) {
 		let topSoFar = 0;
 
@@ -195,13 +242,6 @@
 		if (!mounted) {
 			return;
 		}
-		if (!hadInitialMeasurement) {
-			// if we haven't seen enough elements to measure, just try and get more
-			if (feedSize < INITIAL_MINIMUM_RENDER_ITEMS) {
-				requestMore();
-			}
-			return;
-		}
 
 		let viewportTop: number;
 
@@ -212,6 +252,7 @@
 		}
 
 		const { offsetTop: rootTop } = virtualFeedRootEl,
+			averageHeight = getAverageHeight(),
 			// how much height we have to work with
 			availableHeight = window.visualViewport?.height ?? window.innerHeight,
 			// subtract one, because one == the amount that fits on screen, we're dividing the
@@ -227,6 +268,28 @@
 			// the `top` to use to position the first rendered item properly
 			topIndexTop = sumHeights(lastKnownElementHeights, topIndex);
 
+		// track what's at the top of the viewport, used by consumers of VirtualFeed
+		const visibleTopIndex = findIndexAtHeight(viewportTop - rootTop),
+			visibleTopIndexTop = sumHeights(lastKnownElementHeights, visibleTopIndex);
+
+		// use -1 if they're scrolled above the container, so if you scroll up
+		// past the comments to the post, hitting "next comment" will bring you
+		// to comment index 0 instead of 1, as index 0 isn't yet at the top
+		viewportTopIndex =
+			viewportTop - rootTop < 0
+				? -1
+				: // if we've scrolled past the element at all, target the next one
+				  visibleTopIndex + (visibleTopIndexTop < viewportTop - rootTop ? 1 : 0);
+
+		if (!hadInitialMeasurement) {
+			// if we haven't seen enough elements to measure, just try and get more
+			if (feedSize < INITIAL_MINIMUM_RENDER_ITEMS) {
+				requestMore();
+			}
+
+			return;
+		}
+
 		let numItemsFitOnScreen = 0,
 			// If the first rendered item is very tall, we need to compensate
 			// for how much of it is above what we wanted to render, otherwise it
@@ -238,16 +301,11 @@
 			// compensating for how far past it you've scrolled it'd always immediately pass
 			// the overscanHeight threshold and nothing else would ever render below this,
 			// and you couldn't scroll down anymore.
-			contentHeight = topIndexTop - overscanStartTop,
-			averageHeight = feedMaxHeight / lastKnownElementHeights.size;
+			contentHeight = topIndexTop - overscanStartTop;
 
 		for (let i = topIndex; i < feedSize; i++) {
 			numItemsFitOnScreen++;
-			const itemEstimatedHeight = lastKnownElementHeights.get(i) ?? averageHeight;
-			// set the last known height to this, if we used the average height it could be
-			// wrong, and if we set it we'll know it changed considerably once we know the size,
-			// and can trigger a re-render
-			lastKnownElementHeights.set(i, itemEstimatedHeight);
+			const itemEstimatedHeight = getItemHeightEstimate(i, averageHeight);
 			contentHeight += itemEstimatedHeight;
 			if (contentHeight > overscanHeight) {
 				break;
@@ -263,6 +321,15 @@
 		if (startIndex + length >= feedSize - moreBufferItems) {
 			requestMore();
 		}
+	}
+
+	function getItemHeightEstimate(i: number, averageHeight: number) {
+		const estimate = lastKnownElementHeights.get(i) ?? averageHeight;
+		// set the last known height to this, if we used the average height it could be
+		// wrong, and if we set it we'll know it changed considerably once we know the size,
+		// and can trigger a re-render
+		lastKnownElementHeights.set(i, estimate);
+		return estimate;
 	}
 
 	const renderThrottled = new Throttler(computeViewportItems);

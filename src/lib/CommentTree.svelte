@@ -21,50 +21,54 @@
 
 <Stack gap={0} cl="px-4">
 	<VirtualFeed
-		feedSize={validComments.length}
+		feedSize={renderedComments.length}
 		on:more
 		{endOfFeed}
 		{feedEndIcon}
 		{feedEndMessage}
 		loading={loadingContent}
 		loadMoreFailed={loadingContentFailed}
+		bind:api={virtualFeedAPI}
+		bind:viewportTopIndex
 	>
 		<svelte:fragment let:index>
-			{@const { cv, depth } = validComments[index]}
+			{@const { cv, depth } = renderedComments[index]}
 			{@const collapsed = collapsedComments.some((c) => cv.comment.id === c)}
-			<div class="comment">
-				<div
-					class="comment-leaf p-2 pb-0"
-					style:margin-left="calc(var(--sx-spacing-6) * {depth})"
-					class:collapsed
-					class:nested={depth > 0}
-				>
-					<Comment
-						contentView={commentViewToContentView(cv)}
-						{postOP}
-						on:collapse={() => toggleCollapse(cv.comment.id)}
-						{collapsed}
-						on:new-comment
-						searchNonMatch={searchText !== '' && !commentSearchMatchIds.includes(cv.comment.id)}
-					/>
-					{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
-						{@const loading = expandLoadingIds.includes(cv.comment.id)}
-						<div>
-							<button
-								class="tertiary f-row gap-2"
-								on:click={() => dispatch('expand', cv.comment.id)}
-								disabled={loading}
-							>
-								{#if loading}
-									<Spinner />
-								{/if}
-								Load {cv.counts.child_count}
-								{cv.counts.child_count === 1 ? 'reply' : 'replies'}</button
-							>
-						</div>
-					{/if}
+			{#key cv.comment.id}
+				<div class="comment">
+					<div
+						class="comment-leaf p-2 pb-0"
+						style:margin-left="calc(var(--sx-spacing-6) * {depth})"
+						class:collapsed
+						class:nested={depth > 0}
+					>
+						<Comment
+							contentView={commentViewToContentView(cv)}
+							{postOP}
+							on:collapse={() => toggleCollapse(cv.comment.id)}
+							{collapsed}
+							on:new-comment
+							searchNonMatch={searchText !== '' && !commentSearchMatchIds.includes(cv.comment.id)}
+						/>
+						{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
+							{@const loading = expandLoadingIds.includes(cv.comment.id)}
+							<div>
+								<button
+									class="tertiary f-row gap-2"
+									on:click={() => dispatch('expand', cv.comment.id)}
+									disabled={loading}
+								>
+									{#if loading}
+										<Spinner />
+									{/if}
+									Load {cv.counts.child_count}
+									{cv.counts.child_count === 1 ? 'reply' : 'replies'}</button
+								>
+							</div>
+						{/if}
+					</div>
 				</div>
-			</div>
+			{/key}
 		</svelte:fragment>
 	</VirtualFeed>
 </Stack>
@@ -77,6 +81,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import Spinner from './Spinner.svelte';
 	import { commentViewToContentView } from './content-views';
+	import type { VirtualFeedAPI } from './virtual-feed';
 
 	export let postOP: string;
 	export let searchText: string;
@@ -89,6 +94,8 @@
 	export let feedEndIcon: string;
 	export let endOfFeed: boolean;
 	export let expandLoadingIds: number[];
+	export let virtualFeedAPI: VirtualFeedAPI;
+	export let viewportTopIndex: number;
 
 	let collapsedCommentSet = new Set<number>(),
 		collapsedComments: number[] = [];
@@ -162,7 +169,7 @@
 
 	function filterComments(commentTree: CommentBranch[], searchText: string) {
 		if (!searchText) {
-			validComments = commentTree;
+			renderedComments = commentTree;
 			commentSearchMatchIds = [];
 			return;
 		}
@@ -174,13 +181,15 @@
 
 		const matchPaths = commentSearchMatches.map((cb) => cb.cv.comment.path);
 
-		validComments = commentTree.filter((cb) => {
+		renderedComments = commentTree.filter((cb) => {
 			return matchPaths.some((p) => p.includes('' + cb.cv.comment.id));
 		});
 	}
 
 	$: commentTree = getBranches(rootPath, commentViews, 0, Array.from(collapsedComments));
-	let validComments: CommentBranch[] = [],
-		commentSearchMatchIds: number[] = [];
+
+	// export so the parent can index them in sorted order with post navigation buttons
+	export let renderedComments: CommentBranch[] = [];
+	let commentSearchMatchIds: number[] = [];
 	$: filterComments(commentTree, searchText);
 </script>

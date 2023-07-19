@@ -59,12 +59,14 @@
 			</VirtualFeed>
 		</Stack>
 	</Stack>
+	<FeedNav />
 </div>
 
 <script lang="ts">
 	import { Stack, Icon } from 'sheodox-ui';
 	import Post from './Post.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
+	import FeedNav from '$lib/FeedNav.svelte';
 	import {
 		NormalFeedTypeOptions,
 		type FeedType,

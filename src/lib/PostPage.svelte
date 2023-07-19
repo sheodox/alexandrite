@@ -137,8 +137,19 @@
 					feedEndMessage="No more comments"
 					feedEndIcon="comment-slash"
 					expandLoadingIds={Array.from(commentExpandLoadingIds)}
+					bind:virtualFeedAPI
+					bind:renderedComments
+					bind:viewportTopIndex
 				/>
 			</ContentViewProvider>
+			<PostNavigationBar
+				on:scroll-next={onScrollNext}
+				on:scroll-previous={onScrollPrevious}
+				{closeable}
+				on:close
+				{canScrollNext}
+				{canScrollPrev}
+			/>
 		</section>
 	</div>
 	<div class="page-column page-column-sidebar virtual-feed-scroll-container">
@@ -154,6 +165,7 @@
 	import CommentTree from '$lib/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
+	import PostNavigationBar from './PostNavigationBar.svelte';
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './CommentEditor.svelte';
@@ -165,6 +177,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
+	import type { VirtualFeedAPI } from './virtual-feed';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -193,6 +206,29 @@
 	const { loggedIn } = getAppContext();
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
 	const { client, jwt } = getLemmyClient();
+	// this bubbles up from the virtual feed
+	let virtualFeedAPI: VirtualFeedAPI;
+	interface CommentBranch {
+		cv: CommentView;
+		depth: number;
+		path: string;
+	}
+	let renderedComments: CommentBranch[];
+	let viewportTopIndex: number;
+
+	function hasOncomingTopLevelComment(startIndex: number, length = 0, inc: number) {
+		for (let i = startIndex + inc; i >= 0 && i < length; i += inc) {
+			if (renderedComments?.[i].depth === 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	$: canScrollPrev = hasOncomingTopLevelComment(viewportTopIndex, renderedComments?.length, -1);
+	// TODO this isn't quite right, if the last comment is visible on the page but not at the top of the
+	// virtual feed it'll think there's still a comment you can 'next' to
+	$: canScrollNext = hasOncomingTopLevelComment(viewportTopIndex, renderedComments?.length, 1);
 
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
@@ -221,6 +257,31 @@
 		commentCVStore.clear();
 		endOfCommentsFeed = false;
 		loadNextCommentPage();
+	}
+
+	function onScrollPrevious() {
+		let previousIndex = -1;
+
+		for (let i = viewportTopIndex - 1; i >= 0; i--) {
+			if (renderedComments[i].depth === 0) {
+				previousIndex = i;
+				break;
+			}
+		}
+
+		if (previousIndex >= 0) {
+			virtualFeedAPI.scrollToIndex(previousIndex);
+		}
+	}
+
+	function onScrollNext() {
+		const nextIndex = renderedComments.findIndex((cb, i) => {
+			return cb.depth === 0 && i > viewportTopIndex;
+		});
+
+		if (nextIndex >= 0) {
+			virtualFeedAPI.scrollToIndex(nextIndex);
+		}
 	}
 
 	const onSubmitNewComment: ActionFn = async (body) => {

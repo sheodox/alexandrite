@@ -13,3 +13,10 @@ export type VirtualFeedBuffer = Writable<Record<string, any>>;
 export const getVirtualFeedBuffer = () => {
 	return getContext<VirtualFeedBuffer>(_BUFFER_CONTEXT_KEY);
 };
+
+export interface VirtualFeedAPI {
+	scrollToIndex: (index: number) => void;
+}
+
+export const getVirtualFeedScrollableElement = (el: HTMLElement) =>
+	el.closest<HTMLElement>('.virtual-feed-scroll-container');
