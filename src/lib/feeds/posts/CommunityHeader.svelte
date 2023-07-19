@@ -1,5 +1,5 @@
 <FeedHeader icon={community.icon ?? ''} published={community.published}>
-	<NameAtInstance place={community} prefix="!" slot="name" />
+	<NameAtInstance place={community} displayName={community.title} prefix="" slot="name" />
 	<Stack dir="r" gap={2} align="center" slot="actions">
 		{#if !readOnly}
 			<CommunityJoin {communityView} />

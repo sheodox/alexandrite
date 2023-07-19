@@ -1,4 +1,4 @@
-<Title title={data.communityName} />
+<Title title={nameAtInstance(data.communityView.community, data.communityView.community.title)} />
 {#key data}
 	<ContentViewProvider store={cvStore}>
 		<PostsPage
@@ -24,6 +24,7 @@
 	import Title from '$lib/Title.svelte';
 	import { loadFeedData } from '$lib/feed-query';
 	import { createContentViewStore } from '$lib/content-views';
+	import { nameAtInstance } from '$lib/nav-utils';
 
 	export let data;
 
