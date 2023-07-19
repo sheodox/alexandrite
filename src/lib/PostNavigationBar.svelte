@@ -1,4 +1,4 @@
-<FloatingNav>
+<FloatingNav justify="end">
 	<IconButton
 		cl="tertiary"
 		on:click={() => dispatch('scroll-previous')}
@@ -21,7 +21,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import IconButton from '$lib/IconButton.svelte';
-	import { getVirtualFeedScrollableElement } from './virtual-feed';
 	import FloatingNav from './FloatingNav.svelte';
 
 	// if you can close the post (viewing a post in a feed, not directly)
@@ -29,21 +28,9 @@
 	export let canScrollPrev: boolean;
 	export let canScrollNext: boolean;
 
-	let elementInNav: HTMLElement;
-
 	const dispatch = createEventDispatcher<{
 		'scroll-next': void;
 		'scroll-previous': void;
 		close: void;
 	}>();
-
-	function scrollToTop() {
-		const scrollEl = getVirtualFeedScrollableElement(elementInNav);
-
-		if (scrollEl) {
-			scrollEl.scrollTop = 0;
-		} else {
-			window.scrollY = 0;
-		}
-	}
 </script>
