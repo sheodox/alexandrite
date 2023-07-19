@@ -16,31 +16,39 @@
 				{#if !$bannedUsers.has(creator.id)}
 					<span class="sx-badge-gray">Unsure if banned.</span>
 				{/if}
-				<BanButton banned={bannedFromCommunity} personId={creator.id} {communityId} on:ban />
+				<BanButton
+					banned={bannedFromCommunity}
+					personId={creator.id}
+					{communityId}
+					on:ban
+					personName={creator.display_name || creator.name}
+				/>
 			</Stack>
 		</div>
 		<p class="m-0">
 			<span class="muted fw-bold">Reason:</span>
 			{reason}
 		</p>
-		<BusyButton
-			cl="m-0 {resolved ? 'tertiary' : 'primary'}"
-			on:click={() => dispatch('resolve', !resolved)}
-			{busy}
-			icon="circle-check"
-			iconVariant={resolved ? 'regular' : 'solid'}
-		>
-			{#if resolved}
-				Resolved
-			{:else}
-				Resolve
+		<Stack dir="r" justify="start" align="center" gap={2}>
+			<BusyButton
+				cl="m-0 {resolved ? 'tertiary' : 'primary'}"
+				on:click={() => dispatch('resolve', !resolved)}
+				{busy}
+				icon="circle-check"
+				iconVariant={resolved ? 'regular' : 'solid'}
+			>
+				{#if resolved}
+					Resolved
+				{:else}
+					Resolve
+				{/if}
+			</BusyButton>
+			{#if resolver}
+				<div class="f-row gap-1">
+					{resolved ? 'Resolved' : 'Unresolved'} by <UserLink user={resolver} />
+				</div>
 			{/if}
-		</BusyButton>
-		{#if resolver}
-			<div class="f-row gap-1">
-				{resolved ? 'Resolved' : 'Unresolved'} by <UserLink user={resolver} />
-			</div>
-		{/if}
+		</Stack>
 	</Stack>
 </div>
 

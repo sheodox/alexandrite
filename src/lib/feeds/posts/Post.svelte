@@ -159,6 +159,7 @@
 	import { createStatefulAction, type ExtraAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
+	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -166,6 +167,7 @@
 	}>();
 
 	const cvStore = getContentViewStore();
+	const modContext = getModContext();
 
 	const { username, loggedIn, siteMeta } = getAppContext();
 	const { client, jwt } = getLemmyClient();
@@ -247,44 +249,70 @@
 		});
 	});
 
-	const pinCommunityState = createStatefulAction<boolean>(async (featured) => {
-		if (!jwt) {
-			return;
+	const featurePending = getModActionPending('feature-post', postView.post.id);
+	async function onFeatureCommunity() {
+		const res = await modContext.featurePost({
+			postId: postView.post.id,
+			featured: !postView.post.featured_community
+		});
+
+		if (res) {
+			postView = res.post_view;
+			cvStore.updateView(postViewToContentView(res.post_view));
 		}
-		const res = await client.featurePost({
-			auth: jwt,
-			post_id: postView.post.id,
-			featured,
-			feature_type: 'Community'
+	}
+
+	const lockPending = getModActionPending('lock-post', postView.post.id);
+	async function onLockPost() {
+		const res = await modContext.lockPost({
+			postId: postView.post.id,
+			locked: !postView.post.locked
 		});
 
-		showReportModal = false;
-		createAutoExpireToast({
-			message: res.post_view.post.featured_community ? 'Pinned to community' : 'Unpinned from community',
-			variant: 'success'
-		});
-
-		cvStore.updateView(postViewToContentView(res.post_view));
-	});
-
-	const lockState = createStatefulAction<boolean>(async (locked) => {
-		if (!jwt) {
-			return;
+		if (res) {
+			cvStore.updateView(postViewToContentView(res.post_view));
 		}
-		const res = await client.lockPost({
-			auth: jwt,
-			post_id: postView.post.id,
-			locked
+	}
+
+	const removePending = getModActionPending('remove-post', postView.post.id);
+	async function onRemovePost() {
+		const res = await modContext.removePost({
+			postId: postView.post.id,
+			removed: !postView.post.removed
 		});
 
-		showReportModal = false;
-		createAutoExpireToast({
-			message: res.post_view.post.locked ? 'Post locked' : 'Post unlocked',
-			variant: 'success'
-		});
+		if (res) {
+			cvStore.updateView(postViewToContentView(res.post_view));
+		}
+	}
 
-		cvStore.updateView(postViewToContentView(res.post_view));
-	});
+	const banPending = getModActionPending('ban-person', postView.creator.id);
+	async function onBan() {
+		const res = await modContext.banPerson({
+			personName: postView.creator.display_name || postView.creator.name,
+			personId: postView.creator.id,
+			communityId: postView.community.id,
+			ban: !postView.creator_banned_from_community
+		});
+		if (res) {
+			cvStore.updateViews((views) => {
+				postView.creator_banned_from_community = res.banned;
+				postView.creator = res.person_view.person;
+
+				return views.map((view) => {
+					if (
+						view.type === 'post' &&
+						view.view.creator.id === postView.creator.id &&
+						view.communityId === postView.community.id
+					) {
+						view.view.creator_banned_from_community = res.banned;
+						view.view.creator = res.person_view.person;
+					}
+					return view;
+				});
+			});
+		}
+	}
 
 	let overflowMenuOptions: ExtraAction[] = [];
 
@@ -335,15 +363,27 @@
 		if (loggedIn && isCommunityModerator) {
 			options.push({
 				text: 'Mod - ' + (postView.post.featured_community ? 'Unpin from community' : 'Pin to community'),
-				click: () => $pinCommunityState.submit(!postView.post.featured_community),
+				click: onFeatureCommunity,
 				icon: 'thumbtack',
-				busy: $pinCommunityState.busy
+				busy: $featurePending
 			});
 			options.push({
 				text: 'Mod - ' + (postView.post.locked ? 'Unlock' : 'Lock'),
-				click: () => $lockState.submit(!postView.post.locked),
+				click: onLockPost,
 				icon: postView.post.locked ? 'lock-open' : 'lock',
-				busy: $lockState.busy
+				busy: $lockPending
+			});
+			options.push({
+				text: 'Mod - ' + (postView.post.removed ? 'Restore' : 'Remove'),
+				click: onRemovePost,
+				icon: postView.post.removed ? 'recycle' : 'trash-can',
+				busy: $removePending
+			});
+			options.push({
+				text: 'Mod - ' + (postView.creator_banned_from_community ? 'Unban' : 'Ban'),
+				click: onBan,
+				icon: postView.creator_banned_from_community ? 'check' : 'ban',
+				busy: $banPending
 			});
 			// todo appoint as mod
 		}

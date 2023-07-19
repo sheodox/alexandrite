@@ -191,24 +191,6 @@
 	<ReasonModal on:reason={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
 {/if}
 
-{#if showRemovalReasonModal}
-	<ReasonModal
-		title="Remove"
-		bind:visible={showRemovalReasonModal}
-		busy={$removeState.busy}
-		on:reason={onRemoveReason}
-	/>
-{/if}
-
-{#if showBanReasonModal}
-	<ReasonModal
-		title="Ban"
-		bind:visible={showBanReasonModal}
-		busy={$banFromCommunityState.busy}
-		on:reason={onBanReason}
-	/>
-{/if}
-
 <script lang="ts">
 	import { Stack, Tooltip, Icon, createAutoExpireToast } from 'sheodox-ui';
 	import UserLink from './UserLink.svelte';
@@ -242,6 +224,7 @@
 		type ContentViewReply,
 		replyViewToContentView
 	} from './content-views';
+	import { getModActionPending, getModContext } from './mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
@@ -249,6 +232,8 @@
 	}>();
 
 	const cvStore = getContentViewStore();
+
+	const modContext = getModContext();
 
 	export let searchNonMatch = false;
 	export let contentView: ContentViewComment | ContentViewReply | ContentViewMention;
@@ -438,93 +423,56 @@
 		});
 	});
 
-	const distinguishState = createStatefulAction<boolean>(async (distinguished) => {
-		if (!jwt) {
-			return;
-		}
-		const res = await client.distinguishComment({
-			auth: jwt,
-			comment_id: contentView.view.comment.id,
-			distinguished
+	const distinguishPending = getModActionPending('distinguish-comment', contentView.view.comment.id);
+
+	async function onDistinguish() {
+		const res = await modContext.distinguishComment({
+			commentId: contentView.view.comment.id,
+			distinguished: !contentView.view.comment.distinguished
 		});
 
-		cvStore.updateView(commentViewToContentView(res.comment_view));
-	});
-
-	let showRemovalReasonModal = false;
-	let showBanReasonModal = false;
-
-	function onRemove() {
-		if (contentView.view.comment.removed) {
-			$removeState.submit({ removed: false });
-		} else {
-			showRemovalReasonModal = true;
+		if (res) {
+			cvStore.updateView(commentViewToContentView(res.comment_view));
 		}
 	}
-	function onRemoveReason(e: CustomEvent<string>) {
-		$removeState.submit({ removed: true, reason: e.detail });
-	}
 
-	const removeState = createStatefulAction<{ removed: boolean; reason?: string }>(async ({ removed, reason }) => {
-		if (!jwt) {
-			return;
-		}
-		const res = await client.removeComment({
-			auth: jwt,
-			comment_id: contentView.view.comment.id,
-			removed,
-			reason
+	const removePending = getModActionPending('remove-comment', contentView.view.comment.id);
+	async function onRemove() {
+		const res = await modContext.removeComment({
+			commentId: contentView.view.comment.id,
+			removed: !contentView.view.comment.removed
 		});
 
-		cvStore.updateView(commentViewToContentView(res.comment_view));
-		showRemovalReasonModal = false;
-	});
+		if (res) {
+			cvStore.updateView(commentViewToContentView(res.comment_view));
+		}
+	}
 
-	function toggleBan() {
-		if (contentView.view.creator_banned_from_community) {
-			$banFromCommunityState.submit({
-				ban: false
+	const banPending = getModActionPending('ban-person', contentView.view.creator.id);
+	async function onBan() {
+		const res = await modContext.banPerson({
+			personName: contentView.view.creator.display_name || contentView.view.creator.name,
+			personId: contentView.view.creator.id,
+			communityId: contentView.view.community.id,
+			ban: !contentView.view.creator_banned_from_community
+		});
+
+		if (res) {
+			cvStore.updateViews((views) => {
+				return views.map((view) => {
+					if (
+						view.type === 'comment' &&
+						view.view.creator.id === contentView.view.creator.id &&
+						view.communityId === contentView.communityId
+					) {
+						view.view.creator_banned_from_community = res.banned;
+						view.view.creator = res.person_view.person;
+					}
+					return view;
+				});
 			});
-		} else {
-			showBanReasonModal = true;
 		}
 	}
-
-	function onBanReason(e: CustomEvent<string>) {
-		$banFromCommunityState.submit({
-			ban: true,
-			reason: e.detail
-		});
-	}
-
-	const banFromCommunityState = createStatefulAction<{ ban: boolean; reason?: string }>(async ({ ban, reason }) => {
-		if (!jwt) {
-			return;
-		}
-		const res = await client.banFromCommunity({
-			auth: jwt,
-			person_id: contentView.view.creator.id,
-			community_id: contentView.communityId,
-			ban,
-			reason
-		});
-
-		cvStore.updateViews((views) => {
-			return views.map((view) => {
-				if (
-					view.type === 'comment' &&
-					view.view.creator.id === contentView.view.creator.id &&
-					view.communityId === contentView.communityId
-				) {
-					view.view.creator_banned_from_community = res.banned;
-					view.view.creator = res.person_view.person;
-				}
-				return view;
-			});
-		});
-
-		showBanReasonModal = false;
-	});
 
 	let overflowMenuOptions: ExtraAction[] = [];
 
@@ -564,22 +512,22 @@
 			options.push({
 				text: 'Mod - ' + (distinguished ? 'Undistinguish' : 'Distinguish'),
 				icon: 'shield-halved',
-				click: () => $distinguishState.submit(!distinguished),
-				busy: $distinguishState.busy
+				click: onDistinguish,
+				busy: $distinguishPending
 			});
 
 			options.push({
 				text: 'Mod - ' + (removed ? 'Restore' : 'Remove'),
 				icon: removed ? 'recycle' : 'trash-can',
 				click: onRemove,
-				busy: $removeState.busy
+				busy: $removePending
 			});
 
 			options.push({
 				text: 'Mod - ' + (banned ? 'Unban' : 'Ban'),
 				icon: removed ? 'check' : 'ban',
-				click: toggleBan,
-				busy: $banFromCommunityState.busy
+				click: onBan,
+				busy: $banPending
 			});
 		}
 

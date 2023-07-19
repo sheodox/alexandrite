@@ -42,14 +42,15 @@
 	<Stack gap={2} dir="r" align="center">
 		<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" cl="tertiary m-0" />
 		<BusyButton
-			busy={$removeState.busy}
-			on:click={onRemove}
+			busy={$removePending}
+			on:click={onRemoveComment}
 			cl="m-0 {view.comment.removed ? '' : 'tertiary'}"
 			icon={view.comment.removed ? 'recycle' : 'trash-can'}>{view.comment.removed ? 'Restore' : 'Remove'}</BusyButton
 		>
 		<BanButton
 			banned={bannedFromCommunity}
 			personId={view.comment_creator.id}
+			personName={view.comment_creator.display_name || view.comment_creator.name}
 			communityId={view.community.id}
 			on:ban={onBan}
 		/>
@@ -68,18 +69,8 @@
 	/>
 </Stack>
 
-{#if showRemovalReasonModal}
-	<ReasonModal
-		title="Remove"
-		bind:visible={showRemovalReasonModal}
-		busy={$removeState.busy}
-		on:reason={onRemoveReason}
-	/>
-{/if}
-
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
-	import ReasonModal from '$lib/ReasonModal.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import Report from './Report.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
@@ -98,6 +89,7 @@
 	import { getCommentContextId } from '$lib/nav-utils';
 	import { getBannedUsersStore } from './banned-users-context';
 	import LogButton from '$lib/LogButton.svelte';
+	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
 
 	export let view: CommentReportView;
 	export let bannedFromCommunity: boolean;
@@ -105,6 +97,7 @@
 	const { checkUnreadReports } = getAppContext();
 	const { client, jwt } = getLemmyClient();
 	const cvStore = getContentViewStore();
+	const modContext = getModContext();
 	const bannedUsers = getBannedUsersStore();
 
 	$: toggleResolvedState = createStatefulAction(async () => {
@@ -123,39 +116,29 @@
 	});
 	$: contextCommentId = getCommentContextId(view);
 
-	let showRemovalReasonModal = false;
-
-	function onRemove() {
-		if (view.comment.removed) {
-			$removeState.submit({ removed: false });
-		} else {
-			showRemovalReasonModal = true;
-		}
-	}
-	function onRemoveReason(e: CustomEvent<string>) {
-		$removeState.submit({ removed: true, reason: e.detail });
-	}
-
-	const removeState = createStatefulAction<{ removed: boolean; reason?: string }>(async ({ removed, reason }) => {
-		if (!jwt) {
-			return;
-		}
-		const res = await client.removeComment({
-			auth: jwt,
-			comment_id: view.comment.id,
-			removed,
-			reason
+	const removePending = getModActionPending('remove-comment', view.comment.id);
+	async function onRemoveComment() {
+		const res = await modContext.removeComment({
+			commentId: view.comment.id,
+			removed: !view.comment.removed
 		});
 
-		cvStore.updateView(
-			commentReportViewToContentView({
-				...view,
-				comment: res.comment_view.comment
-			})
-		);
-
-		showRemovalReasonModal = false;
-	});
+		if (res) {
+			// update all views instead of just one, in case there are multiple reports,
+			// we want to accurately reflect the deleted steate
+			cvStore.updateViews((views) => {
+				return views.map((v) => {
+					if (v.type === 'comment-report' && v.view.comment.id === view.comment.id) {
+						v.view = {
+							...v.view,
+							...res.comment_view
+						};
+					}
+					return v;
+				});
+			});
+		}
+	}
 
 	function onBan(e: CustomEvent<BanFromCommunityResponse>) {
 		cvStore.updateView(

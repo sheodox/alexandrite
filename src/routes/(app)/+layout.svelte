@@ -77,6 +77,7 @@
 
 <div class="f-row f-1 root-layout-content">
 	<Toasts />
+	<Modals />
 	<Sidebar bind:menuOpen>
 		<div slot="header" class="f-row align-items-center">
 			<Logo />
@@ -87,7 +88,9 @@
 	</Sidebar>
 
 	<main class="f-column f-1">
-		<slot />
+		<ModContext>
+			<slot />
+		</ModContext>
 	</main>
 </div>
 
@@ -99,7 +102,8 @@
 
 <script lang="ts">
 	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
-	import { Sidebar, Header, Tooltip, Search, Toasts } from 'sheodox-ui';
+	import ModContext from '$lib/mod/ModContext.svelte';
+	import { Sidebar, Header, Tooltip, Search, Toasts, Modals } from 'sheodox-ui';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';

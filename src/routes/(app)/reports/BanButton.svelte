@@ -1,5 +1,5 @@
 <BusyButton
-	busy={$banFromCommunityState.busy}
+	busy={$busy}
 	on:click={toggleBan}
 	cl="m-0 {banned ? '' : 'tertiary'}"
 	{small}
@@ -8,67 +8,37 @@
 	{banned ? 'Unban' : 'Ban'}
 </BusyButton>
 
-{#if showReasonModal}
-	<ReasonModal title="Ban" bind:visible={showReasonModal} busy={$banFromCommunityState.busy} on:reason={onBanReason} />
-{/if}
-
 <script lang="ts">
 	import BusyButton from '$lib/BusyButton.svelte';
-	import { getLemmyClient } from '$lib/lemmy-client';
-	import ReasonModal from '$lib/ReasonModal.svelte';
-	import { createStatefulAction } from '$lib/utils';
 	import type { BanFromCommunityResponse } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
 	import { getBannedUsersStore } from './banned-users-context';
+	import { getModContext, getModActionPending } from '$lib/mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
 		ban: BanFromCommunityResponse;
 	}>();
 
-	const { client, jwt } = getLemmyClient();
+	const modContext = getModContext();
 	const bannedUsers = getBannedUsersStore();
 
 	export let banned: boolean;
 	export let personId: number;
+	export let personName: string;
 	export let communityId: number;
 	export let small = false;
 
-	let showReasonModal = false;
+	const busy = getModActionPending('ban-person', personId);
 
-	function toggleBan() {
-		if (banned) {
-			$banFromCommunityState.submit({
-				ban: false
+	async function toggleBan() {
+		const res = await modContext.banPerson({ personId, personName, ban: !banned, communityId });
+
+		if (res) {
+			dispatch('ban', res);
+			bannedUsers.update((b) => {
+				b.set(personId, res.banned);
+				return b;
 			});
-		} else {
-			showReasonModal = true;
 		}
 	}
-
-	function onBanReason(e: CustomEvent<string>) {
-		$banFromCommunityState.submit({
-			ban: !banned,
-			reason: e.detail
-		});
-	}
-
-	const banFromCommunityState = createStatefulAction<{ ban: boolean; reason?: string }>(async ({ ban, reason }) => {
-		if (!jwt) {
-			return;
-		}
-		const res = await client.banFromCommunity({
-			auth: jwt,
-			person_id: personId,
-			community_id: communityId,
-			reason,
-			ban
-		});
-		dispatch('ban', res);
-		bannedUsers.update((b) => {
-			b.set(personId, res.banned);
-			return b;
-		});
-
-		showReasonModal = false;
-	});
 </script>
