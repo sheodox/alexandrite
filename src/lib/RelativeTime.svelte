@@ -25,13 +25,43 @@
 
 <script lang="ts">
 	import { Tooltip, Icon } from 'sheodox-ui';
-	import { formatDistance, parseISO } from 'date-fns';
+	import {
+		differenceInDays,
+		differenceInHours,
+		differenceInMinutes,
+		differenceInMonths,
+		differenceInSeconds,
+		differenceInYears,
+		parseISO
+	} from 'date-fns';
 	export let date: string;
 
 	export let variant: 'icon' | 'text' = 'text';
 	export let icon = 'edit';
 	export let verb = 'Posted';
 
+	const rtf = new Intl.RelativeTimeFormat(navigator.language, {
+		style: 'narrow'
+	});
+
 	$: d = parseISO(date + 'Z');
-	$: formatted = formatDistance(d, new Date(), { addSuffix: true });
+	let formatted = '';
+	$: {
+		const now = new Date(),
+			diff = {
+				years: differenceInYears(d, now),
+				months: differenceInMonths(d, now),
+				days: differenceInDays(d, now),
+				hours: differenceInHours(d, now),
+				minutes: differenceInMinutes(d, now),
+				seconds: differenceInSeconds(d, now)
+			};
+
+		for (const unit of ['years', 'months', 'days', 'hours', 'minutes', 'seconds'] as const) {
+			if (diff[unit] < 0) {
+				formatted = rtf.format(diff[unit], unit);
+				break;
+			}
+		}
+	}
 </script>
