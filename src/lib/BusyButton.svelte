@@ -1,6 +1,8 @@
 <style>
 	button {
 		display: flex !important;
+		position: relative;
+		overflow: hidden;
 	}
 </style>
 
