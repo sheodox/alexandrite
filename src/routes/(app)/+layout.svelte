@@ -36,6 +36,17 @@
 				{$unreadCount}
 			</IconLink>
 		{/if}
+		{#if isModerator}
+			<IconLink
+				text="Unread Reports"
+				{placement}
+				icon="shield-halved"
+				cl="{$unreadReportCount > 0 ? 'sx-badge-red' : ''} p-2"
+				href="/reports"
+			>
+				{$unreadReportCount}
+			</IconLink>
+		{/if}
 
 		<Tooltip placement="bottom">
 			<div slot="tooltip">
@@ -109,10 +120,13 @@
 	const { client, jwt } = getLemmyClient();
 
 	const placement = 'bottom-end',
-		unreadCount = writable(0);
+		unreadCount = writable(0),
+		unreadReportCount = writable(0);
 
 	let loading = false,
 		headerSearchText = '';
+
+	$: isModerator = (data.site.my_user?.moderates.length ?? 0) > 0;
 
 	beforeNavigate(() => {
 		loading = true;
@@ -141,6 +155,18 @@
 		$unreadCount = unread.replies + unread.mentions + unread.private_messages;
 	}
 
+	async function checkUnreadReports() {
+		if (!jwt || !isModerator) {
+			return;
+		}
+
+		const unread = await client.getReportCount({
+			auth: jwt
+		});
+
+		$unreadReportCount = unread.post_reports + unread.comment_reports;
+	}
+
 	function onSearchSubmit(e: Event) {
 		const communityReg = /^!([a-zA-Z0-9_]+@[\w-]+(\.[\w-]+)*(\.[a-z]+))$/g;
 
@@ -160,8 +186,10 @@
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		unreadCount,
+		unreadReportCount,
 		ctrlBasedHotkeys: !navigator.userAgent.toLowerCase().includes('macintosh'),
 		checkUnread,
+		checkUnreadReports,
 		screenDimensions: readable({ width: window.innerWidth, height: window.innerHeight }, (set) => {
 			function update() {
 				set({ width: window.innerWidth, height: window.innerHeight });
@@ -192,8 +220,10 @@
 		});
 
 	const unreadPollMS = 1000 * 60 * 15;
+	// if you're a moderator you want to be alerted of stuff faster
+	const unreadReportPollMS = 1000 * 60 * 1;
 	const styleId = 'alexandrite-style-overrides';
-	let unreadPollInterval: ReturnType<typeof setInterval>,
+	let pollIntervals: ReturnType<typeof setInterval>[] = [],
 		headerResizeObserver: ResizeObserver,
 		cssVarUnsub: Unsubscriber;
 
@@ -235,12 +265,13 @@
 		}
 
 		checkUnread();
+		checkUnreadReports();
 
-		unreadPollInterval = setInterval(checkUnread, unreadPollMS);
+		pollIntervals = [setInterval(checkUnread, unreadPollMS), setInterval(checkUnreadReports, unreadReportPollMS)];
 	});
 
 	onDestroy(() => {
-		clearInterval(unreadPollInterval);
+		pollIntervals.forEach(clearInterval);
 		headerResizeObserver?.disconnect();
 		cssVarUnsub?.();
 		document.getElementById(styleId)?.remove();

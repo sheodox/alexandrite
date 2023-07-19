@@ -13,7 +13,9 @@ export interface AppContext {
 	ctrlBasedHotkeys: boolean;
 	siteMeta: GetSiteResponse;
 	unreadCount: Writable<number>;
+	unreadReportCount: Writable<number>;
 	checkUnread: () => Promise<void>;
+	checkUnreadReports: () => Promise<void>;
 	screenDimensions: Readable<{ height: number; width: number }>;
 }
 

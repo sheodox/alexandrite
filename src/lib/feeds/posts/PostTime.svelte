@@ -5,7 +5,7 @@
 
 <script lang="ts">
 	import RelativeTime from '$lib/RelativeTime.svelte';
-	import type { PostView } from 'lemmy-js-client';
+	import type { PostReportView, PostView } from 'lemmy-js-client';
 
-	export let postView: PostView;
+	export let postView: PostView | PostReportView;
 </script>

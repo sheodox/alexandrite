@@ -21,7 +21,9 @@
 
 				<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 			</Stack>
-			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary">Refresh</BusyButton>
+			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary" type="button"
+				>Refresh</BusyButton
+			>
 		</Stack>
 	</section>
 </form>

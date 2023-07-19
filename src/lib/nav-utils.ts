@@ -1,4 +1,4 @@
-import type { CommentView } from 'lemmy-js-client';
+import type { CommentReportView, CommentView } from 'lemmy-js-client';
 
 interface NamedThing {
 	name: string;
@@ -16,7 +16,7 @@ export const nameAtInstance = (thing: NamedThing, displayName?: string) => {
 	return name;
 };
 
-export const getCommentContextId = (cv: CommentView) => {
+export const getCommentContextId = (cv: CommentView | CommentReportView) => {
 	const path = cv.comment.path.split('.');
 	// a root level comment has a path like 0.<id>,
 	// so if the path only has two segments the context *is* this comment,

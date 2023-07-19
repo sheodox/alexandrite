@@ -1,6 +1,14 @@
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
-	<button on:click class:small class={cl} disabled={disabled || busy} aria-pressed={pressed} {type}>
+	<button
+		class="f-row align-items-center justify-content-center gap-2 {cl}"
+		on:click
+		class:small
+		disabled={disabled || busy}
+		aria-pressed={pressed}
+		{type}
+		use:ripple
+	>
 		{#if busy}
 			<Spinner />
 		{:else}
@@ -12,7 +20,7 @@
 </Tooltip>
 
 <script lang="ts">
-	import { Tooltip, Icon } from 'sheodox-ui';
+	import { Tooltip, Icon, ripple } from 'sheodox-ui';
 	import Spinner from './Spinner.svelte';
 	import type { Placement } from '@floating-ui/dom';
 

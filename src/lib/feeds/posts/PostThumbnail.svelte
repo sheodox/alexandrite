@@ -36,10 +36,10 @@
 </div>
 
 <script lang="ts">
-	import type { PostView } from 'lemmy-js-client';
+	import type { PostReportView, PostView } from 'lemmy-js-client';
 	import { Stack, Icon } from 'sheodox-ui';
 	import Image from '$lib/Image.svelte';
 
-	export let postView: PostView;
+	export let postView: PostView | PostReportView;
 	$: thumbnailUrl = postView.post.thumbnail_url;
 </script>

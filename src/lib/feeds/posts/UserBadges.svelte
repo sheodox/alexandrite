@@ -19,7 +19,8 @@
 	const { username } = getAppContext();
 
 	export let user: Person;
-	export let postOP = ''; // actor_id of someone who made a post
+	export let postOP: string | boolean | undefined = ''; // actor_id of someone who made a post
+	export let bannedFromCommunity: boolean | undefined = undefined;
 
 	$: badges = getBadges(user);
 
@@ -28,6 +29,9 @@
 
 		if (user.banned) {
 			badges.push({ color: 'red', text: 'Banned' });
+		}
+		if (bannedFromCommunity) {
+			badges.push({ color: 'red', text: 'Banned (Community)' });
 		}
 		if (user.deleted) {
 			badges.push({ color: 'red', text: 'Deleted' });
@@ -38,7 +42,8 @@
 		if (user.admin) {
 			badges.push({ color: 'orange', text: 'Admin' });
 		}
-		if (user.actor_id === postOP) {
+		// TODO make this just use IDs, compare to user's ID from siteMeta in app context
+		if ((typeof postOP === 'string' && user.actor_id === postOP) || (typeof postOP === 'boolean' && postOP)) {
 			badges.push({ color: 'pink', text: 'OP' });
 		}
 		if (user.local && user.name == username) {

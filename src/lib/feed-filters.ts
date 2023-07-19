@@ -41,6 +41,30 @@ export const UserFeedTypeOptions = (isMe: boolean) => {
 				}
 		  ];
 };
+export const ReportFeedStateOptions = [
+	{
+		value: 'Unread',
+		label: 'Unread'
+	},
+	{
+		value: 'All',
+		label: 'All'
+	}
+];
+export const ReportFeedTypeOptions = [
+	{
+		value: 'All',
+		label: 'All'
+	},
+	{
+		value: 'Posts',
+		label: 'Posts'
+	},
+	{
+		value: 'Comments',
+		label: 'Comments'
+	}
+];
 
 export const SearchTypeOptions = [
 	{

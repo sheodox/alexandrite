@@ -26,9 +26,9 @@
 				{#if postView.post.url && (!probablyImage || !postView.post.thumbnail_url)}
 					<PrettyExternalLink href={postView.post.url} />
 				{/if}
-				<Stack dir="r" gap={1} align="center">
+				<Stack dir="r" gap={1} align="start" cl="f-wrap">
 					<UserLink user={postView.creator} />
-					<UserBadges user={postView.creator} postOP="" />
+					<UserBadges user={postView.creator} postOP="" bannedFromCommunity={postView.creator_banned_from_community} />
 					to
 					<CommunityLink community={postView.community} />
 				</Stack>
@@ -132,7 +132,7 @@
 </article>
 
 {#if showReportModal}
-	<ReportModal on:report={onReport} bind:visible={showReportModal} />
+	<ReportModal on:report={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
 {/if}
 
 <script lang="ts">
@@ -156,7 +156,7 @@
 	import { getAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
-	import { createStatefulAction } from '$lib/utils';
+	import { createStatefulAction, type ExtraAction } from '$lib/utils';
 	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 
@@ -167,7 +167,7 @@
 
 	const cvStore = getContentViewStore();
 
-	const { username, loggedIn } = getAppContext();
+	const { username, loggedIn, siteMeta } = getAppContext();
 	const { client, jwt } = getLemmyClient();
 
 	export let postView: PostView;
@@ -229,8 +229,9 @@
 	$: hasEmbedText = !!postView.post.embed_title;
 	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
+	$: isCommunityModerator = siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
 
-	async function onReport(e: CustomEvent<string>) {
+	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
 		if (!jwt) {
 			return;
 		}
@@ -244,12 +245,51 @@
 		createAutoExpireToast({
 			message: 'Post Reported'
 		});
-	}
+	});
 
-	$: overflowMenuOptions = getOverflowMenu(postView, isMyPost);
+	const pinCommunityState = createStatefulAction<boolean>(async (featured) => {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.featurePost({
+			auth: jwt,
+			post_id: postView.post.id,
+			featured,
+			feature_type: 'Community'
+		});
 
-	function getOverflowMenu(postView: PostView, isMyPost: boolean) {
-		const options: { text: string; href?: string; icon: string; click?: () => unknown }[] = [],
+		showReportModal = false;
+		createAutoExpireToast({
+			message: res.post_view.post.featured_community ? 'Pinned to community' : 'Unpinned from community',
+			variant: 'success'
+		});
+
+		cvStore.updateView(postViewToContentView(res.post_view));
+	});
+
+	const lockState = createStatefulAction<boolean>(async (locked) => {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.lockPost({
+			auth: jwt,
+			post_id: postView.post.id,
+			locked
+		});
+
+		showReportModal = false;
+		createAutoExpireToast({
+			message: res.post_view.post.locked ? 'Post locked' : 'Post unlocked',
+			variant: 'success'
+		});
+
+		cvStore.updateView(postViewToContentView(res.post_view));
+	});
+
+	let overflowMenuOptions: ExtraAction[] = [];
+
+	$: {
+		const options: ExtraAction[] = [],
 			postId = postView.post.id,
 			communityName = nameAtInstance(postView.community),
 			postBaseUrl = `/c/${communityName}/post/${postId}/`;
@@ -275,7 +315,8 @@
 			options.push({
 				text: 'Report Post',
 				click: () => (showReportModal = true),
-				icon: 'flag'
+				icon: 'flag',
+				busy: $reportState.busy
 			});
 			options.push({
 				text: 'Block user',
@@ -291,7 +332,23 @@
 			});
 		}
 
-		return options;
+		if (loggedIn && isCommunityModerator) {
+			options.push({
+				text: 'Mod - ' + (postView.post.featured_community ? 'Unpin' : 'Pin') + ' to community',
+				click: () => $pinCommunityState.submit(!postView.post.featured_community),
+				icon: 'thumbtack',
+				busy: $pinCommunityState.busy
+			});
+			options.push({
+				text: 'Mod - ' + (postView.post.locked ? 'Unlock' : 'Lock'),
+				click: () => $lockState.submit(!postView.post.locked),
+				icon: postView.post.locked ? 'lock-open' : 'lock',
+				busy: $lockState.busy
+			});
+			// todo appoint as mod
+		}
+
+		overflowMenuOptions = options;
 	}
 
 	async function onBlockUser() {

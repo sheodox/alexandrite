@@ -7,6 +7,7 @@ export interface ExtraAction {
 	icon: string;
 	click?: () => unknown;
 	variant?: 'regular' | 'solid';
+	busy?: boolean;
 }
 
 export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {

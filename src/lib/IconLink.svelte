@@ -1,7 +1,7 @@
 <Tooltip {placement}>
 	<span slot="tooltip">{text}</span>
 	<a {href} on:click class:small class="button {cl} ws-nowrap">
-		<Icon {icon} />
+		<Icon {icon} {variant} />
 		<span class="sr-only">{text}</span>
 		<slot />
 	</a>
@@ -17,4 +17,5 @@
 	export let placement: Placement | undefined = undefined;
 	export let icon: string;
 	export let href: string;
+	export let variant: 'regular' | 'solid' = 'solid';
 </script>

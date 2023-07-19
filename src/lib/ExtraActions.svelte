@@ -14,7 +14,16 @@
 						{#if opt.href}
 							<a href={opt.href} class="button"><Icon icon={opt.icon} {variant} /> {opt.text}</a>
 						{:else if opt.click}
-							<button on:click={opt.click} class="button"><Icon icon={opt.icon} {variant} /> {opt.text}</button>
+							<button on:click={opt.click} class="button" disabled={opt.busy ?? false} use:ripple>
+								<div class="f-row gap-1">
+									{#if opt.busy}
+										<Spinner />
+									{:else}
+										<Icon icon={opt.icon} {variant} />
+									{/if}
+									<span>{opt.text}</span>
+								</div>
+							</button>
 						{/if}
 					</li>
 				{/each}
@@ -24,8 +33,9 @@
 {/if}
 
 <script lang="ts">
-	import { Tooltip, MenuButton, Icon } from 'sheodox-ui';
+	import { Tooltip, MenuButton, Icon, ripple } from 'sheodox-ui';
 	import type { ExtraAction } from './utils';
+	import Spinner from './Spinner.svelte';
 
 	export let actions: ExtraAction[];
 </script>

@@ -30,6 +30,7 @@
 		class:small
 		on:click={() => voteAs(1)}
 		disabled={!loggedIn || votePending}
+		use:ripple
 	>
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-up" />
@@ -58,6 +59,7 @@
 		class:small
 		on:click={() => voteAs(-1)}
 		disabled={!loggedIn || votePending}
+		use:ripple
 	>
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-down" />
@@ -65,7 +67,7 @@
 </div>
 
 <script lang="ts">
-	import { Icon, Tooltip } from 'sheodox-ui';
+	import { Icon, Tooltip, ripple } from 'sheodox-ui';
 	import { createEventDispatcher } from 'svelte';
 	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';

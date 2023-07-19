@@ -1,10 +1,12 @@
 import { writable, type Writable } from 'svelte/store';
 import type {
 	CommentReplyView,
+	CommentReportView,
 	CommentView,
 	CommunityView,
 	PersonMentionView,
 	PersonView,
+	PostReportView,
 	PostView,
 	PrivateMessageView
 } from 'lemmy-js-client';
@@ -37,11 +39,20 @@ export interface ContentViewPost extends CV {
 	view: PostView;
 	communityId: number;
 }
+export interface ContentViewPostReport extends CV {
+	type: 'post-report';
+	view: PostReportView;
+}
 
 export interface ContentViewComment extends CV {
 	type: 'comment';
 	view: CommentView;
 	communityId: number;
+}
+
+export interface ContentViewCommentReport extends CV {
+	type: 'comment-report';
+	view: CommentReportView;
 }
 
 export interface ContentViewCommunity extends CV {
@@ -76,7 +87,9 @@ export interface ContentViewMessage extends CV {
 
 export type ContentView =
 	| ContentViewPost
+	| ContentViewPostReport
 	| ContentViewComment
+	| ContentViewCommentReport
 	| ContentViewCommunity
 	| ContentViewPerson
 	| ContentViewMention
@@ -96,6 +109,16 @@ export const postViewToContentView = (view: PostView): ContentViewPost => {
 	};
 };
 
+export const postReportViewToContentView = (view: PostReportView): ContentViewPostReport => {
+	return {
+		type: 'post-report',
+		view,
+		id: view.post_report.id,
+		score: view.counts.score,
+		published: view.post.published
+	};
+};
+
 export const commentViewToContentView = (view: CommentView): ContentViewComment => {
 	return {
 		type: 'comment',
@@ -104,6 +127,16 @@ export const commentViewToContentView = (view: CommentView): ContentViewComment 
 		score: view.counts.score,
 		published: view.comment.published,
 		communityId: view.community.id
+	};
+};
+
+export const commentReportViewToContentView = (view: CommentReportView): ContentViewCommentReport => {
+	return {
+		type: 'comment-report',
+		view,
+		id: view.comment_report.id,
+		score: view.counts.score,
+		published: view.comment.published
 	};
 };
 
@@ -172,6 +205,7 @@ export interface ContentViewStore {
 	prepend: (views: ContentView[]) => void;
 	// whenever something happens to change a view, this lets you update it from a nested component
 	updateView: (newView: ContentView) => void;
+	updateViews: (updateFn: (views: ContentView[]) => ContentView[]) => void;
 	blockCommunity: (communityId: number) => void;
 }
 
@@ -192,6 +226,9 @@ export const createContentViewStore = (): ContentViewStore => {
 			});
 		});
 	};
+	const updateViews = (updateFn: (views: ContentView[]) => ContentView[]) => {
+		store.update(updateFn);
+	};
 	const append = (views: ContentView[]) => {
 		store.update((vs) => vs.concat(views));
 	};
@@ -207,6 +244,7 @@ export const createContentViewStore = (): ContentViewStore => {
 		append,
 		prepend,
 		updateView,
+		updateViews,
 		blockCommunity
 	};
 };

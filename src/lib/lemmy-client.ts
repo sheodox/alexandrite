@@ -27,7 +27,21 @@ export const createLemmyClient = (instanceUrl: string) => {
 				...(init.headers || {})
 			};
 
-			const res = await fetch(input, init);
+			let res;
+			try {
+				res = await fetch(input, init);
+			} catch (e) {
+				createAutoExpireToast({
+					variant: 'error',
+					message: 'Network Error'
+				});
+
+				// wanted to use 0, but `error` throws if you use something outside of 400-599
+				throw error(500, {
+					message: `Network Error`
+				});
+			}
+
 			if (!res.ok) {
 				const text = await res.text();
 
@@ -46,7 +60,7 @@ export const createLemmyClient = (instanceUrl: string) => {
 
 				createAutoExpireToast({
 					variant: 'error',
-					message: !lemmyError ? `Lemmy Error: ${errMsg}` : 'Unknown Error'
+					message: lemmyError ? `Lemmy Error: ${errMsg}` : 'Unknown Error'
 				});
 
 				throw error(res.status, {

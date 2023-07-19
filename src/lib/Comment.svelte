@@ -39,7 +39,21 @@
 				</Tooltip>
 			{/if}
 			<UserLink user={contentView.view.creator} />
-			<UserBadges user={contentView.view.creator} {postOP} />
+			{#if contentView.view.comment.distinguished}
+				{@const text = 'Distinguished by moderator'}
+				<!-- maybe use a different word, you can distinguish non-mods -->
+				<Tooltip>
+					<span slot="tooltip">{text}</span>
+					<span class="sx-badge-green sx-font-size-2"
+						><Icon icon="shield-halved" /><span class="sr-only">{text}</span></span
+					>
+				</Tooltip>
+			{/if}
+			<UserBadges
+				user={contentView.view.creator}
+				{postOP}
+				bannedFromCommunity={contentView.view.creator_banned_from_community}
+			/>
 			{#if showPost}
 				to <CommunityLink community={contentView.view.community} />
 				<span class="muted"> &centerdot; </span>
@@ -59,6 +73,8 @@
 			<div class="comment-content">
 				{#if comment.deleted}
 					<p class="muted deleted-msg">Deleted by creator</p>
+				{:else if comment.removed}
+					<p class="muted deleted-msg">Removed by moderator</p>
 				{:else}
 					<Markdown md={comment.content} {viewSource} />
 				{/if}
@@ -172,7 +188,7 @@
 </section>
 
 {#if showReportModal}
-	<ReportModal on:report={onReport} bind:visible={showReportModal} />
+	<ReportModal on:report={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
 {/if}
 
 <script lang="ts">
@@ -226,7 +242,7 @@
 	let comment = contentView.view.comment;
 	$: comment = contentView.view.comment;
 
-	const { loggedIn, username, checkUnread } = getAppContext();
+	const { loggedIn, username, checkUnread, siteMeta } = getAppContext();
 	const { jwt, client } = getLemmyClient();
 	$: myComment = contentView.view.creator.local && contentView.view.creator.name === username;
 
@@ -299,6 +315,8 @@
 
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
 	$: contextCommentId = getCommentContextId(contentView.view);
+	$: isCommunityModerator =
+		siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
 
 	function updateCV(commentView: CommentView) {
 		cvStore.updateView(commentViewToContentView(commentView));
@@ -370,7 +388,7 @@
 		updateCV(res.comment_view);
 	});
 
-	async function onReport(e: CustomEvent<string>) {
+	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
 		if (!jwt) {
 			return;
 		}
@@ -384,22 +402,75 @@
 		createAutoExpireToast({
 			message: 'Comment Reported'
 		});
-	}
+	});
 
-	async function onBlockUser() {
+	// TODO store block state in buffer and allow unblocking from any of their comments?
+	const blockUserState = createStatefulAction<boolean>(async (block) => {
 		if (!jwt) {
 			return;
 		}
 		await client.blockPerson({
 			auth: jwt,
 			person_id: contentView.view.creator.id,
-			block: true
+			block
 		});
 
 		createAutoExpireToast({
 			message: `${contentView.view.creator.name} was blocked.`
 		});
-	}
+	});
+
+	const distinguishState = createStatefulAction<boolean>(async (distinguished) => {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.distinguishComment({
+			auth: jwt,
+			comment_id: contentView.view.comment.id,
+			distinguished
+		});
+
+		cvStore.updateView(commentViewToContentView(res.comment_view));
+	});
+
+	const removeState = createStatefulAction<boolean>(async (removed: boolean) => {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.removeComment({
+			auth: jwt,
+			comment_id: contentView.view.comment.id,
+			removed
+		});
+
+		cvStore.updateView(commentViewToContentView(res.comment_view));
+	});
+
+	const banState = createStatefulAction<boolean>(async (ban: boolean) => {
+		if (!jwt) {
+			return;
+		}
+		const res = await client.banFromCommunity({
+			auth: jwt,
+			person_id: contentView.view.creator.id,
+			community_id: contentView.communityId,
+			ban
+		});
+
+		cvStore.updateViews((views) => {
+			return views.map((view) => {
+				if (
+					view.type === 'comment' &&
+					view.view.creator.id === contentView.view.creator.id &&
+					view.communityId === contentView.communityId
+				) {
+					view.view.creator_banned_from_community = res.banned;
+					view.view.creator = res.person_view.person;
+				}
+				return view;
+			});
+		});
+	});
 
 	let overflowMenuOptions: ExtraAction[] = [];
 
@@ -422,15 +493,41 @@
 			options.push({
 				text: 'Block user',
 				icon: 'user-slash',
-				click: onBlockUser
+				click: () => $blockUserState.submit(true)
 			});
 		}
-
 		options.push({
 			text: viewSource ? 'Hide Source' : 'View Source',
 			icon: 'code',
 			click: () => (viewSource = !viewSource)
 		});
+
+		if (isCommunityModerator) {
+			const removed = contentView.view.comment.removed,
+				banned = contentView.view.creator_banned_from_community,
+				distinguished = contentView.view.comment.distinguished;
+
+			options.push({
+				text: 'Mod - ' + (distinguished ? 'Undistinguish' : 'Distinguish'),
+				icon: 'shield-halved',
+				click: () => $distinguishState.submit(!distinguished),
+				busy: $distinguishState.busy
+			});
+
+			options.push({
+				text: 'Mod - ' + (removed ? 'Restore' : 'Remove'),
+				icon: removed ? 'recycle' : 'trash-can',
+				click: () => $removeState.submit(!removed),
+				busy: $removeState.busy
+			});
+
+			options.push({
+				text: 'Mod - ' + (banned ? 'Unban' : 'Ban'),
+				icon: removed ? 'check' : 'ban',
+				click: () => $banState.submit(!banned),
+				busy: $banState.busy
+			});
+		}
 
 		overflowMenuOptions = options;
 	}
