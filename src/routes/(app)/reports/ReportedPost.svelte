@@ -33,7 +33,7 @@
 			<Stack gap={2} dir="r" align="center">
 				<BusyButton
 					busy={$removeState.busy}
-					on:click={$removeState.submit}
+					on:click={onRemove}
 					cl={view.post.removed ? '' : 'tertiary'}
 					icon={view.post.removed ? 'recycle' : 'trash-can'}>{view.post.removed ? 'Restore' : 'Remove'}</BusyButton
 				>
@@ -59,6 +59,10 @@
 	/>
 </Stack>
 
+{#if showReasonModal}
+	<ReasonModal title="Remove" bind:visible={showReasonModal} busy={$removeState.busy} on:reason={onRemoveReason} />
+{/if}
+
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
 	import Report from './Report.svelte';
@@ -67,6 +71,7 @@
 	import PostThumbnail from '$lib/feeds/posts/PostThumbnail.svelte';
 	import PrettyExternalLink from '$lib/PrettyExternalLink.svelte';
 	import BanButton from './BanButton.svelte';
+	import ReasonModal from '$lib/ReasonModal.svelte';
 	import UserLink from '$lib/UserLink.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
@@ -89,14 +94,28 @@
 
 	const bannedUsers = getBannedUsersStore();
 
-	const removeState = createStatefulAction(async () => {
+	let showReasonModal = false;
+
+	function onRemove() {
+		if (view.post.removed) {
+			$removeState.submit({ removed: false });
+		} else {
+			showReasonModal = true;
+		}
+	}
+	function onRemoveReason(e: CustomEvent<string>) {
+		$removeState.submit({ removed: true, reason: e.detail });
+	}
+
+	const removeState = createStatefulAction<{ removed: boolean; reason?: string }>(async ({ removed, reason }) => {
 		if (!jwt) {
 			return;
 		}
 		const res = await client.removePost({
 			auth: jwt,
 			post_id: view.post.id,
-			removed: !view.post.removed
+			removed,
+			reason
 		});
 
 		cvStore.updateView(
@@ -105,6 +124,8 @@
 				post: res.post_view.post
 			})
 		);
+
+		showReasonModal = false;
 	});
 
 	function hasImageExtension(url: string) {

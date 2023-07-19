@@ -43,7 +43,7 @@
 		<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" cl="tertiary m-0" />
 		<BusyButton
 			busy={$removeState.busy}
-			on:click={$removeState.submit}
+			on:click={onRemove}
 			cl="m-0 {view.comment.removed ? '' : 'tertiary'}"
 			icon={view.comment.removed ? 'recycle' : 'trash-can'}>{view.comment.removed ? 'Restore' : 'Remove'}</BusyButton
 		>
@@ -68,8 +68,18 @@
 	/>
 </Stack>
 
+{#if showRemovalReasonModal}
+	<ReasonModal
+		title="Remove"
+		bind:visible={showRemovalReasonModal}
+		busy={$removeState.busy}
+		on:reason={onRemoveReason}
+	/>
+{/if}
+
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
+	import ReasonModal from '$lib/ReasonModal.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import Report from './Report.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
@@ -112,14 +122,29 @@
 		checkUnreadReports();
 	});
 	$: contextCommentId = getCommentContextId(view);
-	const removeState = createStatefulAction(async () => {
+
+	let showRemovalReasonModal = false;
+
+	function onRemove() {
+		if (view.comment.removed) {
+			$removeState.submit({ removed: false });
+		} else {
+			showRemovalReasonModal = true;
+		}
+	}
+	function onRemoveReason(e: CustomEvent<string>) {
+		$removeState.submit({ removed: true, reason: e.detail });
+	}
+
+	const removeState = createStatefulAction<{ removed: boolean; reason?: string }>(async ({ removed, reason }) => {
 		if (!jwt) {
 			return;
 		}
 		const res = await client.removeComment({
 			auth: jwt,
 			comment_id: view.comment.id,
-			removed: !view.comment.removed
+			removed,
+			reason
 		});
 
 		cvStore.updateView(
@@ -128,6 +153,8 @@
 				comment: res.comment_view.comment
 			})
 		);
+
+		showRemovalReasonModal = false;
 	});
 
 	function onBan(e: CustomEvent<BanFromCommunityResponse>) {

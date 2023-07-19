@@ -188,7 +188,25 @@
 </section>
 
 {#if showReportModal}
-	<ReportModal on:report={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
+	<ReasonModal on:reason={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
+{/if}
+
+{#if showRemovalReasonModal}
+	<ReasonModal
+		title="Remove"
+		bind:visible={showRemovalReasonModal}
+		busy={$removeState.busy}
+		on:reason={onRemoveReason}
+	/>
+{/if}
+
+{#if showBanReasonModal}
+	<ReasonModal
+		title="Ban"
+		bind:visible={showBanReasonModal}
+		busy={$banFromCommunityState.busy}
+		on:reason={onBanReason}
+	/>
 {/if}
 
 <script lang="ts">
@@ -202,7 +220,7 @@
 	import LogButton from './LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
 	import BusyButton from './BusyButton.svelte';
-	import ReportModal from './ReportModal.svelte';
+	import ReasonModal from './ReasonModal.svelte';
 	import IconButton from './IconButton.svelte';
 	import IconLink from './IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
@@ -433,20 +451,53 @@
 		cvStore.updateView(commentViewToContentView(res.comment_view));
 	});
 
-	const removeState = createStatefulAction<boolean>(async (removed: boolean) => {
+	let showRemovalReasonModal = false;
+	let showBanReasonModal = false;
+
+	function onRemove() {
+		if (contentView.view.comment.removed) {
+			$removeState.submit({ removed: false });
+		} else {
+			showRemovalReasonModal = true;
+		}
+	}
+	function onRemoveReason(e: CustomEvent<string>) {
+		$removeState.submit({ removed: true, reason: e.detail });
+	}
+
+	const removeState = createStatefulAction<{ removed: boolean; reason?: string }>(async ({ removed, reason }) => {
 		if (!jwt) {
 			return;
 		}
 		const res = await client.removeComment({
 			auth: jwt,
 			comment_id: contentView.view.comment.id,
-			removed
+			removed,
+			reason
 		});
 
 		cvStore.updateView(commentViewToContentView(res.comment_view));
+		showRemovalReasonModal = false;
 	});
 
-	const banState = createStatefulAction<boolean>(async (ban: boolean) => {
+	function toggleBan() {
+		if (contentView.view.creator_banned_from_community) {
+			$banFromCommunityState.submit({
+				ban: false
+			});
+		} else {
+			showBanReasonModal = true;
+		}
+	}
+
+	function onBanReason(e: CustomEvent<string>) {
+		$banFromCommunityState.submit({
+			ban: true,
+			reason: e.detail
+		});
+	}
+
+	const banFromCommunityState = createStatefulAction<{ ban: boolean; reason?: string }>(async ({ ban, reason }) => {
 		if (!jwt) {
 			return;
 		}
@@ -454,7 +505,8 @@
 			auth: jwt,
 			person_id: contentView.view.creator.id,
 			community_id: contentView.communityId,
-			ban
+			ban,
+			reason
 		});
 
 		cvStore.updateViews((views) => {
@@ -470,6 +522,8 @@
 				return view;
 			});
 		});
+
+		showBanReasonModal = false;
 	});
 
 	let overflowMenuOptions: ExtraAction[] = [];
@@ -517,15 +571,15 @@
 			options.push({
 				text: 'Mod - ' + (removed ? 'Restore' : 'Remove'),
 				icon: removed ? 'recycle' : 'trash-can',
-				click: () => $removeState.submit(!removed),
+				click: onRemove,
 				busy: $removeState.busy
 			});
 
 			options.push({
 				text: 'Mod - ' + (banned ? 'Unban' : 'Ban'),
 				icon: removed ? 'check' : 'ban',
-				click: () => $banState.submit(!banned),
-				busy: $banState.busy
+				click: toggleBan,
+				busy: $banFromCommunityState.busy
 			});
 		}
 

@@ -132,7 +132,7 @@
 </article>
 
 {#if showReportModal}
-	<ReportModal on:report={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
+	<ReasonModal on:reason={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
 {/if}
 
 <script lang="ts">
@@ -147,7 +147,7 @@
 	import PostCommentCount from './PostCommentCount.svelte';
 	import PostVoteButtons from './PostVoteButtons.svelte';
 	import PostThumbnail from './PostThumbnail.svelte';
-	import ReportModal from '$lib/ReportModal.svelte';
+	import ReasonModal from '$lib/ReasonModal.svelte';
 	import PostTime from './PostTime.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
