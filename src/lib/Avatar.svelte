@@ -22,7 +22,7 @@
 
 <div class="avatar {cl}" style="--avatar-size: {size};" class:avatar-fallback={!hasImage}>
 	{#if hasImage && src}
-		<Image {src} />
+		<Image {src} mode="thumbnail" thumbnailResolution={resolution} />
 	{:else}
 		<Icon {icon} />
 	{/if}
@@ -39,6 +39,7 @@
 	export let icon: string;
 	export let cl = '';
 	export let size: string;
+	export let resolution = 64;
 
 	$: hasImage = src && ls.show_avatars;
 </script>

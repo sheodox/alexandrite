@@ -20,7 +20,7 @@
 		<Stack gap={2} dir="r" align="center">
 			{#if user.avatar && ls.show_avatars}
 				<div class="user-avatar">
-					<Image src={user.avatar} />
+					<Image src={user.avatar} mode="thumbnail" />
 				</div>
 			{/if}
 			<h1 class="sx-font-size-4 m-0">
@@ -32,7 +32,7 @@
 	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off">
 		{#if user.avatar && ls.show_avatars}
 			<div class="user-avatar inline">
-				<Image src={user.avatar} />
+				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />
 			</div>
 		{/if}
 		<span>

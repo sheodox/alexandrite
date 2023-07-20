@@ -34,7 +34,7 @@
 				<Stack gap={2} dir="r" align="center">
 					{#if community.icon && ls.show_avatars}
 						<div class="community-avatar large">
-							<Image src={community.icon} />
+							<Image src={community.icon} mode="thumbnail" />
 						</div>
 					{/if}
 					<h1 class="sx-font-size-4 m-0">
@@ -48,7 +48,7 @@
 			<span class="f-row gap-1">
 				{#if community.icon && ls.show_avatars}
 					<div class="community-avatar small">
-						<Image src={community.icon} />
+						<Image src={community.icon} mode="thumbnail" thumbnailResolution={16} />
 					</div>
 				{/if}
 				<EllipsisText><NameAtInstance place={community} displayName={community.title} prefix="" /></EllipsisText>
@@ -59,7 +59,7 @@
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
 			<div class="community-avatar medium">
 				{#if community.icon && ls.show_avatars}
-					<Image src={community.icon} />
+					<Image src={community.icon} mode="thumbnail" />
 				{:else}
 					<Icon icon="users" />
 				{/if}
