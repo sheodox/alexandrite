@@ -13,6 +13,7 @@ export interface AppContext {
 	ctrlBasedHotkeys: boolean;
 	siteMeta: GetSiteResponse;
 	unreadCount: Writable<number>;
+	navSidebarOpen: Writable<boolean>;
 	unreadReportCount: Writable<number>;
 	checkUnread: () => Promise<void>;
 	checkUnreadReports: () => Promise<void>;

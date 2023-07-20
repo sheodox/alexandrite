@@ -124,8 +124,8 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	const { username, screenDimensions } = getAppContext();
-	const { sidebarVisible, feedLayout: feedLayoutSetting } = getSettingsContext();
+	const { username, screenDimensions, navSidebarOpen } = getAppContext();
+	const { sidebarVisible, feedLayout: feedLayoutSetting, navSidebarDocked } = getSettingsContext();
 
 	const cvStore = getContentViewStore();
 
@@ -152,7 +152,7 @@
 
 			// AUTO layouts should choose one based on the viewport width.
 			// just comparing against some rough estimates of what "looks good"
-			let columnDesiredWidth = 1600 + (sidebarVisible ? 500 : 0);
+			let columnDesiredWidth = 1600 + (sidebarVisible ? 500 : 0) + ($navSidebarDocked && $navSidebarOpen ? 350 : 0);
 
 			if (dims.width > columnDesiredWidth) {
 				return 'COLUMNS';

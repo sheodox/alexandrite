@@ -41,6 +41,7 @@ export interface AlexandriteSettings {
 	themeHue: number;
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
+	navSidebarDocked: boolean;
 	feedLayout: FeedLayout;
 }
 
@@ -48,6 +49,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	themeHue: 280,
 	nsfwImageHandling: 'HIDE',
 	sidebarVisible: true,
+	navSidebarDocked: false,
 	// todo check if this is a good breakpoint
 	feedLayout: 'AUTO'
 };

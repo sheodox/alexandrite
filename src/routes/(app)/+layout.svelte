@@ -17,7 +17,7 @@
 	}
 </style>
 
-<Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen position="fixed">
+<Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen={$navSidebarOpen} position="fixed">
 	<Logo slot="logo" />
 	<div slot="headerCenter">
 		<form method="GET" action="/search" on:submit={onSearchSubmit}>
@@ -78,7 +78,7 @@
 <div class="f-row f-1 root-layout-content">
 	<Toasts />
 	<Modals />
-	<Sidebar bind:menuOpen>
+	<Sidebar bind:menuOpen={$navSidebarOpen} docked={$navSidebarDocked}>
 		<div slot="header" class="f-row align-items-center">
 			<Logo />
 			<h1 class="ml-2">Alexandrite</h1>
@@ -138,13 +138,17 @@
 
 	afterNavigate(() => {
 		loading = false;
-		menuOpen = false;
+		if (!$navSidebarDocked) {
+			$navSidebarOpen = false;
+		}
 	});
 
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
 		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
+		navSidebarOpen = writable(false),
+		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		cssVariables = writable<Record<string, string | number>>({});
 
 	async function checkUnread() {
@@ -189,6 +193,7 @@
 		instance: data.settings.instance,
 		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
+		navSidebarOpen,
 		unreadCount,
 		unreadReportCount,
 		ctrlBasedHotkeys: !navigator.userAgent.toLowerCase().includes('macintosh'),
@@ -208,10 +213,9 @@
 		themeHue,
 		nsfwImageHandling,
 		sidebarVisible,
-		feedLayout
+		feedLayout,
+		navSidebarDocked
 	});
-
-	let menuOpen = false;
 
 	$: instanceText = data.settings.username
 		? `${data.settings.username}@${data.settings.instance}`
