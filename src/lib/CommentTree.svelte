@@ -17,6 +17,9 @@
 		overflow: hidden;
 		opacity: 0.5;
 	}
+	.last-of-depth {
+		border-radius: 0 0 0 6px;
+	}
 </style>
 
 <Stack gap={0} cl="px-4">
@@ -38,9 +41,10 @@
 				<div class="comment">
 					<div
 						class="comment-leaf p-2 pb-0"
-						style:margin-left="calc(var(--sx-spacing-6) * {depth})"
 						class:collapsed
 						class:nested={depth > 0}
+						class:last-of-depth={depth > 0 && depth !== renderedComments[index + 1]?.depth}
+						style:margin-left="calc(var(--sx-spacing-6) * {depth})"
 					>
 						<Comment
 							contentView={commentViewToContentView(cv)}

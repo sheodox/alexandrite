@@ -38,7 +38,6 @@
 					</button>
 				</Tooltip>
 			{/if}
-			<UserLink user={contentView.view.creator} />
 			{#if contentView.view.comment.distinguished}
 				{@const text = 'Distinguished by moderator'}
 				<!-- maybe use a different word, you can distinguish non-mods -->
@@ -49,6 +48,7 @@
 					>
 				</Tooltip>
 			{/if}
+			<UserLink user={contentView.view.creator} isOP={comment.creator_id === contentView.view.post.creator_id} />
 			<UserBadges
 				user={contentView.view.creator}
 				{postOP}
