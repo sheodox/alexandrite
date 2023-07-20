@@ -1,7 +1,7 @@
 <style lang="scss">
 	.community-item {
 		border-radius: 5px;
-		height: 2.6rem;
+		min-height: 2.6rem;
 
 		&:not(:hover) :global(button) {
 			opacity: 0;
