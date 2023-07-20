@@ -1,8 +1,12 @@
-<style>
+<style lang="scss">
 	nav :global(.icon-link) {
 		display: inline-grid !important;
 		grid-template-columns: 2.5rem 1fr;
 		align-items: center;
+
+		:global(a) :global(*:first-child) {
+			width: 2.5rem;
+		}
 	}
 </style>
 
@@ -10,7 +14,7 @@
 	<nav class="sx-sidebar-simple-links">
 		<Stack dir="c" gap={1}>
 			{#each links as link}
-				<a href={link.href} class="icon-link"><Icon icon={link.icon} /><span>{link.text}</span></a>
+				<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /><span>{link.text}</span></a>
 			{/each}
 
 			<SidebarSubscriptionList
