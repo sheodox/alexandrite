@@ -27,6 +27,10 @@
 	function getBadges(user: Person) {
 		const badges = [];
 
+		// TODO make this just use IDs, compare to user's ID from siteMeta in app context
+		if ((typeof postOP === 'string' && user.actor_id === postOP) || (typeof postOP === 'boolean' && postOP)) {
+			badges.push({ color: 'peach', text: 'OP' });
+		}
 		if (user.banned) {
 			badges.push({ color: 'red', text: 'Banned' });
 		}
@@ -41,10 +45,6 @@
 		}
 		if (user.admin) {
 			badges.push({ color: 'orange', text: 'Admin' });
-		}
-		// TODO make this just use IDs, compare to user's ID from siteMeta in app context
-		if ((typeof postOP === 'string' && user.actor_id === postOP) || (typeof postOP === 'boolean' && postOP)) {
-			badges.push({ color: 'pink', text: 'OP' });
 		}
 		if (user.local && user.name == username) {
 			badges.push({ color: 'mint', text: 'You' });

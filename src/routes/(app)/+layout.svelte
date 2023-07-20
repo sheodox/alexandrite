@@ -94,7 +94,7 @@
 	</main>
 </div>
 
-{#if loading}
+{#if showLoadingOverlay}
 	<div class="loading-overlay sx-font-size-10 f-row align-items-center justify-content-center">
 		<Spinner />
 	</div>
@@ -121,23 +121,30 @@
 
 	export let data;
 
+	// there's an overlay that shows when navigating, but if the navigation is fast we don't want to show it,
+	// so we delay it a little bit to cut down on annoying one or two frame flashes of the overlay
+	const LOADING_OVERLAY_DELAY = 50;
+
 	const { client, jwt } = getLemmyClient();
 
 	const placement = 'bottom-end',
 		unreadCount = writable(0),
 		unreadReportCount = writable(0);
 
-	let loading = false,
+	let showLoadingOverlay = false,
 		headerSearchText = '';
 
 	$: isModerator = (data.site.my_user?.moderates.length ?? 0) > 0;
 
+	let showOverlayTimeout: ReturnType<typeof setTimeout>;
 	beforeNavigate(() => {
-		loading = true;
+		clearTimeout(showOverlayTimeout);
+		showOverlayTimeout = setTimeout(() => (showLoadingOverlay = true), LOADING_OVERLAY_DELAY);
 	});
 
 	afterNavigate(() => {
-		loading = false;
+		clearTimeout(showOverlayTimeout);
+		showLoadingOverlay = false;
 		if (!$navSidebarDocked) {
 			$navSidebarOpen = false;
 		}

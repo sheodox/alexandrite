@@ -7,7 +7,7 @@
 	disabled={$unreadCount === 0}>Mark All As Read</BusyButton
 >
 
-<form method="GET" data-sveltekit-replacestate>
+<form method="GET" use:navigateOnChange>
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
 			<Stack gap={4} align="center" dir="r">
@@ -18,8 +18,6 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-
-				<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 			</Stack>
 			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary" type="button"
 				>Refresh</BusyButton
@@ -63,7 +61,7 @@
 </Stack>
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
+	import { Stack } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/Comment.svelte';
@@ -79,7 +77,7 @@
 	import { feedLoader } from '$lib/post-loader';
 	import type { CommentSortType } from 'lemmy-js-client';
 	import { getLemmyClient } from '$lib/lemmy-client';
-	import { createStatefulAction } from '$lib/utils';
+	import { createStatefulAction, navigateOnChange } from '$lib/utils';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		createContentViewStore,

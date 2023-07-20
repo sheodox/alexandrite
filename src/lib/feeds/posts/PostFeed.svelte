@@ -7,7 +7,7 @@
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
 		<div class="toolbar">
-			<form method="GET" data-sveltekit-replacestate>
+			<form method="GET" use:navigateOnChange>
 				<section>
 					<Stack gap={4} align="center" cl="p-4 f-wrap" dir="r">
 						{#if typeOptions}
@@ -23,8 +23,6 @@
 								{/each}
 							</select>
 						{/if}
-
-						<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 					</Stack>
 				</section>
 			</form>
@@ -63,7 +61,7 @@
 </div>
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
+	import { Stack } from 'sheodox-ui';
 	import Post from './Post.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import FeedNav from '$lib/FeedNav.svelte';
@@ -79,6 +77,7 @@
 	import Comment from '$lib/Comment.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import { getContentViewStore } from '$lib/content-views';
+	import { navigateOnChange } from '$lib/utils';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;

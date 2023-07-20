@@ -13,6 +13,9 @@
 		height: 1em;
 		width: 1em;
 	}
+	.op {
+		color: var(--sx-peach-300) !important;
+	}
 </style>
 
 <Tooltip>
@@ -29,7 +32,7 @@
 		</Stack>
 		<span> {creatorName}</span>
 	</div>
-	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off">
+	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off" class:op={isOP}>
 		{#if user.avatar && ls.show_avatars}
 			<div class="user-avatar inline">
 				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />
@@ -50,6 +53,8 @@
 	import { getLemmySettings } from './lemmy-settings';
 
 	export let user: Person;
+	export let isOP = false;
+
 	$: creatorName = nameAtInstance(user);
 
 	const ls = getLemmySettings();

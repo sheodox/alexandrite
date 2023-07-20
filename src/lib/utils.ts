@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import { readable, writable } from 'svelte/store';
 
 // a wrapper for things in a MenuButton, used by ExtraActions.svelte
@@ -132,3 +133,27 @@ export const createStatefulAction = <T>(submitFn: (val: T) => Promise<unknown>) 
 		return;
 	});
 };
+
+// navigate to a new URL with query parameters based on form fields.
+// this is just like having a form with a method="GET" but done whenever
+// a field changes. this is used for instantly applying filters on feeds
+export function navigateOnChange(el: HTMLFormElement) {
+	function onChange() {
+		const formData = new FormData(el);
+		const query = [];
+
+		for (const [name, value] of formData) {
+			if (value) {
+				query.push(`${name}=${encodeURIComponent(value as string)}`);
+			}
+		}
+
+		goto(location.pathname + (query.length ? '?' + query.join('&') : ''));
+	}
+
+	el.addEventListener('change', onChange);
+
+	return {
+		destroy: () => el.removeEventListener('change', onChange)
+	};
+}

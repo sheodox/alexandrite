@@ -1,11 +1,9 @@
-<form method="GET" data-sveltekit-replacestate>
+<form method="GET" use:navigateOnChange>
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
 			<Stack gap={4} align="center" cl="f-wrap" dir="r">
 				<ToggleGroup options={ReportFeedStateOptions} bind:selected={selectedState} name="state" />
 				<ToggleGroup options={ReportFeedTypeOptions} bind:selected={selectedType} name="type" />
-
-				<button class="tertiary">Go <Icon icon="chevron-right" /></button>
 			</Stack>
 			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary">Refresh</BusyButton>
 		</Stack>
@@ -45,7 +43,7 @@
 </Stack>
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
+	import { Stack } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ReportFeedStateOptions, ReportFeedTypeOptions } from '$lib/feed-filters.js';
 	import { getAppContext } from '$lib/app-context.js';
@@ -58,7 +56,7 @@
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
-	import { createStatefulAction } from '$lib/utils.js';
+	import { createStatefulAction, navigateOnChange } from '$lib/utils.js';
 	import type { PageData } from './$types';
 	import { feedLoader } from '$lib/post-loader';
 	import { parseISO } from 'date-fns';
