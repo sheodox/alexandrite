@@ -81,9 +81,9 @@
 
 			{#if loggedIn}
 				<div class="comment-editor m-2">
-					<Accordion bind:open={showCommentComposer} buttonClasses="tertiary">
+					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
-						{#key showCommentComposer}
+						{#key $showNewCommentComposer}
 							<form bind:this={newCommentForm}>
 								<CommentEditor submitting={$newCommentState.busy} bind:value={newCommentText} />
 							</form>
@@ -172,7 +172,7 @@
 	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
-	import { createStatefulForm, type ActionFn } from './utils';
+	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
@@ -187,6 +187,8 @@
 	export let centered = false;
 	// if the user should see a 'Close' button, useful when viewing a feed in column layout
 	export let closeable = false;
+
+	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {
@@ -236,7 +238,6 @@
 		searchText = '',
 		loadingComments = false,
 		// assume if they came here following a comment link, commenting on the post is less important
-		showCommentComposer = rootCommentId === null,
 		showPost = rootCommentId === null && (!postView.post.nsfw || $nsfwImageHandling === 'SHOW'),
 		commentLoadFailed = false,
 		endOfCommentsFeed = false;
@@ -298,7 +299,6 @@
 		loadedCommentIds.add(res.comment_view.comment.id);
 		// put the new comment the user posted at the top so they can see it
 		commentCVStore.prepend([commentViewToContentView(res.comment_view)]);
-		showCommentComposer = false;
 		newCommentText = '';
 	};
 
