@@ -45,28 +45,27 @@
 					icon="star"
 					placement="right"
 					cl="favorite-community m-0 pill"
-					on:click={() => dispatch('favorite', { communityId: sub.community.id, favorite: !favorited })}
+					on:click={() => dispatch('favorite', { communityId: community.id, favorite: !favorited })}
 				/>
 			</div>
 		{:else}
 			<div>
-				<Avatar src={sub.community.icon} size="2rem" icon="users" />
+				<Avatar src={community.icon} size="2rem" icon="users" />
 			</div>
 		{/if}
 	</div>
-	<a href="/c/{nameAtInstance(sub.community)}" class="f-1 m-0">
-		<NameAtInstance place={sub.community} displayName={sub.community.title} prefix="" />
+	<a href="/c/{nameAtInstance(community)}" class="f-1 m-0">
+		<NameAtInstance place={community} displayName={community.title} prefix="" />
 	</a>
 </div>
 
 <script lang="ts">
-	import { fade } from 'svelte/transition';
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import Avatar from '$lib/Avatar.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createEventDispatcher } from 'svelte';
-	import type { CommunityFollowerView } from 'lemmy-js-client';
+	import type { Community } from 'lemmy-js-client';
 
 	let hovered = false;
 
@@ -75,5 +74,5 @@
 	}>();
 
 	export let favorited: boolean;
-	export let sub: CommunityFollowerView;
+	export let community: Community;
 </script>

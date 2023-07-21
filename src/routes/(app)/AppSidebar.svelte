@@ -19,14 +19,23 @@
 
 			<SidebarSubscriptionList
 				title="Favorites"
-				subscriptions={favoriteCommunitiesh}
+				communities={favoriteCommunities.map((v) => v.community)}
 				favorites={$favoriteCommunitiesIds}
 				on:favorite={(e) => onFavorite(e.detail)}
 			/>
 
+			{#if siteMeta.my_user}
+				<SidebarSubscriptionList
+					title="Moderating"
+					communities={siteMeta.my_user.moderates.map((v) => v.community)}
+					favorites={$favoriteCommunitiesIds}
+					on:favorite={(e) => onFavorite(e.detail)}
+				/>
+			{/if}
+
 			<SidebarSubscriptionList
 				title="Subscriptions"
-				{subscriptions}
+				communities={subscriptions.map((v) => v.community)}
 				favorites={$favoriteCommunitiesIds}
 				on:favorite={(e) => onFavorite(e.detail)}
 			/>
@@ -43,11 +52,11 @@
 
 	export let subscriptions: CommunityFollowerView[] = [];
 
-	const { username, loggedIn } = getAppContext();
+	const { username, loggedIn, siteMeta } = getAppContext();
 
 	const favoriteCommunitiesIds = localStorageBackedStore<number[]>('favorite-communities', []);
 
-	$: favoriteCommunitiesh = subscriptions.filter((sub) => $favoriteCommunitiesIds.includes(sub.community.id));
+	$: favoriteCommunities = subscriptions.filter((sub) => $favoriteCommunitiesIds.includes(sub.community.id));
 
 	function onFavorite({ communityId, favorite }: { communityId: number; favorite: boolean }) {
 		if (favorite) {
