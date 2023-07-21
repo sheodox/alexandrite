@@ -35,8 +35,9 @@
 		bind:viewportTopIndex
 	>
 		<svelte:fragment let:index>
-			{@const { cv, depth } = renderedComments[index]}
+			{@const { cv, depth, parentComment } = renderedComments[index]}
 			{@const collapsed = collapsedComments.some((c) => cv.comment.id === c)}
+			{@const shallowerThanLast = depth < (renderedComments[index - 1]?.depth ?? 0)}
 			{#key cv.comment.id}
 				<div class="comment">
 					<div
@@ -53,6 +54,7 @@
 							{collapsed}
 							on:new-comment
 							searchNonMatch={searchText !== '' && !commentSearchMatchIds.includes(cv.comment.id)}
+							parentComment={shallowerThanLast ? parentComment : undefined}
 						/>
 						{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
 							{@const loading = expandLoadingIds.includes(cv.comment.id)}
@@ -80,12 +82,13 @@
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
 	import Comment from './Comment.svelte';
-	import VirtualFeed from './VirtualFeed.svelte';
+	import VirtualFeed from '../VirtualFeed.svelte';
 	import type { CommentView } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
-	import Spinner from './Spinner.svelte';
-	import { commentViewToContentView } from './content-views';
-	import type { VirtualFeedAPI } from './virtual-feed';
+	import Spinner from '../Spinner.svelte';
+	import { commentViewToContentView } from '../content-views';
+	import type { VirtualFeedAPI } from '../virtual-feed';
+	import type { CommentBranch } from './comment-utils';
 
 	export let postOP: string;
 	export let searchText: string;
@@ -116,12 +119,6 @@
 		more: void;
 	}>();
 
-	interface CommentBranch {
-		cv: CommentView;
-		depth: number;
-		path: string;
-	}
-
 	function getRootPath(rootId: number | null, path: string) {
 		if (rootCommentId === null) {
 			return path;
@@ -149,12 +146,12 @@
 		return total;
 	}
 
-	// each
 	function getBranches(
 		path: string,
 		commentViews: CommentView[] = [],
 		depth: number,
-		collapsed: number[]
+		collapsed: number[],
+		parentComment?: CommentView
 	): CommentBranch[] {
 		return (
 			commentViews
@@ -165,7 +162,10 @@
 				})
 				// ...so we can show all of the child comments as the siblings of this parent comment so they show next to each other
 				.map((cv) => {
-					return [{ cv, depth, path }, ...getBranches(path + '.' + cv.comment.id, commentViews, depth + 1, collapsed)];
+					return [
+						{ cv, depth, path, parentComment },
+						...getBranches(path + '.' + cv.comment.id, commentViews, depth + 1, collapsed, cv)
+					];
 				})
 				.flat()
 		);

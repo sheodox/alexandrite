@@ -162,13 +162,13 @@
 <script lang="ts">
 	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
 	import Post from '$lib/feeds/posts/Post.svelte';
-	import CommentTree from '$lib/CommentTree.svelte';
+	import CommentTree from '$lib/comments/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
 	import PostNavigationBar from './PostNavigationBar.svelte';
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
-	import CommentEditor from './CommentEditor.svelte';
+	import CommentEditor from './comments/CommentEditor.svelte';
 	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { getLemmyClient } from './lemmy-client';
@@ -178,6 +178,7 @@
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
 	import type { VirtualFeedAPI } from './virtual-feed';
+	import type { CommentBranch } from './comments/comment-utils';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -210,11 +211,6 @@
 	const { client, jwt } = getLemmyClient();
 	// this bubbles up from the virtual feed
 	let virtualFeedAPI: VirtualFeedAPI;
-	interface CommentBranch {
-		cv: CommentView;
-		depth: number;
-		path: string;
-	}
 	let renderedComments: CommentBranch[];
 	let viewportTopIndex: number;
 

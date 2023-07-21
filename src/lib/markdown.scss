@@ -37,4 +37,10 @@
 	details[open] {
 		background: var(--sx-gray-transparent);
 	}
+	:first-child {
+		margin-top: 0;
+	}
+	:last-child {
+		margin-bottom: 0;
+	}
 }

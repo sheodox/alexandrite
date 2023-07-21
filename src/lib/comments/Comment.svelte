@@ -1,10 +1,4 @@
 <style>
-	.comment-content :global(:first-child) {
-		margin-top: 0;
-	}
-	.comment-content :global(:last-child) {
-		margin-bottom: 0;
-	}
 	.comment-content,
 	.reply-editor {
 		max-width: 60rem;
@@ -67,6 +61,14 @@
 			</a>
 			{#if comment.updated && comment.updated !== comment.published}
 				<RelativeTime date={comment.updated} variant="icon" icon="edit" verb="Edited" />
+			{/if}
+			<div class="f-1" />
+
+			{#if parentComment}
+				<Tooltip placement="left">
+					<ParentComment view={parentComment} slot="tooltip" />
+					<Icon icon="turn-up" cl="muted" />
+				</Tooltip>
 			{/if}
 		</Stack>
 		{#if !collapsed}
@@ -193,28 +195,29 @@
 
 <script lang="ts">
 	import { Stack, Tooltip, Icon, createAutoExpireToast } from 'sheodox-ui';
-	import UserLink from './UserLink.svelte';
-	import Markdown from './Markdown.svelte';
-	import VoteButtons from './VoteButtons.svelte';
-	import RelativeTime from './RelativeTime.svelte';
-	import ExtraActions from './ExtraActions.svelte';
-	import UserBadges from './feeds/posts/UserBadges.svelte';
-	import LogButton from './LogButton.svelte';
+	import UserLink from '../UserLink.svelte';
+	import Markdown from '../Markdown.svelte';
+	import VoteButtons from '../VoteButtons.svelte';
+	import RelativeTime from '../RelativeTime.svelte';
+	import ExtraActions from '../ExtraActions.svelte';
+	import UserBadges from '../feeds/posts/UserBadges.svelte';
+	import LogButton from '../LogButton.svelte';
 	import type { CommentView } from 'lemmy-js-client';
-	import BusyButton from './BusyButton.svelte';
-	import ReasonModal from './ReasonModal.svelte';
-	import IconButton from './IconButton.svelte';
-	import IconLink from './IconLink.svelte';
+	import BusyButton from '../BusyButton.svelte';
+	import ReasonModal from '../ReasonModal.svelte';
+	import IconButton from '../IconButton.svelte';
+	import IconLink from '../IconLink.svelte';
 	import CommentEditor from './CommentEditor.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { getAppContext } from './app-context';
-	import Spinner from './Spinner.svelte';
-	import CommunityLink from './CommunityLink.svelte';
+	import { getAppContext } from '../app-context';
+	import Spinner from '../Spinner.svelte';
+	import ParentComment from './ParentComment.svelte';
+	import CommunityLink from '../CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
-	import { getCommentContextId } from './nav-utils';
-	import { getLemmyClient } from './lemmy-client';
-	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from './utils';
-	import { getVirtualFeedBuffer } from './virtual-feed';
+	import { getCommentContextId } from '../nav-utils';
+	import { getLemmyClient } from '../lemmy-client';
+	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from '../utils';
+	import { getVirtualFeedBuffer } from '../virtual-feed';
 	import {
 		commentViewToContentView,
 		getContentViewStore,
@@ -223,8 +226,8 @@
 		type ContentViewMention,
 		type ContentViewReply,
 		replyViewToContentView
-	} from './content-views';
-	import { getModActionPending, getModContext } from './mod/mod-context';
+	} from '../content-views';
+	import { getModActionPending, getModContext } from '../mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
 		collapse: void;
@@ -239,7 +242,9 @@
 	export let contentView: ContentViewComment | ContentViewReply | ContentViewMention;
 	export let postOP: string;
 	export let collapsed = false;
+	// whether to show a link to the post, used when comments are presented outside of context (inbox/reports/search etc)
 	export let showPost = false;
+	export let parentComment: CommentView | undefined;
 
 	// need to assign before the reactivity or the consts below don't work
 	let comment = contentView.view.comment;

@@ -74,7 +74,7 @@
 		UserSortOptions
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
-	import Comment from '$lib/Comment.svelte';
+	import Comment from '$lib/comments/Comment.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import { getContentViewStore } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';

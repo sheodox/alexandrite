@@ -35,9 +35,9 @@
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
 	import { createEventDispatcher } from 'svelte';
-	import BusyButton from './BusyButton.svelte';
-	import MarkdownEditor from './MarkdownEditor.svelte';
-	import LanguageSelector from './LanguageSelector.svelte';
+	import BusyButton from '../BusyButton.svelte';
+	import MarkdownEditor from '../MarkdownEditor.svelte';
+	import LanguageSelector from '../LanguageSelector.svelte';
 
 	const dispatch = createEventDispatcher<{ cancel: void }>();
 

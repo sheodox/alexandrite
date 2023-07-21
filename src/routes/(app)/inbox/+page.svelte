@@ -64,7 +64,7 @@
 	import { Stack } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
-	import Comment from '$lib/Comment.svelte';
+	import Comment from '$lib/comments/Comment.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';

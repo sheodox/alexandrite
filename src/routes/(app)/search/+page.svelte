@@ -88,7 +88,7 @@
 	import CommunityHeader from '$lib/feeds/posts/CommunityHeader.svelte';
 	import UserHeader from '$lib/feeds/posts/UserHeader.svelte';
 	import { SearchTypeOptions, ListingOptions, SearchSortOptions } from '$lib/feed-filters';
-	import Comment from '$lib/Comment.svelte';
+	import Comment from '$lib/comments/Comment.svelte';
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';

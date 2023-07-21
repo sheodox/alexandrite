@@ -24,7 +24,7 @@
 	import { Stack, Alert } from 'sheodox-ui';
 	import UserLink from './UserLink.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import CommentEditor from './CommentEditor.svelte';
+	import CommentEditor from './comments/CommentEditor.svelte';
 	import { createStatefulForm } from './utils';
 	import { getLemmyClient } from './lemmy-client';
 	import { getMessageFromError } from './error-messages';
