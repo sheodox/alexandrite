@@ -223,6 +223,7 @@
 			})
 			.then(({ post_view }) => post_view);
 
+		postView = pv;
 		cvStore.updateView(postViewToContentView(pv));
 	});
 
@@ -270,6 +271,7 @@
 		});
 
 		if (res) {
+			postView = res.post_view;
 			cvStore.updateView(postViewToContentView(res.post_view));
 		}
 	}
@@ -282,6 +284,7 @@
 		});
 
 		if (res) {
+			postView = res.post_view;
 			cvStore.updateView(postViewToContentView(res.post_view));
 		}
 	}
