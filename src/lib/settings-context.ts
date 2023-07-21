@@ -42,6 +42,7 @@ export interface AlexandriteSettings {
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
 	navSidebarDocked: boolean;
+	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
 }
 
@@ -50,6 +51,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	nsfwImageHandling: 'HIDE',
 	sidebarVisible: true,
 	navSidebarDocked: false,
+	loadImagesAsWebp: true,
 	// todo check if this is a good breakpoint
 	feedLayout: 'AUTO'
 };

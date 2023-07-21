@@ -29,7 +29,9 @@
 {:else if valid}
 	<picture class="image-mode-{mode} {full ? 'image-full' : ''}" class:blur={nsfw && $nsfwImageHandling === 'BLUR'}>
 		{#if isLemmyHosted}
-			<source srcset="{src}?format=webp{size}" type="image/webp" />
+			{#if $loadImagesAsWebp}
+				<source srcset="{src}?format=webp{size}" type="image/webp" />
+			{/if}
 			<source srcset={src} />
 			<source srcset="{src}?format=jpg{size}" type="image/jpeg" />
 		{/if}
@@ -57,7 +59,7 @@
 	export let nsfw = false;
 	export let lazy = true;
 	export let thumbnailResolution = 256;
-	const { nsfwImageHandling } = getSettingsContext();
+	const { nsfwImageHandling, loadImagesAsWebp } = getSettingsContext();
 
 	$: valid = src.startsWith('https://') || src.startsWith('http://');
 	$: isLemmyHosted = safeUrl(src)?.pathname.startsWith('/pictrs/');

@@ -7,6 +7,7 @@
 <Stack dir="c" gap={4} align="start">
 	<div class="mx-2">
 		<Checkbox bind:checked={$navSidebarDocked}>Keep navigation sidebar open</Checkbox>
+		<Checkbox bind:checked={$loadImagesAsWebp}>Load images as <code>.webp</code></Checkbox>
 	</div>
 	<Fieldset legend="Theme">
 		<Stack dir="r" align="center" gap={4}>
@@ -36,5 +37,5 @@
 	import FeedLayoutSettings from '$lib/FeedLayoutSettings.svelte';
 	import DescriptiveToggles from '$lib/DescriptiveToggles.svelte';
 
-	const { themeHue, nsfwImageHandling, navSidebarDocked } = getSettingsContext();
+	const { themeHue, nsfwImageHandling, navSidebarDocked, loadImagesAsWebp } = getSettingsContext();
 </script>

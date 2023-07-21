@@ -153,6 +153,7 @@
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
+		loadImagesAsWebp = localStorageBackedStore('load-images-as-webp', AlexandriteSettingsDefaults.loadImagesAsWebp),
 		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
@@ -220,6 +221,7 @@
 		themeHue,
 		nsfwImageHandling,
 		sidebarVisible,
+		loadImagesAsWebp,
 		feedLayout,
 		navSidebarDocked
 	});
