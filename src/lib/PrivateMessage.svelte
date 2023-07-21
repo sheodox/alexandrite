@@ -28,9 +28,11 @@
 				{#if toMe}
 					<span>Message from</span>
 					<UserLink user={privateMessageView.creator} />
+					<UserBadges user={privateMessageView.creator} />
 				{:else}
 					<span>Message to</span>
 					<UserLink user={privateMessageView.recipient} />
+					<UserBadges user={privateMessageView.recipient} />
 				{/if}
 				<span class="muted">&centerdot;</span>
 				<RelativeTime date={privateMessageView.private_message.published} />
@@ -61,6 +63,7 @@
 	import UserLink from './UserLink.svelte';
 	import PrivateMessageCompose from './PrivateMessageCompose.svelte';
 	import LogButton from './LogButton.svelte';
+	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import { getAppContext } from './app-context';
 
 	export let privateMessageView: PrivateMessageView;
