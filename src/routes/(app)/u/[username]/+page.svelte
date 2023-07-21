@@ -66,6 +66,8 @@
 		// load the first page of data
 		cvStore.clear();
 		endOfFeed = false;
+		loadingContent = false;
+		loadingContentFailed = false;
 		more(data.query.type);
 	}
 
@@ -107,11 +109,14 @@
 		}
 		loadingContent = true;
 
+		const qs = location.search;
 		const more = (await loader.next()).value;
-		loadingContentFailed = more.error;
-		cvStore.append(filterContentType(more.contentViews, cvType));
-		endOfFeed = more.endOfFeed;
+		if (qs === location.search) {
+			loadingContentFailed = more.error;
+			cvStore.append(filterContentType(more.contentViews, cvType));
+			endOfFeed = more.endOfFeed;
 
-		loadingContent = false;
+			loadingContent = false;
+		}
 	}
 </script>

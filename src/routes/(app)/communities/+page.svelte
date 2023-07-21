@@ -108,16 +108,19 @@
 		}
 		loadingContent = true;
 
+		const qs = location.search;
 		const more = (await loader.next()).value;
-		loadingContentFailed = more.error;
-		endOfFeed = more.endOfFeed;
+		if (qs === location.search) {
+			loadingContentFailed = more.error;
+			endOfFeed = more.endOfFeed;
 
-		if (more.response) {
-			const newPage = more.response.filter((com) => {
-				return !loadedCommunityIds.has(com.community.id);
-			});
-			cvStore.append(newPage.map(communityViewToContentView));
+			if (more.response) {
+				const newPage = more.response.filter((com) => {
+					return !loadedCommunityIds.has(com.community.id);
+				});
+				cvStore.append(newPage.map(communityViewToContentView));
+			}
+			loadingContent = false;
 		}
-		loadingContent = false;
 	}
 </script>

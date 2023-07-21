@@ -72,11 +72,14 @@
 		}
 		loadingContent = true;
 
+		const qs = location.search;
 		const feedData = (await loader.next()).value;
-		loadingContentFailed = feedData.error;
-		endOfFeed = feedData.endOfFeed;
-		cvStore.append(feedData.contentViews);
+		if (qs === location.search) {
+			loadingContentFailed = feedData.error;
+			endOfFeed = feedData.endOfFeed;
+			cvStore.append(feedData.contentViews);
 
-		loadingContent = false;
+			loadingContent = false;
+		}
 	}
 </script>

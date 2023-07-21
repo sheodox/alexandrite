@@ -175,14 +175,17 @@
 		}
 		loadingContent = true;
 
+		const qs = location.search;
 		const feedData = (await loader.next()).value;
-		loadingContentFailed = feedData.error;
-		endOfFeed = feedData.endOfFeed;
-		if (!feedData.error && feedData.response) {
-			cvStore.append(getContentViews(feedData.response));
-		}
+		if (qs === location.search) {
+			loadingContentFailed = feedData.error;
+			endOfFeed = feedData.endOfFeed;
+			if (!feedData.error && feedData.response) {
+				cvStore.append(getContentViews(feedData.response));
+			}
 
-		loadingContent = false;
+			loadingContent = false;
+		}
 	}
 
 	function getContentViews(inboxData: InboxData) {
