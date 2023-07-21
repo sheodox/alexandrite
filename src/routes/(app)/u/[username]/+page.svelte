@@ -57,8 +57,8 @@
 
 	export let data;
 
-	const userUsername = nameAtInstance(data.personView.person),
-		cvStore = createContentViewStore();
+	$: userUsername = nameAtInstance(data.personView.person);
+	const cvStore = createContentViewStore();
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
