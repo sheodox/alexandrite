@@ -244,7 +244,7 @@
 	export let collapsed = false;
 	// whether to show a link to the post, used when comments are presented outside of context (inbox/reports/search etc)
 	export let showPost = false;
-	export let parentComment: CommentView | undefined;
+	export let parentComment: CommentView | undefined = undefined;
 
 	// need to assign before the reactivity or the consts below don't work
 	let comment = contentView.view.comment;
