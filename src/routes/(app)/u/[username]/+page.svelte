@@ -1,4 +1,4 @@
-<Title title={userUsername} />
+<Title title={data.personUsername} />
 
 {#key data}
 	<ContentViewProvider store={cvStore}>
@@ -49,7 +49,6 @@
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { userFeedLoader } from '$lib/post-loader.js';
-	import { nameAtInstance } from '$lib/nav-utils.js';
 	import Title from '$lib/Title.svelte';
 	import { loadFeedData } from '$lib/feed-query.js';
 	import type { PageData } from './$types';
@@ -57,7 +56,6 @@
 
 	export let data;
 
-	$: userUsername = nameAtInstance(data.personView.person);
 	const cvStore = createContentViewStore();
 
 	let loader: ReturnType<typeof initFeed>;
@@ -81,7 +79,7 @@
 					listing: data.query.listing,
 					sort: data.query.sort,
 					type: data.query.type,
-					username: userUsername
+					username: data.personUsername
 				});
 			}
 		});

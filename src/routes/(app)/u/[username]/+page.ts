@@ -11,6 +11,7 @@ export const load = (async ({ params, url }) => {
 	});
 	return {
 		personView: details.person_view,
+		personUsername: username,
 		moderates: details.moderates,
 		query: {
 			sort: url.searchParams.get('sort') ?? 'New',
