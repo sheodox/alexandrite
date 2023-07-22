@@ -240,7 +240,15 @@
 
 	$: newCommentState = createStatefulForm(newCommentForm, onSubmitNewComment);
 
-	$: postView && reloadComments();
+	let postIdOfLoadedComments: number | undefined;
+	$: {
+		// the postView can update when voting on the post in a feed, or more pages of comments load.
+		// only invalidate old comments if the post ID is different
+		if (postView.post.id !== postIdOfLoadedComments) {
+			postIdOfLoadedComments = postView.post.id;
+			reloadComments();
+		}
+	}
 
 	function reloadComments() {
 		// if we got here by loading comments with a load function (viewing a commend individually)
