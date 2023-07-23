@@ -216,7 +216,9 @@
 
 	document.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape') {
-			dispatch('close');
+			if(closeable){
+				dispatch('close');
+			}
 		}
   	});
 
