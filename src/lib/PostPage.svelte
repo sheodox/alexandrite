@@ -214,6 +214,12 @@
 	let renderedComments: CommentBranch[];
 	let viewportTopIndex: number;
 
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
+		dispatch('close');
+		}
+  	});
+
 	function hasOncomingTopLevelComment(startIndex: number, length = 0, inc: number) {
 		for (let i = startIndex + inc; i >= 0 && i < length; i += inc) {
 			if (renderedComments?.[i].depth === 0) {
