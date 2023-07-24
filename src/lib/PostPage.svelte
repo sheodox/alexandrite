@@ -244,7 +244,6 @@
 	$: canScrollPrevResult = commentSearchResultIndex > 0;
 
 	function onCommentSearchIndexChange(inc: number) {
-		console.log({ len: commentSearchMatchIds.length - 1, inc, incby: commentSearchResultIndex + inc });
 		commentSearchResultIndex = Math.max(0, Math.min(commentSearchMatchIds.length - 1, commentSearchResultIndex + inc));
 		const index = commentTree.findIndex((x) => {
 			return x.cv.comment.id === commentSearchMatchIds[commentSearchResultIndex];
