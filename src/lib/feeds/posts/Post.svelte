@@ -98,7 +98,7 @@
 		</Stack>
 		<slot name="beforeEmbed" {hasEmbeddableContent} {hasBody} />
 		{#if expandPostContent && hasEmbeddableContent}
-			<div class="embed-content">
+			<div class="embed-content f-column gap-2">
 				{#if hasEmbedText}
 					<div class="card m-0 p-2">
 						<h2 class="card-title m-0">
