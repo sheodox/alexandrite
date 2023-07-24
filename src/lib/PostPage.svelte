@@ -174,7 +174,7 @@
 	import { getLemmyClient } from './lemmy-client';
 	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
 	import type { VirtualFeedAPI } from './virtual-feed';
@@ -214,13 +214,28 @@
 	let renderedComments: CommentBranch[];
 	let viewportTopIndex: number;
 
-	document.addEventListener('keydown', (event) => {
-		if (event.key === 'Escape') {
-			if(closeable){
+	function handleEscapeKey(event: KeyboardEvent) {
+		if (event.key === 'Escape' && !isInputOrTextArea(event.target as HTMLElement)) {
+			if (closeable) {
 				dispatch('close');
 			}
 		}
-  	});
+	}
+
+	function isInputOrTextArea(element: HTMLElement | null) {
+    	return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement;
+  	}
+
+	function addEscapeKeyListener() {
+		document.addEventListener("keydown", handleEscapeKey);
+	}
+
+	function removeEscapeKeyListener() {
+		document.removeEventListener("keydown", handleEscapeKey);
+	}
+
+	onMount(addEscapeKeyListener);
+	onDestroy(removeEscapeKeyListener);
 
 	function hasOncomingTopLevelComment(startIndex: number, length = 0, inc: number) {
 		for (let i = startIndex + inc; i >= 0 && i < length; i += inc) {
@@ -419,3 +434,4 @@
 		}
 	];
 </script>
+<!-- <svelte:document on:keydown={handleEscapeKey} /> -->
