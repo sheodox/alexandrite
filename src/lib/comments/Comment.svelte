@@ -13,20 +13,15 @@
 	.deleted-msg {
 		font-style: italic;
 	}
-	.search-non-match:not(:hover) {
-		height: 2rem;
-		overflow: hidden;
-		opacity: 0.5;
-	}
 </style>
 
-<section class:maybe-deleting={maybeDeleting} class:search-non-match={searchNonMatch}>
+<section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
 		<Stack gap={1} dir="r" align="center">
 			{#if !showPost}
 				<Tooltip>
 					<span slot="tooltip">{collapseMsg}</span>
-					<button on:click={() => dispatch('collapse')} class="tertiary small m-0 mr-1">
+					<button on:click={() => dispatch('collapse', contentView.id)} class="tertiary small m-0 mr-1">
 						<Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} />
 						<span class="sr-only">{collapseMsg}</span>
 					</button>
@@ -64,6 +59,9 @@
 			{/if}
 			<div class="f-1" />
 
+			{#if isSearchMatch}
+				<span class="sx-badge-yellow sx-font-size-2 m-0">Contains "{searchText}"</span>
+			{/if}
 			{#if parentComment}
 				<Tooltip placement="left">
 					<ParentComment view={parentComment} slot="tooltip" />
@@ -230,7 +228,7 @@
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
-		collapse: void;
+		collapse: number;
 		'new-comment': CommentView;
 	}>();
 
@@ -238,7 +236,8 @@
 
 	const modContext = getModContext();
 
-	export let searchNonMatch = false;
+	export let searchText = '';
+	export let isSearchMatch = false;
 	export let contentView: ContentViewComment | ContentViewReply | ContentViewMention;
 	export let postOP: string;
 	export let collapsed = false;

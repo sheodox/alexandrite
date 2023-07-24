@@ -124,13 +124,14 @@
 			{/if}
 			<ContentViewProvider store={commentCVStore}>
 				<CommentTree
-					{rootCommentId}
-					{commentViews}
 					{searchText}
+					{commentTree}
+					{collapsedComments}
 					postOP={postView.creator.actor_id}
 					on:expand={expandComment}
 					on:new-comment={onNewComment}
 					on:more={loadNextCommentPage}
+					on:collapse={(e) => toggleCollapse(e.detail)}
 					endOfFeed={endOfCommentsFeed || viewingSingleCommentThread}
 					loadingContent={loadingComments}
 					loadingContentFailed={commentLoadFailed}
@@ -138,17 +139,25 @@
 					feedEndIcon="comment-slash"
 					expandLoadingIds={Array.from(commentExpandLoadingIds)}
 					bind:virtualFeedAPI
-					bind:renderedComments
-					bind:viewportTopIndex
+					bind:viewportTopIndex={commentViewportTopIndex}
+					searchMatchIds={commentSearchMatchIds}
 				/>
 			</ContentViewProvider>
 			<PostNavigationBar
 				on:scroll-next={onScrollNext}
 				on:scroll-previous={onScrollPrevious}
+				on:scroll-next-result={() => onCommentSearchIndexChange(1)}
+				on:scroll-previous-result={() => onCommentSearchIndexChange(-1)}
+				on:clear-search={() => (searchText = '')}
 				{closeable}
 				on:close
 				{canScrollNext}
 				{canScrollPrev}
+				{canScrollNextResult}
+				{canScrollPrevResult}
+				isSearching={searchText !== ''}
+				searchResultCount={commentSearchMatchIds.length}
+				searchResultIndex={commentSearchResultIndex}
 			/>
 		</section>
 	</div>
@@ -190,6 +199,9 @@
 	export let closeable = false;
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
+	const { loggedIn } = getAppContext();
+	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
+	const { client, jwt } = getLemmyClient();
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {
@@ -200,34 +212,6 @@
 	let commentExpandLoadingIds = new Set<number>();
 	let newCommentForm: HTMLFormElement;
 	let viewSource = false;
-	$: viewingSingleCommentThread = rootCommentId !== null;
-	$: rootComment = viewingSingleCommentThread
-		? $commentCVStore.find((cv) => cv.type === 'comment' && cv.view.comment.id === rootCommentId)
-		: null;
-	$: commentContextId = rootComment && rootComment.type === 'comment' ? getCommentContextId(rootComment.view) : null;
-
-	const { loggedIn } = getAppContext();
-	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
-	const { client, jwt } = getLemmyClient();
-	// this bubbles up from the virtual feed
-	let virtualFeedAPI: VirtualFeedAPI;
-	let renderedComments: CommentBranch[];
-	let viewportTopIndex: number;
-
-	function hasOncomingTopLevelComment(startIndex: number, length = 0, inc: number) {
-		for (let i = startIndex + inc; i >= 0 && i < length; i += inc) {
-			if (renderedComments?.[i].depth === 0) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	$: canScrollPrev = hasOncomingTopLevelComment(viewportTopIndex, renderedComments?.length, -1);
-	// TODO this isn't quite right, if the last comment is visible on the page but not at the top of the
-	// virtual feed it'll think there's still a comment you can 'next' to
-	$: canScrollNext = hasOncomingTopLevelComment(viewportTopIndex, renderedComments?.length, 1);
-
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
 		newCommentText = '',
@@ -236,7 +220,127 @@
 		// assume if they came here following a comment link, commenting on the post is less important
 		showPost = rootCommentId === null && (!postView.post.nsfw || $nsfwImageHandling === 'SHOW'),
 		commentLoadFailed = false,
-		endOfCommentsFeed = false;
+		endOfCommentsFeed = false,
+		virtualFeedAPI: VirtualFeedAPI,
+		// the index of the comment at the top of the viewport, used for navigating between comments
+		commentViewportTopIndex: number;
+
+	$: viewingSingleCommentThread = rootCommentId !== null;
+	$: rootComment = viewingSingleCommentThread
+		? $commentCVStore.find((cv) => cv.type === 'comment' && cv.view.comment.id === rootCommentId)
+		: null;
+	$: commentContextId = rootComment && rootComment.type === 'comment' ? getCommentContextId(rootComment.view) : null;
+
+	// export so the parent can index them in sorted order with post navigation buttons
+	export let commentTree: CommentBranch[] = [];
+	let commentSearchMatchIds: number[] = [];
+	$: searchComments(commentTree, searchText);
+	// the current index in commentSearchMatchIds  we're scrolling through when hitting next/prev search result
+	let commentSearchResultIndex = -1;
+	// needs to stay within bounds, but also always show it if there's only one comment, else they can't
+	// scroll to the comment after the first time
+	$: canScrollNextResult =
+		commentSearchResultIndex < commentSearchMatchIds.length - 1 || commentSearchMatchIds.length === 1;
+	$: canScrollPrevResult = commentSearchResultIndex > 0;
+
+	function onCommentSearchIndexChange(inc: number) {
+		console.log({ len: commentSearchMatchIds.length - 1, inc, incby: commentSearchResultIndex + inc });
+		commentSearchResultIndex = Math.max(0, Math.min(commentSearchMatchIds.length - 1, commentSearchResultIndex + inc));
+		const index = commentTree.findIndex((x) => {
+			return x.cv.comment.id === commentSearchMatchIds[commentSearchResultIndex];
+		});
+
+		if (index !== -1) {
+			virtualFeedAPI.scrollToIndex(index);
+		}
+	}
+
+	function searchComments(commentTree: CommentBranch[], searchText: string) {
+		if (!searchText) {
+			commentTree = commentTree;
+			commentSearchMatchIds = [];
+			return;
+		}
+		searchText = searchText.toLowerCase();
+		commentSearchResultIndex = -1;
+
+		commentSearchMatchIds = commentTree
+			.filter((cb) => {
+				const { comment } = cb.cv;
+				// deleted comments should not expose their contents
+				if (comment.deleted || comment.removed) {
+					return false;
+				}
+				return cb.cv.comment.content.toLowerCase().includes(searchText);
+			})
+			.map((cb) => cb.cv.comment.id);
+	}
+
+	function getRootPath(rootId: number | null) {
+		if (rootCommentId === null) {
+			return '0';
+		}
+
+		const rootCV = commentViews.find((cv) => cv.comment.id === rootId);
+
+		if (rootCV) {
+			const rootPath = rootCV.comment.path.split('.');
+			rootPath.pop();
+			return rootPath.join('.');
+		}
+
+		return '0';
+	}
+
+	let collapsedCommentSet = new Set<number>(),
+		collapsedComments: number[] = [];
+
+	function toggleCollapse(commentId: number) {
+		collapsedCommentSet.has(commentId) ? collapsedCommentSet.delete(commentId) : collapsedCommentSet.add(commentId);
+		collapsedComments = Array.from(collapsedCommentSet);
+	}
+
+	$: rootPath = getRootPath(rootCommentId);
+	$: commentTree = buildCommentTree(rootPath, commentViews, 0, Array.from(collapsedComments));
+
+	function buildCommentTree(
+		path: string,
+		commentViews: CommentView[] = [],
+		depth: number,
+		collapsed: number[],
+		parentComment?: CommentView
+	): CommentBranch[] {
+		return (
+			commentViews
+				// filter out anything that's not at this level in the tree...
+				// (anything that's a child of `path` has a path itself like `<path>.<comment.id>`)
+				.filter((cv) => {
+					return cv.comment.path === path + '.' + cv.comment.id && !collapsed.some((c) => path.includes('' + c));
+				})
+				// ...so we can show all of the child comments as the siblings of this parent comment so they show next to each other
+				.map((cv) => {
+					return [
+						{ cv, depth, path, parentComment },
+						...buildCommentTree(path + '.' + cv.comment.id, commentViews, depth + 1, collapsed, cv)
+					];
+				})
+				.flat()
+		);
+	}
+
+	function hasOncomingTopLevelComment(startIndex: number, length = 0, inc: number) {
+		for (let i = startIndex + inc; i >= 0 && i < length; i += inc) {
+			if (commentTree?.[i].depth === 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	$: canScrollPrev = hasOncomingTopLevelComment(commentViewportTopIndex, commentTree?.length, -1);
+	// TODO this isn't quite right, if the last comment is visible on the page but not at the top of the
+	// virtual feed it'll think there's still a comment you can 'next' to
+	$: canScrollNext = hasOncomingTopLevelComment(commentViewportTopIndex, commentTree?.length, 1);
 
 	$: newCommentState = createStatefulForm(newCommentForm, onSubmitNewComment);
 
@@ -259,8 +363,8 @@
 	function onScrollPrevious() {
 		let previousIndex = -1;
 
-		for (let i = viewportTopIndex - 1; i >= 0; i--) {
-			if (renderedComments[i].depth === 0) {
+		for (let i = commentViewportTopIndex - 1; i >= 0; i--) {
+			if (commentTree[i].depth === 0) {
 				previousIndex = i;
 				break;
 			}
@@ -272,8 +376,8 @@
 	}
 
 	function onScrollNext() {
-		const nextIndex = renderedComments.findIndex((cb, i) => {
-			return cb.depth === 0 && i > viewportTopIndex;
+		const nextIndex = commentTree.findIndex((cb, i) => {
+			return cb.depth === 0 && i > commentViewportTopIndex;
 		});
 
 		if (nextIndex >= 0) {
