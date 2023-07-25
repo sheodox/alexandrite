@@ -8,7 +8,7 @@
 <form bind:this={settingsForm}>
 	<Stack dir="c" gap={4}>
 		<TextInput name="display_name" value={data.person.display_name ?? ''}>Display Name</TextInput>
-		<MarkdownEditor label="Bio" name="bio" value={data.person.bio ?? ''} />
+		<MarkdownEditor label="Bio" name="bio" value={data.person.bio ?? ''} required={false} />
 		<TextInput name="email" value={data.localUser.email ?? ''}>Email</TextInput>
 		<TextInput name="matrix_user_id" value={data.person.matrix_user_id ?? ''}>Matrix User</TextInput>
 		<!-- avatar -->
