@@ -1,10 +1,9 @@
 import type { PageLoad } from './$types';
-import { getLemmySettings } from '$lib/lemmy-settings';
-import { getLemmyClient } from '$lib/lemmy-client';
+import { profile } from '$lib/profiles/profiles';
+import { get } from 'svelte/store';
 
 export const load = (async ({ url, params }) => {
-	const { client, jwt } = getLemmyClient();
-	const ls = getLemmySettings();
+	const { client, jwt, settings } = get(profile);
 	const cv = await client.getCommunity({
 		name: params.communityName,
 		auth: jwt
@@ -12,7 +11,7 @@ export const load = (async ({ url, params }) => {
 
 	return {
 		query: {
-			sort: url.searchParams.get('sort') ?? ls?.default_sort_type ?? 'Hot',
+			sort: url.searchParams.get('sort') ?? settings.default_sort_type,
 			// doesn't really matter for this, we're already somewhere, just make the downstream components happy
 			listing: 'All',
 			type: url.searchParams.get('type') ?? 'Posts'

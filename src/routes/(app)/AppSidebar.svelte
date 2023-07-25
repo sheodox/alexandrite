@@ -49,10 +49,11 @@
 	import SidebarSubscriptionList from './SidebarSubscriptionList.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import { localStorageBackedStore } from '$lib/utils';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let subscriptions: CommunityFollowerView[] = [];
 
-	const { username, loggedIn, siteMeta } = getAppContext();
+	const { siteMeta } = getAppContext();
 
 	const favoriteCommunitiesIds = localStorageBackedStore<number[]>('favorite-communities', []);
 
@@ -70,10 +71,11 @@
 		}
 	}
 
+	$: loggedIn = $profile.loggedIn;
 	$: links = [
 		{ href: '/', text: 'Home', icon: 'home' },
 		{ href: '/search', text: 'Search', icon: 'magnifying-glass' },
-		{ href: `/u/${username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
+		{ href: `/u/${$profile.username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
 		{ href: '/communities', text: 'Communities', icon: 'users' },
 		{ text: 'Settings', icon: 'cog', href: `/settings`, disabled: !loggedIn },
 		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' }

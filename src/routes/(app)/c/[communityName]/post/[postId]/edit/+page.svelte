@@ -19,10 +19,11 @@
 	import { Breadcrumbs } from 'sheodox-ui';
 	import Title from '$lib/Title.svelte';
 	import { createStatefulForm } from '$lib/utils.js';
-	import { getLemmyClient } from '$lib/lemmy-client.js';
 	import { goto } from '$app/navigation';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	export let data;
 

@@ -28,10 +28,11 @@
 	import BusyButton from '$lib/BusyButton.svelte';
 	import { createStatefulAction } from '$lib/utils.js';
 	import { goto } from '$app/navigation';
-	import { getLemmyClient } from '$lib/lemmy-client.js';
 	import type { HttpError } from '@sveltejs/kit';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	export let data;
 

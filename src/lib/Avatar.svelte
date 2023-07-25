@@ -31,9 +31,7 @@
 <script lang="ts">
 	import { Icon } from 'sheodox-ui';
 	import Image from './Image.svelte';
-	import { getLemmySettings } from './lemmy-settings';
-
-	const ls = getLemmySettings();
+	import { profile } from './profiles/profiles';
 
 	export let src: string | undefined;
 	export let icon: string;
@@ -41,5 +39,5 @@
 	export let size: string;
 	export let resolution = 64;
 
-	$: hasImage = src && ls.show_avatars;
+	$: hasImage = src && $profile.settings.show_avatars;
 </script>

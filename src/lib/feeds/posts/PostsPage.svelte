@@ -112,6 +112,7 @@
 		type ContentView
 	} from '$lib/content-views';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let feedType: FeedType;
 	export let loadingContent: boolean;
@@ -124,7 +125,7 @@
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
 
-	const { username, screenDimensions, navSidebarOpen } = getAppContext();
+	const { screenDimensions, navSidebarOpen } = getAppContext();
 	const { sidebarVisible, feedLayout: feedLayoutSetting, navSidebarDocked } = getSettingsContext();
 
 	const cvStore = getContentViewStore();
@@ -161,7 +162,7 @@
 		}
 	);
 
-	$: isMyFeed = personView ? personView.person.local && personView.person.name === username : false;
+	$: isMyFeed = personView ? personView.person.local && personView.person.name === $profile.username : false;
 
 	let feedAdjacentPostViewId: null | number = null;
 	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);

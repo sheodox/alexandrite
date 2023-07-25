@@ -64,15 +64,13 @@
 	import PrivateMessageCompose from './PrivateMessageCompose.svelte';
 	import LogButton from './LogButton.svelte';
 	import UserBadges from './feeds/posts/UserBadges.svelte';
-	import { getAppContext } from './app-context';
+	import { profile } from './profiles/profiles';
 
 	export let privateMessageView: PrivateMessageView;
 
-	const { username } = getAppContext();
-
 	let showReply = false;
 
-	$: toMe = privateMessageView.recipient.local && privateMessageView.recipient.name === username;
+	$: toMe = privateMessageView.recipient.local && privateMessageView.recipient.name === $profile.username;
 
 	function sent() {
 		showReply = false;

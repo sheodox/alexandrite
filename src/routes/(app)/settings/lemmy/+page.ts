@@ -1,10 +1,10 @@
-import { getLemmyClient } from '$lib/lemmy-client';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import { setLemmySettings } from '$lib/lemmy-settings';
+import { get } from 'svelte/store';
+import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
 export const load = (async () => {
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt, id } = get(profile);
 
 	const localUser = await client
 		.getSite({
@@ -16,7 +16,7 @@ export const load = (async () => {
 		throw error(403, "Couldn't get user settings");
 	}
 
-	setLemmySettings(localUser.local_user);
+	updateProfileSettings(id, localUser.local_user);
 
 	return {
 		localUser: localUser.local_user,

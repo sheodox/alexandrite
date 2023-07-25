@@ -11,6 +11,27 @@ export interface ExtraAction {
 	busy?: boolean;
 }
 
+export const localStorageSet = <T>(key: string, value?: T) => {
+	if (value === undefined || value === null) {
+		localStorage.removeItem(key);
+	}
+	localStorage.setItem(key, JSON.stringify(value));
+};
+
+export const localStorageGet = <T>(key: string, defaultValue: T) => {
+	try {
+		const val = localStorage?.getItem(key) ?? null;
+
+		if (val === null) {
+			return defaultValue;
+		}
+
+		return JSON.parse(val) as T;
+	} catch (e) {
+		return defaultValue;
+	}
+};
+
 export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;
@@ -37,7 +58,10 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 export class Throttler {
 	timeout: ReturnType<typeof setTimeout> | null = null;
 
-	constructor(private callback: () => unknown, private throttleMS: number = 200) {}
+	constructor(
+		private callback: () => unknown,
+		private throttleMS: number = 200
+	) {}
 
 	run() {
 		if (this.timeout) {

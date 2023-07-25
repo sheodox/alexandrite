@@ -1,9 +1,10 @@
-import { getLemmyClient } from '$lib/lemmy-client';
+import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
+import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ params, url }) => {
 	const username = params.username;
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt } = get(profile);
 
 	const details = await client.getPersonDetails({
 		username,

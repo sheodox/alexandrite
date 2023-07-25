@@ -14,9 +14,9 @@
 <script lang="ts">
 	import { Tooltip } from 'sheodox-ui';
 	import type { Person } from 'lemmy-js-client';
-	import { getAppContext } from '$lib/app-context';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { username } = getAppContext();
+	$: username = $profile.username;
 
 	export let user: Person;
 	export let postOP: string | boolean | undefined = ''; // actor_id of someone who made a post

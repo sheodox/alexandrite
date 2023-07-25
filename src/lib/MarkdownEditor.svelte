@@ -63,11 +63,9 @@
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import { tick } from 'svelte';
-	// import { getLemmyClient } from './lemmy-client';
 	import { getAppContext } from './app-context';
 
 	const { ctrlBasedHotkeys } = getAppContext();
-	// const { client, jwt } = getLemmyClient();
 
 	const textareaId = `markdown-editor-${genId()}`;
 	let showPreview = false;

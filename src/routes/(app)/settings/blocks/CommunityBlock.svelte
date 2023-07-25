@@ -7,12 +7,13 @@
 	import BusyButton from '$lib/BusyButton.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { createStatefulAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let community: Community;
 
 	const dispatch = createEventDispatcher<{ unblock: number }>();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	$: unblockState = createStatefulAction(async () => {
 		if (!jwt) {

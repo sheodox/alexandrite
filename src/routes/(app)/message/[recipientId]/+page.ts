@@ -1,8 +1,9 @@
-import { getLemmyClient } from '$lib/lemmy-client';
+import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
+import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt } = get(profile);
 
 	return {
 		personView: await client

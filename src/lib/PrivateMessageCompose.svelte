@@ -26,14 +26,15 @@
 	import { createEventDispatcher } from 'svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
 	import { createStatefulForm } from './utils';
-	import { getLemmyClient } from './lemmy-client';
 	import { getMessageFromError } from './error-messages';
+	import { profile } from './profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		sent: void;
 	}>();
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	let errorMsg = '',
 		messageForm: HTMLFormElement;

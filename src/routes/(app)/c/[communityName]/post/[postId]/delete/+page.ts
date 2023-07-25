@@ -1,9 +1,10 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import { getLemmyClient } from '$lib/lemmy-client';
+import { get } from 'svelte/store';
+import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt } = get(profile);
 
 	if (!params.postId) {
 		throw error(400, 'Missing Post ID');

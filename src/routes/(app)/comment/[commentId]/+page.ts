@@ -1,9 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import { getLemmyClient } from '$lib/lemmy-client';
+import { profile } from '$lib/profiles/profiles';
+import { get } from 'svelte/store';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt } = get(profile);
 
 	const { comments } = await client.getComments({
 			parent_id: +params.commentId,

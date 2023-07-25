@@ -47,7 +47,6 @@
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ReportFeedStateOptions, ReportFeedTypeOptions } from '$lib/feed-filters.js';
 	import { getAppContext } from '$lib/app-context.js';
-	import { getLemmyClient } from '$lib/lemmy-client.js';
 	import {
 		commentReportViewToContentView,
 		createContentViewStore,
@@ -64,6 +63,7 @@
 	import ReportedComment from './ReportedComment.svelte';
 	import { writable } from 'svelte/store';
 	import { setBannedUsers } from './banned-users-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
 
@@ -71,7 +71,9 @@
 	let selectedType = data.query.type;
 
 	const { checkUnreadReports } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = createContentViewStore();
 	const bannedUsers = writable(new Map<number, boolean>());
 

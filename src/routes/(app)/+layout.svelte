@@ -113,11 +113,11 @@
 	import Logo from '$lib/Logo.svelte';
 	import { writable, type Unsubscriber, readable } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { setSettingsContext } from '$lib/settings-context';
 	import HeaderUserMenu from './HeaderUserMenu.svelte';
 	import { localStorageBackedStore } from '$lib/utils';
 	import { AlexandriteSettingsDefaults } from '$lib/settings-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
 
@@ -125,7 +125,8 @@
 	// so we delay it a little bit to cut down on annoying one or two frame flashes of the overlay
 	const LOADING_OVERLAY_DELAY = 50;
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	const placement = 'bottom-end',
 		unreadCount = writable(0),
@@ -196,10 +197,6 @@
 	}
 
 	setAppContext({
-		username: data.settings.username ?? '',
-		loggedIn: data.loggedIn,
-		instance: data.settings.instance,
-		instanceUrl: data.settings.instanceUrl,
 		siteMeta: data.site,
 		navSidebarOpen,
 		unreadCount,
@@ -226,9 +223,7 @@
 		navSidebarDocked
 	});
 
-	$: instanceText = data.settings.username
-		? `${data.settings.username}@${data.settings.instance}`
-		: data.settings.instance;
+	$: instanceText = $profile.username ? `${$profile.username}@${$profile.instance}` : $profile.instance;
 
 	$: lemmySettings =
 		data.lemmySettings &&

@@ -76,7 +76,6 @@
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
 	import type { CommentSortType } from 'lemmy-js-client';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { createStatefulAction, navigateOnChange } from '$lib/utils';
 	import { invalidateAll } from '$app/navigation';
 	import {
@@ -85,11 +84,14 @@
 		messageViewToContentView,
 		replyViewToContentView
 	} from '$lib/content-views';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
 
 	const { unreadCount, checkUnread } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = createContentViewStore();
 
 	let loadingContent = false,

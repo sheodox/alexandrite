@@ -39,6 +39,8 @@
 	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.1</code> or later.
 </Alert>
 
+<Profiles />
+
 <form class:instance-valid={parseableInstance} on:submit|preventDefault={onSubmit}>
 	<Stack gap={2}>
 		{#if errMsg}
@@ -75,13 +77,13 @@
 	import BusyButton from '$lib/BusyButton.svelte';
 	import Separator from '$lib/Separator.svelte';
 	import Title from '$lib/Title.svelte';
-	import { logout } from '$lib/settings/auth.js';
 	import { createLemmyClient } from '$lib/lemmy-client.js';
 	import type { GetSiteResponse, Login } from 'lemmy-js-client';
+	import Profiles from './Profiles.svelte';
 	import { getMessageFromError } from '$lib/error-messages.js';
-	import { setLemmySettings } from '$lib/lemmy-settings.js';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { addProfile } from '$lib/profiles/profiles';
 
 	let errMsg = '';
 	let expired = false;
@@ -124,9 +126,6 @@
 			return;
 		}
 
-		// logout of previous user
-		logout();
-
 		const baseUrl = 'https://' + instance;
 
 		const client = createLemmyClient(baseUrl);
@@ -143,8 +142,6 @@
 			errMsg = `Server version (${site.version}) is too low!`;
 			return;
 		}
-
-		localStorage.setItem('instance', instance);
 
 		if (username) {
 			const loginForm: Login = {
@@ -165,17 +162,14 @@
 				auth: jwt
 			});
 
-			localStorage.setItem('jwt', jwt);
-
 			const user = site.my_user?.local_user_view;
-			if (user) {
-				// store settings in the cookie doing some home grown de/serialization stuff so the settings are tiny in the cookie
-				setLemmySettings(user.local_user);
-				localStorage.setItem('username', user.person.name);
-			}
+
+			addProfile(instance, user?.person, jwt, user?.local_user);
+		} else {
+			addProfile(instance);
 		}
 
-		goto('/');
+		await goto('/');
 	}
 
 	onMount(() => {

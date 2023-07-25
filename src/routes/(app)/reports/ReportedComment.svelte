@@ -84,18 +84,20 @@
 	import RelativeTime from '$lib/RelativeTime.svelte';
 	import { commentReportViewToContentView, getContentViewStore } from '$lib/content-views';
 	import { createStatefulAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getAppContext } from '$lib/app-context';
 	import { getCommentContextId } from '$lib/nav-utils';
 	import { getBannedUsersStore } from './banned-users-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let view: CommentReportView;
 	export let bannedFromCommunity: boolean;
 
 	const { checkUnreadReports } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = getContentViewStore();
 	const modContext = getModContext();
 	const bannedUsers = getBannedUsersStore();

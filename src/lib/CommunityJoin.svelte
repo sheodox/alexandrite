@@ -6,14 +6,14 @@
 
 <script lang="ts">
 	import type { CommunityView } from 'lemmy-js-client';
-	import { getAppContext } from './app-context';
 	import BusyButton from './BusyButton.svelte';
 	import { createStatefulAction } from './utils';
-	import { getLemmyClient } from './lemmy-client';
 	import { communityViewToContentView, getContentViewStore } from './content-views';
+	import { profile } from './profiles/profiles';
 
-	const { loggedIn } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+	$: loggedIn = $profile.loggedIn;
 	const cvStore = getContentViewStore();
 
 	export let communityView: CommunityView;

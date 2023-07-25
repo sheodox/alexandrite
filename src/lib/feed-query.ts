@@ -1,6 +1,6 @@
-import { getLemmySettings } from '$lib/lemmy-settings';
+import { get } from 'svelte/store';
 import type { CommentSortType, ListingType, CommentView, PostView, SortType } from 'lemmy-js-client';
-import { getLemmyClient } from './lemmy-client';
+import { profile } from './profiles/profiles';
 
 export interface ApiFeedLoad {
 	postViews: PostView[];
@@ -33,19 +33,18 @@ interface FeedDataQuery {
 }
 
 export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad> => {
-	const ls = getLemmySettings(),
-		{ client, jwt } = getLemmyClient(),
+	const { client, jwt, settings } = get(profile),
 		page = Number(filters.page ?? '1'),
 		selectedType = filters.type ?? (filters.username ? 'Overview' : 'Posts'),
 		selectedListing = filters.listing,
 		selectedSort = filters.sort,
-		defaultNonUserSort = ls?.default_sort_type || 'Hot',
+		defaultNonUserSort = settings.default_sort_type,
 		postQuery = {
 			sort:
 				(selectedSort as SortType) ||
 				// user queries don't have a 'Hot' sort, so the default shouldn't be used
 				(filters.username ? 'New' : defaultNonUserSort),
-			listing: (selectedListing as ListingType) || ls?.default_listing_type || 'Local',
+			listing: (selectedListing as ListingType) || settings.default_listing_type,
 			type: selectedType
 		},
 		typePosts = selectedType === 'Posts',
@@ -90,7 +89,7 @@ export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad>
 	} else {
 		const query = {
 			type: selectedType,
-			listing: (selectedListing as ListingType) || ls?.default_listing_type || 'Local',
+			listing: (selectedListing as ListingType) || settings.default_listing_type,
 			sort: getCommentSort(selectedSort as CommentSortType)
 		};
 

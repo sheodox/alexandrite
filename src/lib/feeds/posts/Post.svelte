@@ -157,9 +157,9 @@
 	import LogButton from '$lib/LogButton.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction, type ExtraAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -169,8 +169,11 @@
 	const cvStore = getContentViewStore();
 	const modContext = getModContext();
 
-	const { username, loggedIn, siteMeta } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	const { siteMeta } = getAppContext();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+	$: loggedIn = $profile.loggedIn;
+	$: username = $profile.username;
 
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';

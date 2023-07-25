@@ -75,9 +75,9 @@
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import Comment from '$lib/comments/Comment.svelte';
-	import { getAppContext } from '$lib/app-context';
 	import { getContentViewStore } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -98,8 +98,6 @@
 	// we can restore the expanded state, and keep a consistent height if scroll back to
 	const postsWithInlineExpandedContent = new Set<number>();
 
-	const { loggedIn } = getAppContext();
-
 	function onPostExpandContent(e: CustomEvent<{ id: number; expanded: boolean }>) {
 		e.detail.expanded
 			? postsWithInlineExpandedContent.add(e.detail.id)
@@ -119,7 +117,7 @@
 	function getListingOptions(feedType: FeedType) {
 		switch (feedType) {
 			case 'top':
-				return ListingOptions(loggedIn);
+				return ListingOptions($profile.loggedIn);
 
 			default:
 				return null;

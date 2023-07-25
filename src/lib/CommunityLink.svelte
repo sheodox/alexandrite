@@ -32,7 +32,7 @@
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
 				<Stack gap={2} dir="r" align="center">
-					{#if community.icon && ls.show_avatars}
+					{#if community.icon && $profile.settings.show_avatars}
 						<div class="community-avatar large">
 							<Image src={community.icon} mode="thumbnail" />
 						</div>
@@ -46,7 +46,7 @@
 				{/if}
 			</div>
 			<span class="f-row gap-1">
-				{#if community.icon && ls.show_avatars}
+				{#if community.icon && $profile.settings.show_avatars}
 					<div class="community-avatar small">
 						<Image src={community.icon} mode="thumbnail" thumbnailResolution={16} />
 					</div>
@@ -58,7 +58,7 @@
 	{:else}
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
 			<div class="community-avatar medium">
-				{#if community.icon && ls.show_avatars}
+				{#if community.icon && $profile.settings.show_avatars}
 					<Image src={community.icon} mode="thumbnail" />
 				{:else}
 					<Icon icon="users" />
@@ -79,12 +79,10 @@
 	import type { Community } from 'lemmy-js-client';
 	import NameAtInstance from './NameAtInstance.svelte';
 	import EllipsisText from './EllipsisText.svelte';
-	import { getLemmySettings } from './lemmy-settings';
+	import { profile } from './profiles/profiles';
 
 	export let community: Community;
 	export let inlineLink = true;
 
 	$: communityName = nameAtInstance(community);
-
-	const ls = getLemmySettings();
 </script>

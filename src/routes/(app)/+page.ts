@@ -1,12 +1,13 @@
-import { getLemmySettings } from '$lib/lemmy-settings';
+import { get } from 'svelte/store';
+import { profile } from '$lib/profiles/profiles';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ url }) => {
-	const ls = getLemmySettings();
+	const { settings } = get(profile);
 	return {
 		query: {
-			sort: url.searchParams.get('sort') ?? ls?.default_sort_type ?? 'Hot',
-			listing: url.searchParams.get('listing') ?? ls?.default_listing_type ?? 'Local',
+			sort: url.searchParams.get('sort') ?? settings.default_sort_type,
+			listing: url.searchParams.get('listing') ?? settings.default_listing_type,
 			type: url.searchParams.get('type') ?? 'Posts'
 		}
 	};

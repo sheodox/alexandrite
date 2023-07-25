@@ -31,14 +31,13 @@
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import UserBadges from './UserBadges.svelte';
 	import LogButton from '$lib/LogButton.svelte';
-	import { getAppContext } from '$lib/app-context';
 	import type { ContentViewPerson } from '$lib/content-views';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let contentView: ContentViewPerson;
 	export let readOnly = false;
-	const { username } = getAppContext();
 
 	$: personView = contentView.view;
 	$: personInstance = new URL(personView.person.actor_id).host;
-	$: isMe = personView.person.local && personView.person.name === username;
+	$: isMe = personView.person.local && personView.person.name === $profile.username;
 </script>

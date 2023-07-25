@@ -28,16 +28,16 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { getAppContext } from '$lib/app-context';
 	import { logout } from '$lib/settings/auth';
 	import { NavDropdown, Icon } from 'sheodox-ui';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { loggedIn, username } = getAppContext();
-
+	$: loggedIn = $profile.loggedIn;
 	$: links = [
-		{ text: 'Profile', icon: 'user', href: `/u/${username}`, disabled: !loggedIn },
+		{ text: 'Profile', icon: 'user', href: `/u/${$profile.username}`, disabled: !loggedIn },
 		{ text: 'Settings', icon: 'cog', href: `/settings`, disabled: !loggedIn },
 		{ text: 'About Alexandrite', icon: 'address-card', href: '/about' },
+		{ text: 'Accounts', icon: 'passport', href: '/instance' },
 		{
 			text: loggedIn ? 'Logout' : 'Login / Change Instance',
 			icon: 'right-from-bracket',

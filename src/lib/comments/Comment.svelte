@@ -107,7 +107,7 @@
 					>
 				{:else}
 					<LogButton on:click={() => console.log({ commentView: contentView })} />
-					{#if loggedIn}
+					{#if $profile.loggedIn}
 						<IconButton
 							icon="reply"
 							small
@@ -173,7 +173,7 @@
 				/>
 			</form>
 		{/if}
-		{#if $buffer[bk.showReplyComposer] && loggedIn}
+		{#if $buffer[bk.showReplyComposer] && $profile.loggedIn}
 			<form bind:this={replyForm} class="reply-editor">
 				<input type="hidden" name="parentId" value={comment.id} />
 				<CommentEditor
@@ -213,7 +213,6 @@
 	import CommunityLink from '../CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId } from '../nav-utils';
-	import { getLemmyClient } from '../lemmy-client';
 	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from '../utils';
 	import { getVirtualFeedBuffer } from '../virtual-feed';
 	import {
@@ -225,6 +224,7 @@
 		type ContentViewReply,
 		replyViewToContentView
 	} from '../content-views';
+	import { profile } from '$lib/profiles/profiles';
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
@@ -249,9 +249,11 @@
 	let comment = contentView.view.comment;
 	$: comment = contentView.view.comment;
 
-	const { loggedIn, username, checkUnread, siteMeta } = getAppContext();
-	const { jwt, client } = getLemmyClient();
-	$: myComment = contentView.view.creator.local && contentView.view.creator.name === username;
+	const { checkUnread, siteMeta } = getAppContext();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
+	$: myComment = contentView.view.creator.local && contentView.view.creator.name === $profile.username;
 
 	const buffer = getVirtualFeedBuffer();
 	const bufferKeyBase = `comment-${comment.id}-`;
@@ -483,7 +485,7 @@
 	$: {
 		const options: ExtraAction[] = [];
 
-		if (loggedIn && !myComment) {
+		if ($profile.loggedIn && !myComment) {
 			options.push({
 				text: 'Send Message',
 				href: `/message/${contentView.view.creator.id}`,

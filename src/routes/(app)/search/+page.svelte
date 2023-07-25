@@ -92,7 +92,6 @@
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import type { PageData } from './$types';
 	import { parseISO } from 'date-fns';
-	import { getAppContext } from '$lib/app-context';
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
@@ -106,7 +105,6 @@
 		SearchType,
 		SortType
 	} from 'lemmy-js-client';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import {
 		commentViewToContentView,
 		communityViewToContentView,
@@ -115,11 +113,14 @@
 		postViewToContentView
 	} from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
 
-	const { loggedIn } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+	$: loggedIn = $profile.loggedIn;
+
 	const cvStore = createContentViewStore();
 
 	let loadingContent = false,

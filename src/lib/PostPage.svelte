@@ -79,7 +79,7 @@
 
 			<hr class="w-100" id="comments" />
 
-			{#if loggedIn}
+			{#if $profile.loggedIn}
 				<div class="comment-editor m-2">
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
@@ -178,14 +178,13 @@
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
-	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
-	import { getLemmyClient } from './lemmy-client';
 	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
+	import { profile } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
 
@@ -199,9 +198,10 @@
 	export let closeable = false;
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
-	const { loggedIn } = getAppContext();
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
-	const { client, jwt } = getLemmyClient();
+
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {

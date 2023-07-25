@@ -57,12 +57,12 @@
 	import { createStatefulForm } from '$lib/utils';
 	import { TextInput, Checkbox, Fieldset, Stack, createAutoExpireToast } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
-	import { getLemmyClient } from '$lib/lemmy-client.js';
 	import type { ListingType, SortType } from 'lemmy-js-client';
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
-	import { setLemmySettings } from '$lib/lemmy-settings.js';
+	import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	export let data;
 
@@ -97,8 +97,7 @@
 			message: 'Your settings have been saved.'
 		});
 
-		setLemmySettings({
-			...data.localUser,
+		updateProfileSettings($profile.id, {
 			...settings
 		});
 	});

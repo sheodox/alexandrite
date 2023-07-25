@@ -9,7 +9,7 @@
 			<a href="/search?community={nameAtInstance(community)}" class="button tertiary">
 				<Icon icon="magnifying-glass" /> Search
 			</a>
-			{#if loggedIn}
+			{#if $profile.loggedIn}
 				<BusyButton
 					on:click={() => $blockState.submit(!communityView.blocked)}
 					busy={$blockState.busy}
@@ -40,15 +40,15 @@
 	import CommunityJoin from '$lib/CommunityJoin.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { invalidateAll } from '$app/navigation';
 	import { communityViewToContentView, getContentViewStore, type ContentViewCommunity } from '$lib/content-views';
-	import { getAppContext } from '$lib/app-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let contentView: ContentViewCommunity;
 	export let readOnly = false;
-	const { loggedIn } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = !readOnly ? getContentViewStore() : null;
 	$: communityView = contentView.view;
 	$: community = communityView.community;

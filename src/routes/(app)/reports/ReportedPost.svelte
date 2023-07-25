@@ -73,14 +73,16 @@
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
 	import PostTime from '$lib/feeds/posts/PostTime.svelte';
 	import { createStatefulAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getContentViewStore, postReportViewToContentView } from '$lib/content-views';
 	import { getAppContext } from '$lib/app-context';
 	import { getBannedUsersStore } from './banned-users-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = getContentViewStore();
 	const modContext = getModContext();
 	const { checkUnreadReports } = getAppContext();

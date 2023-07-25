@@ -12,9 +12,10 @@
 	import Title from '$lib/Title.svelte';
 	import { createStatefulForm } from '$lib/utils.js';
 	import { goto } from '$app/navigation';
-	import { getLemmyClient } from '$lib/lemmy-client.js';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	export let data;
 	let errMsg = '';

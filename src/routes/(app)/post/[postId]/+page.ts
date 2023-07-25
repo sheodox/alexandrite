@@ -1,8 +1,9 @@
+import { profile } from '$lib/profiles/profiles';
+import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
-import { getLemmyClient } from '$lib/lemmy-client';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = getLemmyClient();
+	const { client, jwt } = get(profile);
 
 	return {
 		postView: params.postId

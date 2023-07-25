@@ -1,17 +1,16 @@
 import type { PageLoad } from './$types';
-import { getLemmyClient } from '$lib/lemmy-client';
-import { getLemmySettings } from '$lib/lemmy-settings';
+import { get } from 'svelte/store';
+import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ url }) => {
-	const { client, jwt } = getLemmyClient();
-	const ls = getLemmySettings();
+	const { client, jwt, settings } = get(profile);
 
 	const searchArgs = {
 		q: url.searchParams.get('q') ?? '',
 		page: url.searchParams.get('page') || 1,
 		sort: url.searchParams.get('sort') || 'TopAll',
 		type: url.searchParams.get('type') || 'All',
-		listing: url.searchParams.get('listing') || ls?.default_listing_type || 'Local',
+		listing: url.searchParams.get('listing') || settings.default_listing_type,
 		community: url.searchParams.get('community'),
 		creator: url.searchParams.get('creator')
 	};

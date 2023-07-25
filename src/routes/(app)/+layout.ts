@@ -1,11 +1,11 @@
-import { getLemmyClient } from '$lib/lemmy-client';
-import { getLemmySettings, setLemmySettings } from '$lib/lemmy-settings';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 import { logout } from '$lib/settings/auth';
+import { get } from 'svelte/store';
+import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
 export const load = (async () => {
-	const { client, jwt, instance, instanceUrl, username } = getLemmyClient();
+	const { client, jwt, instance, id } = get(profile);
 	if (!instance) {
 		throw redirect(303, '/instance');
 	}
@@ -18,7 +18,7 @@ export const load = (async () => {
 	if (localUser) {
 		// update lemmy settings, this is initially set when setting the instance
 		// but since we requested the site anyway, should update in case it changed
-		setLemmySettings(localUser);
+		updateProfileSettings(id, localUser);
 	}
 
 	if (!localUser && jwt) {
@@ -29,13 +29,7 @@ export const load = (async () => {
 	}
 
 	return {
-		settings: {
-			username,
-			instance,
-			instanceUrl
-		},
 		loggedIn: !!jwt,
-		site,
-		lemmySettings: getLemmySettings()
+		site
 	};
 }) satisfies LayoutLoad;

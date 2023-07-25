@@ -35,7 +35,7 @@
 		<span class="sr-only">Vote up</span>
 		<Icon icon="arrow-up" />
 	</button>
-	{#if ls.show_scores}
+	{#if $profile.settings.show_scores}
 		<Tooltip>
 			<span slot="tooltip">
 				<Icon icon="arrow-up" /><span class="sr-only">Up:</span>
@@ -69,15 +69,14 @@
 <script lang="ts">
 	import { Icon, Tooltip, ripple } from 'sheodox-ui';
 	import { createEventDispatcher } from 'svelte';
-	import { getAppContext } from './app-context';
 	import Spinner from './Spinner.svelte';
-	import { getLemmySettings } from './lemmy-settings';
+	import { profile } from './profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		vote: number;
 	}>();
 
-	const { loggedIn } = getAppContext();
+	$: loggedIn = $profile.loggedIn;
 
 	export let vote = 0;
 	export let score = 0;
@@ -96,8 +95,6 @@
 		'0': 'gray',
 		'1': 'pink'
 	}[vote ?? 0];
-
-	const ls = getLemmySettings();
 
 	function voteAs(clickedVote: number) {
 		const newVote = vote === clickedVote ? 0 : clickedVote;

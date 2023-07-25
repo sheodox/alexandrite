@@ -6,11 +6,7 @@
 		<form method="GET" use:navigateOnChange>
 			<section>
 				<Stack gap={4} align="center" cl="p-4" dir="r">
-					<ToggleGroup
-						options={ListingOptions(!!data.settings.username)}
-						selected={data.query.listing}
-						name="listing"
-					/>
+					<ToggleGroup options={ListingOptions(loggedIn)} selected={data.query.listing} name="listing" />
 					<select aria-label="Post Sort" value={data.query.sort} name="sort" required>
 						{#each PostSortOptions as opt}
 							<option value={opt.value}>{opt.label}</option>
@@ -54,12 +50,14 @@
 	import { feedLoader } from '$lib/post-loader';
 	import type { PageData } from './$types';
 	import Title from '$lib/Title.svelte';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { communityViewToContentView, createContentViewStore } from '$lib/content-views';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { navigateOnChange } from '$lib/utils';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+	$: loggedIn = $profile.loggedIn;
 
 	export let data;
 
