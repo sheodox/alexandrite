@@ -25,15 +25,9 @@
 	<div class="msg">
 		<Stack dir="c" gap={2}>
 			<Stack dir="r" gap={1}>
-				{#if toMe}
-					<span>Message from</span>
-					<UserLink user={privateMessageView.creator} />
-					<UserBadges user={privateMessageView.creator} />
-				{:else}
-					<span>Message to</span>
-					<UserLink user={privateMessageView.recipient} />
-					<UserBadges user={privateMessageView.recipient} />
-				{/if}
+				<span>Message {toMe ? 'from' : 'to'}</span>
+				<UserLink user={otherPerson} />
+				<UserBadges user={otherPerson} />
 				<span class="muted">&centerdot;</span>
 				<RelativeTime date={privateMessageView.private_message.published} />
 			</Stack>
@@ -47,7 +41,7 @@
 
 			{#if showReply}
 				<div class="mx-8">
-					<PrivateMessageCompose to={privateMessageView.creator} on:sent={sent} on:cancel={() => (showReply = false)} />
+					<PrivateMessageCompose to={otherPerson} on:sent={sent} on:cancel={() => (showReply = false)} cancellable />
 				</div>
 			{/if}
 		</Stack>
@@ -71,6 +65,7 @@
 	let showReply = false;
 
 	$: toMe = privateMessageView.recipient.local && privateMessageView.recipient.name === $profile.username;
+	$: otherPerson = toMe ? privateMessageView.creator : privateMessageView.recipient;
 
 	function sent() {
 		showReply = false;

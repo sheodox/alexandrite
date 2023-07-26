@@ -54,7 +54,7 @@
 			</div>
 		{/if}
 	</div>
-	<a href="/c/{nameAtInstance(community)}" class="f-1 m-0">
+	<a href="/{$profile.instance}/c/{nameAtInstance(community)}" class="f-1 m-0">
 		<NameAtInstance place={community} displayName={community.title} prefix="" />
 	</a>
 </div>
@@ -65,6 +65,7 @@
 	import Avatar from '$lib/Avatar.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createEventDispatcher } from 'svelte';
+	import { profile } from '$lib/profiles/profiles';
 	import type { Community } from 'lemmy-js-client';
 
 	let hovered = false;

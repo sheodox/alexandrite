@@ -22,11 +22,11 @@
 		/>
 		to <CommunityLink community={view.community} />
 		<span class="muted"> &centerdot; </span>
-		<a href="/post/{view.post.id}" class="inline-link" title={view.post.name}>
+		<a href="/{$profile.instance}/post/{view.post.id}" class="inline-link" title={view.post.name}>
 			<EllipsisText>{view.post.name}</EllipsisText>
 		</a>
 		<span class="muted"> &centerdot; </span>
-		<a href="/comment/{view.comment.id}">
+		<a href="/{$profile.instance}/comment/{view.comment.id}">
 			<RelativeTime date={view.comment.published} />
 		</a>
 		{#if view.comment.updated && view.comment.updated !== view.comment.published}
@@ -40,7 +40,12 @@
 		<Markdown md={view.comment.content} />
 	</div>
 	<Stack gap={2} dir="r" align="center">
-		<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" cl="tertiary m-0" />
+		<IconLink
+			icon="link"
+			text="Show in context"
+			href="/{$profile.instance}/comment/{contextCommentId}"
+			cl="tertiary m-0"
+		/>
 		<BusyButton
 			busy={$removePending}
 			on:click={onRemoveComment}

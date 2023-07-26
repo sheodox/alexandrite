@@ -27,7 +27,7 @@
 	}
 </style>
 
-<a href="/c/{communityName}" class:inline-link={inlineLink} data-sveltekit-preload-data="off">
+<a href="/{$profile.instance}/c/{communityName}" class:inline-link={inlineLink} data-sveltekit-preload-data="off">
 	{#if inlineLink}
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">

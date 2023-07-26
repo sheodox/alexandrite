@@ -34,8 +34,8 @@
 
 <div
 	class="posts-page f-row"
-	class:sidebar-hidden={!$sidebarVisible || feedAdjacentPostView}
-	class:sidebar-visible={$sidebarVisible && !feedAdjacentPostView}
+	class:sidebar-hidden={!$sidebarVisible || viewingInColumn}
+	class:sidebar-visible={$sidebarVisible && !viewingInColumn}
 >
 	<div class="posts-page-content">
 		<Stack dir="r" gap={2}>
@@ -133,6 +133,8 @@
 	const cvHeaderStore = createContentViewStore();
 	cvHeaderStore.clear();
 	const cvs: ContentView[] = [];
+
+	$: viewingInColumn = !!feedAdjacentPostView && $feedLayout === 'COLUMNS';
 
 	if (communityView) {
 		cvs.push(communityViewToContentView(communityView));

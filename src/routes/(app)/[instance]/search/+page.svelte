@@ -81,7 +81,7 @@
 {/if}
 
 <script lang="ts">
-	import { Alert, Stack, Icon, TextInput } from 'sheodox-ui';
+	import { Alert, Stack, TextInput } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import PersonCard from '$lib/PersonCard.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';

@@ -3,10 +3,10 @@
 	<Stack dir="r" gap={2} align="center" slot="actions">
 		{#if !readOnly}
 			<CommunityJoin {communityView} />
-			<a href="/c/{nameAtInstance(community)}/post" class="button tertiary">
+			<a href="/{$profile.instance}/c/{nameAtInstance(community)}/post" class="button tertiary">
 				<Icon icon="plus" /> Post
 			</a>
-			<a href="/search?community={nameAtInstance(community)}" class="button tertiary">
+			<a href="/{$profile.instance}/search?community={nameAtInstance(community)}" class="button tertiary">
 				<Icon icon="magnifying-glass" /> Search
 			</a>
 			{#if $profile.loggedIn}

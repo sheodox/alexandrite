@@ -75,7 +75,7 @@
 				return 0;
 			},
 			normalize: function (match) {
-				match.url = `/c/${match.url.replace('!', '')}`;
+				match.url = `/${$profile.instance}/c/${match.url.replace('!', '')}`;
 			}
 		});
 		// linkify user links in the format: @user@example.com
@@ -139,7 +139,7 @@
 				}
 
 				if (newPathname) {
-					token[idx].attrSet('href', newPathname + url.search);
+					token[idx].attrSet('href', `/${$profile.instance}${newPathname}${url.search}`);
 				}
 			}
 

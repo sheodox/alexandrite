@@ -27,24 +27,20 @@
 </NavDropdown>
 
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { logout } from '$lib/settings/auth';
 	import { NavDropdown, Icon } from 'sheodox-ui';
 	import { profile } from '$lib/profiles/profiles';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher<{
+		accounts: void;
+	}>();
 
 	$: loggedIn = $profile.loggedIn;
 	$: links = [
-		{ text: 'Profile', icon: 'user', href: `/u/${$profile.username}`, disabled: !loggedIn },
+		{ text: 'Profile', icon: 'user', href: `/${$profile.instance}/u/${$profile.username}`, disabled: !loggedIn },
 		{ text: 'Settings', icon: 'cog', href: `/settings`, disabled: !loggedIn },
 		{ text: 'About Alexandrite', icon: 'address-card', href: '/about' },
-		{ text: 'Accounts', icon: 'passport', href: '/instance' },
-		{
-			text: loggedIn ? 'Logout' : 'Login / Change Instance',
-			icon: 'right-from-bracket',
-			click: () => {
-				logout();
-				goto('/instance');
-			}
-		}
+		{ text: 'Switch Account', icon: 'circle-user', click: () => dispatch('accounts') },
+		{ text: 'Manage Accounts', icon: 'users', href: '/instance' }
 	];
 </script>

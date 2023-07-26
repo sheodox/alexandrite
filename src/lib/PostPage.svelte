@@ -110,12 +110,12 @@
 
 			{#if viewingSingleCommentThread}
 				<Stack dir="r" gap={2} align="center" cl="p-4">
-					<a href="/post/{postView.post.id}" class="button secondary"
+					<a href="/{$profile.instance}/post/{postView.post.id}" class="button secondary"
 						><Icon icon="arrow-up-from-bracket" />
 						View all comments
 					</a>
 					{#if rootComment && rootComment.type === 'comment' && commentContextId !== rootComment.view.comment.id}
-						<a href="/comment/{commentContextId}" class="button secondary">
+						<a href="/{$profile.instance}/comment/{commentContextId}" class="button secondary">
 							Parent comment
 							<Icon icon="turn-up" />
 						</a>

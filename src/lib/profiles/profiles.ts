@@ -1,11 +1,13 @@
-import { get, writable, type Writable } from 'svelte/store';
+import { get, readable, writable, type Writable } from 'svelte/store';
 import type { LemmyHttp, ListingType, LocalUser, Person, SortType } from 'lemmy-js-client';
-import { localStorageGet, localStorageSet } from '$lib/utils';
+import { localStorageBackedStore, localStorageGet, localStorageSet } from '$lib/utils';
 import { createLemmyClient } from '$lib/lemmy-client';
+import { getInstanceFromRoute } from './profile-utils';
 
 const lsKeys = {
-	default: 'profiles-default',
-	profiles: 'profiles-list'
+	defaultInstance: 'profiles-default-instance',
+	profiles: 'profiles-list',
+	instanceDefault: (instance: string) => `profiles-instance-default-${instance}`
 };
 
 export interface Profile {
@@ -27,13 +29,67 @@ export interface ProfileAPI {
 	setDefault: (id: string) => void;
 }
 
-export function generateProfileID(instance: string, person?: Person) {
+export function generateProfileID(instance: string, person?: { name: string }) {
 	return `profile:${person?.name ?? ''}@${instance}`;
 }
 
-export function getProfilesFromStorage() {
-	return localStorageGet<Profile[]>(lsKeys.profiles, []);
+export const profiles = writable(localStorageGet<Profile[]>(lsKeys.profiles, []));
+
+profiles.subscribe((val) => {
+	localStorageSet(lsKeys.profiles, val);
+});
+
+export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance());
+export const instance = readable(getRouteInstance());
+
+export function getFallbackProfile(): Profile {
+	const inst = get(instance);
+	return {
+		instance: inst,
+		id: generateProfileID(inst),
+		settings: {
+			show_scores: true,
+			show_avatars: true,
+			default_listing_type: 'Local' as const,
+			default_sort_type: 'Hot' as const
+		}
+	};
 }
+
+export function getDefaultProfile(): Profile {
+	const routeInstance = getRouteInstance(),
+		inst = get(instance),
+		fallbackProfile = getFallbackProfile(),
+		defaultId = routeInstance
+			? localStorageGet(lsKeys.instanceDefault(inst), null)
+			: localStorageGet(lsKeys.instanceDefault(get(defaultInstance)), null);
+
+	if (defaultId === null) {
+		return fallbackProfile;
+	}
+
+	const profile = get(profiles).find((profile) => {
+		return profile.id === defaultId;
+	});
+
+	return profile && profile.instance === inst ? profile : fallbackProfile;
+}
+
+const defaultProfile = getDefaultProfile();
+export const profile = writable(profileToStoreValue(defaultProfile));
+
+function getRouteInstance() {
+	if (typeof location === 'undefined') {
+		return get(defaultInstance);
+	}
+
+	return getInstanceFromRoute(location.pathname) ?? get(defaultInstance);
+}
+
+export const instanceDefaultProfileId = writable(getDefaultProfile().id);
+instanceDefaultProfileId.subscribe((val) => {
+	localStorageSet(lsKeys.instanceDefault(get(instance)), val);
+});
 
 export type ProfileContextStore = Writable<
 	Profile & {
@@ -41,35 +97,20 @@ export type ProfileContextStore = Writable<
 	}
 >;
 
-export function getDefaultProfile(): Profile {
-	const instance = import.meta.env.ALEXANDRITE_DEFAULT_INSTANCE ?? 'lemmy.world',
-		fallbackProfile = {
-			instance,
-			id: generateProfileID(instance),
-			settings: {
-				show_scores: true,
-				show_avatars: true,
-				default_listing_type: 'Local' as const,
-				default_sort_type: 'Hot' as const
-			}
-		},
-		defaultId = localStorageGet(lsKeys.default, null);
+export function getDefaultInstance() {
+	const routeInstance = getInstanceFromRoute(typeof location === 'undefined' ? '' : location.pathname),
+		instance =
+			routeInstance ??
+			// need to safety check this, even though ssr is disabled it still gets run for some reason, at least in dev
+			import.meta.env.ALEXANDRITE_DEFAULT_INSTANCE ??
+			'lemmy.world';
 
-	if (defaultId === null) {
-		return fallbackProfile;
-	}
-
-	const profile = getProfilesFromStorage().find((profile) => {
-		return profile.id === defaultId;
-	});
-
-	return profile ?? fallbackProfile;
+	return instance;
 }
 
 export function setDefaultProfile(id: string) {
-	localStorageSet(lsKeys.default, id);
+	localStorageSet(lsKeys.defaultInstance, id);
 }
-
 function profileToStoreValue(profile: Profile) {
 	return {
 		...profile,
@@ -82,9 +123,6 @@ export function setProfile(p: Profile) {
 	profile.set(profileToStoreValue(p));
 }
 
-const defaultProfile = getDefaultProfile();
-export const profile = writable(profileToStoreValue(defaultProfile));
-
 function getSettingsFromLocalUser(user?: Partial<LocalUser>) {
 	return {
 		show_avatars: user?.show_avatars ?? true,
@@ -95,32 +133,56 @@ function getSettingsFromLocalUser(user?: Partial<LocalUser>) {
 }
 
 export function addProfile(instance: string, person?: Person, jwt?: string, user?: Partial<LocalUser>) {
-	const profiles = getProfilesFromStorage(),
-		newProfile: Profile = {
-			instance,
-			id: generateProfileID(instance, person),
-			username: person?.name,
-			avatar: person?.avatar,
-			jwt,
-			settings: getSettingsFromLocalUser(user)
-		},
-		existingIndex = profiles.findIndex((profile) => profile.id === newProfile.id);
+	const profileId = generateProfileID(instance, person);
+	let isFirstForInstance = false,
+		isOnlyProfile = false;
 
-	if (existingIndex === -1) {
-		profiles.push(newProfile);
-	} else {
-		profiles[existingIndex] = newProfile;
+	profiles.update((profiles) => {
+		isFirstForInstance = !profiles.some((p) => p.instance === instance);
+		isOnlyProfile = !profiles.length;
+
+		const newProfile: Profile = {
+				instance,
+				id: profileId,
+				username: person?.name,
+				avatar: person?.avatar,
+				jwt,
+				settings: getSettingsFromLocalUser(user)
+			},
+			existingIndex = profiles.findIndex((profile) => profile.id === newProfile.id);
+
+		if (existingIndex === -1) {
+			profiles.push(newProfile);
+		} else {
+			profiles[existingIndex] = newProfile;
+		}
+
+		localStorageSet(lsKeys.profiles, profiles);
+
+		profile.set(profileToStoreValue(newProfile));
+		return profiles;
+	});
+
+	if (isFirstForInstance) {
+		localStorageSet(lsKeys.instanceDefault(instance), profileId);
 	}
 
-	localStorageSet(lsKeys.profiles, profiles);
-	localStorageSet(lsKeys.default, newProfile.id);
-
-	profile.set(profileToStoreValue(newProfile));
+	if (isOnlyProfile) {
+		defaultInstance.set(instance);
+	}
 }
 
 export function updateProfileSettings(id: string, user: Partial<LocalUser>) {
-	const settings = getSettingsFromLocalUser(user),
-		profiles = getProfilesFromStorage().map((p) => {
+	profiles.update((profiles) => {
+		const settings = getSettingsFromLocalUser(user);
+
+		if (get(profile).id === id) {
+			profile.update((p) => {
+				return { ...p, settings };
+			});
+		}
+
+		return profiles.map((p) => {
 			return p.id !== id
 				? p
 				: {
@@ -128,18 +190,11 @@ export function updateProfileSettings(id: string, user: Partial<LocalUser>) {
 						settings
 				  };
 		});
-
-	if (get(profile).id === id) {
-		profile.update((p) => {
-			return { ...p, settings };
-		});
-	}
-
-	localStorageSet(lsKeys.profiles, profiles);
+	});
 }
 
 export function logoutProfile(id: string) {
-	const profiles = getProfilesFromStorage().filter((p) => p.id !== id);
-
-	localStorageSet(lsKeys.profiles, profiles);
+	profiles.update((profiles) => {
+		return profiles.filter((p) => p.id !== id);
+	});
 }

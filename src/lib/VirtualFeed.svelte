@@ -51,6 +51,7 @@
 
 	// create a store in context that can be used as a temporary storage location for
 	// anything in the feed, so data isn't lost by scrolling
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	setContext(_BUFFER_CONTEXT_KEY, writable<Record<string, any>>({}));
 
 	export let endOfFeed: boolean;

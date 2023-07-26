@@ -18,14 +18,15 @@
 	import { Layout, LinkTabList } from 'sheodox-ui';
 	import Title from '$lib/Title.svelte';
 	import { afterNavigate } from '$app/navigation';
+	import { profile } from '$lib/profiles/profiles';
 
 	$: tabs = [
 		{
 			title: 'Alexandrite',
-			href: '/settings'
+			href: `/${$profile.instance}/settings`
 		},
-		{ title: 'Lemmy', href: '/settings/lemmy' },
-		{ title: 'Blocks', href: '/settings/blocks' }
+		{ title: 'Lemmy', href: `/${$profile.instance}/settings/lemmy` },
+		{ title: 'Blocks', href: `/${$profile.instance}/settings/blocks` }
 	];
 
 	let selectedTab = location.pathname;

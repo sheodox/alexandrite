@@ -24,7 +24,7 @@
 					<Image src={communityView.community.icon} mode="thumbnail" />
 				</div>
 			{/if}
-			<a href="/c/{communityName}" class="inline-link">
+			<a href="/{$profile.instance}/c/{communityName}" class="inline-link">
 				<NameAtInstance place={displayCommunity} prefix="" />
 			</a>
 		</Stack>
@@ -55,6 +55,7 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import CommunityCounts from '$lib/CommunityCounts.svelte';
 	import CommunityJoin from '$lib/CommunityJoin.svelte';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let communityView: CommunityView;
 	$: communityName = nameAtInstance(communityView.community);

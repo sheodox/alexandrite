@@ -1,17 +1,9 @@
-<Title title="Edit Post" />
+<Title title="Post" />
 
-<Breadcrumbs {links} linkifyLast />
-<h1>Edit Post</h1>
-<form bind:this={editForm}>
-	<PostCompose
-		errorMessage={errMsg}
-		submitting={$editState.busy}
-		communityId={data.communityView.community.id}
-		title={data.postView.post.name}
-		content={data.postView.post.body}
-		url={data.postView.post.url}
-		postButtonText="Update"
-	/>
+<Breadcrumbs {links} />
+<h1>Post</h1>
+<form bind:this={formElement}>
+	<PostCompose errorMessage={errMsg} submitting={$postState.busy} communityId={data.communityView.community.id} />
 </form>
 
 <script lang="ts">
@@ -26,11 +18,11 @@
 	$: jwt = $profile.jwt;
 
 	export let data;
-
-	let editForm: HTMLFormElement;
 	let errMsg = '';
 
-	$: editState = createStatefulForm(editForm, async (body) => {
+	let formElement: HTMLFormElement;
+
+	$: postState = createStatefulForm(formElement, async (body) => {
 		const title = body.title as string,
 			honeypot = body.honeypot as string;
 
@@ -43,27 +35,20 @@
 			return;
 		}
 
-		const formFields = {
+		// treat both Subscribed and Pending as the same
+		const postRes = await client.createPost({
+			auth: jwt,
+			// tricks bots by submitting an empty string, just doing what lemmy-ui is doing
+			honeypot,
+			community_id: Number(body.communityId),
 			name: title,
 			body: body.content as string,
 			url: (body.url as string) ? (body.url as string) : undefined,
 			nsfw: body.nsfw === 'on',
 			language_id: body.languageId ? Number(body.languageId) : undefined
-		};
+		});
 
-		try {
-			// treat both Subscribed and Pending as the same
-			await client.editPost({
-				auth: jwt,
-				post_id: Number(data.postView.post.id),
-				...formFields
-			});
-		} catch (e) {
-			errMsg = 'Error editing post:' + e;
-			return;
-		}
-
-		goto(`/post/${data.postView.post.id}`);
+		goto(`/${$profile.instance}/post/${postRes.post_view.post.id}`);
 	});
 
 	$: links = [
@@ -76,8 +61,7 @@
 			href: `/c/${data.communityName}/`
 		},
 		{
-			text: data.postView.post.name,
-			href: `/post/${data.postView.post.id}`
+			text: 'Post'
 		}
 	];
 </script>

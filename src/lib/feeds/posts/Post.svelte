@@ -432,6 +432,7 @@
 			// getting the post has a side effect of marking it and its comments as read
 			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => {
 				post_view.read = true;
+				post_view.unread_comments = 0;
 				return post_view;
 			});
 			cvStore.updateView(postViewToContentView(pv));

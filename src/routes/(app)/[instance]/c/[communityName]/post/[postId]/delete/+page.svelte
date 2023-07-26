@@ -17,7 +17,7 @@
 	<Stack dir="r" gap={2}>
 		<BusyButton cl="danger" busy={$deleteState.busy} on:click={$deleteState.submit}>Delete</BusyButton>
 		{#if !$deleteState.busy}
-			<a class="button tertiary" href="/post/{data.postView.post.id}">Cancel</a>
+			<a class="button tertiary" href="/{$profile.instance}/post/{data.postView.post.id}">Cancel</a>
 		{/if}
 	</Stack>
 </Stack>
@@ -59,6 +59,6 @@
 			}
 		}
 
-		goto(`/c/${data.communityName}`);
+		goto(`/${$profile.instance}/c/${data.communityName}`);
 	});
 </script>

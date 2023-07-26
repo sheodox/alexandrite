@@ -22,7 +22,7 @@
 					<Icon icon="user" />
 				{/if}
 			</div>
-			<a href="/u/{nameAtInstance(personView.person)}" class="inline-link">
+			<a href="/{$profile.instance}/u/{nameAtInstance(personView.person)}" class="inline-link">
 				<NameAtInstance place={personView.person} displayName={personView.person.display_name} prefix="" />
 			</a>
 		</Stack>

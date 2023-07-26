@@ -4,6 +4,7 @@ import { getContext } from 'svelte';
 // please don't use this directly, use `getVirtualFeedBuffer`
 export const _BUFFER_CONTEXT_KEY = '__VF_BUFFER__';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type VirtualFeedBuffer = Writable<Record<string, any>>;
 
 // VirtualFeed has a store in context for any temp data that needs to be

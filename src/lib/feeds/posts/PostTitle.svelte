@@ -13,7 +13,7 @@
 
 <Stack dir="r" gap={2} align="center">
 	<a
-		href="/post/{postView.post.id}"
+		href="/{$profile.instance}/post/{postView.post.id}"
 		on:click={titleClick}
 		class="sx-font-size-5 post-title"
 		data-sveltekit-preload-data="off"
@@ -27,6 +27,7 @@
 	import PostBadges from '$lib/PostBadges.svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
+	import { profile } from '$lib/profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;

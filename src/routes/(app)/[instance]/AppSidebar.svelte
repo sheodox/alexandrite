@@ -14,7 +14,7 @@
 	<nav class="sx-sidebar-simple-links">
 		<Stack dir="c" gap={1}>
 			{#each links as link}
-				<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /><span>{link.text}</span></a>
+				<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /> <span>{link.text}</span></a>
 			{/each}
 
 			<SidebarSubscriptionList
@@ -73,11 +73,11 @@
 
 	$: loggedIn = $profile.loggedIn;
 	$: links = [
-		{ href: '/', text: 'Home', icon: 'home' },
-		{ href: '/search', text: 'Search', icon: 'magnifying-glass' },
-		{ href: `/u/${$profile.username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
-		{ href: '/communities', text: 'Communities', icon: 'users' },
-		{ text: 'Settings', icon: 'cog', href: `/settings`, disabled: !loggedIn },
+		{ href: `/${$profile.instance}`, text: 'Home', icon: 'home' },
+		{ href: `/${$profile.instance}/search`, text: 'Search', icon: 'magnifying-glass' },
+		{ href: `/${$profile.instance}/u/${$profile.username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
+		{ href: `/${$profile.instance}/communities`, text: 'Communities', icon: 'users' },
+		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, disabled: !loggedIn },
 		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' }
 	].filter((f) => !f.disabled);
 </script>

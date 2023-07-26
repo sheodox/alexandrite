@@ -11,19 +11,23 @@
 
 	const appName = 'Alexandrite';
 	// this is used sometimes where we don't have an app context, need a fallback
-	const { unreadCount } = getAppContext() || { loggedIn: false, unreadCount: writable(0) };
+	const { unreadCount, unreadReportCount } = getAppContext() || { loggedIn: false, unreadCount: writable(0) };
 
 	$: fullTitle = (function () {
 		const segments = [];
+		if ($profile.loggedIn && $unreadReportCount > 0) {
+			segments.push($unreadReportCount + '*');
+		}
 		if ($profile.loggedIn && $unreadCount > 0) {
 			segments.push(`(${$unreadCount})`);
 		}
 
 		if (title) {
 			segments.push(title);
+			segments.push('-');
 		}
 
 		segments.push(appName);
-		return segments.join(' - ');
+		return segments.join(' ');
 	})();
 </script>

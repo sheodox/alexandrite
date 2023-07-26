@@ -16,7 +16,11 @@
 				{#if view.post.removed}
 					<span class="sx-badge-red m-0">Removed</span>
 				{/if}
-				<a href="/post/{view.post.id}" class="sx-font-size-5 post-title" data-sveltekit-preload-data="off">
+				<a
+					href="/{$profile.instance}/post/{view.post.id}"
+					class="sx-font-size-5 post-title"
+					data-sveltekit-preload-data="off"
+				>
 					{view.post.name}
 				</a>
 			</Stack>

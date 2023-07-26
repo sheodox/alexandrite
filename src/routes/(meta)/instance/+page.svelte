@@ -169,11 +169,16 @@
 			addProfile(instance);
 		}
 
-		await goto('/');
+		await goto(`/${instance}`);
 	}
 
 	onMount(() => {
-		const u = new URL(location.href);
+		const u = new URL(location.href),
+			instanceParam = u.searchParams.get('instance');
 		expired = u.searchParams.get('expired') === 'true';
+
+		if (instanceParam) {
+			instance = instanceParam;
+		}
 	});
 </script>

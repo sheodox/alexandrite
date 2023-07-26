@@ -32,7 +32,12 @@
 		</Stack>
 		<span> {creatorName}</span>
 	</div>
-	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off" class:op={isOP}>
+	<a
+		href="/{$profile.instance}/u/{creatorName}"
+		class="inline-link f-row gap-1"
+		data-sveltekit-preload-data="off"
+		class:op={isOP}
+	>
 		{#if user.avatar && $profile.settings.show_avatars}
 			<div class="user-avatar inline">
 				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />

@@ -2,10 +2,6 @@
 	main {
 		max-width: 100vw;
 	}
-	ul {
-		list-style: none;
-		padding: 0;
-	}
 	.loading-overlay {
 		position: fixed;
 		z-index: 1000000;
@@ -31,7 +27,7 @@
 				{placement}
 				icon="bell"
 				cl="{$unreadCount > 0 ? 'sx-badge-orange' : ''} p-2"
-				href="/inbox"
+				href="/{$profile.instance}/inbox"
 			>
 				{$unreadCount}
 			</IconLink>
@@ -42,30 +38,21 @@
 				{placement}
 				icon="shield-halved"
 				cl="{$unreadReportCount > 0 ? 'sx-badge-red' : ''} p-2"
-				href="/reports"
+				href="/{$profile.instance}/reports"
 			>
 				{$unreadReportCount}
 			</IconLink>
 		{/if}
 
-		<Tooltip placement="bottom">
-			<div slot="tooltip">
-				{#if lemmySettings}
-					<p class="m-0 fw-bold">Lemmy Settings</p>
-					<ul class="m-0">
-						{#each lemmySettings as setting}
-							<li><span class="muted">{setting.label}:</span> <strong>{setting.value}</strong></li>
-						{/each}
-					</ul>
-				{/if}
-			</div>
-			<span class="sx-badge-gray">
-				{instanceText}
-			</span>
-		</Tooltip>
+		<span class="sx-badge-gray">
+			{#if !$profile.loggedIn}
+				<Icon icon="user-secret" />
+			{/if}
+			{instanceText}
+		</span>
 
 		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
-		<HeaderUserMenu />
+		<HeaderUserMenu on:accounts={() => (showAccountsSelector = true)} />
 		<IconButton
 			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
 			on:click={() => ($sidebarVisible = !$sidebarVisible)}
@@ -84,7 +71,7 @@
 			<h1 class="ml-2">Alexandrite</h1>
 		</div>
 
-		<AppSidebar subscriptions={data.site.my_user?.follows} />
+		<AppSidebar subscriptions={data.site.my_user?.follows ?? []} />
 	</Sidebar>
 
 	<main class="f-column f-1">
@@ -92,6 +79,10 @@
 			<slot />
 		</ModContext>
 	</main>
+
+	{#if showAccountsSelector}
+		<ProfileOverlay instance={data.routeInstance} bind:visible={showAccountsSelector} />
+	{/if}
 </div>
 
 {#if showLoadingOverlay}
@@ -103,7 +94,8 @@
 <script lang="ts">
 	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 	import ModContext from '$lib/mod/ModContext.svelte';
-	import { Sidebar, Header, Tooltip, Search, Toasts, Modals } from 'sheodox-ui';
+	import { Sidebar, Header, Icon, Search, Toasts, Modals } from 'sheodox-ui';
+	import ProfileOverlay from '$lib/profiles/ProfileOverlay.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
 	import { setAppContext } from '$lib/app-context';
@@ -133,11 +125,12 @@
 		unreadReportCount = writable(0);
 
 	let showLoadingOverlay = false,
+		showOverlayTimeout: ReturnType<typeof setTimeout>,
+		showAccountsSelector = false,
 		headerSearchText = '';
 
 	$: isModerator = (data.site.my_user?.moderates.length ?? 0) > 0;
 
-	let showOverlayTimeout: ReturnType<typeof setTimeout>;
 	beforeNavigate(() => {
 		clearTimeout(showOverlayTimeout);
 		showOverlayTimeout = setTimeout(() => (showLoadingOverlay = true), LOADING_OVERLAY_DELAY);
@@ -192,7 +185,7 @@
 		if (communityReg.test(headerSearchText)) {
 			e.preventDefault();
 			// trim the leading !
-			goto(`/c/${headerSearchText.substring(1)}`);
+			goto(`/${$profile.instance}/c/${headerSearchText.substring(1)}`);
 		}
 	}
 
@@ -224,12 +217,6 @@
 	});
 
 	$: instanceText = $profile.username ? `${$profile.username}@${$profile.instance}` : $profile.instance;
-
-	$: lemmySettings =
-		data.lemmySettings &&
-		Object.entries(data.lemmySettings).map(([label, value]) => {
-			return { label: label.replaceAll('_', ' '), value };
-		});
 
 	const unreadPollMS = 1000 * 60 * 15;
 	// if you're a moderator you want to be alerted of stuff faster

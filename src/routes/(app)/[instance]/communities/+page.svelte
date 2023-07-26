@@ -15,7 +15,7 @@
 				</Stack>
 			</section>
 		</form>
-		<a href="/search?type=Communities" class="inline-link">Search Communities</a>
+		<a href="/{$profile.instance}/search?type=Communities" class="inline-link">Search Communities</a>
 	</Stack>
 
 	<ContentViewProvider store={cvStore}>

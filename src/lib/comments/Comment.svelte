@@ -46,12 +46,16 @@
 			{#if showPost}
 				to <CommunityLink community={contentView.view.community} />
 				<span class="muted"> &centerdot; </span>
-				<a href="/post/{contentView.view.post.id}" class="inline-link" title={contentView.view.post.name}>
+				<a
+					href="/{$profile.instance}/post/{contentView.view.post.id}"
+					class="inline-link"
+					title={contentView.view.post.name}
+				>
 					<EllipsisText>{contentView.view.post.name}</EllipsisText>
 				</a>
 			{/if}
 			<span class="muted"> &centerdot; </span>
-			<a href="/comment/{comment.id}">
+			<a href="/{$profile.instance}/comment/{comment.id}">
 				<RelativeTime date={comment.published} />
 			</a>
 			{#if comment.updated && comment.updated !== comment.published}
@@ -91,7 +95,7 @@
 					on:vote={(e) => $voteState.submit(e.detail)}
 					votePending={$voteState.busy}
 				/>
-				<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" small />
+				<IconLink icon="link" text="Show in context" href="/{$profile.instance}/comment/{contextCommentId}" small />
 				{#if maybeDeleting}
 					<BusyButton
 						cl="danger small sx-font-size-2"

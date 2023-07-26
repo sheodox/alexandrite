@@ -12,6 +12,9 @@ export interface ExtraAction {
 }
 
 export const localStorageSet = <T>(key: string, value?: T) => {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
 	if (value === undefined || value === null) {
 		localStorage.removeItem(key);
 	}
@@ -48,7 +51,13 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 	const store = writable<T>(value);
 	// whenever the value changes, write it to local storage
 	// TODO listen to storage events and update from other tabs!
+	let initialized = false;
 	store.subscribe((val) => {
+		// don't do it on the first subscribe callback, the value hasn't changed
+		if (!initialized) {
+			initialized = true;
+			return;
+		}
 		localStorage.setItem(key, JSON.stringify(val));
 	});
 

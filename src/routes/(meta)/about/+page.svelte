@@ -19,7 +19,9 @@
 			>!
 		</p>
 
-		<p>Come join the community at <a href="/c/alexandrite@lemmy.world">!alexandrite@lemmy.world</a>.</p>
+		<p>
+			Come join the community at <a href="/{$profile.instance}/c/alexandrite@lemmy.world">!alexandrite@lemmy.world</a>.
+		</p>
 
 		<h2>Support Development</h2>
 		<p>
@@ -46,4 +48,5 @@
 
 <script lang="ts">
 	import { Layout, ExternalLink } from 'sheodox-ui';
+	import { profile } from '$lib/profiles/profiles';
 </script>

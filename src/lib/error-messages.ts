@@ -5,7 +5,8 @@ export const errorMessages: Record<string, string> = {
 	incorrect_login: 'Username/email or password incorrect',
 	couldnt_find_community: "Couldn't find community",
 	couldnt_create_report: "Couldn't create report",
-	community_ban: 'You are banned in this community'
+	community_ban: 'You are banned in this community',
+	registration_application_pending: 'Your registration application is pending'
 };
 
 const unknownError = 'Unknown Error';
