@@ -82,8 +82,7 @@
 	import Profiles from './Profiles.svelte';
 	import { getMessageFromError } from '$lib/error-messages.js';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { addProfile } from '$lib/profiles/profiles';
+	import { addProfile, gotoInstance } from '$lib/profiles/profiles';
 
 	let errMsg = '';
 	let expired = false;
@@ -169,7 +168,7 @@
 			addProfile(instance);
 		}
 
-		await goto(`/${instance}`);
+		await gotoInstance(instance);
 	}
 
 	onMount(() => {

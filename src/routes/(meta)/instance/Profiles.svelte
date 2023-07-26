@@ -40,12 +40,12 @@
 		logoutProfile,
 		setDefaultProfile,
 		type Profile,
-		setProfile
+		setProfile,
+		gotoInstance
 	} from '$lib/profiles/profiles';
 	import { Accordion, Stack } from 'sheodox-ui';
 	import Avatar from '$lib/Avatar.svelte';
 	import IconButton from '$lib/IconButton.svelte';
-	import { goto } from '$app/navigation';
 	import { createStatefulAction } from '$lib/utils';
 
 	// if the user is currently logging in from the form, disable the account switcher
@@ -60,7 +60,7 @@
 	const selectProfileState = createStatefulAction<Profile>(async (p) => {
 		setDefaultProfile(p.id);
 		setProfile(p);
-		await goto(`/${p.instance}`);
+		await gotoInstance(p.instance);
 	});
 
 	$: busy = submittingLoginForm || $selectProfileState.busy;

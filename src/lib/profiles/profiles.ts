@@ -4,6 +4,7 @@ import { localStorageBackedStore, localStorageGet, localStorageSet } from '$lib/
 import { createLemmyClient } from '$lib/lemmy-client';
 import { getInstanceFromRoute } from './profile-utils';
 import { migrate } from './migrate';
+import { goto } from '$app/navigation';
 
 migrate.toProfiles();
 
@@ -44,6 +45,13 @@ profiles.subscribe((val) => {
 
 export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), 0, true);
 export const instance = writable(getRouteInstance());
+
+// set the instance and go to it, used when selecting a profile on the login screen so the account
+// switcher knows what instance you're on!
+export async function gotoInstance(inst: string) {
+	instance.set(inst);
+	await goto(`/${inst}`);
+}
 
 export function getFallbackProfile(): Profile {
 	const inst = get(instance);
