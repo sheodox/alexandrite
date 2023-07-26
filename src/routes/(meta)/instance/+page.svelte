@@ -39,7 +39,7 @@
 	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.1</code> or later.
 </Alert>
 
-<Profiles />
+<Profiles submittingLoginForm={submitting} />
 
 <form class:instance-valid={parseableInstance} on:submit|preventDefault={onSubmit}>
 	<Stack gap={2}>

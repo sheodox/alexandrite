@@ -21,17 +21,12 @@
 					<button
 						class="tertiary f-1 f-row gap-2 align-items-center"
 						on:click={() => $selectProfileState.submit(profile)}
-						disabled={$selectProfileState.busy}
+						disabled={busy}
 					>
 						<Avatar src={profile.avatar} icon={profile.username ? 'user' : 'user-secret'} size="1em" />
 						{profile.username ? profile.username + '@' : ''}{profile.instance}</button
 					>
-					<IconButton
-						text="Remove Account"
-						icon="times"
-						on:click={() => logoutProfile(profile.id)}
-						disabled={$selectProfileState.busy}
-					/>
+					<IconButton text="Remove Account" icon="times" on:click={() => logoutProfile(profile.id)} disabled={busy} />
 				</Stack>
 			{/each}
 		</Stack>
@@ -53,6 +48,9 @@
 	import { goto } from '$app/navigation';
 	import { createStatefulAction } from '$lib/utils';
 
+	// if the user is currently logging in from the form, disable the account switcher
+	export let submittingLoginForm: boolean;
+
 	$: alphabetizedProfiles = [...$profiles].sort((a, b) => {
 		return a.id.localeCompare(b.id);
 	});
@@ -64,4 +62,6 @@
 		setProfile(p);
 		await goto(`/${p.instance}`);
 	});
+
+	$: busy = submittingLoginForm || $selectProfileState.busy;
 </script>

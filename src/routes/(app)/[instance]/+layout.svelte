@@ -71,7 +71,7 @@
 			<h1 class="ml-2">Alexandrite</h1>
 		</div>
 
-		<AppSidebar subscriptions={data.site.my_user?.follows ?? []} />
+		<AppSidebar subscriptions={$siteMeta.my_user?.follows ?? []} />
 	</Sidebar>
 
 	<main class="f-column f-1">
@@ -81,7 +81,7 @@
 	</main>
 
 	{#if showAccountsSelector}
-		<ProfileOverlay instance={data.routeInstance} bind:visible={showAccountsSelector} />
+		<ProfileOverlay bind:visible={showAccountsSelector} />
 	{/if}
 </div>
 
@@ -113,6 +113,10 @@
 
 	export let data;
 
+	const siteMeta = writable(data.site);
+
+	$: $siteMeta = data.site;
+
 	// there's an overlay that shows when navigating, but if the navigation is fast we don't want to show it,
 	// so we delay it a little bit to cut down on annoying one or two frame flashes of the overlay
 	const LOADING_OVERLAY_DELAY = 50;
@@ -129,7 +133,7 @@
 		showAccountsSelector = false,
 		headerSearchText = '';
 
-	$: isModerator = (data.site.my_user?.moderates.length ?? 0) > 0;
+	$: isModerator = ($siteMeta.my_user?.moderates.length ?? 0) > 0;
 
 	beforeNavigate(() => {
 		clearTimeout(showOverlayTimeout);
@@ -190,7 +194,7 @@
 	}
 
 	setAppContext({
-		siteMeta: data.site,
+		siteMeta,
 		navSidebarOpen,
 		unreadCount,
 		unreadReportCount,
@@ -224,7 +228,7 @@
 	const styleId = 'alexandrite-style-overrides';
 	let pollIntervals: ReturnType<typeof setInterval>[] = [],
 		headerResizeObserver: ResizeObserver,
-		cssVarUnsub: Unsubscriber;
+		storeUnsubs: Unsubscriber[] = [];
 
 	$: $cssVariables['--sx-hue-gray'] = $themeHue + ' !important';
 
@@ -242,22 +246,24 @@
 			headerResizeObserver.observe(header);
 		}
 
-		cssVarUnsub = cssVariables.subscribe((vars) => {
-			let style = document.getElementById(styleId);
-			if (!style) {
-				style = document.createElement('style');
-				style.id = styleId;
-				document.head.appendChild(style);
-			}
+		storeUnsubs.push(
+			cssVariables.subscribe((vars) => {
+				let style = document.getElementById(styleId);
+				if (!style) {
+					style = document.createElement('style');
+					style.id = styleId;
+					document.head.appendChild(style);
+				}
 
-			const rules = [];
+				const rules = [];
 
-			for (const [varName, val] of Object.entries(vars)) {
-				rules.push(`${varName}: ${val};`);
-			}
+				for (const [varName, val] of Object.entries(vars)) {
+					rules.push(`${varName}: ${val};`);
+				}
 
-			style.textContent = `:root { ${rules.join('\n')} }`;
-		});
+				style.textContent = `:root { ${rules.join('\n')} }`;
+			})
+		);
 
 		if (!jwt) {
 			return;
@@ -272,7 +278,8 @@
 	onDestroy(() => {
 		pollIntervals.forEach(clearInterval);
 		headerResizeObserver?.disconnect();
-		cssVarUnsub?.();
+		storeUnsubs.forEach((unsub) => unsub());
+		storeUnsubs = [];
 		document.getElementById(styleId)?.remove();
 	});
 </script>

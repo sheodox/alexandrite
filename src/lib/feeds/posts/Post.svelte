@@ -235,7 +235,8 @@
 	$: hasEmbedText = !!postView.post.embed_title;
 	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
-	$: isCommunityModerator = siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
+	$: isCommunityModerator =
+		$siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
 
 	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
 		if (!jwt) {

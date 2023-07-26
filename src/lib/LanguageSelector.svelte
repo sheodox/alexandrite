@@ -1,5 +1,5 @@
 <select aria-label="language" name="languageId" required bind:value={selectedLanguage} on:change={saveSelectedLanguage}>
-	{#each siteMeta.all_languages as lang}
+	{#each $siteMeta.all_languages as lang}
 		<option value={lang.id}>{lang.name}</option>
 	{/each}
 </select>
@@ -12,7 +12,7 @@
 	const languageCacheKey = 'editor-language';
 	const { siteMeta } = getAppContext();
 	// assume english, Alexandrite isn't translated yet anyway
-	const englishLanguageId = siteMeta.all_languages.find(({ code }) => code === 'en')?.id;
+	const englishLanguageId = $siteMeta.all_languages.find(({ code }) => code === 'en')?.id;
 
 	onMount(() => {
 		const cached = localStorage?.getItem(languageCacheKey);

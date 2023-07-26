@@ -38,13 +38,21 @@
 									><Icon icon="check" /> Set Default for {profile.instance}</button
 								>
 							</li>
+							<!-- don't let them remove the guest account -->
+							{#if profile.username}
+								<li>
+									<button on:click={removeAccount}>
+										<Icon icon="trash-can" /> Remove Account
+									</button>
+								</li>
+							{/if}
 						</ul>
 					</MenuButton>
 				</Tooltip>
 				<button
 					class="secondary f-row gap-2 justify-content-center m-0"
 					on:click={() => dispatch('select', profile)}
-					disabled={busy}
+					disabled={busy || $currentProfile.id === profile.id}
 				>
 					<Icon icon="right-to-bracket" />
 					Login
@@ -56,12 +64,29 @@
 
 <script lang="ts">
 	import { Stack, Icon, MenuButton, Tooltip } from 'sheodox-ui';
-	import { instanceDefaultProfileId, type Profile } from '$lib/profiles/profiles';
+	import {
+		profile as currentProfile,
+		instanceDefaultProfileId,
+		logoutProfile,
+		switchToInstanceDefaultProfile,
+		type Profile
+	} from '$lib/profiles/profiles';
 	import Avatar from '$lib/Avatar.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	const dispatch = createEventDispatcher<{ select: Profile }>();
 
 	export let profile: Profile;
 	export let busy: boolean;
+
+	function removeAccount() {
+		logoutProfile(profile.id);
+
+		// if you remove the account you're logged in as, reload to continue as a guest, or default if another is set
+		if ($currentProfile.id === profile.id) {
+			switchToInstanceDefaultProfile();
+			invalidateAll();
+		}
+	}
 </script>

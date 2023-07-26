@@ -1,4 +1,4 @@
-import { get, readable, writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import type { LemmyHttp, ListingType, LocalUser, Person, SortType } from 'lemmy-js-client';
 import { localStorageBackedStore, localStorageGet, localStorageSet } from '$lib/utils';
 import { createLemmyClient } from '$lib/lemmy-client';
@@ -40,7 +40,7 @@ profiles.subscribe((val) => {
 });
 
 export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance());
-export const instance = readable(getRouteInstance());
+export const instance = writable(getRouteInstance());
 
 export function getFallbackProfile(): Profile {
 	const inst = get(instance);
@@ -56,11 +56,15 @@ export function getFallbackProfile(): Profile {
 	};
 }
 
+export function switchInstance(inst: string) {
+	instance.set(inst);
+	switchToInstanceDefaultProfile();
+}
+
 export function getDefaultProfile(): Profile {
-	const routeInstance = getRouteInstance(),
-		inst = get(instance),
+	const inst = get(instance),
 		fallbackProfile = getFallbackProfile(),
-		defaultId = routeInstance
+		defaultId = inst
 			? localStorageGet(lsKeys.instanceDefault(inst), null)
 			: localStorageGet(lsKeys.instanceDefault(get(defaultInstance)), null);
 
@@ -77,6 +81,11 @@ export function getDefaultProfile(): Profile {
 
 const defaultProfile = getDefaultProfile();
 export const profile = writable(profileToStoreValue(defaultProfile));
+
+// if the current profile is removed, we need to re-init with a new default profile
+export function switchToInstanceDefaultProfile() {
+	profile.set(profileToStoreValue(getDefaultProfile()));
+}
 
 function getRouteInstance() {
 	if (typeof location === 'undefined') {

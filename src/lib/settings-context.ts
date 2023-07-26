@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import type { Writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 
 export type NSFWImageHandling = 'HIDE' | 'SHOW' | 'BLUR';
 
@@ -62,8 +62,18 @@ export type AlexandriteSettingsStores = {
 
 export const SETTINGS_CONTEXT_KEY = '__SX_SETTINGS_CONTEXT__';
 
+// default settings, when used outside of a valid context, like on `/(meta)`
+const defaultSettingsStore: AlexandriteSettingsStores = Object.entries(AlexandriteSettingsDefaults).reduce(
+	(stores, v) => {
+		const [key, val] = v;
+		stores[key as keyof AlexandriteSettingsStores] = writable(val);
+		return stores;
+	},
+	{} as AlexandriteSettingsStores
+);
+
 export const getSettingsContext = () => {
-	return getContext<AlexandriteSettingsStores>(SETTINGS_CONTEXT_KEY);
+	return getContext<AlexandriteSettingsStores>(SETTINGS_CONTEXT_KEY) ?? defaultSettingsStore;
 };
 
 export const setSettingsContext = (ctx: AlexandriteSettingsStores) => {

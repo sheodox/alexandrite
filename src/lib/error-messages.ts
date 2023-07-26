@@ -6,7 +6,8 @@ export const errorMessages: Record<string, string> = {
 	couldnt_find_community: "Couldn't find community",
 	couldnt_create_report: "Couldn't create report",
 	community_ban: 'You are banned in this community',
-	registration_application_pending: 'Your registration application is pending'
+	registration_application_pending: 'Your registration application is pending',
+	couldnt_find_post: "Couldn't find post"
 };
 
 const unknownError = 'Unknown Error';

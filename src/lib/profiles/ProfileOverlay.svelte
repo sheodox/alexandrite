@@ -6,11 +6,11 @@
 	}
 </style>
 
-<Modal bind:visible title="Select an account">
+<Modal bind:visible title="Switch Account">
 	<div class="modal-body f-column align-items-center justify-content-center f-1">
 		<div class="profile-selector">
 			<Stack dir="c" gap={2}>
-				<p class="m-0">Login to {instance} as...</p>
+				<p class="m-0">Login to <strong>{$instance}</strong> as...</p>
 				{#each instanceProfiles as profile, index}
 					<ManageProfile
 						{profile}
@@ -21,7 +21,7 @@
 						<hr class="w-100" />
 					{/if}
 				{/each}
-				<a href="/instance?instance={instance}" class="inline-link text-align-center">Login as a different user</a>
+				<a href="/instance?instance={$instance}" class="inline-link text-align-center">Login as a different user</a>
 			</Stack>
 		</div>
 	</div>
@@ -29,17 +29,16 @@
 
 <script lang="ts">
 	import { Stack, Modal } from 'sheodox-ui';
-	import { profiles, setProfile, type Profile, getFallbackProfile } from './profiles';
+	import { instance, profiles, setProfile, type Profile, getFallbackProfile } from './profiles';
 	import { invalidateAll } from '$app/navigation';
 	import ManageProfile from './ManageProfile.svelte';
 	import { createStatefulAction } from '$lib/utils';
 
-	export let instance: string;
 	export let visible: boolean;
 
 	$: instanceProfiles = [
 		getFallbackProfile(),
-		...$profiles.filter((profile) => profile.instance === instance && profile.username)
+		...$profiles.filter((profile) => profile.instance === $instance && profile.username)
 	];
 
 	const selectProfileState = createStatefulAction(async (profile: Profile) => {

@@ -24,10 +24,10 @@
 				on:favorite={(e) => onFavorite(e.detail)}
 			/>
 
-			{#if siteMeta.my_user}
+			{#if $siteMeta.my_user}
 				<SidebarSubscriptionList
 					title="Moderating"
-					communities={siteMeta.my_user.moderates.map((v) => v.community)}
+					communities={$siteMeta.my_user.moderates.map((v) => v.community)}
 					favorites={$favoriteCommunitiesIds}
 					on:favorite={(e) => onFavorite(e.detail)}
 				/>

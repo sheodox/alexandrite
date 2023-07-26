@@ -329,7 +329,7 @@
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
 	$: contextCommentId = getCommentContextId(contentView.view);
 	$: isCommunityModerator =
-		siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
+		$siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
 
 	function updateCV(commentView: CommentView) {
 		cvStore.updateView(commentViewToContentView(commentView));
