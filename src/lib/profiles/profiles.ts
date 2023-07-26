@@ -3,6 +3,9 @@ import type { LemmyHttp, ListingType, LocalUser, Person, SortType } from 'lemmy-
 import { localStorageBackedStore, localStorageGet, localStorageSet } from '$lib/utils';
 import { createLemmyClient } from '$lib/lemmy-client';
 import { getInstanceFromRoute } from './profile-utils';
+import { migrate } from './migrate';
+
+migrate.toProfiles();
 
 const lsKeys = {
 	defaultInstance: 'profiles-default-instance',
@@ -39,7 +42,7 @@ profiles.subscribe((val) => {
 	localStorageSet(lsKeys.profiles, val);
 });
 
-export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance());
+export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), 0, true);
 export const instance = writable(getRouteInstance());
 
 export function getFallbackProfile(): Profile {

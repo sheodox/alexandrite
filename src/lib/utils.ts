@@ -35,7 +35,7 @@ export const localStorageGet = <T>(key: string, defaultValue: T) => {
 	}
 };
 
-export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
+export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0, setAlways = false) => {
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;
 
@@ -51,14 +51,18 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 	const store = writable<T>(value);
 	// whenever the value changes, write it to local storage
 	// TODO listen to storage events and update from other tabs!
-	let initialized = false;
+	let initialized = setAlways;
 	store.subscribe((val) => {
 		// don't do it on the first subscribe callback, the value hasn't changed
 		if (!initialized) {
 			initialized = true;
 			return;
 		}
-		localStorage.setItem(key, JSON.stringify(val));
+		try {
+			localStorage.setItem(key, JSON.stringify(val));
+		} catch (e) {
+			/* sveltekit tooling in dev throws on localStorage */
+		}
 	});
 
 	return store;
