@@ -20,7 +20,7 @@
 				{#if $instanceDefaultProfileId === profile.id}
 					<Tooltip>
 						<span slot="tooltip">Default for {profile.instance}</span>
-						<Icon icon="check" /><span class="sr-only">Default for {profile.instance}</span>
+						<span class="sx-badge-gray sx-font-size-2"><Icon icon="check" /> Default</span>
 					</Tooltip>
 				{/if}
 			</Stack>
