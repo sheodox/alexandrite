@@ -49,7 +49,7 @@
 
 	$: otherInstances = Array.from(
 		new Set($profiles.filter((p) => p.instance !== $profile.instance).map((p) => p.instance))
-	);
+	).sort();
 
 	$: links = [
 		{
