@@ -31,7 +31,6 @@ export const load = (async ({ params }) => {
 
 	return {
 		loggedIn: !!jwt,
-		site,
-		routeInstance: params.instance
+		site
 	};
 }) satisfies LayoutLoad;
