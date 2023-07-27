@@ -2,11 +2,12 @@ import type { HttpError } from '@sveltejs/kit';
 
 export const errorMessages: Record<string, string> = {
 	email_not_verified: 'Email not verified',
-	password_incorrect: 'Password incorrect',
-	couldnt_find_that_username_or_email: "Couldn't find that username or email",
+	incorrect_login: 'Username/email or password incorrect',
 	couldnt_find_community: "Couldn't find community",
 	couldnt_create_report: "Couldn't create report",
-	community_ban: 'You are banned in this community'
+	community_ban: 'You are banned in this community',
+	registration_application_pending: 'Your registration application is pending',
+	couldnt_find_post: "Couldn't find post"
 };
 
 const unknownError = 'Unknown Error';

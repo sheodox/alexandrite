@@ -79,7 +79,7 @@
 
 			<hr class="w-100" id="comments" />
 
-			{#if loggedIn}
+			{#if $profile.loggedIn}
 				<div class="comment-editor m-2">
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
@@ -110,12 +110,12 @@
 
 			{#if viewingSingleCommentThread}
 				<Stack dir="r" gap={2} align="center" cl="p-4">
-					<a href="/post/{postView.post.id}" class="button secondary"
+					<a href="/{$profile.instance}/post/{postView.post.id}" class="button secondary"
 						><Icon icon="arrow-up-from-bracket" />
 						View all comments
 					</a>
 					{#if rootComment && rootComment.type === 'comment' && commentContextId !== rootComment.view.comment.id}
-						<a href="/comment/{commentContextId}" class="button secondary">
+						<a href="/{$profile.instance}/comment/{commentContextId}" class="button secondary">
 							Parent comment
 							<Icon icon="turn-up" />
 						</a>
@@ -178,14 +178,13 @@
 	import { CommentSortOptions } from './feed-filters';
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
-	import { getAppContext } from './app-context';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
-	import { getLemmyClient } from './lemmy-client';
 	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
+	import { profile } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
 
@@ -199,9 +198,10 @@
 	export let closeable = false;
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
-	const { loggedIn } = getAppContext();
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
-	const { client, jwt } = getLemmyClient();
+
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {
@@ -244,7 +244,6 @@
 	$: canScrollPrevResult = commentSearchResultIndex > 0;
 
 	function onCommentSearchIndexChange(inc: number) {
-		console.log({ len: commentSearchMatchIds.length - 1, inc, incby: commentSearchResultIndex + inc });
 		commentSearchResultIndex = Math.max(0, Math.min(commentSearchMatchIds.length - 1, commentSearchResultIndex + inc));
 		const index = commentTree.findIndex((x) => {
 			return x.cv.comment.id === commentSearchMatchIds[commentSearchResultIndex];

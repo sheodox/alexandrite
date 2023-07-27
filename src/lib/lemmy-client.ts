@@ -1,9 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
-import { getLemmySettings } from './lemmy-settings';
 import { createAutoExpireToast } from 'sheodox-ui';
 import { getMessageFromError } from './error-messages';
-import { goto } from '$app/navigation';
+import { handleExpiredProfile } from '$lib/profiles/profiles';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -48,12 +47,7 @@ export const createLemmyClient = (instanceUrl: string) => {
 				const lemmyError = tryParse(text)?.error ?? '';
 
 				if (lemmyError === 'not_logged_in') {
-					// redirect to the login page, they tried doing something
-					// that required auth with an invalid session.
-					// using a full page redirect to clear everything out
-					// as I saw it continue trying to load a ton of stuff in the
-					// feed after redirecting away without this.
-					location.href = '/instance?expired=true';
+					handleExpiredProfile();
 				}
 
 				const errMsg = lemmyError ? getMessageFromError(lemmyError) : text;
@@ -71,34 +65,4 @@ export const createLemmyClient = (instanceUrl: string) => {
 			return res;
 		}
 	});
-};
-
-// cache the client, so long as we're accessing the same instance
-let client: LemmyHttp, clientInstanceUrl: string;
-
-// this should only be used when we know we'll have this stuff, don't use in `/(meta)` routes
-export const getLemmyClient = () => {
-	const instance = localStorage.getItem('instance'),
-		instanceUrl = `https://${instance}`;
-
-	if (!instance) {
-		goto('/instance');
-		throw new Error('Redirecting, no instance known.');
-	}
-	let c = client;
-
-	if (instanceUrl !== clientInstanceUrl) {
-		client = createLemmyClient(instanceUrl);
-		c = client;
-		clientInstanceUrl = instanceUrl;
-	}
-
-	return {
-		client: c,
-		lemmySettings: getLemmySettings(),
-		username: localStorage.getItem('username'),
-		jwt: localStorage.getItem('jwt') ?? undefined,
-		instance,
-		instanceUrl
-	};
 };

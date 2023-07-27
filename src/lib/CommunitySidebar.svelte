@@ -1,6 +1,6 @@
 <article>
 	<Sidebar description={community.description ?? ''} bannerImageSrc={community.banner} context="Community">
-		<a href="/c/{nameAtInstance(community)}" slot="name">
+		<a href="/{$profile.instance}/c/{nameAtInstance(community)}" slot="name">
 			<NameAtInstance place={community} prefix="!" />
 		</a>
 
@@ -40,6 +40,7 @@
 	import UserLink from './UserLink.svelte';
 	import type { CommunityView, Community, CommunityModeratorView } from 'lemmy-js-client';
 	import { nameAtInstance } from './nav-utils';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let community: Community;
 	export let communityView: CommunityView | null = null;

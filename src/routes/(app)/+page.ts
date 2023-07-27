@@ -1,13 +1,9 @@
-import { getLemmySettings } from '$lib/lemmy-settings';
+import { redirect } from '@sveltejs/kit';
+import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
+import { instance } from '$lib/profiles/profiles';
 
-export const load = (async ({ url }) => {
-	const ls = getLemmySettings();
-	return {
-		query: {
-			sort: url.searchParams.get('sort') ?? ls?.default_sort_type ?? 'Hot',
-			listing: url.searchParams.get('listing') ?? ls?.default_listing_type ?? 'Local',
-			type: url.searchParams.get('type') ?? 'Posts'
-		}
-	};
+export const load = (async () => {
+	const inst = get(instance);
+	throw redirect(303, `/${inst}`);
 }) satisfies PageLoad;

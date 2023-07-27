@@ -46,12 +46,16 @@
 			{#if showPost}
 				to <CommunityLink community={contentView.view.community} />
 				<span class="muted"> &centerdot; </span>
-				<a href="/post/{contentView.view.post.id}" class="inline-link" title={contentView.view.post.name}>
+				<a
+					href="/{$profile.instance}/post/{contentView.view.post.id}"
+					class="inline-link"
+					title={contentView.view.post.name}
+				>
 					<EllipsisText>{contentView.view.post.name}</EllipsisText>
 				</a>
 			{/if}
 			<span class="muted"> &centerdot; </span>
-			<a href="/comment/{comment.id}">
+			<a href="/{$profile.instance}/comment/{comment.id}">
 				<RelativeTime date={comment.published} />
 			</a>
 			{#if comment.updated && comment.updated !== comment.published}
@@ -91,7 +95,7 @@
 					on:vote={(e) => $voteState.submit(e.detail)}
 					votePending={$voteState.busy}
 				/>
-				<IconLink icon="link" text="Show in context" href="/comment/{contextCommentId}" small />
+				<IconLink icon="link" text="Show in context" href="/{$profile.instance}/comment/{contextCommentId}" small />
 				{#if maybeDeleting}
 					<BusyButton
 						cl="danger small sx-font-size-2"
@@ -107,7 +111,7 @@
 					>
 				{:else}
 					<LogButton on:click={() => console.log({ commentView: contentView })} />
-					{#if loggedIn}
+					{#if $profile.loggedIn}
 						<IconButton
 							icon="reply"
 							small
@@ -173,7 +177,7 @@
 				/>
 			</form>
 		{/if}
-		{#if $buffer[bk.showReplyComposer] && loggedIn}
+		{#if $buffer[bk.showReplyComposer] && $profile.loggedIn}
 			<form bind:this={replyForm} class="reply-editor">
 				<input type="hidden" name="parentId" value={comment.id} />
 				<CommentEditor
@@ -213,7 +217,6 @@
 	import CommunityLink from '../CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId } from '../nav-utils';
-	import { getLemmyClient } from '../lemmy-client';
 	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from '../utils';
 	import { getVirtualFeedBuffer } from '../virtual-feed';
 	import {
@@ -225,6 +228,7 @@
 		type ContentViewReply,
 		replyViewToContentView
 	} from '../content-views';
+	import { profile } from '$lib/profiles/profiles';
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
@@ -249,9 +253,11 @@
 	let comment = contentView.view.comment;
 	$: comment = contentView.view.comment;
 
-	const { loggedIn, username, checkUnread, siteMeta } = getAppContext();
-	const { jwt, client } = getLemmyClient();
-	$: myComment = contentView.view.creator.local && contentView.view.creator.name === username;
+	const { checkUnread, siteMeta } = getAppContext();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
+	$: myComment = contentView.view.creator.local && contentView.view.creator.name === $profile.username;
 
 	const buffer = getVirtualFeedBuffer();
 	const bufferKeyBase = `comment-${comment.id}-`;
@@ -323,7 +329,7 @@
 	$: collapseMsg = collapsed ? 'Show comment' : 'Hide comment';
 	$: contextCommentId = getCommentContextId(contentView.view);
 	$: isCommunityModerator =
-		siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
+		$siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
 
 	function updateCV(commentView: CommentView) {
 		cvStore.updateView(commentViewToContentView(commentView));
@@ -483,7 +489,7 @@
 	$: {
 		const options: ExtraAction[] = [];
 
-		if (loggedIn && !myComment) {
+		if ($profile.loggedIn && !myComment) {
 			options.push({
 				text: 'Send Message',
 				href: `/message/${contentView.view.creator.id}`,

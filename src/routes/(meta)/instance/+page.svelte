@@ -18,7 +18,7 @@
 <h1 class="m-0 sx-font-size-9">Welcome</h1>
 
 <Stack dir="c" gap={4} cl="has-inline-links">
-	{#if expired}
+	{#if expiredId}
 		<Alert variant="warning">You were logged out, please log in again.</Alert>
 	{/if}
 	<p>
@@ -38,6 +38,8 @@
 <Alert variant="info">
 	<Icon icon="warning" /> Alexandrite is only compatible with instances running <code>0.18.1</code> or later.
 </Alert>
+
+<Profiles submittingLoginForm={submitting} />
 
 <form class:instance-valid={parseableInstance} on:submit|preventDefault={onSubmit}>
 	<Stack gap={2}>
@@ -75,16 +77,15 @@
 	import BusyButton from '$lib/BusyButton.svelte';
 	import Separator from '$lib/Separator.svelte';
 	import Title from '$lib/Title.svelte';
-	import { logout } from '$lib/settings/auth.js';
 	import { createLemmyClient } from '$lib/lemmy-client.js';
 	import type { GetSiteResponse, Login } from 'lemmy-js-client';
+	import Profiles from './Profiles.svelte';
 	import { getMessageFromError } from '$lib/error-messages.js';
-	import { setLemmySettings } from '$lib/lemmy-settings.js';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { addProfile, gotoInstance, profiles } from '$lib/profiles/profiles';
 
 	let errMsg = '';
-	let expired = false;
+	let expiredId: string | null = null;
 
 	let submitting = false;
 
@@ -124,9 +125,6 @@
 			return;
 		}
 
-		// logout of previous user
-		logout();
-
 		const baseUrl = 'https://' + instance;
 
 		const client = createLemmyClient(baseUrl);
@@ -143,8 +141,6 @@
 			errMsg = `Server version (${site.version}) is too low!`;
 			return;
 		}
-
-		localStorage.setItem('instance', instance);
 
 		if (username) {
 			const loginForm: Login = {
@@ -165,21 +161,29 @@
 				auth: jwt
 			});
 
-			localStorage.setItem('jwt', jwt);
-
 			const user = site.my_user?.local_user_view;
-			if (user) {
-				// store settings in the cookie doing some home grown de/serialization stuff so the settings are tiny in the cookie
-				setLemmySettings(user.local_user);
-				localStorage.setItem('username', user.person.name);
-			}
+
+			addProfile(instance, user?.person, jwt, user?.local_user);
+		} else {
+			addProfile(instance);
 		}
 
-		goto('/');
+		await gotoInstance(instance);
 	}
 
 	onMount(() => {
-		const u = new URL(location.href);
-		expired = u.searchParams.get('expired') === 'true';
+		const u = new URL(location.href),
+			instanceParam = u.searchParams.get('instance');
+		expiredId = u.searchParams.get('expired');
+		const expiredProfile = $profiles.find((p) => p.id === expiredId);
+
+		if (instanceParam) {
+			instance = instanceParam;
+		}
+
+		if (expiredProfile) {
+			instance = expiredProfile.instance;
+			username = expiredProfile.username ?? '';
+		}
 	});
 </script>

@@ -11,7 +11,6 @@
 	import IconButton from './IconButton.svelte';
 	import { getAppContext } from './app-context';
 	import { createStatefulAction } from './utils';
-	import { getLemmyClient } from './lemmy-client';
 	import {
 		getContentViewStore,
 		mentionViewToContentView,
@@ -19,9 +18,12 @@
 		replyViewToContentView
 	} from './content-views';
 	export let content: { read: boolean; type: string; id: number };
+	import { profile } from '$lib/profiles/profiles';
 
 	const { checkUnread } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+
 	const cvStore = getContentViewStore();
 
 	$: markReadState = createStatefulAction(async () => {

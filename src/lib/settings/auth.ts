@@ -1,8 +1,7 @@
-import { clearLemmySettings } from '$lib/lemmy-settings';
+import { logoutProfile, profile } from '$lib/profiles/profiles';
+import { get } from 'svelte/store';
 
 export const logout = () => {
-	localStorage.removeItem('instance');
-	localStorage.removeItem('jwt');
-	localStorage.removeItem('username');
-	clearLemmySettings();
+	const profileId = get(profile).id;
+	logoutProfile(profileId);
 };

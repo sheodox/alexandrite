@@ -11,7 +11,31 @@ export interface ExtraAction {
 	busy?: boolean;
 }
 
-export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0) => {
+export const localStorageSet = <T>(key: string, value?: T) => {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
+	if (value === undefined || value === null) {
+		localStorage.removeItem(key);
+	}
+	localStorage.setItem(key, JSON.stringify(value));
+};
+
+export const localStorageGet = <T>(key: string, defaultValue: T) => {
+	try {
+		const val = localStorage?.getItem(key) ?? null;
+
+		if (val === null) {
+			return defaultValue;
+		}
+
+		return JSON.parse(val) as T;
+	} catch (e) {
+		return defaultValue;
+	}
+};
+
+export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0, setAlways = false) => {
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;
 
@@ -27,8 +51,18 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 	const store = writable<T>(value);
 	// whenever the value changes, write it to local storage
 	// TODO listen to storage events and update from other tabs!
+	let initialized = setAlways;
 	store.subscribe((val) => {
-		localStorage.setItem(key, JSON.stringify(val));
+		// don't do it on the first subscribe callback, the value hasn't changed
+		if (!initialized) {
+			initialized = true;
+			return;
+		}
+		try {
+			localStorage.setItem(key, JSON.stringify(val));
+		} catch (e) {
+			/* sveltekit tooling in dev throws on localStorage */
+		}
 	});
 
 	return store;
@@ -37,7 +71,10 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 export class Throttler {
 	timeout: ReturnType<typeof setTimeout> | null = null;
 
-	constructor(private callback: () => unknown, private throttleMS: number = 200) {}
+	constructor(
+		private callback: () => unknown,
+		private throttleMS: number = 200
+	) {}
 
 	run() {
 		if (this.timeout) {

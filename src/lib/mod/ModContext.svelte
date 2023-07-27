@@ -1,12 +1,13 @@
 <slot />
 
 <script lang="ts">
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { writable } from 'svelte/store';
 	import { setModContext, type ModAction, type ModContext } from './mod-context';
 	import { showPromptModal, createAutoExpireToast } from 'sheodox-ui';
+	import { profile } from '$lib/profiles/profiles';
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
 	const pending = writable(new Set<string>());
 

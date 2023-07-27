@@ -21,7 +21,7 @@
 <Tooltip>
 	<div slot="tooltip">
 		<Stack gap={2} dir="r" align="center">
-			{#if user.avatar && ls.show_avatars}
+			{#if user.avatar && $profile.settings.show_avatars}
 				<div class="user-avatar">
 					<Image src={user.avatar} mode="thumbnail" />
 				</div>
@@ -32,8 +32,13 @@
 		</Stack>
 		<span> {creatorName}</span>
 	</div>
-	<a href="/u/{creatorName}" class="inline-link f-row gap-1" data-sveltekit-preload-data="off" class:op={isOP}>
-		{#if user.avatar && ls.show_avatars}
+	<a
+		href="/{$profile.instance}/u/{creatorName}"
+		class="inline-link f-row gap-1"
+		data-sveltekit-preload-data="off"
+		class:op={isOP}
+	>
+		{#if user.avatar && $profile.settings.show_avatars}
 			<div class="user-avatar inline">
 				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />
 			</div>
@@ -50,12 +55,10 @@
 	import NameAtInstance from './NameAtInstance.svelte';
 	import type { Person } from 'lemmy-js-client';
 	import { nameAtInstance } from './nav-utils';
-	import { getLemmySettings } from './lemmy-settings';
+	import { profile } from './profiles/profiles';
 
 	export let user: Person;
 	export let isOP = false;
 
 	$: creatorName = nameAtInstance(user);
-
-	const ls = getLemmySettings();
 </script>

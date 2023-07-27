@@ -8,7 +8,7 @@
 		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>
 	<Stack slot="actions" dir="c" gap={2} cl="mt-2">
-		{#each taglines as tagline}
+		{#each $siteMeta.taglines as tagline}
 			<Alert variant="info"><Markdown md={tagline.content} /></Alert>
 		{/each}
 	</Stack>
@@ -22,9 +22,7 @@
 	import { getAppContext } from '$lib/app-context';
 
 	const { siteMeta } = getAppContext();
-	const siteView = siteMeta.site_view;
-
-	const taglines = getAppContext().siteMeta.taglines;
+	$: siteView = $siteMeta.site_view;
 
 	$: siteCounts = [
 		{
@@ -45,7 +43,7 @@
 		{
 			label: 'Server Version',
 			icon: 'code-branch',
-			value: siteMeta.version
+			value: $siteMeta.version
 		}
 	];
 </script>

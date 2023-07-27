@@ -6,13 +6,13 @@
 			On {personInstance}
 		</a>
 		{#if !isMe}
-			<a class="button tertiary" href="/message/{personView.person.id}">
+			<a class="button tertiary" href="/{$profile.instance}/message/{personView.person.id}">
 				<Icon icon="message" />
 				Send Message
 			</a>
 		{/if}
 		{#if !readOnly}
-			<a class="button tertiary" href="/search?creator={personView.person.id}">
+			<a class="button tertiary" href="/{$profile.instance}/search?creator={personView.person.id}">
 				<Icon icon="magnifying-glass" />
 				Search
 			</a>
@@ -31,14 +31,13 @@
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import UserBadges from './UserBadges.svelte';
 	import LogButton from '$lib/LogButton.svelte';
-	import { getAppContext } from '$lib/app-context';
 	import type { ContentViewPerson } from '$lib/content-views';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let contentView: ContentViewPerson;
 	export let readOnly = false;
-	const { username } = getAppContext();
 
 	$: personView = contentView.view;
 	$: personInstance = new URL(personView.person.actor_id).host;
-	$: isMe = personView.person.local && personView.person.name === username;
+	$: isMe = personView.person.local && personView.person.name === $profile.username;
 </script>

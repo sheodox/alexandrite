@@ -4,17 +4,15 @@
 		<UserLink user={to} />
 	</Stack>
 	<Alert variant="warning">Warning: Private messages on Lemmy are not secure.</Alert>
-	{#if errorMsg}
-		<Alert variant="error">Error: {errorMsg}</Alert>
-	{/if}
 	<form bind:this={messageForm}>
 		<CommentEditor
 			label="Message"
 			submitting={$messageState.busy}
-			cancellable
+			{cancellable}
 			on:cancel
 			submitButtonText="Send"
 			useLanguage={false}
+			bind:value={messageText}
 		/>
 	</form>
 </Stack>
@@ -26,19 +24,20 @@
 	import { createEventDispatcher } from 'svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
 	import { createStatefulForm } from './utils';
-	import { getLemmyClient } from './lemmy-client';
-	import { getMessageFromError } from './error-messages';
+	import { profile } from './profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		sent: void;
 	}>();
 
-	const { client, jwt } = getLemmyClient();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 
-	let errorMsg = '',
-		messageForm: HTMLFormElement;
+	let messageForm: HTMLFormElement,
+		messageText = '';
 
 	export let to: Person;
+	export let cancellable = false;
 
 	$: messageState = createStatefulForm(messageForm, async (body) => {
 		if (!jwt) {
@@ -52,8 +51,9 @@
 				recipient_id: to.id
 			});
 			dispatch('sent');
+			messageText = '';
 		} catch (e) {
-			errorMsg = getMessageFromError(e);
+			/* ignore */
 		}
 	});
 </script>

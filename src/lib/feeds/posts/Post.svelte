@@ -157,9 +157,9 @@
 	import LogButton from '$lib/LogButton.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
 	import { createStatefulAction, type ExtraAction } from '$lib/utils';
-	import { getLemmyClient } from '$lib/lemmy-client';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -169,8 +169,11 @@
 	const cvStore = getContentViewStore();
 	const modContext = getModContext();
 
-	const { username, loggedIn, siteMeta } = getAppContext();
-	const { client, jwt } = getLemmyClient();
+	const { siteMeta } = getAppContext();
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
+	$: loggedIn = $profile.loggedIn;
+	$: username = $profile.username;
 
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
@@ -232,7 +235,8 @@
 	$: hasEmbedText = !!postView.post.embed_title;
 	$: hasEmbeddableContent = probablyImage || hasBody || hasEmbedText;
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
-	$: isCommunityModerator = siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
+	$: isCommunityModerator =
+		$siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
 
 	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
 		if (!jwt) {
@@ -429,6 +433,7 @@
 			// getting the post has a side effect of marking it and its comments as read
 			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => {
 				post_view.read = true;
+				post_view.unread_comments = 0;
 				return post_view;
 			});
 			cvStore.updateView(postViewToContentView(pv));

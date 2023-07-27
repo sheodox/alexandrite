@@ -6,12 +6,8 @@ import type { Readable } from 'svelte/motion';
 export const APP_CONTEXT_KEY = '__SX_APP_CONTEXT__';
 
 export interface AppContext {
-	username: string;
-	instance: string;
-	instanceUrl: string;
-	loggedIn: boolean;
 	ctrlBasedHotkeys: boolean;
-	siteMeta: GetSiteResponse;
+	siteMeta: Writable<GetSiteResponse>;
 	unreadCount: Writable<number>;
 	navSidebarOpen: Writable<boolean>;
 	unreadReportCount: Writable<number>;
