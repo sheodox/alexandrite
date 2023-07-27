@@ -228,7 +228,7 @@
 		type ContentViewReply,
 		replyViewToContentView
 	} from '../content-views';
-	import { profile } from '$lib/profiles/profiles';
+	import { profile, instance } from '$lib/profiles/profiles';
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 
 	const dispatch = createEventDispatcher<{
@@ -492,7 +492,7 @@
 		if ($profile.loggedIn && !myComment) {
 			options.push({
 				text: 'Send Message',
-				href: `/message/${contentView.view.creator.id}`,
+				href: `/${$instance}/message/${contentView.view.creator.id}`,
 				icon: 'message'
 			});
 

@@ -159,7 +159,7 @@
 	import { createStatefulAction, type ExtraAction } from '$lib/utils';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
-	import { profile } from '$lib/profiles/profiles';
+	import { profile, instance } from '$lib/profiles/profiles';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -327,7 +327,7 @@
 		const options: ExtraAction[] = [],
 			postId = postView.post.id,
 			communityName = nameAtInstance(postView.community),
-			postBaseUrl = `/c/${communityName}/post/${postId}/`;
+			postBaseUrl = `/${$instance}/c/${communityName}/post/${postId}/`;
 
 		if (isMyPost) {
 			options.push({

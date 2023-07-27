@@ -18,7 +18,7 @@
 	import mdi_ruby from 'markdown-it-ruby';
 	import type Token from 'markdown-it/lib/token';
 	import './markdown.scss';
-	import { profile } from './profiles/profiles';
+	import { instance } from './profiles/profiles';
 
 	export let md: string;
 	export let noImages = false;
@@ -75,7 +75,7 @@
 				return 0;
 			},
 			normalize: function (match) {
-				match.url = `/${$profile.instance}/c/${match.url.replace('!', '')}`;
+				match.url = `/${$instance}/c/${match.url.replace('!', '')}`;
 			}
 		});
 		// linkify user links in the format: @user@example.com
@@ -90,7 +90,7 @@
 				return 0;
 			},
 			normalize: function (match) {
-				match.url = `/u/${match.url.replace(/^@/, '')}`;
+				match.url = `/${$instance}/u/${match.url.replace(/^@/, '')}`;
 			}
 		});
 
@@ -110,7 +110,7 @@
 					userRegMatch = url.pathname.match(/\/u\/([a-zA-Z0-9_@.]{3,})\/?$/),
 					postRegMatch = url.pathname.match(/\/post\/(\d+)\/?$/),
 					commentRegMatch = url.pathname.match(/\/comment\/(\d+)\/?$/),
-					isLocal = url.host === $profile.instance;
+					isLocal = url.host === $instance;
 				let newPathname: null | string = null;
 
 				if (communityRegMatch && communityRegMatch.length > 1) {
@@ -139,7 +139,7 @@
 				}
 
 				if (newPathname) {
-					token[idx].attrSet('href', `/${$profile.instance}${newPathname}${url.search}`);
+					token[idx].attrSet('href', `/${$instance}${newPathname}${url.search}`);
 				}
 			}
 

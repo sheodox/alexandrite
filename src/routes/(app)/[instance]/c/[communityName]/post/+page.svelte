@@ -12,7 +12,7 @@
 	import Title from '$lib/Title.svelte';
 	import { createStatefulForm } from '$lib/utils.js';
 	import { goto } from '$app/navigation';
-	import { profile } from '$lib/profiles/profiles';
+	import { profile, instance } from '$lib/profiles/profiles';
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
@@ -54,11 +54,11 @@
 	$: links = [
 		{
 			text: 'Home',
-			href: '/'
+			href: `/${$instance}`
 		},
 		{
 			text: data.communityName,
-			href: `/c/${data.communityName}/`
+			href: `/${$instance}/c/${data.communityName}/`
 		},
 		{
 			text: 'Post'

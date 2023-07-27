@@ -175,6 +175,11 @@ export const createStatefulAction = <T>(submitFn: (val: T) => Promise<unknown>) 
 // this is just like having a form with a method="GET" but done whenever
 // a field changes. this is used for instantly applying filters on feeds
 export function navigateOnChange(el: HTMLFormElement) {
+	// cache the base URL this page was on, we'll need it to change sorts
+	// without going anywhere unexpected if the page URL was changed, like
+	// when viewing a post in the overlay
+	const basePath = location.pathname;
+
 	function onChange() {
 		const formData = new FormData(el);
 		const query = [];
@@ -185,7 +190,7 @@ export function navigateOnChange(el: HTMLFormElement) {
 			}
 		}
 
-		goto(location.pathname + (query.length ? '?' + query.join('&') : ''));
+		goto(basePath + (query.length ? '?' + query.join('&') : ''));
 	}
 
 	el.addEventListener('change', onChange);

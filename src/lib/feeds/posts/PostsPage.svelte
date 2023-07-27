@@ -112,7 +112,7 @@
 		type ContentView
 	} from '$lib/content-views';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
-	import { profile } from '$lib/profiles/profiles';
+	import { profile, instance } from '$lib/profiles/profiles';
 
 	export let feedType: FeedType;
 	export let loadingContent: boolean;
@@ -169,15 +169,25 @@
 	let feedAdjacentPostViewId: null | number = null;
 	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);
 
+	let urlBeforeOverlay: string;
 	async function onOverlay(e: CustomEvent<number>) {
+		// cache the current page url so we can go back to it after the user closes the post
+		urlBeforeOverlay = location.pathname + location.search;
 		feedAdjacentPostViewId = e.detail;
+		history.pushState(null, '', `/${$instance}/post/${e.detail}`);
 	}
 
 	function closeOverlay() {
 		feedAdjacentPostViewId = null;
+		if (urlBeforeOverlay) {
+			history.pushState(null, '', urlBeforeOverlay);
+			urlBeforeOverlay = '';
+		}
 	}
 
 	afterNavigate(() => {
-		closeOverlay();
+		if (feedAdjacentPostViewId !== null) {
+			closeOverlay();
+		}
 	});
 </script>

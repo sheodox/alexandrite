@@ -13,10 +13,16 @@
 	}
 </style>
 
-<Header appName="Alexandrite" href="/" showMenuTrigger={true} bind:menuOpen={$navSidebarOpen} position="fixed">
+<Header
+	appName="Alexandrite"
+	href="/{$instance}"
+	showMenuTrigger={true}
+	bind:menuOpen={$navSidebarOpen}
+	position="fixed"
+>
 	<Logo slot="logo" />
 	<div slot="headerCenter">
-		<form method="GET" action="/search" on:submit={onSearchSubmit}>
+		<form method="GET" action="/{$instance}/search" on:submit={onSearchSubmit}>
 			<Search name="q" placeholder="Search" bind:value={headerSearchText} />
 		</form>
 	</div>
@@ -109,7 +115,7 @@
 	import HeaderUserMenu from './HeaderUserMenu.svelte';
 	import { localStorageBackedStore } from '$lib/utils';
 	import { AlexandriteSettingsDefaults } from '$lib/settings-context';
-	import { profile } from '$lib/profiles/profiles';
+	import { profile, instance } from '$lib/profiles/profiles';
 
 	export let data;
 

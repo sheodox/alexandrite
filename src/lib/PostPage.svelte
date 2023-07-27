@@ -184,7 +184,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { commentViewToContentView, createContentViewStore } from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
-	import { profile } from './profiles/profiles';
+	import { profile, instance } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
 
@@ -506,11 +506,11 @@
 	$: links = [
 		{
 			text: 'Home',
-			href: '/'
+			href: `/${$instance}`
 		},
 		{
 			text: communityName,
-			href: `/c/${communityName}/`
+			href: `/${$instance}/c/${communityName}/`
 		}
 	];
 </script>
