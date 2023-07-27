@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
 import { createAutoExpireToast } from 'sheodox-ui';
 import { getMessageFromError } from './error-messages';
+import { handleExpiredProfile } from '$lib/profiles/profiles';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -46,12 +47,7 @@ export const createLemmyClient = (instanceUrl: string) => {
 				const lemmyError = tryParse(text)?.error ?? '';
 
 				if (lemmyError === 'not_logged_in') {
-					// redirect to the login page, they tried doing something
-					// that required auth with an invalid session.
-					// using a full page redirect to clear everything out
-					// as I saw it continue trying to load a ton of stuff in the
-					// feed after redirecting away without this.
-					location.href = '/instance?expired=true';
+					handleExpiredProfile();
 				}
 
 				const errMsg = lemmyError ? getMessageFromError(lemmyError) : text;

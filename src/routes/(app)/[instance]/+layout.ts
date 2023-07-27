@@ -1,6 +1,5 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
-import { logout } from '$lib/settings/auth';
 import { get } from 'svelte/store';
 import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
@@ -22,10 +21,12 @@ export const load = (async ({ params }) => {
 	}
 
 	if (!localUser && jwt) {
-		// the user was logged out, redirect to login form, they're not actually logged in,
-		// even if some of the content loads.
-		logout();
-		throw redirect(303, '/instance?expired=true');
+		// redirect to the login page, they tried doing something
+		// that required auth with an invalid session.
+		// using a full page redirect to clear everything out
+		// as I saw it continue trying to load a ton of stuff in the
+		// feed after redirecting away without this.
+		throw redirect(303, `/instance?expired=${id}`);
 	}
 
 	return {

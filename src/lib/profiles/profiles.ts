@@ -53,6 +53,15 @@ export async function gotoInstance(inst: string) {
 	await goto(`/${inst}`);
 }
 
+export async function handleExpiredProfile() {
+	// redirect to the login page, they tried doing something
+	// that required auth with an invalid session.
+	// using a full page redirect to clear everything out
+	// as I saw it continue trying to load a ton of stuff in the
+	// feed after redirecting away without this.
+	location.href = `/instance?expired=${get(profile).id}`;
+}
+
 export function getFallbackProfile(): Profile {
 	const inst = get(instance);
 	return {

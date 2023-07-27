@@ -18,7 +18,7 @@
 <h1 class="m-0 sx-font-size-9">Welcome</h1>
 
 <Stack dir="c" gap={4} cl="has-inline-links">
-	{#if expired}
+	{#if expiredId}
 		<Alert variant="warning">You were logged out, please log in again.</Alert>
 	{/if}
 	<p>
@@ -82,10 +82,10 @@
 	import Profiles from './Profiles.svelte';
 	import { getMessageFromError } from '$lib/error-messages.js';
 	import { onMount } from 'svelte';
-	import { addProfile, gotoInstance } from '$lib/profiles/profiles';
+	import { addProfile, gotoInstance, profiles } from '$lib/profiles/profiles';
 
 	let errMsg = '';
-	let expired = false;
+	let expiredId: string | null = null;
 
 	let submitting = false;
 
@@ -174,10 +174,16 @@
 	onMount(() => {
 		const u = new URL(location.href),
 			instanceParam = u.searchParams.get('instance');
-		expired = u.searchParams.get('expired') === 'true';
+		expiredId = u.searchParams.get('expired');
+		const expiredProfile = $profiles.find((p) => p.id === expiredId);
 
 		if (instanceParam) {
 			instance = instanceParam;
+		}
+
+		if (expiredProfile) {
+			instance = expiredProfile.instance;
+			username = expiredProfile.username ?? '';
 		}
 	});
 </script>
