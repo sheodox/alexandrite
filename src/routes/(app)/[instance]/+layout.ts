@@ -3,7 +3,7 @@ import type { LayoutLoad } from './$types';
 import { get } from 'svelte/store';
 import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
-export const load = (async ({ params }) => {
+export const load = (async () => {
 	const { client, jwt, instance, id } = get(profile);
 	if (!instance) {
 		throw redirect(303, '/instance');
