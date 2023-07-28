@@ -15,11 +15,11 @@ RUN npm run build
 
 FROM node:18.17.0-bookworm-slim
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
-USER node
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm ci --only=production
+USER node
 COPY --chown=node:node --from=build /usr/src/app/build /usr/src/app/build
 
 CMD ["dumb-init", "node", "build"]
