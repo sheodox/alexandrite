@@ -18,8 +18,6 @@ COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
 USER node
 WORKDIR /usr/src/app
 
-# COPY --chown=node:node . /usr/src/app
-# COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 COPY package*.json ./
 RUN npm ci --only=production
 COPY --chown=node:node --from=build /usr/src/app/build /usr/src/app/build
