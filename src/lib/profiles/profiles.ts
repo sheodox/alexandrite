@@ -133,11 +133,7 @@ export type ProfileContextStore = Writable<
 export function getDefaultInstance() {
 	const routeInstance =
 			config.forcedInstance || getInstanceFromRoute(typeof location === 'undefined' ? '' : location.pathname),
-		instance =
-			routeInstance ??
-			// need to safety check this, even though ssr is disabled it still gets run for some reason, at least in dev
-			config.defaultInstance ??
-			'lemmy.world';
+		instance = routeInstance ?? config.defaultInstance ?? 'lemmy.world';
 
 	return instance;
 }

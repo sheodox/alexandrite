@@ -9,7 +9,10 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		adapter: process.env.ALEXANDRITE_RUN_IN_NODE === 'true' ? adapterNode() : adapterAuto()
+		adapter: process.env.ALEXANDRITE_RUN_IN_NODE === 'true' ? adapterNode() : adapterAuto(),
+		env: {
+			publicPrefix: 'ALEXANDRITE_'
+		}
 	}
 };
 
