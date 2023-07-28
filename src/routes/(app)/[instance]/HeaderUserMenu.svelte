@@ -28,10 +28,11 @@
 
 <script lang="ts">
 	import { NavDropdown, Icon } from 'sheodox-ui';
-	import { profile, profiles, switchToInstanceDefaultProfile } from '$lib/profiles/profiles';
+	import { instance, profile, profiles, switchToInstanceDefaultProfile } from '$lib/profiles/profiles';
 	import { createEventDispatcher } from 'svelte';
 	import { logout } from '$lib/settings/auth';
 	import { invalidateAll } from '$app/navigation';
+	import { config } from '$lib/config';
 
 	const dispatch = createEventDispatcher<{
 		accounts: void;
@@ -47,9 +48,16 @@
 		click?: (e: MouseEvent) => unknown;
 	}[];
 
-	$: otherInstances = Array.from(
-		new Set($profiles.filter((p) => p.instance !== $profile.instance).map((p) => p.instance))
+	$: otherInstanceChoices = Array.from(
+		new Set($profiles.filter((p) => p.instance !== $instance).map((p) => p.instance))
 	).sort();
+
+	// if force just redirect to this instance from others
+	$: forceInstanceChoices = config.forcedInstance === $instance ? [] : [config.forcedInstance];
+
+	// if forced to use one instance only suggest that instance,
+	// otherwise show all other instances they have accounts on
+	$: allowedInstances = config.forcedInstance ? forceInstanceChoices : otherInstanceChoices;
 
 	$: links = [
 		{
@@ -61,9 +69,16 @@
 		},
 		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, disabled: !loggedIn, as: 'a' },
 		{ text: 'About Alexandrite', icon: 'address-card', href: '/about', as: 'a' },
-		{ text: 'Switch Account', icon: 'circle-user', click: () => dispatch('accounts'), as: 'button' },
+		{
+			text: 'Switch Account',
+			icon: 'circle-user',
+			click: () => dispatch('accounts'),
+			as: 'button',
+			// don't show the switcher if forced to an instance, browsing other instances only support as guest
+			disabled: !!config.forcedInstance && $instance !== config.forcedInstance
+		},
 		{ text: 'Login / Manage Accounts', icon: 'users', href: '/instance', as: 'a' },
-		...otherInstances.map((inst) => ({
+		...allowedInstances.map((inst) => ({
 			text: 'Switch to ' + inst,
 			href: `/${inst}`,
 			click: (e: MouseEvent) => {
