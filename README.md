@@ -12,6 +12,7 @@ Alexandrite comes packed full of features!
 - Customizable theme hue
 - Powerful account switcher, login to different accounts across the same or different instances simultaneously in different browser tabs
 - Most mod tools
+- Supports most markdown formatting
 
 ## Support Development
 
@@ -19,13 +20,44 @@ A lot of time and effort has gone into Alexandrite. If you would like to support
 
 ## Self Hosting
 
-Alexandrite supports self hosting with a few configuration options. Check out the [example environment variable config](.env.example) to see what options can be customized.
+Alexandrite supports self hosting with a few configuration options. Check out the [example environment variable config](.env.example) to see what options can be passed as arguments to `docker`.
 
 ### Using Docker
 
 The easiest way to host Alexandrite would be using a prebuilt image, or building from source using the provided Dockerfile.
 
 The app listens inside the container to port `3000` and doesn't provide HTTPs, you'll probably want to configure your own reverse proxy between the internet and Alexandrite to provide HTTPS.
+
+Run using:
+
+```bash
+docker run -p 3000:3000 ghcr.io/sheodox/alexandrite:latest
+```
+
+Or, with some customized options:
+
+```bash
+docker run -p 3000:3000 --env 'ALEXANDRITE_DEFAULT_INSTANCE=programming.dev' ghcr.io/sheodox/alexandrite:latest
+```
+
+Or as part of a docker compose setup:
+
+```yaml
+version: '3.7'
+services:
+  # ...
+  alexandrite:
+    image: ghcr.io/sheodox/alexandrite:latest
+    ports:
+      - 3000:3000
+    environment:
+      # example config only allowing logins to example.com
+      # with no links to Lemmy docs, or an instance list
+      ALEXANDRITE_DEFAULT_INSTANCE: example.com
+      ALEXANDRITE_WELCOME_LEMMY_HELP: false
+      ALEXANDRITE_WELCOME_INSTANCE_HELP: false
+      ALEXANDRITE_FORCE_INSTANCE: example.com
+```
 
 ### Serverless
 
