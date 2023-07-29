@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
-const boolDefaultTrue = (envVal: string) => (envVal || 'true') === 'true';
+const boolDefaultTrue = (envVal?: string) => (envVal || 'true') === 'true';
 
 export const config = {
 	defaultInstance: env.ALEXANDRITE_DEFAULT_INSTANCE || 'lemmy.world',
