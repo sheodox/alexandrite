@@ -33,12 +33,20 @@
 	import { invalidateAll } from '$app/navigation';
 	import ManageProfile from './ManageProfile.svelte';
 	import { createStatefulAction } from '$lib/utils';
+	import { config } from '$lib/config';
 
 	export let visible: boolean;
 
 	$: instanceProfiles = [
 		getFallbackProfile(),
-		...$profiles.filter((profile) => profile.instance === $instance && profile.username)
+		...$profiles.filter((profile) => {
+			if (config.forcedInstance) {
+				return $instance === config.forcedInstance && profile.instance === $instance;
+			}
+
+			// same instance, no guests (it's in fallback)
+			return profile.instance === $instance && profile.username;
+		})
 	];
 
 	const selectProfileState = createStatefulAction(async (profile: Profile) => {

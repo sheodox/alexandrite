@@ -5,6 +5,7 @@ import { createLemmyClient } from '$lib/lemmy-client';
 import { getInstanceFromRoute } from './profile-utils';
 import { migrate } from './migrate';
 import { goto } from '$app/navigation';
+import { config } from '$lib/config';
 
 migrate.toProfiles();
 
@@ -43,7 +44,10 @@ profiles.subscribe((val) => {
 	localStorageSet(lsKeys.profiles, val);
 });
 
-export const defaultInstance = localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), 0, true);
+// if you're forced to use just one instance set that as the default but ignore the localStorage pinning
+export const defaultInstance = config.forcedInstance
+	? writable(config.forcedInstance)
+	: localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), 0, true);
 export const instance = writable(getRouteInstance());
 
 // set the instance and go to it, used when selecting a profile on the login screen so the account
@@ -127,12 +131,9 @@ export type ProfileContextStore = Writable<
 >;
 
 export function getDefaultInstance() {
-	const routeInstance = getInstanceFromRoute(typeof location === 'undefined' ? '' : location.pathname),
-		instance =
-			routeInstance ??
-			// need to safety check this, even though ssr is disabled it still gets run for some reason, at least in dev
-			import.meta.env.ALEXANDRITE_DEFAULT_INSTANCE ??
-			'lemmy.world';
+	const routeInstance =
+			config.forcedInstance || getInstanceFromRoute(typeof location === 'undefined' ? '' : location.pathname),
+		instance = routeInstance ?? config.defaultInstance ?? 'lemmy.world';
 
 	return instance;
 }
