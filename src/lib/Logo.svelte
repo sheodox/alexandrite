@@ -3,6 +3,9 @@
 		width: var(--logo-size);
 		height: var(--logo-size);
 	}
+	svg.tiny {
+		--logo-size: 1.5em;
+	}
 	svg.small {
 		--logo-size: 2rem;
 	}
@@ -19,5 +22,5 @@
 </svg>
 
 <script lang="ts">
-	export let size: 'small' | 'medium' | 'large' = 'small';
+	export let size: 'tiny' | 'small' | 'medium' | 'large' = 'small';
 </script>

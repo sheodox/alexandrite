@@ -14,13 +14,19 @@
 </style>
 
 <Header
-	appName="Alexandrite"
+	appName={$siteMeta.site_view.site.name}
 	href="/{$instance}"
 	showMenuTrigger={true}
 	bind:menuOpen={$navSidebarOpen}
 	position="fixed"
 >
-	<Logo slot="logo" />
+	<div slot="logo" class="header-logo">
+		{#if $siteMeta.site_view.site.icon}
+			<InstanceLogo />
+		{:else}
+			<Logo />
+		{/if}
+	</div>
 	<div slot="headerCenter">
 		<form method="GET" action="/{$instance}/search" on:submit={onSearchSubmit}>
 			<Search name="q" placeholder="Search" bind:value={headerSearchText} />
@@ -73,8 +79,8 @@
 	<Modals />
 	<Sidebar bind:menuOpen={$navSidebarOpen} docked={$navSidebarDocked}>
 		<div slot="header" class="f-row align-items-center">
-			<Logo />
-			<h1 class="ml-2">Alexandrite</h1>
+			<InstanceLogo />
+			<h1 class="ml-2 sx-font-size-4">{$siteMeta.site_view.site.name}</h1>
 		</div>
 
 		<AppSidebar subscriptions={$siteMeta.my_user?.follows ?? []} />
@@ -116,6 +122,8 @@
 	import { localStorageBackedStore } from '$lib/utils';
 	import { AlexandriteSettingsDefaults } from '$lib/settings-context';
 	import { profile, instance } from '$lib/profiles/profiles';
+	import Avatar from '$lib/Avatar.svelte';
+	import InstanceLogo from './InstanceLogo.svelte';
 
 	export let data;
 

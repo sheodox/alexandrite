@@ -11,6 +11,11 @@
 </style>
 
 <div>
+	<Stack cl="mx-4 sx-badge-gray sx-font-size-2" dir="r" align="center" gap={1}>
+		<Logo size="tiny" />
+		<span class="fw-normal">Powered by</span>
+		<ExternalLink href="https://github.com/sheodox/alexandrite">Alexandrite</ExternalLink>
+	</Stack>
 	<nav class="sx-sidebar-simple-links">
 		<Stack dir="c" gap={1}>
 			{#each links as link}
@@ -45,11 +50,12 @@
 
 <script lang="ts">
 	import type { CommunityFollowerView } from 'lemmy-js-client';
-	import { Stack, Icon } from 'sheodox-ui';
+	import { Stack, ExternalLink, Icon } from 'sheodox-ui';
 	import SidebarSubscriptionList from './SidebarSubscriptionList.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import { localStorageBackedStore } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
+	import Logo from '$lib/Logo.svelte';
 
 	export let subscriptions: CommunityFollowerView[] = [];
 

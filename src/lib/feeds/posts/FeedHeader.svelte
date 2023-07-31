@@ -3,7 +3,6 @@
 		height: 6rem;
 		width: 6rem;
 		border-radius: 100rem;
-		border: 3px solid var(--sx-gray-200);
 		object-fit: cover;
 	}
 	.feed-header {
