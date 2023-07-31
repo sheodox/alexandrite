@@ -122,7 +122,6 @@
 	import { localStorageBackedStore } from '$lib/utils';
 	import { AlexandriteSettingsDefaults } from '$lib/settings-context';
 	import { profile, instance } from '$lib/profiles/profiles';
-	import Avatar from '$lib/Avatar.svelte';
 	import InstanceLogo from './InstanceLogo.svelte';
 
 	export let data;
