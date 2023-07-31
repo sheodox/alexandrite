@@ -1,17 +1,16 @@
 <style lang="scss">
 	.avatar {
-		height: var(--avatar-size);
-		width: var(--avatar-size);
 		border-radius: var(--avatar-size);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		overflow: hidden;
+		line-height: 0;
 
 		:global(img) {
 			border-radius: var(--avatar-size);
-			height: 100%;
-			width: 100%;
+			height: var(--avatar-size);
+			width: var(--avatar-size);
 			object-fit: cover;
 		}
 	}

@@ -5,7 +5,7 @@
 	context="Your Instance"
 >
 	<span slot="name" class="f-row gap-2 align-items-center"
-		><Icon icon="network-wired" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
+		><InstanceLogo size="3rem" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>
 	<Stack slot="actions" dir="c" gap={2} cl="mt-2">
 		{#each $siteMeta.taglines as tagline}
@@ -15,11 +15,12 @@
 </Sidebar>
 
 <script lang="ts">
-	import { Alert, Stack, Icon } from 'sheodox-ui';
+	import { Alert, Stack } from 'sheodox-ui';
 	import Sidebar from '$lib/Sidebar.svelte';
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { getAppContext } from '$lib/app-context';
+	import InstanceLogo from '../../routes/(app)/[instance]/InstanceLogo.svelte';
 
 	const { siteMeta } = getAppContext();
 	$: siteView = $siteMeta.site_view;
