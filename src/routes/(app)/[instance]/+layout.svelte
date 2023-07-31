@@ -120,7 +120,6 @@
 	export let data;
 
 	const siteMeta = writable(data.site);
-
 	$: $siteMeta = data.site;
 
 	// there's an overlay that shows when navigating, but if the navigation is fast we don't want to show it,
