@@ -1,3 +1,10 @@
+<style>
+	ul .spinner {
+		/* match the width of icons in dropdown menus from sheodox-ui */
+		width: 1.5rem;
+	}
+</style>
+
 {#if actions.length}
 	{@const text = 'Extra actions'}
 	<Tooltip title={text}>
@@ -17,7 +24,9 @@
 							<button on:click={opt.click} class="button" disabled={opt.busy ?? false} use:ripple>
 								<div class="f-row gap-1">
 									{#if opt.busy}
-										<Spinner />
+										<div class="spinner">
+											<Spinner />
+										</div>
 									{:else}
 										<Icon icon={opt.icon} {variant} />
 									{/if}
