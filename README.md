@@ -24,7 +24,7 @@ Alexandrite supports self hosting with a few configuration options. Check out th
 
 ### Using Docker
 
-The easiest way to host Alexandrite would be using a prebuilt image, or building from source using the provided Dockerfile.
+The easiest way to host Alexandrite would be using a prebuilt image, or building from source using the provided [Dockerfile](Dockerfile).
 
 The app listens inside the container to port `3000` and doesn't provide HTTPs, you'll probably want to configure your own reverse proxy between the internet and Alexandrite to provide HTTPS.
 
