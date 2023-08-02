@@ -216,7 +216,7 @@
 	import ParentComment from './ParentComment.svelte';
 	import CommunityLink from '../CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
-	import { getCommentContextId } from '../nav-utils';
+	import { getCommentContextId, nameAtInstance } from '../nav-utils';
 	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from '../utils';
 	import { getVirtualFeedBuffer } from '../virtual-feed';
 	import {
@@ -461,7 +461,7 @@
 	const banPending = getModActionPending('ban-person', contentView.view.creator.id);
 	async function onBan() {
 		const res = await modContext.banPerson({
-			personName: contentView.view.creator.display_name || contentView.view.creator.name,
+			personName: nameAtInstance(contentView.view.creator, contentView.view.creator.display_name),
 			personId: contentView.view.creator.id,
 			communityId: contentView.view.community.id,
 			ban: !contentView.view.creator_banned_from_community

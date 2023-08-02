@@ -151,7 +151,7 @@
 	import PostTime from './PostTime.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
-	import type { PostView } from 'lemmy-js-client';
+	import type { PostFeatureType, PostView } from 'lemmy-js-client';
 	import PrettyExternalLink from '$lib/PrettyExternalLink.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
@@ -237,6 +237,7 @@
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
 	$: isCommunityModerator =
 		$siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
+	$: isAdminOfCommunity = $siteMeta.my_user?.local_user_view.person.admin && postView.community.local;
 
 	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
 		if (!jwt) {
@@ -254,11 +255,13 @@
 		});
 	});
 
-	const featurePending = getModActionPending('feature-post', postView.post.id);
-	async function onFeatureCommunity() {
+	const featureLocalPending = getModActionPending('feature-post-local', postView.post.id);
+	const featureCommunityPending = getModActionPending('feature-post-community', postView.post.id);
+	async function onFeature(featureType: PostFeatureType, featured: boolean) {
 		const res = await modContext.featurePost({
 			postId: postView.post.id,
-			featured: !postView.post.featured_community
+			featured,
+			featureType
 		});
 
 		if (res) {
@@ -296,7 +299,7 @@
 	const banPending = getModActionPending('ban-person', postView.creator.id);
 	async function onBan() {
 		const res = await modContext.banPerson({
-			personName: postView.creator.display_name || postView.creator.name,
+			personName: nameAtInstance(postView.creator, postView.creator.display_name),
 			personId: postView.creator.id,
 			communityId: postView.community.id,
 			ban: !postView.creator_banned_from_community
@@ -370,10 +373,11 @@
 		if (loggedIn && isCommunityModerator) {
 			options.push({
 				text: 'Mod - ' + (postView.post.featured_community ? 'Unpin from community' : 'Pin to community'),
-				click: onFeatureCommunity,
+				click: () => onFeature('Community', !postView.post.featured_community),
 				icon: 'thumbtack',
-				busy: $featurePending
+				busy: $featureCommunityPending
 			});
+
 			options.push({
 				text: 'Mod - ' + (postView.post.locked ? 'Unlock' : 'Lock'),
 				click: onLockPost,
@@ -393,6 +397,15 @@
 				busy: $banPending
 			});
 			// todo appoint as mod
+		}
+
+		if (loggedIn && isAdminOfCommunity) {
+			options.push({
+				text: 'Admin - ' + (postView.post.featured_local ? 'Unpin from local' : 'Pin to local'),
+				click: () => onFeature('Local', !postView.post.featured_local),
+				icon: 'thumbtack',
+				busy: $featureLocalPending
+			});
 		}
 
 		overflowMenuOptions = options;

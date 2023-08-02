@@ -1,4 +1,4 @@
-import type { BanFromCommunityResponse, CommentResponse, PostResponse } from 'lemmy-js-client';
+import type { BanFromCommunityResponse, CommentResponse, PostFeatureType, PostResponse } from 'lemmy-js-client';
 import { getContext, setContext } from 'svelte';
 import { derived, type Writable } from 'svelte/store';
 
@@ -15,7 +15,11 @@ export interface ModContext {
 	}) => Promise<BanFromCommunityResponse | undefined>;
 	removePost: (opts: { postId: number; removed: boolean }) => Promise<PostResponse | undefined>;
 	removeComment: (opts: { commentId: number; removed: boolean }) => Promise<CommentResponse | undefined>;
-	featurePost: (opts: { postId: number; featured: boolean }) => Promise<PostResponse | undefined>;
+	featurePost: (opts: {
+		postId: number;
+		featured: boolean;
+		featureType: PostFeatureType;
+	}) => Promise<PostResponse | undefined>;
 	lockPost: (opts: { postId: number; locked: boolean }) => Promise<PostResponse | undefined>;
 	distinguishComment: (opts: { commentId: number; distinguished: boolean }) => Promise<CommentResponse | undefined>;
 }
@@ -24,7 +28,8 @@ export type ModAction =
 	| 'ban-person'
 	| 'remove-post'
 	| 'remove-comment'
-	| 'feature-post'
+	| 'feature-post-community'
+	| 'feature-post-local'
 	| 'lock-post'
 	| 'distinguish-comment';
 

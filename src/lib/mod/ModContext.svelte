@@ -1,6 +1,43 @@
+<style>
+	.modal-body {
+		width: 27rem;
+		max-width: 90vw;
+	}
+</style>
+
 <slot />
 
+{#if showBanPrompt && pendingBan}
+	{@const expires = calculateBanExpiration(pendingBan.expireDays)}
+	<Modal title="Community Ban" bind:visible={showBanPrompt} on:closed={pendingBan.onCancel}>
+		<div class="modal-body">
+			<Stack dir="c" gap={2}>
+				<p class="m-0">Banning <strong>{pendingBan.username}</strong> from this community.</p>
+				<TextInput bind:value={pendingBan.reason} autofocus>Reason</TextInput>
+				<div class="pl-1">
+					<Checkbox bind:checked={pendingBan.removeContent}>Remove Content</Checkbox>
+				</div>
+				<div class="pl-1">
+					<Checkbox bind:checked={pendingBan.isPermanent}>Permanent Ban</Checkbox>
+				</div>
+				{#if !pendingBan.isPermanent}
+					<TextInput bind:value={pendingBan.expireDays} type="number" min={1}>Ban duration (in days)</TextInput>
+					<p class="m-0 muted px-4">
+						<Icon icon="calendar" variant="regular" />
+						User will be unbanned {banExpireFormat.format(expires)} ({banExpireFormatDayOfWeek.format(expires)}).
+					</p>
+				{/if}
+			</Stack>
+		</div>
+		<div class="modal-footer">
+			<button class="tertiary" on:click={pendingBan.onCancel}>Cancel</button>
+			<button class="danger" on:click={() => (pendingBan ? pendingBan.onDone(pendingBan) : null)}>Ban</button>
+		</div>
+	</Modal>
+{/if}
+
 <script lang="ts">
+	import { Modal, Icon, TextInput, Stack, Checkbox } from 'sheodox-ui';
 	import { writable } from 'svelte/store';
 	import { setModContext, type ModAction, type ModContext } from './mod-context';
 	import { showPromptModal, createAutoExpireToast } from 'sheodox-ui';
@@ -9,7 +46,30 @@
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
-	const pending = writable(new Set<string>());
+	const pending = writable(new Set<string>()),
+		DAY_MS = 1000 * 60 * 60 * 24;
+
+	interface PendingBan {
+		username: string;
+		reason: string;
+		expireDays: number;
+		removeContent: boolean;
+		isPermanent: boolean;
+		onDone: (banOpts: PendingBan) => void;
+		onCancel: () => void;
+	}
+
+	// banning needs some extra information
+	let showBanPrompt = false,
+		pendingBan: PendingBan | null = null;
+
+	const banExpireFormat = new Intl.DateTimeFormat(navigator.languages[0], {
+		dateStyle: 'medium',
+		timeStyle: 'short'
+	});
+	const banExpireFormatDayOfWeek = new Intl.DateTimeFormat(navigator.languages[0], {
+		weekday: 'short'
+	});
 
 	// marks an arbitrary thing as pending
 	export const setPending = (action: ModAction, id: number, isPending: boolean) => {
@@ -25,6 +85,10 @@
 	}
 
 	const getReason = (title: string) => showPromptModal({ title, label: 'Reason', default: '' });
+
+	function calculateBanExpiration(days: number) {
+		return new Date(Date.now() + days * DAY_MS);
+	}
 
 	const banPerson: ModContext['banPerson'] = async (opt) => {
 		if (!jwt) {
@@ -46,16 +110,41 @@
 
 				return res;
 			} else {
-				const reason = await getReason(`Ban ${opt.personName} From Community`);
+				const banOpts = await new Promise<null | PendingBan>((resolve) => {
+					showBanPrompt = true;
+					pendingBan = {
+						username: opt.personName,
+						reason: '',
+						expireDays: 1,
+						removeContent: false,
+						isPermanent: false,
+						onDone: (banOpts) => {
+							resolve(banOpts);
+							showBanPrompt = false;
+							pendingBan = null;
+						},
+						onCancel: () => {
+							resolve(null);
+							showBanPrompt = false;
+							pendingBan = null;
+						}
+					};
+				});
 
-				if (reason !== null) {
-					const res = await client.banFromCommunity({
-						auth: jwt,
-						person_id: opt.personId,
-						community_id: opt.communityId,
-						ban: true,
-						reason
-					});
+				if (banOpts !== null) {
+					const expires = banOpts.isPermanent
+							? undefined
+							: // expires is the number of *seconds* since epoch
+							  Math.floor(calculateBanExpiration(banOpts.expireDays).getTime() / 1000),
+						res = await client.banFromCommunity({
+							auth: jwt,
+							person_id: opt.personId,
+							community_id: opt.communityId,
+							ban: true,
+							reason: banOpts.reason,
+							remove_data: banOpts.removeContent,
+							expires
+						});
 
 					successToast(`${opt.personName} banned`);
 					return res;
@@ -142,18 +231,24 @@
 			return;
 		}
 
-		setPending('feature-post', opt.postId, true);
+		const pendingType = opt.featureType === 'Community' ? 'feature-post-community' : 'feature-post-local';
+
+		setPending(pendingType, opt.postId, true);
 		try {
 			const res = await client.featurePost({
 				auth: jwt,
 				post_id: opt.postId,
 				featured: opt.featured,
-				feature_type: 'Community'
+				feature_type: opt.featureType
 			});
-			successToast(res.post_view.post.featured_community ? 'Pinned to community' : 'Unpinned from community');
+			if (opt.featureType === 'Community') {
+				successToast(res.post_view.post.featured_community ? 'Pinned to community' : 'Unpinned from community');
+			} else {
+				successToast(res.post_view.post.featured_local ? 'Pinned to local' : 'Unpinned from local');
+			}
 			return res;
 		} finally {
-			setPending('feature-post', opt.postId, false);
+			setPending(pendingType, opt.postId, false);
 		}
 	};
 
