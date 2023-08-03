@@ -2,12 +2,15 @@
 	<Title title={`Comment on "${data.postView.post.name}"`} />
 	{#key data.commentViews}
 		<ContentViewProvider store={cvStore}>
-			<PostPage
-				postView={data.postView}
-				initialCommentViews={data.commentViews}
-				rootCommentId={data.commentId}
-				centered
-			/>
+			{@const content = $cvStore.at(0)}
+			{#if content?.type === 'post'}
+				<PostPage
+					postView={content.view}
+					initialCommentViews={data.commentViews}
+					rootCommentId={data.commentId}
+					centered
+				/>
+			{/if}
 		</ContentViewProvider>
 	{/key}
 {:else}

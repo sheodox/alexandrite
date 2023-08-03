@@ -1,7 +1,10 @@
 {#if data.postView}
 	<Title title={data.postView.post.name} />
 	<ContentViewProvider store={cvStore}>
-		<PostPage postView={data.postView} centered />
+		{@const content = $cvStore.at(0)}
+		{#if content?.type === 'post'}
+			<PostPage postView={content.view} centered />
+		{/if}
 	</ContentViewProvider>
 {:else}
 	<Title title="Not Found" />
@@ -11,10 +14,13 @@
 <script lang="ts">
 	import PostPage from '$lib/PostPage.svelte';
 	import Title from '$lib/Title.svelte';
-	import { createContentViewStore } from '$lib/content-views.js';
+	import { createContentViewStore, postViewToContentView } from '$lib/content-views.js';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 
 	export let data;
 
 	const cvStore = createContentViewStore();
+	if (data.postView) {
+		cvStore.set([postViewToContentView(data.postView)]);
+	}
 </script>
