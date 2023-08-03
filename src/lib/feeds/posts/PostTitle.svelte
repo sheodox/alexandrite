@@ -37,14 +37,15 @@
 	export let modeList: boolean;
 	export let supportsOverlay: boolean;
 
-	function titleClick(e: Event) {
+	function titleClick(e: MouseEvent) {
+		// users can normally ctrl+click links to oppen in a new tab, don't interfere with that!
+		if (e.ctrlKey || e.metaKey) {
+			return;
+		}
+
 		if (supportsOverlay) {
 			e.preventDefault();
-			openOverlay();
+			dispatch('overlay', postView.post.id);
 		}
-	}
-
-	function openOverlay() {
-		dispatch('overlay', postView.post.id);
 	}
 </script>
