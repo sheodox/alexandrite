@@ -63,7 +63,7 @@
 					{#if contentView.type === 'post'}
 						<Post postView={contentView.view} on:overlay supportsOverlay={false} />
 					{:else if contentView.type === 'comment'}
-						<Comment {contentView} showPost postOP="" />
+						<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
 					{:else if contentView.type === 'community'}
 						<CommunityCard communityView={contentView.view} />
 					{:else if contentView.type === 'person'}

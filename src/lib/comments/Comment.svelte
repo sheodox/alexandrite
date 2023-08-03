@@ -53,6 +53,7 @@
 				>
 					<EllipsisText>{contentView.view.post.name}</EllipsisText>
 				</a>
+				<PostBadges post={contentView.view.post} />
 			{/if}
 			<span class="muted"> &centerdot; </span>
 			<a href="/{$profile.instance}/comment/{comment.id}">
@@ -112,13 +113,15 @@
 				{:else}
 					<LogButton on:click={() => console.log({ commentView: contentView })} />
 					{#if $profile.loggedIn}
-						<IconButton
-							icon="reply"
-							small
-							text="Reply"
-							on:click={() => ($buffer[bk.showReplyComposer] = true)}
-							disabled={someActionPending}
-						/>
+						{#if !postLocked}
+							<IconButton
+								icon="reply"
+								small
+								text="Reply"
+								on:click={() => ($buffer[bk.showReplyComposer] = true)}
+								disabled={someActionPending}
+							/>
+						{/if}
 						<IconButton
 							text={contentView.view.saved ? 'Saved' : 'Save'}
 							variant={contentView.view.saved ? 'solid' : 'regular'}
@@ -177,7 +180,7 @@
 				/>
 			</form>
 		{/if}
-		{#if $buffer[bk.showReplyComposer] && $profile.loggedIn}
+		{#if $buffer[bk.showReplyComposer] && $profile.loggedIn && !postLocked}
 			<form bind:this={replyForm} class="reply-editor">
 				<input type="hidden" name="parentId" value={comment.id} />
 				<CommentEditor
@@ -230,6 +233,7 @@
 	} from '../content-views';
 	import { profile, instance } from '$lib/profiles/profiles';
 	import { getModActionPending, getModContext } from '../mod/mod-context';
+	import PostBadges from '$lib/PostBadges.svelte';
 
 	const dispatch = createEventDispatcher<{
 		collapse: number;
@@ -248,6 +252,7 @@
 	// whether to show a link to the post, used when comments are presented outside of context (inbox/reports/search etc)
 	export let showPost = false;
 	export let parentComment: CommentView | undefined = undefined;
+	export let postLocked: boolean;
 
 	// need to assign before the reactivity or the consts below don't work
 	let comment = contentView.view.comment;

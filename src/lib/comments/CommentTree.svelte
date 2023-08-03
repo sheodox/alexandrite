@@ -61,6 +61,7 @@
 							{isSearchMatch}
 							{searchText}
 							parentComment={shallowerThanLast ? parentComment : undefined}
+							{postLocked}
 						/>
 						{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
 							{@const loading = expandLoadingIds.includes(cv.comment.id)}
@@ -110,6 +111,7 @@
 	export let expandLoadingIds: number[];
 	export let virtualFeedAPI: VirtualFeedAPI;
 	export let viewportTopIndex: number;
+	export let postLocked: boolean;
 
 	const dispatch = createEventDispatcher<{
 		expand: number;

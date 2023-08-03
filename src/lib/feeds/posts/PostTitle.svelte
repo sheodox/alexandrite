@@ -19,7 +19,7 @@
 		data-sveltekit-preload-data="off"
 		class:read={postView.read && modeList}>{postView.post.name}</a
 	>
-	<PostBadges {postView} />
+	<PostBadges post={postView.post} />
 </Stack>
 
 <script lang="ts">

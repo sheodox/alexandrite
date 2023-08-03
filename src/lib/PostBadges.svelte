@@ -16,15 +16,14 @@
 
 <script lang="ts">
 	import { Icon, Tooltip } from 'sheodox-ui';
-	import type { PostView } from 'lemmy-js-client';
+	import type { Post } from 'lemmy-js-client';
 
-	export let postView: PostView;
+	export let post: Post;
 
-	$: badges = getBadges(postView);
+	$: badges = getBadges(post);
 
-	function getBadges(postView: PostView) {
+	function getBadges(post: Post) {
 		const badges = [];
-		const post = postView.post;
 
 		if (post.nsfw) {
 			badges.push({ color: 'red', text: 'NSFW' });

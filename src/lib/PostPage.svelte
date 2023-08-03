@@ -79,7 +79,7 @@
 
 			<hr class="w-100" id="comments" />
 
-			{#if $profile.loggedIn}
+			{#if $profile.loggedIn && !postView.post.locked}
 				<div class="comment-editor m-2">
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
@@ -141,6 +141,7 @@
 					bind:virtualFeedAPI
 					bind:viewportTopIndex={commentViewportTopIndex}
 					searchMatchIds={commentSearchMatchIds}
+					postLocked={postView.post.locked}
 				/>
 			</ContentViewProvider>
 			<PostNavigationBar

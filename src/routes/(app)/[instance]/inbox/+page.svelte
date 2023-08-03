@@ -40,7 +40,7 @@
 			<svelte:fragment let:index>
 				{@const content = $cvStore[index]}
 				{#if content.type === 'mention' || content.type === 'reply'}
-					<Comment contentView={content} postOP="" showPost>
+					<Comment contentView={content} postOP="" showPost postLocked={content.view.post.locked}>
 						<InboxReadButton {content} slot="actions-start" />
 					</Comment>
 				{:else if content.type === 'message'}

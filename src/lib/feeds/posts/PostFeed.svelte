@@ -48,7 +48,7 @@
 							expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
 						/>
 					{:else if contentView.type === 'comment'}
-						<Comment {contentView} showPost postOP="" />
+						<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
 					{/if}
 					{#if index + 1 < $cvStore.length}
 						<hr class="w-100" />
