@@ -144,7 +144,7 @@ export function setDefaultProfile(id: string) {
 function profileToStoreValue(profile: Profile) {
 	return {
 		...profile,
-		client: createLemmyClient(`https://${profile.instance}`),
+		client: createLemmyClient(`https://${profile.instance}`, handleExpiredProfile),
 		loggedIn: !!profile.jwt
 	};
 }

@@ -2,7 +2,6 @@ import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
 import { createAutoExpireToast } from 'sheodox-ui';
 import { getMessageFromError } from './error-messages';
-import { handleExpiredProfile } from '$lib/profiles/profiles';
 
 const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
 
@@ -14,7 +13,7 @@ function tryParse(str: string) {
 	}
 }
 
-export const createLemmyClient = (instanceUrl: string) => {
+export const createLemmyClient = (instanceUrl: string, onExpire?: () => unknown) => {
 	return new LemmyHttp(instanceUrl, {
 		fetchFunction: async (input: URL | RequestInfo, init?: RequestInit | undefined) => {
 			if (!init) {
@@ -47,7 +46,7 @@ export const createLemmyClient = (instanceUrl: string) => {
 				const lemmyError = tryParse(text)?.error ?? '';
 
 				if (lemmyError === 'not_logged_in') {
-					handleExpiredProfile();
+					onExpire?.();
 				}
 
 				const errMsg = lemmyError ? getMessageFromError(lemmyError) : text;

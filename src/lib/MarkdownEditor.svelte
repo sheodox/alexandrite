@@ -63,9 +63,9 @@
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import { tick } from 'svelte';
-	import { getAppContext } from './app-context';
+	import { getCtrlBasedHotkeys } from './app-context';
 
-	const { ctrlBasedHotkeys } = getAppContext();
+	const ctrlBasedHotkeys = getCtrlBasedHotkeys();
 
 	const textareaId = `markdown-editor-${genId()}`;
 	let showPreview = false;

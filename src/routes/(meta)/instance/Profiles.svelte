@@ -4,7 +4,7 @@
 	}
 </style>
 
-{#if $profiles.length}
+{#if alphabetizedProfiles.length}
 	<Accordion open>
 		<span slot="title">Accounts</span>
 		<Stack dir="c" gap={4} cl="p-4">

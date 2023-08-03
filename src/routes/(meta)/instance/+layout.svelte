@@ -1,4 +1,4 @@
-<Layout size="narrow">
+<Layout size="narrow" cl="mb-8">
 	<Stack dir="c" gap={4}>
 		<slot />
 	</Stack>

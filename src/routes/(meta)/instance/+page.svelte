@@ -79,6 +79,12 @@
 	</Stack>
 </form>
 
+{#if parseableInstance && config.showWelcomeAccountCreateButton}
+	<a href="/instance/signup/{instanceNoProtocol}" class="button secondary text-align-center"
+		><Icon icon="user-circle" variant="regular" /> Create an account on {instanceNoProtocol}</a
+	>
+{/if}
+
 <a href="/about" class="text-align-center inline-link">About Alexandrite / Support Development</a>
 
 <script lang="ts">

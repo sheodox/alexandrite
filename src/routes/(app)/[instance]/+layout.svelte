@@ -110,7 +110,7 @@
 	import ProfileOverlay from '$lib/profiles/ProfileOverlay.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
-	import { setAppContext } from '$lib/app-context';
+	import { getCtrlBasedHotkeys, setAppContext } from '$lib/app-context';
 	import LogButton from '$lib/LogButton.svelte';
 	import Spinner from '$lib/Spinner.svelte';
 	import IconLink from '$lib/IconLink.svelte';
@@ -210,7 +210,7 @@
 		navSidebarOpen,
 		unreadCount,
 		unreadReportCount,
-		ctrlBasedHotkeys: !navigator.userAgent.toLowerCase().includes('macintosh'),
+		ctrlBasedHotkeys: getCtrlBasedHotkeys(),
 		checkUnread,
 		checkUnreadReports,
 		screenDimensions: readable({ width: window.innerWidth, height: window.innerHeight }, (set) => {

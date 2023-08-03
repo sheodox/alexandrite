@@ -6,6 +6,7 @@ export const config = {
 	defaultInstance: env.ALEXANDRITE_DEFAULT_INSTANCE || 'lemmy.world',
 	showWelcomeLemmyHelp: boolDefaultTrue(env.ALEXANDRITE_WELCOME_LEMMY_HELP),
 	showWelcomeInstanceHelp: boolDefaultTrue(env.ALEXANDRITE_WELCOME_INSTANCE_HELP),
+	showWelcomeAccountCreateButton: boolDefaultTrue(env.ALEXANDRITE_WELCOME_ACCOUNT_CREATE_BUTTON),
 	forcedInstance: env.ALEXANDRITE_FORCE_INSTANCE?.trim() || ''
 };
 

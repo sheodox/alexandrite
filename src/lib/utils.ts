@@ -126,6 +126,7 @@ export const createStatefulForm = (
 					form?.reset();
 				}
 			} catch (e) {
+				console.error(e);
 				update({ busy: false, error: true });
 			}
 		}

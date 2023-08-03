@@ -16,6 +16,10 @@ export interface AppContext {
 	screenDimensions: Readable<{ height: number; width: number }>;
 }
 
+export function getCtrlBasedHotkeys() {
+	return !navigator.userAgent.toLowerCase().includes('macintosh');
+}
+
 export const getAppContext = () => {
 	return getContext<AppContext>(APP_CONTEXT_KEY);
 };
