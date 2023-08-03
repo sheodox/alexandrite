@@ -53,17 +53,19 @@
 			</span>
 		</Tooltip>
 	{/if}
-	<button
-		aria-pressed={votedDown}
-		class="vote-down"
-		class:small
-		on:click={() => voteAs(-1)}
-		disabled={!loggedIn || votePending}
-		use:ripple
-	>
-		<span class="sr-only">Vote up</span>
-		<Icon icon="arrow-down" />
-	</button>
+	{#if $siteMeta.site_view.local_site.enable_downvotes}
+		<button
+			aria-pressed={votedDown}
+			class="vote-down"
+			class:small
+			on:click={() => voteAs(-1)}
+			disabled={!loggedIn || votePending}
+			use:ripple
+		>
+			<span class="sr-only">Vote up</span>
+			<Icon icon="arrow-down" />
+		</button>
+	{/if}
 </div>
 
 <script lang="ts">
@@ -71,12 +73,14 @@
 	import { createEventDispatcher } from 'svelte';
 	import Spinner from './Spinner.svelte';
 	import { profile } from './profiles/profiles';
+	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{
 		vote: number;
 	}>();
 
 	$: loggedIn = $profile.loggedIn;
+	const { siteMeta } = getAppContext();
 
 	export let vote = 0;
 	export let score = 0;

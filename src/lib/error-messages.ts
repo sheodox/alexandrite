@@ -15,7 +15,8 @@ export const errorMessages: Record<string, string> = {
 	invalid_name: 'Username is invalid',
 	rate_limit_error: "You're being rate limited, wait a bit before trying that again.",
 	user_already_exists: 'A account with that username already exists',
-	passwords_dont_match: "Passwords don't match"
+	passwords_dont_match: "Passwords don't match",
+	downvotes_disabled: 'Downvotes are disabled'
 };
 
 const unknownError = 'Unknown Error';
