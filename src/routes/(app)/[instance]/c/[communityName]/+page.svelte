@@ -1,11 +1,11 @@
-<Title title={nameAtInstance(data.communityView.community, data.communityView.community.title)} />
+<Title title={nameAtInstance(communityView.community, communityView.community.title)} />
 {#key data}
 	<ContentViewProvider store={cvStore}>
 		<PostsPage
 			on:more={more}
 			feedType="community"
-			communityView={data.communityView}
-			moderators={data.moderators}
+			{communityView}
+			{moderators}
 			{endOfFeed}
 			selectedType={data.query.type}
 			selectedListing={data.query.listing}
@@ -25,10 +25,16 @@
 	import { loadFeedData } from '$lib/feed-query';
 	import { createContentViewStore } from '$lib/content-views';
 	import { nameAtInstance } from '$lib/nav-utils';
+	import { getCommunityContext } from '$lib/community-context/community-context';
 
 	export let data;
+	$: communityView = data.communityRes.community_view;
+	$: moderators = data.communityRes.moderators;
 
-	const cvStore = createContentViewStore();
+	const cvStore = createContentViewStore(),
+		communityContext = getCommunityContext();
+
+	$: communityContext.updateCommunity(data.communityRes);
 
 	let loadingContent = false,
 		loadingContentFailed = false,
@@ -42,7 +48,7 @@
 	}
 
 	function initFeed(data: PageData) {
-		if (data.communityView.blocked) {
+		if (communityView.blocked) {
 			endOfFeed = true;
 			return;
 		}

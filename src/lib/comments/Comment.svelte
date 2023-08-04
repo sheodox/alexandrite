@@ -42,6 +42,7 @@
 				user={contentView.view.creator}
 				{postOP}
 				bannedFromCommunity={contentView.view.creator_banned_from_community}
+				community={contentView.view.community}
 			/>
 			{#if showPost}
 				to <CommunityLink community={contentView.view.community} />
@@ -177,6 +178,7 @@
 					label="Edit"
 					on:cancel={() => ($buffer[bk.showEditComposer] = false)}
 					submitting={$editState.busy}
+					community={contentView.view.community}
 				/>
 			</form>
 		{/if}
@@ -188,6 +190,7 @@
 					bind:value={$buffer[bk.replyText]}
 					on:cancel={() => ($buffer[bk.showReplyComposer] = false)}
 					submitting={$replyState.busy}
+					community={contentView.view.community}
 				/>
 			</form>
 		{/if}

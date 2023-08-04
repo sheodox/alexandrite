@@ -9,7 +9,7 @@
 		<Alert variant="error">{errorMessage}</Alert>
 	{/if}
 
-	<input name="communityId" value={communityId} type="hidden" />
+	<input name="communityId" value={community.id} type="hidden" />
 	<input name="honeypot" value="" class="dn" />
 
 	<TextInput name="title" bind:value={title}>Title</TextInput>
@@ -22,7 +22,7 @@
 	</Stack>
 
 	<Stack dir="r" justify="between">
-		<LanguageSelector />
+		<LanguageSelector validDiscussionLanguages={discussionLanguages} />
 		<BusyButton cl="primary" style="width: 8rem;" disabled={!title} busy={submitting}>{postButtonText}</BusyButton>
 	</Stack>
 </Stack>
@@ -32,8 +32,10 @@
 	import { Alert, Stack, Checkbox, TextInput } from 'sheodox-ui';
 	import BusyButton from './BusyButton.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
+	import { getCommunityContext } from './community-context/community-context';
+	import type { Community } from 'lemmy-js-client';
 
-	export let communityId: number;
+	export let community: Community;
 	export let errorMessage = '';
 	export let submitting: boolean;
 	export let title = '';
@@ -42,4 +44,9 @@
 	export let postButtonText = 'Post';
 
 	$: disabled = submitting;
+
+	const communityContext = getCommunityContext();
+	$: communityRes = communityContext.getFullCommunity(community);
+
+	$: discussionLanguages = $communityRes?.discussion_languages;
 </script>

@@ -13,7 +13,7 @@
 
 		<Stack dir="r" justify="between" align="center">
 			{#if useLanguage}
-				<LanguageSelector {selectedLanguage} />
+				<LanguageSelector {selectedLanguage} validDiscussionLanguages={communityLanguages} />
 			{:else}
 				<!-- spacer to push the buttons to the end -->
 				<div />
@@ -38,6 +38,9 @@
 	import BusyButton from '../BusyButton.svelte';
 	import MarkdownEditor from '../MarkdownEditor.svelte';
 	import LanguageSelector from '../LanguageSelector.svelte';
+	import { getCommunityContext } from '$lib/community-context/community-context';
+	import { nameAtInstance } from '$lib/nav-utils';
+	import type { Community } from 'lemmy-js-client';
 
 	const dispatch = createEventDispatcher<{ cancel: void }>();
 
@@ -50,7 +53,13 @@
 	export let submitting: boolean;
 	export let showSubmit = true;
 	export let useLanguage = true;
+	export let community: Community | undefined = undefined;
 	const initialValue = value;
+
+	const communityContext = getCommunityContext();
+	$: communityName = community ? nameAtInstance(community) : null;
+	$: com = communityName ? communityContext.getCommunity(communityName) : null;
+	$: communityLanguages = $com?.discussion_languages;
 
 	function cancel() {
 		if (value === initialValue || confirm('Are you sure you want to discard your comment?')) {

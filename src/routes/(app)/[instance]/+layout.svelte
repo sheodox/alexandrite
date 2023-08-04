@@ -16,6 +16,7 @@
 <Header
 	appName={$siteMeta.site_view.site.name}
 	href="/{$instance}"
+	on:titleclick={onHeaderTitleClick}
 	showMenuTrigger={true}
 	bind:menuOpen={$navSidebarOpen}
 	position="fixed"
@@ -88,7 +89,9 @@
 
 	<main class="f-column f-1">
 		<ModContext>
-			<slot />
+			<CommunityContext>
+				<slot />
+			</CommunityContext>
 		</ModContext>
 	</main>
 
@@ -104,7 +107,8 @@
 {/if}
 
 <script lang="ts">
-	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
+	import CommunityContext from '$lib/community-context/CommunityContext.svelte';
 	import ModContext from '$lib/mod/ModContext.svelte';
 	import { Sidebar, Header, Icon, Search, Toasts, Modals } from 'sheodox-ui';
 	import ProfileOverlay from '$lib/profiles/ProfileOverlay.svelte';
@@ -294,4 +298,11 @@
 		storeUnsubs = [];
 		document.getElementById(styleId)?.remove();
 	});
+
+	function onHeaderTitleClick() {
+		// todo: try doing something more granular that doesn't invalidate siteMeta.
+		// this is here so you can click the header title while on the home page already and have it refresh the feed,
+		// otherwise if the URL doesn't change it won't refresh
+		invalidateAll();
+	}
 </script>

@@ -28,7 +28,12 @@
 				{/if}
 				<Stack dir="r" gap={1} align="start" cl="f-wrap">
 					<UserLink user={postView.creator} />
-					<UserBadges user={postView.creator} postOP="" bannedFromCommunity={postView.creator_banned_from_community} />
+					<UserBadges
+						user={postView.creator}
+						postOP=""
+						bannedFromCommunity={postView.creator_banned_from_community}
+						community={postView.community}
+					/>
 					to
 					<CommunityLink community={postView.community} />
 				</Stack>

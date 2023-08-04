@@ -6,20 +6,20 @@ import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 export const load = (async () => {
 	const { client, jwt, id } = get(profile);
 
-	const localUser = await client
-		.getSite({
-			auth: jwt
-		})
-		.then((r) => r.my_user?.local_user_view);
+	const site = await client.getSite({
+		auth: jwt
+	});
 
-	if (!localUser) {
+	if (!site.my_user) {
 		throw error(403, "Couldn't get user settings");
 	}
 
-	updateProfileSettings(id, localUser.local_user);
+	updateProfileSettings(id, site.my_user.local_user_view.local_user);
 
 	return {
-		localUser: localUser.local_user,
-		person: localUser.person
+		localUser: site.my_user.local_user_view.local_user,
+		person: site.my_user.local_user_view.person,
+		discussionLanguages: site.my_user.discussion_languages,
+		languages: site.all_languages.filter((lang) => site.discussion_languages.includes(lang.id))
 	};
 }) satisfies PageLoad;

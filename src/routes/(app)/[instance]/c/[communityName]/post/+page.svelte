@@ -3,7 +3,7 @@
 <Breadcrumbs {links} />
 <h1>Post</h1>
 <form bind:this={formElement}>
-	<PostCompose errorMessage={errMsg} submitting={$postState.busy} communityId={data.communityView.community.id} />
+	<PostCompose errorMessage={errMsg} submitting={$postState.busy} community={data.communityView.community} />
 </form>
 
 <script lang="ts">

@@ -6,7 +6,7 @@
 	<PostCompose
 		errorMessage={errMsg}
 		submitting={$editState.busy}
-		communityId={data.communityView.community.id}
+		community={data.communityView.community}
 		title={data.postView.post.name}
 		content={data.postView.post.body}
 		url={data.postView.post.url}

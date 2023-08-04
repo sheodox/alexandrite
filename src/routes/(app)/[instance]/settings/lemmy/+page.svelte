@@ -14,7 +14,7 @@
 		<!-- avatar -->
 		<!-- banner -->
 		<!-- interface language, need to localize alexandrite! -->
-		<!-- languages -->
+		<LanguageSettings bind:selected={discussionLanguages} languages={data.languages} />
 
 		<Stack dir="r" gap={2}>
 			<Fieldset legend="Default Listing" fieldsetClasses="m-0">
@@ -60,11 +60,13 @@
 	import type { ListingType, SortType } from 'lemmy-js-client';
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { profile, updateProfileSettings } from '$lib/profiles/profiles';
+	import LanguageSettings from './LanguageSettings.svelte';
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
 	export let data;
+	let discussionLanguages = data.discussionLanguages;
 
 	let settingsForm: HTMLFormElement;
 
@@ -81,6 +83,7 @@
 			matrix_user_id: body.matrix_user_id as string,
 			default_listing_type: body.default_listing_type as ListingType,
 			default_sort_type: body.default_sort_type as SortType,
+			discussion_languages: discussionLanguages,
 			show_nsfw: body.show_nsfw === 'on',
 			show_scores: body.show_scores === 'on',
 			show_avatars: body.show_avatars === 'on',

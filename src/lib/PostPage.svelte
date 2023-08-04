@@ -85,7 +85,11 @@
 						<span slot="title">Leave a comment</span>
 						{#key $showNewCommentComposer}
 							<form bind:this={newCommentForm}>
-								<CommentEditor submitting={$newCommentState.busy} bind:value={newCommentText} />
+								<CommentEditor
+									submitting={$newCommentState.busy}
+									bind:value={newCommentText}
+									community={postView.community}
+								/>
 							</form>
 						{/key}
 					</Accordion>
@@ -188,6 +192,7 @@
 	import { profile, instance } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
+	import { getCommunityContext } from './community-context/community-context';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -200,6 +205,10 @@
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
+
+	const communityContext = getCommunityContext();
+	$: communityName = nameAtInstance(postView.community);
+	$: communityContext.getCommunity(communityName);
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
@@ -503,7 +512,6 @@
 		commentExpandLoadingIds = commentExpandLoadingIds;
 	}
 
-	$: communityName = nameAtInstance(postView.community);
 	$: links = [
 		{
 			text: 'Home',
