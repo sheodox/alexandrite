@@ -6,7 +6,7 @@
 </style>
 
 <Title title="Settings" />
-<Layout size="medium">
+<Layout size="medium" cl="mb-8">
 	<h1>Settings</h1>
 	<LinkTabList {tabs} {selectedTab} />
 	<div class="mt-4">
