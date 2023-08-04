@@ -134,13 +134,15 @@
 							disabled={$saveState.busy}
 						/>
 						{#if myComment}
-							<IconButton
-								icon="edit"
-								small
-								text="Edit"
-								on:click={() => ($buffer[bk.showEditComposer] = true)}
-								disabled={someActionPending}
-							/>
+							{#if !postLocked}
+								<IconButton
+									icon="edit"
+									small
+									text="Edit"
+									on:click={() => ($buffer[bk.showEditComposer] = true)}
+									disabled={someActionPending}
+								/>
+							{/if}
 							{#if comment.deleted}
 								<IconButton
 									icon="recycle"
@@ -168,7 +170,7 @@
 				{/if}
 			</Stack>
 		{/if}
-		{#if $buffer[bk.showEditComposer]}
+		{#if $buffer[bk.showEditComposer] && !postLocked}
 			<form bind:this={editForm} class="reply-editor">
 				<input type="hidden" name="commentId" value={comment.id} />
 				<CommentEditor
