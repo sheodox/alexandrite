@@ -64,7 +64,7 @@
 				<slot name="post-link" />
 			{/if}
 
-			{#if postAssertions.has.body}
+			{#if postAssertions.has.body && postView.post.body !== postView.post.embed_description}
 				<div class="card card-body embed-preview mobile-shrink" class:muted={postView.read}>
 					<span class="muted fw-bold embed-title-hint sx-font-size-2"><Icon icon="quote-left" /> Post</span>
 					<br />
