@@ -1,9 +1,10 @@
-<div class="f-row f-wrap"><span>{prefix}{name}</span><span class="muted">{instance}</span></div>
+<div class="f-row" class:f-wrap={wrappable}><span>{prefix}{name}</span><span class="muted">{instance}</span></div>
 
 <script lang="ts">
 	export let place: NamedThing;
 	export let displayName = '';
 	export let prefix: string; // @, !, /m/ etc
+	export let wrappable = true;
 
 	$: name = displayName || place.name;
 	$: instance = getInstance(place);

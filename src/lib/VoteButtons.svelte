@@ -23,7 +23,7 @@
 	}
 </style>
 
-<div class={dir === 'row' ? 'f-row' : 'f-column'}>
+<div class="{dir === 'row' ? 'f-row' : 'f-column'} align-items-center">
 	<button
 		aria-pressed={votedUp}
 		class="vote-up"

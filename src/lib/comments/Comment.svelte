@@ -17,7 +17,7 @@
 
 <section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
-		<Stack gap={1} dir="r" align="center">
+		<Stack gap={1} dir="r" align="center" cl="f-wrap">
 			{#if !showPost}
 				<Tooltip>
 					<span slot="tooltip">{collapseMsg}</span>
@@ -27,6 +27,7 @@
 					</button>
 				</Tooltip>
 			{/if}
+			<Icon icon="comments" variant="regular" cl="muted" />
 			{#if contentView.view.comment.distinguished}
 				{@const text = 'Distinguished by moderator'}
 				<!-- maybe use a different word, you can distinguish non-mods -->

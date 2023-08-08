@@ -186,8 +186,13 @@
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
-	import { createEventDispatcher } from 'svelte';
-	import { commentViewToContentView, createContentViewStore } from './content-views';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import {
+		commentViewToContentView,
+		createContentViewStore,
+		getContentViewStore,
+		postViewToContentView
+	} from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
 	import { profile, instance } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
@@ -212,6 +217,8 @@
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
+
+	const postCVStore = getContentViewStore();
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {
@@ -522,4 +529,16 @@
 			href: `/${$instance}/c/${communityName}/`
 		}
 	];
+
+	onMount(async () => {
+		if (jwt) {
+			// getting the post has a side effect of marking it and its comments as read
+			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => {
+				post_view.read = true;
+				post_view.unread_comments = 0;
+				return post_view;
+			});
+			postCVStore.updateView(postViewToContentView(pv));
+		}
+	});
 </script>

@@ -67,7 +67,7 @@
 			disabled: !loggedIn,
 			as: 'a'
 		},
-		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, disabled: !loggedIn, as: 'a' },
+		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, as: 'a' },
 		{ text: 'About Alexandrite', icon: 'address-card', href: '/about', as: 'a' },
 		{
 			text: 'Switch Account',

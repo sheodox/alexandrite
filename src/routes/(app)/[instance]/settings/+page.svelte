@@ -28,14 +28,20 @@
 		</p>
 	</Fieldset>
 	<DescriptiveToggles legend="NSFW Thumbnails" options={NSFWHandlingOptions} bind:group={$nsfwImageHandling} />
+	<DescriptiveToggles legend="Feed Post Layout" options={PostPreviewLayoutOptions} bind:group={$postPreviewLayout} />
 	<FeedLayoutSettings />
 </Stack>
 
 <script lang="ts">
-	import { getSettingsContext, AlexandriteSettingsDefaults, NSFWHandlingOptions } from '$lib/settings-context';
+	import {
+		getSettingsContext,
+		AlexandriteSettingsDefaults,
+		NSFWHandlingOptions,
+		PostPreviewLayoutOptions
+	} from '$lib/settings-context';
 	import { Stack, Fieldset, Checkbox, Icon } from 'sheodox-ui';
 	import FeedLayoutSettings from '$lib/FeedLayoutSettings.svelte';
 	import DescriptiveToggles from '$lib/DescriptiveToggles.svelte';
 
-	const { themeHue, nsfwImageHandling, navSidebarDocked, loadImagesAsWebp } = getSettingsContext();
+	const { themeHue, nsfwImageHandling, postPreviewLayout, navSidebarDocked, loadImagesAsWebp } = getSettingsContext();
 </script>

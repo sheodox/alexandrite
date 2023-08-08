@@ -1,15 +1,11 @@
 <style lang="scss">
-	@use 'sass:math';
-
-	$height: 6rem;
-	$aspect: math.div(16, 9);
 	.thumbnail {
 		background: var(--sx-gray-transparent);
 		border-radius: 5px;
 		overflow: hidden;
 		flex-shrink: 0;
-		height: #{$height};
-		width: #{$height * $aspect};
+		height: var(--thumbnail-height);
+		width: calc(var(--thumbnail-height) * (16 / 9));
 
 		:global(img),
 		:global(.img) {
@@ -24,7 +20,7 @@
 	}
 </style>
 
-<div class="thumbnail">
+<div class="thumbnail" style="--thumbnail-height: {height};">
 	{#if thumbnailUrl}
 		<Image src={thumbnailUrl} mode="thumbnail" nsfw={postView.post.nsfw} />
 	{:else}
@@ -41,5 +37,7 @@
 	import Image from '$lib/Image.svelte';
 
 	export let postView: PostView | PostReportView;
+	export let height = '6rem';
+
 	$: thumbnailUrl = postView.post.thumbnail_url;
 </script>

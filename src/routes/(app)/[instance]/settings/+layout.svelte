@@ -20,13 +20,19 @@
 	import { afterNavigate } from '$app/navigation';
 	import { profile } from '$lib/profiles/profiles';
 
+	$: loggedInTabs = !!$profile.jwt
+		? [
+				{ title: 'Lemmy', href: `/${$profile.instance}/settings/lemmy` },
+				{ title: 'Blocks', href: `/${$profile.instance}/settings/blocks` }
+		  ]
+		: [];
+
 	$: tabs = [
 		{
 			title: 'Alexandrite',
 			href: `/${$profile.instance}/settings`
 		},
-		{ title: 'Lemmy', href: `/${$profile.instance}/settings/lemmy` },
-		{ title: 'Blocks', href: `/${$profile.instance}/settings/blocks` }
+		...loggedInTabs
 	];
 
 	let selectedTab = location.pathname;

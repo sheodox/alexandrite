@@ -169,6 +169,7 @@
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
 		loadImagesAsWebp = localStorageBackedStore('load-images-as-webp', AlexandriteSettingsDefaults.loadImagesAsWebp),
 		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
+		postPreviewLayout = localStorageBackedStore('post-preview-layout', AlexandriteSettingsDefaults.postPreviewLayout),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		cssVariables = writable<Record<string, string | number>>({});
@@ -219,7 +220,13 @@
 		checkUnreadReports,
 		screenDimensions: readable({ width: window.innerWidth, height: window.innerHeight }, (set) => {
 			function update() {
-				set({ width: window.innerWidth, height: window.innerHeight });
+				const width = window.innerWidth;
+				set({ width, height: window.innerHeight });
+
+				// if the screen was really wide, auto-hide on resize once it gets small enough to matter
+				if ($sidebarVisible && width < 800) {
+					$sidebarVisible = false;
+				}
 			}
 
 			window.addEventListener('resize', update);
@@ -233,7 +240,8 @@
 		sidebarVisible,
 		loadImagesAsWebp,
 		feedLayout,
-		navSidebarDocked
+		navSidebarDocked,
+		postPreviewLayout
 	});
 
 	$: instanceText = $profile.username ? `${$profile.username}@${$profile.instance}` : $profile.instance;

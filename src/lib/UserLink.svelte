@@ -34,7 +34,7 @@
 	</div>
 	<a
 		href="/{$profile.instance}/u/{creatorName}"
-		class="inline-link f-row gap-1"
+		class="inline-link f-row gap-1 align-items-center"
 		data-sveltekit-preload-data="off"
 		class:op={isOP}
 	>

@@ -83,7 +83,7 @@
 		{ href: `/${$profile.instance}/search`, text: 'Search', icon: 'magnifying-glass' },
 		{ href: `/${$profile.instance}/u/${$profile.username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
 		{ href: `/${$profile.instance}/communities`, text: 'Communities', icon: 'users' },
-		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, disabled: !loggedIn },
+		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings` },
 		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' }
 	].filter((f) => !f.disabled);
 </script>
