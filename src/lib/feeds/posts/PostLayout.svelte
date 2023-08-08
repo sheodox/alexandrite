@@ -94,12 +94,16 @@
 	</svelte:fragment>
 </svelte:component>
 
-{#if $postPreviewLayout === 'LIST' && !lastOfList}
+{#if layout === 'LIST' && !lastOfList}
 	<hr class="w-100" />
 {/if}
 
+<slot name="before-embed" />
+
 {#if expandPostContent}
-	<PostContent {postView} />
+	<div class="mx-2">
+		<PostContent {postView} />
+	</div>
 {/if}
 
 {#if showReportModal}
@@ -137,6 +141,7 @@
 	export let readOnly = false;
 	export let supportsOverlay = true;
 	export let expandPostContent: boolean;
+	export let forceLayout: PostPreviewLayout | undefined = undefined;
 	export let lastOfList = true;
 
 	const dispatch = createEventDispatcher<{
@@ -148,6 +153,8 @@
 	const modContext = getModContext();
 	const { siteMeta } = getAppContext();
 	const { postPreviewLayout } = getSettingsContext();
+
+	$: layout = forceLayout ?? $postPreviewLayout;
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
@@ -163,8 +170,8 @@
 	$: isAdminOfCommunity = $siteMeta.my_user?.local_user_view.person.admin && postView.community.local;
 	let showReportModal = false;
 
-	$: component = getLayoutComponent($postPreviewLayout);
-	$: layoutSupports = getLayoutSupports($postPreviewLayout);
+	$: component = getLayoutComponent(layout);
+	$: layoutSupports = getLayoutSupports(layout);
 
 	function getLayoutComponent(
 		layout: PostPreviewLayout

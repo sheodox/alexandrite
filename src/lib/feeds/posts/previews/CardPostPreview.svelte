@@ -19,7 +19,7 @@
 	}
 </style>
 
-<article class="post px-2 pb-4">
+<article class="post pb-4">
 	<Stack dir="c" gap={2} cl="card">
 		{#if postAssertions.has.image}
 			<div class="card-image">

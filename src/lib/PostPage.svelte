@@ -42,6 +42,10 @@
 		width: 80rem;
 		max-width: 100%;
 	}
+	.small {
+		font-size: var(--sx-font-size-2);
+		padding: var(--sx-spacing-2);
+	}
 </style>
 
 <div
@@ -51,31 +55,32 @@
 	class:centered
 >
 	<div class="page-column page-column-post virtual-feed-scroll-container f-1">
-		<section class="f-column p-4 f-1 post">
+		<section class="f-column p-2 f-1 post">
 			{#if closeable}
-				<button on:click={() => dispatch('close')} class="tertiary m-4"><Icon icon="times" /> Close Post</button>
+				<button on:click={() => dispatch('close')} class="tertiary m-2"><Icon icon="times" /> Close Post</button>
 			{/if}
-			<div class="ml-6 mb-1">
+			<div class="ml-4 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} />
-			<Stack dir="r">
-				<a href="#comments" class="button tertiary"
-					><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
-				>
-				{#if postAssertions.has.any}
-					<button class="tertiary" on:click={() => (showPost = !showPost)}
-						><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
+			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} forceLayout="LIST">
+				<Stack dir="r" slot="before-embed">
+					{@const small = $screenDimensions.width < 800 ? 'small' : ''}
+					<a href="#comments" class="button tertiary {small}"
+						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
 					>
-				{/if}
-				{#if postAssertions.has.body}
-					<button class="tertiary" on:click={() => (viewSource = !viewSource)}>
-						<Icon icon="code" />
-						{viewSource ? 'Hide' : 'View'} Source
-					</button>
-				{/if}
-			</Stack>
-
+					{#if postAssertions.has.any}
+						<button class="tertiary {small}" on:click={() => (showPost = !showPost)}
+							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
+						>
+					{/if}
+					{#if postAssertions.has.body}
+						<button class="tertiary {small}" on:click={() => (viewSource = !viewSource)}>
+							<Icon icon="code" />
+							{viewSource ? 'Hide' : 'View'} Source
+						</button>
+					{/if}
+				</Stack>
+			</PostLayout>
 			<hr class="w-100" id="comments" />
 
 			{#if $profile.loggedIn && !postView.post.locked}
@@ -198,6 +203,7 @@
 	import type { CommentBranch } from './comments/comment-utils';
 	import { getCommunityContext } from './community-context/community-context';
 	import { makePostAssertions } from './feeds/posts/post-utils';
+	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -210,6 +216,7 @@
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
+	const { screenDimensions } = getAppContext();
 
 	const communityContext = getCommunityContext();
 	$: communityName = nameAtInstance(postView.community);

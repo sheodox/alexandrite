@@ -61,7 +61,7 @@
 				<svelte:fragment let:index>
 					{@const contentView = $cvStore[index]}
 					{#if contentView.type === 'post'}
-						<Post postView={contentView.view} on:overlay supportsOverlay={false} />
+						<PostLayout postView={contentView.view} on:overlay supportsOverlay={false} expandPostContent={false} />
 					{:else if contentView.type === 'comment'}
 						<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
 					{:else if contentView.type === 'community'}
@@ -95,7 +95,7 @@
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
-	import Post from '$lib/feeds/posts/Post.svelte';
+	import PostLayout from '$lib/feeds/posts/PostLayout.svelte';
 	import type {
 		CommentView,
 		CommunityView,
