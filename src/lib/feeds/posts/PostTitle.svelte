@@ -9,6 +9,11 @@
 	a.read {
 		color: var(--sx-gray-200);
 	}
+	@media (max-width: 800px) {
+		a {
+			font-size: var(--sx-font-size-3) !important;
+		}
+	}
 </style>
 
 <Stack dir="r" gap={2} align="center">

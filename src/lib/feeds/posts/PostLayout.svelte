@@ -137,7 +137,7 @@
 	export let readOnly = false;
 	export let supportsOverlay = true;
 	export let expandPostContent: boolean;
-	export let lastOfList: boolean;
+	export let lastOfList = true;
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;

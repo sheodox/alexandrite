@@ -50,7 +50,7 @@
 						class:nested={depth > 0}
 						class:last-of-depth={depth > 0 && depth !== commentTree[index + 1]?.depth}
 						class:search-match={isSearchMatch}
-						style:margin-left="calc(var(--sx-spacing-6) * {depth})"
+						style:margin-left="calc(var(--sx-spacing-{$screenDimensions.width < 800 ? 3 : 6}) * {depth})"
 					>
 						<Comment
 							contentView={commentViewToContentView(cv)}
@@ -95,6 +95,7 @@
 	import { commentViewToContentView } from '../content-views';
 	import type { VirtualFeedAPI } from '../virtual-feed';
 	import type { CommentBranch } from './comment-utils';
+	import { getAppContext } from '$lib/app-context';
 
 	export let postOP: string;
 	// the comment search query text
@@ -112,6 +113,8 @@
 	export let virtualFeedAPI: VirtualFeedAPI;
 	export let viewportTopIndex: number;
 	export let postLocked: boolean;
+
+	const { screenDimensions } = getAppContext();
 
 	const dispatch = createEventDispatcher<{
 		expand: number;

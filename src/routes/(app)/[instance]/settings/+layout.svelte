@@ -20,7 +20,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { profile } from '$lib/profiles/profiles';
 
-	$: loggedInTabs = !!$profile.jwt
+	$: loggedInTabs = $profile.jwt
 		? [
 				{ title: 'Lemmy', href: `/${$profile.instance}/settings/lemmy` },
 				{ title: 'Blocks', href: `/${$profile.instance}/settings/blocks` }

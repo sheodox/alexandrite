@@ -58,24 +58,23 @@
 			<div class="ml-6 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false} {viewSource}>
-				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent let:hasBody>
-					<a href="#comments" class="button tertiary"
-						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
+			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} />
+			<Stack dir="r">
+				<a href="#comments" class="button tertiary"
+					><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
+				>
+				{#if postAssertions.has.any}
+					<button class="tertiary" on:click={() => (showPost = !showPost)}
+						><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
 					>
-					{#if hasEmbeddableContent}
-						<button class="tertiary" on:click={() => (showPost = !showPost)}
-							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
-						>
-					{/if}
-					{#if hasBody}
-						<button class="tertiary" on:click={() => (viewSource = !viewSource)}>
-							<Icon icon="code" />
-							{viewSource ? 'Hide' : 'View'} Source
-						</button>
-					{/if}
-				</Stack>
-			</Post>
+				{/if}
+				{#if postAssertions.has.body}
+					<button class="tertiary" on:click={() => (viewSource = !viewSource)}>
+						<Icon icon="code" />
+						{viewSource ? 'Hide' : 'View'} Source
+					</button>
+				{/if}
+			</Stack>
 
 			<hr class="w-100" id="comments" />
 
@@ -175,7 +174,7 @@
 
 <script lang="ts">
 	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
-	import Post from '$lib/feeds/posts/Post.svelte';
+	import PostLayout from './feeds/posts/PostLayout.svelte';
 	import CommentTree from '$lib/comments/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
@@ -198,6 +197,7 @@
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
 	import { getCommunityContext } from './community-context/community-context';
+	import { makePostAssertions } from './feeds/posts/post-utils';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -217,6 +217,8 @@
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
+
+	$: postAssertions = makePostAssertions(postView);
 
 	const postCVStore = getContentViewStore();
 

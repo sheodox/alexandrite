@@ -8,9 +8,14 @@
 		overflow: hidden;
 		border: 1px solid var(--sx-gray-transparent);
 	}
-	.post-body-preview {
+	.embed-preview {
 		max-height: 10rem;
 		overflow: hidden;
+	}
+	@media (max-width: 600px) {
+		.mobile-shrink {
+			font-size: var(--sx-font-size-2) !important;
+		}
 	}
 </style>
 
@@ -28,21 +33,24 @@
 			</div>
 		{/if}
 		<Stack dir="c" gap={2} cl="px-2 {postAssertions.has.image ? '' : 'pt-2'}">
-			<Stack dir="r" gap={1} align="start" justify="between" cl="f-wrap">
-				<Stack dir="r" gap={1} align="start" cl="f-wrap">
-					<slot name="creator" />
-					to
-					<slot name="community" />
-				</Stack>
+			<div class="mobile-shrink">
+				<Stack dir="r" gap={1} align="start" justify="between" cl="f-wrap">
+					<Stack dir="r" gap={1} align="start" cl="f-wrap">
+						<slot name="creator" />
+						to
+						<slot name="community" />
+					</Stack>
 
-				<Stack dir="r" gap={1} align="start" cl="f-wrap">
-					<PostTime {postView} />
+					<Stack dir="r" gap={1} align="start" cl="f-wrap">
+						<PostTime {postView} />
+					</Stack>
 				</Stack>
-			</Stack>
+			</div>
+
 			<PostTitle {postView} on:overlay modeList={true} {supportsOverlay} />
 
 			{#if postView.post.embed_description}
-				<p class="m-0 card card-body" class:muted={postView.read}>
+				<p class="m-0 card card-body embed-preview mobile-shrink" class:muted={postView.read}>
 					<span class="muted fw-bold embed-title-hint">
 						<slot name="post-link" />
 					</span>
@@ -57,7 +65,7 @@
 			{/if}
 
 			{#if postAssertions.has.body}
-				<div class="card card-body post-body-preview" class:muted={postView.read}>
+				<div class="card card-body embed-preview mobile-shrink" class:muted={postView.read}>
 					<span class="muted fw-bold embed-title-hint sx-font-size-2"><Icon icon="quote-left" /> Post</span>
 					<br />
 					<Markdown noImages md={postView.post.body ?? ''} />
@@ -90,7 +98,6 @@
 	}>();
 
 	export let postView: PostView;
-	export let mode: 'show' | 'list' = 'list';
 	export let supportsOverlay = true;
 
 	$: postAssertions = makePostAssertions(postView);
