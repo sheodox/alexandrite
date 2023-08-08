@@ -27,17 +27,17 @@ export interface PostAssertions {
 }
 
 export function makePostAssertions(pv: PostView, myUserId?: number): PostAssertions {
-	const hasParts = {
-		image: hasImageExtension(pv.post.url),
-		body: !!pv.post.body?.trim(),
-		embed: !!pv.post.embed_title
-	};
-
 	let imageSrc = pv.post.thumbnail_url;
 
 	if (!imageSrc && hasImageExtension(pv.post.url)) {
 		imageSrc = pv.post.url;
 	}
+
+	const hasParts = {
+		image: !!imageSrc,
+		body: !!pv.post.body?.trim(),
+		embed: !!pv.post.embed_title
+	};
 
 	return {
 		imageSrc,
