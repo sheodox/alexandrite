@@ -44,3 +44,9 @@
 		margin-bottom: 0;
 	}
 }
+
+@media (max-width: 600px) {
+	.markdown-renderer {
+		font-size: var(--sx-font-size-2);
+	}
+}

@@ -39,21 +39,29 @@ export const FeedLayoutOptions: { value: FeedLayout; label: string; description:
 
 export type PostPreviewLayout = 'LIST' | 'COMPACT' | 'CARD';
 
-export const PostPreviewLayoutOptions: { value: PostPreviewLayout; label: string; description: string }[] = [
+export const PostPreviewLayoutOptions: {
+	value: PostPreviewLayout;
+	label: string;
+	description: string;
+	icon: string;
+}[] = [
 	{
 		value: 'LIST',
 		label: 'List',
-		description: 'Small thumbnails with all the posts in a list'
+		description: 'Small thumbnails with all the posts in a list',
+		icon: 'list'
 	},
 	{
 		value: 'COMPACT',
 		label: 'Compact',
-		description: 'Like the list style, but more dense.'
+		description: 'Like the list style, but more dense.',
+		icon: 'compress'
 	},
 	{
 		value: 'CARD',
 		label: 'Cards',
-		description: 'Large images and post text previews, get the gist without opening the post.'
+		description: 'Large images and post text previews, get the gist without opening the post.',
+		icon: 'rectangle-list'
 	}
 ];
 

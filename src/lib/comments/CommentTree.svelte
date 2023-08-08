@@ -25,7 +25,7 @@
 	}
 </style>
 
-<Stack gap={0} cl="px-2">
+<Stack gap={0}>
 	<VirtualFeed
 		feedSize={commentTree.length}
 		on:more

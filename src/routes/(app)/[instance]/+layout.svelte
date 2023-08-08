@@ -37,7 +37,6 @@
 		{#if data.loggedIn}
 			<IconLink
 				text="Unread"
-				{placement}
 				icon="bell"
 				cl="{$unreadCount > 0 ? 'sx-badge-orange' : ''} p-2"
 				href="/{$profile.instance}/inbox"
@@ -48,7 +47,6 @@
 		{#if isModerator}
 			<IconLink
 				text="Unread Reports"
-				{placement}
 				icon="shield-halved"
 				cl="{$unreadReportCount > 0 ? 'sx-badge-red' : ''} p-2"
 				href="/{$profile.instance}/reports"
@@ -64,13 +62,12 @@
 			{instanceText}
 		</span>
 
-		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} {placement} />
+		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} />
 		<HeaderUserMenu on:accounts={() => (showAccountsSelector = true)} />
 		<IconButton
 			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
 			on:click={() => ($sidebarVisible = !$sidebarVisible)}
 			text="Toggle sidebar"
-			{placement}
 		/>
 	</div>
 </Header>
@@ -140,8 +137,7 @@
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
-	const placement = 'bottom-end',
-		unreadCount = writable(0),
+	const unreadCount = writable(0),
 		unreadReportCount = writable(0);
 
 	let showLoadingOverlay = false,
@@ -151,9 +147,11 @@
 
 	$: isModerator = ($siteMeta.my_user?.moderates.length ?? 0) > 0;
 
-	beforeNavigate(() => {
+	beforeNavigate((navigation) => {
 		clearTimeout(showOverlayTimeout);
-		showOverlayTimeout = setTimeout(() => (showLoadingOverlay = true), LOADING_OVERLAY_DELAY);
+		if (!navigation.willUnload && navigation.type !== 'popstate') {
+			showOverlayTimeout = setTimeout(() => (showLoadingOverlay = true), LOADING_OVERLAY_DELAY);
+		}
 	});
 
 	afterNavigate(() => {

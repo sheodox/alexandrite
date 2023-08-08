@@ -17,7 +17,7 @@
 
 <section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
-		<Stack gap={1} dir="r" align="center" cl="f-wrap">
+		<Stack gap={1} dir="r" align="center" cl="f-wrap responsive-text">
 			{#if !showPost}
 				<Tooltip>
 					<span slot="tooltip">{collapseMsg}</span>
@@ -72,7 +72,7 @@
 				<span class="sx-badge-yellow sx-font-size-2 m-0">Contains "{searchText}"</span>
 			{/if}
 			{#if parentComment}
-				<Tooltip placement="left">
+				<Tooltip>
 					<ParentComment view={parentComment} slot="tooltip" />
 					<Icon icon="turn-up" cl="muted" />
 				</Tooltip>

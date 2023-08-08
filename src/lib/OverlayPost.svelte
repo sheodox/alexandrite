@@ -23,7 +23,7 @@
 	@media (min-width: 800px) {
 		.post-container {
 			width: 75vw;
-			border-left: 1px solid var(--sx-gray-400);
+			border-left: 2px solid var(--sx-gray-400);
 		}
 	}
 </style>

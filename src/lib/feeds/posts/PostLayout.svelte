@@ -1,10 +1,11 @@
 <style lang="scss">
-	button {
+	button,
+	.button {
 		margin: 0;
 	}
 </style>
 
-<svelte:component this={component} bind:postView on:overlay>
+<svelte:component this={component} bind:postView on:overlay {supportsOverlay}>
 	<svelte:fragment slot="vote-buttons" let:small let:dir>
 		<!-- TS doesn't realize i'm only passing valid values, it sees dir as type string -->
 		<PostVoteButtons {postView} {voteState} {small} dir={dir === 'row' ? 'row' : 'column'} />
@@ -51,6 +52,7 @@
 					pressed={postView.saved}
 					busy={$saveState.busy}
 					small
+					cl="m-0"
 					icon="star"
 					on:click={$saveState.submit}
 					disabled={$saveState.busy}

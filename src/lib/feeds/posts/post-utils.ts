@@ -1,7 +1,23 @@
 import type { PostView } from 'lemmy-js-client';
 
+export function isValidUrl(url?: string): url is string {
+	if (!url?.trim()) {
+		return false;
+	}
+	try {
+		// must start with http:// or https://
+		if (!/^https?:\/\//.test(url)) {
+			return false;
+		}
+		new URL(url);
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
+
 export function hasImageExtension(url?: string) {
-	if (!url || !/^https?:\/\//.test(url)) {
+	if (!isValidUrl(url)) {
 		return false;
 	}
 
@@ -15,6 +31,7 @@ export function hasImageExtension(url?: string) {
 
 export interface PostAssertions {
 	imageSrc?: string;
+	// existence of certain types of embedded content
 	has: {
 		image: boolean;
 		body: boolean;
@@ -23,6 +40,7 @@ export interface PostAssertions {
 	};
 	is: {
 		mine: boolean;
+		externalLink: boolean;
 	};
 }
 
@@ -41,13 +59,19 @@ export function makePostAssertions(pv: PostView, myUserId?: number): PostAsserti
 
 	return {
 		imageSrc,
+		// assertions about embedded contents
 		has: {
 			...hasParts,
 			// whether the post has any of the types of content that a post can contain
 			any: Object.values(hasParts).some((has) => has)
 		},
 		is: {
-			mine: pv.creator.id === myUserId
+			mine: pv.creator.id === myUserId,
+			// if the `url` on a post points to a place we're not already showing. if it's an image on Lemmy and we
+			// are just showing an image, don't show the link! but if it's hosted elsewhere with no thumbnail,
+			// like some third party image host, or if the thumbnail is just the thumbnail for an article, the url
+			// is still useful and we should show it
+			externalLink: isValidUrl(pv.post.url) && (!hasImageExtension(pv.post.url) || !pv.post.thumbnail_url)
 		}
 	};
 }

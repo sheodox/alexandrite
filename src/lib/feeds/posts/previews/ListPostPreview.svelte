@@ -1,7 +1,4 @@
 <style lang="scss">
-	.post {
-		container-type: inline-size;
-	}
 	.embed-content {
 		width: 60rem;
 		max-width: 100%;
@@ -11,10 +8,9 @@
 	.button {
 		margin: 0;
 	}
-	@container (width < 600px) {
+	@media (max-width: 600px) {
 		.post-stuff {
-			flex-direction: column;
-			align-items: start;
+			flex-wrap: wrap;
 		}
 	}
 </style>
@@ -23,19 +19,23 @@
 	<Stack dir="c" gap={2} cl="w-100 py-1">
 		<div class="f-row gap-3 align-items-center post-stuff">
 			<Stack dir="r" gap={2} align="center">
-				<slot name="vote-buttons" small={false} dir="column" />
+				<slot name="vote-buttons" small={mobileScreenWidth} dir="column" />
 				{#if supportsOverlay}
 					<button class="m-0 p-0" on:click={() => dispatch('overlay', postView.post.id)}
-						><PostThumbnail {postView} /></button
+						><PostThumbnail {postView} height={thumbnailHeight} /></button
 					>
 				{:else}
-					<PostThumbnail {postView} />
+					<PostThumbnail {postView} height={thumbnailHeight} />
 				{/if}
 			</Stack>
 			<Stack dir="c" gap={2}>
 				<PostTitle {postView} on:overlay modeList={true} {supportsOverlay} />
-				<slot name="post-link" />
-				<Stack dir="r" gap={1} align="start" cl="f-wrap">
+				{#if postAssertions.is.externalLink}
+					<div class="responsive-text">
+						<slot name="post-link" />
+					</div>
+				{/if}
+				<Stack dir="r" gap={1} align="start" cl="f-wrap responsive-text">
 					<slot name="creator" />
 					to
 					<slot name="community" />
@@ -57,6 +57,8 @@
 	import PostTime from '../PostTime.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
+	import { getAppContext } from '$lib/app-context';
+	import { makePostAssertions } from '../post-utils';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -66,4 +68,10 @@
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
 	export let supportsOverlay = true;
+
+	const { screenDimensions } = getAppContext();
+
+	$: mobileScreenWidth = $screenDimensions.width < 600;
+	$: thumbnailHeight = mobileScreenWidth ? '3rem' : '6rem';
+	$: postAssertions = makePostAssertions(postView);
 </script>

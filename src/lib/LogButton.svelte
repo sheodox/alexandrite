@@ -1,7 +1,7 @@
 {#if import.meta.env.MODE === 'development'}
-	<Tooltip {placement}>
+	<Tooltip>
 		<span slot="tooltip">{text}</span>
-		<button on:click class:small use:ripple>
+		<button on:click class:small use:ripple class="m-0">
 			<Icon icon="scroll" />
 			<span class="sr-only">{text}</span>
 		</button>
@@ -10,10 +10,7 @@
 
 <script lang="ts">
 	import { Icon, Tooltip, ripple } from 'sheodox-ui';
-	import type { Placement } from '@floating-ui/dom';
 
 	export let text = 'Log This';
 	export let small = true;
-	//
-	export let placement: Placement | undefined = undefined;
 </script>

@@ -1,0 +1,9 @@
+.responsive-text {
+	font-size: var(--sx-font-size-3);
+}
+
+@media (max-width: 600px) {
+	.responsive-text {
+		font-size: var(--sx-font-size-2) !important;
+	}
+}

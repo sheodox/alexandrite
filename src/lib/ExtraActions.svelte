@@ -8,7 +8,7 @@
 {#if actions.length}
 	{@const text = 'Extra actions'}
 	<Tooltip title={text}>
-		<MenuButton triggerClasses="small">
+		<MenuButton triggerClasses="small m-0">
 			<span slot="trigger">
 				<span class="sr-only">{text}</span>
 				<Icon icon="caret-down" />

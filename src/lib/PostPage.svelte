@@ -7,7 +7,7 @@
 		background-color: var(--sx-gray-800);
 		width: 30rem;
 		padding: 1rem;
-		border-left: 1px solid var(--sx-gray-transparent-light);
+		border-left: 2px solid var(--sx-gray-transparent-light);
 		background-color: var(--sx-gray-800);
 		width: #{$sidebarWidth};
 		padding: 1rem;
@@ -84,7 +84,7 @@
 			<hr class="w-100" id="comments" />
 
 			{#if $profile.loggedIn && !postView.post.locked}
-				<div class="comment-editor m-2">
+				<div class="comment-editor p-2">
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
 						{#key $showNewCommentComposer}
@@ -100,10 +100,10 @@
 				</div>
 			{/if}
 
-			<h2 class="px-4 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
+			<h2 class="px-2 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
 			<section class="comment-sort-bar">
 				<Stack gap={4} dir="r" justify="between" align="center">
-					<Stack gap={4} align="center" cl="p-4" dir="r">
+					<Stack gap={4} align="center" cl="p-2" dir="r">
 						<ToggleGroup
 							options={CommentSortOptions}
 							bind:selected={selectedSort}
@@ -117,7 +117,7 @@
 			</section>
 
 			{#if viewingSingleCommentThread}
-				<Stack dir="r" gap={2} align="center" cl="p-4">
+				<Stack dir="r" gap={2} align="center" cl="p-2">
 					<a href="/{$profile.instance}/post/{postView.post.id}" class="button secondary"
 						><Icon icon="arrow-up-from-bracket" />
 						View all comments

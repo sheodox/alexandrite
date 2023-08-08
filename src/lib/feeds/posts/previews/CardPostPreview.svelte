@@ -12,30 +12,14 @@
 		max-height: 10rem;
 		overflow: hidden;
 	}
-	@media (max-width: 600px) {
-		.mobile-shrink {
-			font-size: var(--sx-font-size-2) !important;
-		}
-	}
 </style>
 
 <article class="post pb-4">
 	<Stack dir="c" gap={2} cl="card">
-		{#if postAssertions.has.image}
-			<div class="card-image">
-				{#if supportsOverlay}
-					<button class="m-0 p-0 align-self-center w-100" on:click={() => dispatch('overlay', postView.post.id)}
-						><CardPostImage {postView} /></button
-					>
-				{:else}
-					<CardPostImage {postView} />
-				{/if}
-			</div>
-		{/if}
-		<Stack dir="c" gap={2} cl="px-2 {postAssertions.has.image ? '' : 'pt-2'}">
-			<div class="mobile-shrink">
+		<Stack dir="c" gap={2}>
+			<div class="responsive-text px-2 pt-2">
 				<Stack dir="r" gap={1} align="start" justify="between" cl="f-wrap">
-					<Stack dir="r" gap={1} align="start" cl="f-wrap">
+					<Stack dir="r" gap={1} align="center" cl="f-wrap">
 						<slot name="creator" />
 						to
 						<slot name="community" />
@@ -47,31 +31,40 @@
 				</Stack>
 			</div>
 
-			<PostTitle {postView} on:overlay modeList={true} {supportsOverlay} />
+			<div class="px-2">
+				<PostTitle {postView} on:overlay modeList={true} {supportsOverlay} />
+			</div>
 
-			{#if postView.post.embed_description}
-				<p class="m-0 card card-body embed-preview mobile-shrink" class:muted={postView.read}>
-					<span class="muted fw-bold embed-title-hint">
-						<span class="muted">
-							<Icon icon="quote-left" />
-						</span>
-						<slot name="post-link" />
-					</span>
-					<br />
-					{postView.post.embed_description}
-				</p>
-			{:else}
-				<slot name="post-link" />
+			{#if postAssertions.has.image}
+				<div class="card-image">
+					{#if supportsOverlay}
+						<button class="m-0 p-0 align-self-center w-100" on:click={() => dispatch('overlay', postView.post.id)}
+							><CardPostImage {postView} /></button
+						>
+					{:else}
+						<CardPostImage {postView} />
+					{/if}
+				</div>
+			{/if}
+
+			{#if postView.post.embed_description || postView.post.embed_title}
+				<div class="px-2">
+					<PostEmbed {postView} reflectRead preview />
+				</div>
+			{:else if postAssertions.is.externalLink}
+				<div class="px-2">
+					<slot name="post-link" />
+				</div>
 			{/if}
 
 			{#if postAssertions.has.body && postView.post.body !== postView.post.embed_description}
-				<div class="card card-body embed-preview mobile-shrink" class:muted={postView.read}>
+				<div class="card card-body mx-2 embed-preview responsive-text" class:muted={postView.read}>
 					<span class="muted fw-bold embed-title-hint sx-font-size-2"><Icon icon="quote-left" /> Post</span>
 					<br />
 					<Markdown noImages md={postView.post.body ?? ''} />
 				</div>
 			{/if}
-			<Stack dir="r" gap={2} align="center" justify="between">
+			<Stack dir="r" gap={2} align="center" justify="between" cl="px-2">
 				<Stack dir="r" gap={1} align="center">
 					<slot name="embed-expand" />
 					<slot name="actions" />
@@ -91,6 +84,7 @@
 	import type { PostView } from 'lemmy-js-client';
 	import { makePostAssertions } from '../post-utils';
 	import Markdown from '$lib/Markdown.svelte';
+	import PostEmbed from '../PostEmbed.svelte';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;

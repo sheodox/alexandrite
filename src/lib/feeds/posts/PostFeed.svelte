@@ -1,9 +1,9 @@
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
-		<div class="toolbar">
+		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4">
 			<form method="GET" use:navigateOnChange>
 				<section>
-					<Stack gap={4} align="center" cl="p-4 f-wrap" dir="r">
+					<Stack gap={4} align="center" cl="f-wrap" dir="r">
 						{#if typeOptions}
 							<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
 						{/if}
@@ -20,6 +20,7 @@
 					</Stack>
 				</section>
 			</form>
+			<MiniPostLayoutSelector />
 		</div>
 
 		<div class="p-2" class:layout-card={$postPreviewLayout === 'CARD'}>
@@ -68,6 +69,7 @@
 		UserSortOptions
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
+	import MiniPostLayoutSelector from './MiniPostLayoutSelector.svelte';
 	import Comment from '$lib/comments/Comment.svelte';
 	import { getContentViewStore } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';

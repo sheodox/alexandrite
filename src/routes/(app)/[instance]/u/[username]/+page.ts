@@ -18,6 +18,7 @@ export const load = (async ({ params, url }) => {
 			sort: url.searchParams.get('sort') ?? 'New',
 			listing: url.searchParams.get('listing') ?? 'Local',
 			type: url.searchParams.get('type') ?? 'Overview'
-		}
+		},
+		pageBaseUrl: url.pathname + url.search
 	};
 }) satisfies PageLoad;
