@@ -52,12 +52,12 @@
 			{#if postView.post.embed_description}
 				<p class="m-0 card card-body embed-preview mobile-shrink" class:muted={postView.read}>
 					<span class="muted fw-bold embed-title-hint">
+						<span class="muted">
+							<Icon icon="quote-left" />
+						</span>
 						<slot name="post-link" />
 					</span>
 					<br />
-					<span class="muted">
-						<Icon icon="quote-left" />
-					</span>
 					{postView.post.embed_description}
 				</p>
 			{:else}
