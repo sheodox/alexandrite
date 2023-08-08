@@ -17,6 +17,7 @@ export const load = (async ({ url, params }) => {
 			type: url.searchParams.get('type') ?? 'Posts'
 		},
 		communityName: params.communityName,
-		communityRes: cv
+		communityRes: cv,
+		pageBaseUrl: url.pathname + url.search
 	};
 }) satisfies PageLoad;

@@ -1,4 +1,4 @@
-<Tooltip {placement}>
+<Tooltip>
 	<span slot="tooltip">{text}</span>
 	<a {href} on:click class:small class="button {cl} ws-nowrap">
 		<Icon {icon} {variant} />
@@ -9,12 +9,10 @@
 
 <script lang="ts">
 	import { Tooltip, Icon } from 'sheodox-ui';
-	import type { Placement } from '@floating-ui/dom';
 
 	export let small = false;
 	export let text = '';
 	export let cl = '';
-	export let placement: Placement | undefined = undefined;
 	export let icon: string;
 	export let href: string;
 	export let variant: 'regular' | 'solid' = 'solid';

@@ -24,7 +24,7 @@
 		flex-basis: 300px;
 	}
 	.feed-column-post {
-		border-left: 1px solid var(--sx-gray-transparent-light);
+		border-left: 2px solid var(--sx-gray-transparent-light);
 		flex: 3;
 	}
 	.posts-page-content {
@@ -124,6 +124,8 @@
 	export let selectedType: string; // default  'posts';
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
+	// the URL of the page we're on, to go back to when closing feed adjacent posts
+	export let pageBaseUrl: string;
 
 	const { screenDimensions, navSidebarOpen } = getAppContext();
 	const { sidebarVisible, feedLayout: feedLayoutSetting, navSidebarDocked } = getSettingsContext();
@@ -169,20 +171,14 @@
 	let feedAdjacentPostViewId: null | number = null;
 	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);
 
-	let urlBeforeOverlay: string;
 	async function onOverlay(e: CustomEvent<number>) {
-		// cache the current page url so we can go back to it after the user closes the post
-		urlBeforeOverlay = location.pathname + location.search;
 		feedAdjacentPostViewId = e.detail;
 		history.pushState(null, '', `/${$instance}/post/${e.detail}`);
 	}
 
 	function closeOverlay() {
 		feedAdjacentPostViewId = null;
-		if (urlBeforeOverlay) {
-			history.pushState(null, '', urlBeforeOverlay);
-			urlBeforeOverlay = '';
-		}
+		history.pushState(null, '', pageBaseUrl);
 	}
 
 	afterNavigate(() => {

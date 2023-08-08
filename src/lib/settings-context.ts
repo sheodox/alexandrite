@@ -37,6 +37,34 @@ export const FeedLayoutOptions: { value: FeedLayout; label: string; description:
 	}
 ];
 
+export type PostPreviewLayout = 'LIST' | 'COMPACT' | 'CARD';
+
+export const PostPreviewLayoutOptions: {
+	value: PostPreviewLayout;
+	label: string;
+	description: string;
+	icon: string;
+}[] = [
+	{
+		value: 'LIST',
+		label: 'List',
+		description: 'Small thumbnails with all the posts in a list',
+		icon: 'list'
+	},
+	{
+		value: 'COMPACT',
+		label: 'Compact',
+		description: 'Like the list style, but more dense.',
+		icon: 'compress'
+	},
+	{
+		value: 'CARD',
+		label: 'Cards',
+		description: 'Large images and post text previews, get the gist without opening the post.',
+		icon: 'rectangle-list'
+	}
+];
+
 export interface AlexandriteSettings {
 	themeHue: number;
 	nsfwImageHandling: NSFWImageHandling;
@@ -44,16 +72,20 @@ export interface AlexandriteSettings {
 	navSidebarDocked: boolean;
 	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
+	postPreviewLayout: PostPreviewLayout;
 }
+
+const probablyMobile = window.innerWidth < 800;
 
 export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	themeHue: 280,
 	nsfwImageHandling: 'HIDE',
-	sidebarVisible: true,
+	sidebarVisible: !probablyMobile,
 	navSidebarDocked: false,
 	loadImagesAsWebp: true,
 	// todo check if this is a good breakpoint
-	feedLayout: 'AUTO'
+	feedLayout: 'AUTO',
+	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST'
 };
 
 export type AlexandriteSettingsStores = {

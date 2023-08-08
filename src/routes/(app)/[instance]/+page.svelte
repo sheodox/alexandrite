@@ -10,6 +10,7 @@
 		selectedSort={data.query.sort}
 		{loadingContent}
 		{loadingContentFailed}
+		pageBaseUrl={data.pageBaseUrl}
 	/>
 </ContentViewProvider>
 

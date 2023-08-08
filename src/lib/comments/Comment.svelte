@@ -17,7 +17,7 @@
 
 <section class:maybe-deleting={maybeDeleting}>
 	<Stack gap={2} dir="c">
-		<Stack gap={1} dir="r" align="center">
+		<Stack gap={1} dir="r" align="center" cl="f-wrap responsive-text">
 			{#if !showPost}
 				<Tooltip>
 					<span slot="tooltip">{collapseMsg}</span>
@@ -26,7 +26,10 @@
 						<span class="sr-only">{collapseMsg}</span>
 					</button>
 				</Tooltip>
+			{:else}
+				<Icon icon="comments" variant="regular" cl="muted" />
 			{/if}
+
 			{#if contentView.view.comment.distinguished}
 				{@const text = 'Distinguished by moderator'}
 				<!-- maybe use a different word, you can distinguish non-mods -->
@@ -69,7 +72,7 @@
 				<span class="sx-badge-yellow sx-font-size-2 m-0">Contains "{searchText}"</span>
 			{/if}
 			{#if parentComment}
-				<Tooltip placement="left">
+				<Tooltip>
 					<ParentComment view={parentComment} slot="tooltip" />
 					<Icon icon="turn-up" cl="muted" />
 				</Tooltip>
@@ -134,13 +137,15 @@
 							disabled={$saveState.busy}
 						/>
 						{#if myComment}
-							<IconButton
-								icon="edit"
-								small
-								text="Edit"
-								on:click={() => ($buffer[bk.showEditComposer] = true)}
-								disabled={someActionPending}
-							/>
+							{#if !postLocked}
+								<IconButton
+									icon="edit"
+									small
+									text="Edit"
+									on:click={() => ($buffer[bk.showEditComposer] = true)}
+									disabled={someActionPending}
+								/>
+							{/if}
 							{#if comment.deleted}
 								<IconButton
 									icon="recycle"
@@ -168,7 +173,7 @@
 				{/if}
 			</Stack>
 		{/if}
-		{#if $buffer[bk.showEditComposer]}
+		{#if $buffer[bk.showEditComposer] && !postLocked}
 			<form bind:this={editForm} class="reply-editor">
 				<input type="hidden" name="commentId" value={comment.id} />
 				<CommentEditor

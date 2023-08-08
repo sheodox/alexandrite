@@ -49,7 +49,6 @@
 				variant={favorited ? 'solid' : 'regular'}
 				pressed={favorited}
 				icon="star"
-				placement="right"
 				cl="favorite-community m-0 pill"
 				on:click={onFavoriteToggle}
 			/>

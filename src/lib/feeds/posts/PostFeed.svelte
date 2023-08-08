@@ -1,15 +1,9 @@
-<style lang="scss">
-	hr {
-		border-color: var(--sx-gray-transparent-light);
-	}
-</style>
-
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
-		<div class="toolbar">
+		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4">
 			<form method="GET" use:navigateOnChange>
 				<section>
-					<Stack gap={4} align="center" cl="p-4 f-wrap" dir="r">
+					<Stack gap={4} align="center" cl="f-wrap" dir="r">
 						{#if typeOptions}
 							<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
 						{/if}
@@ -26,9 +20,10 @@
 					</Stack>
 				</section>
 			</form>
+			<MiniPostLayoutSelector />
 		</div>
 
-		<Stack dir="c" gap={2} cl="p-4">
+		<div class="p-2" class:layout-card={$postPreviewLayout === 'CARD'}>
 			<VirtualFeed
 				feedSize={$cvStore.length}
 				on:more
@@ -40,29 +35,29 @@
 			>
 				<svelte:fragment let:index>
 					{@const contentView = $cvStore[index]}
+					{@const lastOfList = index + 1 === $cvStore.length}
 					{#if contentView.type === 'post'}
-						<Post
+						<PostLayout
 							postView={contentView.view}
 							on:overlay
 							on:expand-content={onPostExpandContent}
 							expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
+							{lastOfList}
 						/>
 					{:else if contentView.type === 'comment'}
-						<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
-					{/if}
-					{#if index + 1 < $cvStore.length}
-						<hr class="w-100" />
+						<CommentLayout {lastOfList}>
+							<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
+						</CommentLayout>
 					{/if}
 				</svelte:fragment>
 			</VirtualFeed>
-		</Stack>
+		</div>
 	</Stack>
 	<FeedNav />
 </div>
 
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
-	import Post from './Post.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import FeedNav from '$lib/FeedNav.svelte';
 	import {
@@ -74,10 +69,14 @@
 		UserSortOptions
 	} from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
+	import MiniPostLayoutSelector from './MiniPostLayoutSelector.svelte';
 	import Comment from '$lib/comments/Comment.svelte';
 	import { getContentViewStore } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
+	import PostLayout from './PostLayout.svelte';
+	import { getSettingsContext } from '$lib/settings-context';
+	import CommentLayout from './CommentLayout.svelte';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -89,6 +88,7 @@
 	export let selectedSort: string;
 
 	const cvStore = getContentViewStore();
+	const { postPreviewLayout } = getSettingsContext();
 	// which filters should be shown for this type of content
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);

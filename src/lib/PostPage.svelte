@@ -7,7 +7,7 @@
 		background-color: var(--sx-gray-800);
 		width: 30rem;
 		padding: 1rem;
-		border-left: 1px solid var(--sx-gray-transparent-light);
+		border-left: 2px solid var(--sx-gray-transparent-light);
 		background-color: var(--sx-gray-800);
 		width: #{$sidebarWidth};
 		padding: 1rem;
@@ -42,6 +42,10 @@
 		width: 80rem;
 		max-width: 100%;
 	}
+	.small {
+		font-size: var(--sx-font-size-2);
+		padding: var(--sx-spacing-2);
+	}
 </style>
 
 <div
@@ -51,36 +55,36 @@
 	class:centered
 >
 	<div class="page-column page-column-post virtual-feed-scroll-container f-1">
-		<section class="f-column p-4 f-1 post">
+		<section class="f-column p-2 f-1 post">
 			{#if closeable}
-				<button on:click={() => dispatch('close')} class="tertiary m-4"><Icon icon="times" /> Close Post</button>
+				<button on:click={() => dispatch('close')} class="tertiary m-2"><Icon icon="times" /> Close Post</button>
 			{/if}
-			<div class="ml-6 mb-1">
+			<div class="ml-4 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<Post {postView} mode="show" expandPostContent={showPost} supportsOverlay={false} {viewSource}>
-				<Stack dir="r" slot="beforeEmbed" let:hasEmbeddableContent let:hasBody>
-					<a href="#comments" class="button tertiary"
+			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} forceLayout="LIST" {viewSource}>
+				<Stack dir="r" slot="before-embed" cl="p-1 pb-3">
+					{@const small = $screenDimensions.width < 800 ? 'small' : ''}
+					<a href="#comments" class="button tertiary {small}"
 						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
 					>
-					{#if hasEmbeddableContent}
-						<button class="tertiary" on:click={() => (showPost = !showPost)}
+					{#if postAssertions.has.any}
+						<button class="tertiary {small}" on:click={() => (showPost = !showPost)}
 							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
 						>
 					{/if}
-					{#if hasBody}
-						<button class="tertiary" on:click={() => (viewSource = !viewSource)}>
+					{#if postAssertions.has.body}
+						<button class="tertiary {small}" on:click={() => (viewSource = !viewSource)}>
 							<Icon icon="code" />
 							{viewSource ? 'Hide' : 'View'} Source
 						</button>
 					{/if}
 				</Stack>
-			</Post>
-
+			</PostLayout>
 			<hr class="w-100" id="comments" />
 
 			{#if $profile.loggedIn && !postView.post.locked}
-				<div class="comment-editor m-2">
+				<div class="comment-editor p-2">
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
 						{#key $showNewCommentComposer}
@@ -96,10 +100,10 @@
 				</div>
 			{/if}
 
-			<h2 class="px-4 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
+			<h2 class="px-2 mt-6 mb-0">Comments ({postView.counts.comments})</h2>
 			<section class="comment-sort-bar">
 				<Stack gap={4} dir="r" justify="between" align="center">
-					<Stack gap={4} align="center" cl="p-4" dir="r">
+					<Stack gap={4} align="center" cl="p-2" dir="r">
 						<ToggleGroup
 							options={CommentSortOptions}
 							bind:selected={selectedSort}
@@ -113,7 +117,7 @@
 			</section>
 
 			{#if viewingSingleCommentThread}
-				<Stack dir="r" gap={2} align="center" cl="p-4">
+				<Stack dir="r" gap={2} align="center" cl="p-2">
 					<a href="/{$profile.instance}/post/{postView.post.id}" class="button secondary"
 						><Icon icon="arrow-up-from-bracket" />
 						View all comments
@@ -175,7 +179,7 @@
 
 <script lang="ts">
 	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
-	import Post from '$lib/feeds/posts/Post.svelte';
+	import PostLayout from './feeds/posts/PostLayout.svelte';
 	import CommentTree from '$lib/comments/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
@@ -186,13 +190,20 @@
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
 	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
 	import { getSettingsContext } from './settings-context';
-	import { createEventDispatcher } from 'svelte';
-	import { commentViewToContentView, createContentViewStore } from './content-views';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import {
+		commentViewToContentView,
+		createContentViewStore,
+		getContentViewStore,
+		postViewToContentView
+	} from './content-views';
 	import ContentViewProvider from './ContentViewProvider.svelte';
 	import { profile, instance } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentBranch } from './comments/comment-utils';
 	import { getCommunityContext } from './community-context/community-context';
+	import { makePostAssertions } from './feeds/posts/post-utils';
+	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -205,6 +216,7 @@
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
+	const { screenDimensions } = getAppContext();
 
 	const communityContext = getCommunityContext();
 	$: communityName = nameAtInstance(postView.community);
@@ -212,6 +224,10 @@
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
+
+	$: postAssertions = makePostAssertions(postView);
+
+	const postCVStore = getContentViewStore();
 
 	const commentCVStore = createContentViewStore();
 	if (initialCommentViews) {
@@ -522,4 +538,16 @@
 			href: `/${$instance}/c/${communityName}/`
 		}
 	];
+
+	onMount(async () => {
+		if (jwt) {
+			// getting the post has a side effect of marking it and its comments as read
+			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => {
+				post_view.read = true;
+				post_view.unread_comments = 0;
+				return post_view;
+			});
+			postCVStore.updateView(postViewToContentView(pv));
+		}
+	});
 </script>

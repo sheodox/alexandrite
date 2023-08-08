@@ -10,16 +10,21 @@
 	}
 	.post-container {
 		height: 100%;
-		width: 75vw;
+		width: 100%;
 		right: 0;
 		position: absolute;
 		overflow: auto;
 		background: var(--sx-gray-700);
-		border-left: 1px solid var(--sx-gray-400);
 	}
 	.close-bg {
 		background: var(--sx-gray-transparent-darker);
 		cursor: zoom-out;
+	}
+	@media (min-width: 800px) {
+		.post-container {
+			width: 75vw;
+			border-left: 2px solid var(--sx-gray-400);
+		}
 	}
 </style>
 

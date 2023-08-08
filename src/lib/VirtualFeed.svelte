@@ -14,14 +14,10 @@
 </style>
 
 <div class="virtual-feed-root" bind:this={virtualFeedRootEl} use:initScrollContainer>
-	<div class="virtual-feed" style:top="{feedTopTranslate}px" data-virtual-feed-size={feedSize}>
+	<div class="virtual-feed" bind:this={virtualFeedWindowEl} data-virtual-feed-size={feedSize}>
 		<div class="virtual-feed-content f-column" data-virtual-feed-rendered-count={visibleIndices.length}>
 			{#each visibleIndices as index (index)}
-				<div
-					use:observeFeedElement={index}
-					data-virtual-feed-content-index={index}
-					data-known-height={lastKnownElementHeights.get(index)}
-				>
+				<div use:observeFeedElement={index} data-virtual-feed-content-index={index}>
 					<slot {index} />
 				</div>
 			{/each}
@@ -101,6 +97,7 @@
 	// used to fix scrolling when items above the viewport change in height
 	export let viewportTopIndex = 0;
 	let virtualFeedRootEl: HTMLElement;
+	let virtualFeedWindowEl: HTMLElement;
 	// cache last known sizes of elements, so we know how to reposition the feed
 	// as items stop being rendered
 	let lastKnownElementHeights = new Map<number, number>();
@@ -115,13 +112,16 @@
 	}
 
 	$: visibleIndices = calculateVisibleIndices(startIndex, feedSize, length);
-	// the Y transform used to push down the feed to its expected position
-	$: feedTopTranslate = sumHeights(lastKnownElementHeights, startIndex);
 	// the size of all known (and guess at unknown) items. used to keep a consistent
 	// scrollable area, otherwise if you scroll back up your scrollbar shrinks,
 	// and we wouldn't be able to arbitrarily scroll by index to unseen items
 	$: feedMaxHeight =
 		sumHeights(lastKnownElementHeights) + getAverageHeight() * (feedSize - lastKnownElementHeights.size);
+
+	function updateRenderedWindowPosition() {
+		// the Y transform used to push down the feed to its expected position
+		virtualFeedWindowEl.style.top = sumHeights(lastKnownElementHeights, startIndex) + 'px';
+	}
 
 	let scrollContainer: HTMLElement | null = null;
 	let mounted = false;
@@ -154,12 +154,19 @@
 			}
 
 			if (typeof lastHeight === 'number' && (lastHeight > 0 || height > 0)) {
+				if (lastHeight !== height) {
+					updateRenderedWindowPosition();
+				}
+
 				// check if there's a significant change in height, then try to re-compute the items to show in the feed
 				if (Math.min(height, lastHeight) / Math.max(height, lastHeight) < 0.5) {
 					if (firstRerenderDone) {
 						lastKnownElementHeights = lastKnownElementHeights;
 					}
-					scheduleViewportItemsCalculation();
+					// run immediately, so we know an updated viewportTopIndex, otherwise it can introduce jank when
+					// something changes height drastically (like 160 to 1200 px because an image loaded a moment later)
+					// causing us to change scroll by a lot, if the user has already scrolled we need to not change scrollTop
+					computeViewportItems();
 				}
 
 				// shift the viewport by the changed amount so resized items don't cause things to jump
@@ -208,6 +215,7 @@
 	function safeSetTopIndex(newIndex: number) {
 		// clamp to valid values
 		startIndex = Math.min(feedSize, Math.max(0, newIndex));
+		updateRenderedWindowPosition();
 	}
 
 	function getAverageHeight() {
@@ -333,7 +341,9 @@
 		return estimate;
 	}
 
-	const renderThrottled = new Throttler(computeViewportItems);
+	const renderThrottled = new Throttler(() => {
+		computeViewportItems();
+	}, 20);
 
 	function scheduleViewportItemsCalculation() {
 		renderThrottled.run();

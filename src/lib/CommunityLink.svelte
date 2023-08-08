@@ -45,13 +45,15 @@
 					<NameAtInstance place={community} prefix="!" />
 				{/if}
 			</div>
-			<span class="f-row gap-1">
+			<span class="f-row gap-1 align-items-center">
 				{#if community.icon && $profile.settings.show_avatars}
 					<div class="community-avatar small">
 						<Image src={community.icon} mode="thumbnail" thumbnailResolution={16} />
 					</div>
 				{/if}
-				<EllipsisText><NameAtInstance place={community} displayName={community.title} prefix="" /></EllipsisText>
+				<EllipsisText
+					><NameAtInstance place={community} displayName={community.title} prefix="" wrappable={false} /></EllipsisText
+				>
 				<CommunityBadges {community} />
 			</span>
 		</Tooltip>

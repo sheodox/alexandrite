@@ -9,6 +9,7 @@ export const load = (async ({ url }) => {
 			sort: url.searchParams.get('sort') ?? settings.default_sort_type,
 			listing: url.searchParams.get('listing') ?? settings.default_listing_type,
 			type: url.searchParams.get('type') ?? 'Posts'
-		}
+		},
+		pageBaseUrl: url.pathname + url.search
 	};
 }) satisfies PageLoad;
