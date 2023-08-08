@@ -62,8 +62,8 @@
 			<div class="ml-4 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} forceLayout="LIST">
-				<Stack dir="r" slot="before-embed">
+			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} forceLayout="LIST" {viewSource}>
+				<Stack dir="r" slot="before-embed" cl="p-1 pb-3">
 					{@const small = $screenDimensions.width < 800 ? 'small' : ''}
 					<a href="#comments" class="button tertiary {small}"
 						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
