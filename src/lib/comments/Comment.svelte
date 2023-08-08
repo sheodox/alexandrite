@@ -26,8 +26,10 @@
 						<span class="sr-only">{collapseMsg}</span>
 					</button>
 				</Tooltip>
+			{:else}
+				<Icon icon="comments" variant="regular" cl="muted" />
 			{/if}
-			<Icon icon="comments" variant="regular" cl="muted" />
+
 			{#if contentView.view.comment.distinguished}
 				{@const text = 'Distinguished by moderator'}
 				<!-- maybe use a different word, you can distinguish non-mods -->
