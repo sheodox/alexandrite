@@ -23,7 +23,6 @@
 	}
 </style>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
 <article
 	class="post pb-4"
 	use:weakOnClick={{ onClick: dispatchOverlay, enabled: supportsOverlay }}
