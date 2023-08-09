@@ -68,7 +68,6 @@
 			as: 'a'
 		},
 		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings`, as: 'a' },
-		{ text: 'About Alexandrite', icon: 'address-card', href: '/about', as: 'a' },
 		{
 			text: 'Switch Account',
 			icon: 'circle-user',
@@ -90,6 +89,8 @@
 			icon: 'shuffle',
 			as: 'a'
 		})),
+		{ text: 'About Alexandrite', icon: 'address-card', href: '/about', as: 'a' },
+		{ text: 'Help', icon: 'question-circle', href: '/help', as: 'a' },
 		{
 			text: 'Logout',
 			icon: 'right-from-bracket',

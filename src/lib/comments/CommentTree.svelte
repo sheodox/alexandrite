@@ -62,6 +62,7 @@
 							{searchText}
 							parentComment={shallowerThanLast ? parentComment : undefined}
 							{postLocked}
+							bind:api={commentAPIs[index]}
 						/>
 						{#if cv.counts.child_count > 0 && !collapsed && loadedChildren(cv.comment.id) === 0}
 							{@const loading = expandLoadingIds.includes(cv.comment.id)}
@@ -94,7 +95,7 @@
 	import Spinner from '../Spinner.svelte';
 	import { commentViewToContentView } from '../content-views';
 	import type { VirtualFeedAPI } from '../virtual-feed';
-	import type { CommentBranch } from './comment-utils';
+	import type { CommentAPI, CommentBranch } from './comment-utils';
 	import { getAppContext } from '$lib/app-context';
 
 	export let postOP: string;
@@ -113,6 +114,7 @@
 	export let virtualFeedAPI: VirtualFeedAPI;
 	export let viewportTopIndex: number;
 	export let postLocked: boolean;
+	export let commentAPIs: CommentAPI[] = [];
 
 	const { screenDimensions } = getAppContext();
 

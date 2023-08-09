@@ -84,6 +84,7 @@
 		{ href: `/${$profile.instance}/u/${$profile.username}`, text: 'Profile', icon: 'user', disabled: !loggedIn },
 		{ href: `/${$profile.instance}/communities`, text: 'Communities', icon: 'users' },
 		{ text: 'Settings', icon: 'cog', href: `/${$profile.instance}/settings` },
-		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' }
+		{ href: '/about', text: 'About Alexandrite', icon: 'address-card' },
+		{ text: 'Help', icon: 'question-circle', href: '/help', as: 'a' }
 	].filter((f) => !f.disabled);
 </script>

@@ -66,6 +66,13 @@
 
 	export const api: VirtualFeedAPI = {
 		scrollToIndex: (index: number) => {
+			// keep within the boundaries
+			if (index < 0) {
+				index = 0;
+			} else if (index + 1 > feedSize) {
+				index = feedSize - 1;
+			}
+
 			// guess at the position of the item based on averages if we don't know it yet
 			const avg = getAverageHeight();
 			let heightAtIndex = 0;

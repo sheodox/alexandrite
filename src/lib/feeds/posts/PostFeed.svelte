@@ -32,6 +32,8 @@
 				feedEndMessage="No more posts!"
 				loading={loadingContent}
 				loadMoreFailed={loadingContentFailed}
+				bind:viewportTopIndex
+				bind:api={virtualFeedApi}
 			>
 				<svelte:fragment let:index>
 					{@const contentView = $cvStore[index]}
@@ -43,6 +45,7 @@
 							on:expand-content={onPostExpandContent}
 							expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
 							{lastOfList}
+							bind:api={postLayoutAPIs[index]}
 						/>
 					{:else if contentView.type === 'comment'}
 						<CommentLayout {lastOfList}>
@@ -77,6 +80,8 @@
 	import PostLayout from './PostLayout.svelte';
 	import { getSettingsContext } from '$lib/settings-context';
 	import CommentLayout from './CommentLayout.svelte';
+	import type { VirtualFeedAPI } from '$lib/virtual-feed';
+	import type { PostLayoutAPI } from './post-utils';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -93,6 +98,12 @@
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
+
+	// forward up a couple things from the VirtualFeed, so PostsPage can handle hotkeys
+	export let viewportTopIndex: number;
+	export let virtualFeedApi: VirtualFeedAPI;
+	// all APIs for each post, export back up!
+	export let postLayoutAPIs: PostLayoutAPI[];
 
 	// cach which posts are expanded, so when they go out of the viewport,
 	// we can restore the expanded state, and keep a consistent height if scroll back to

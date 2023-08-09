@@ -31,7 +31,7 @@
 <Portal>
 	<div class="post-overlay">
 		<div class="close-bg" on:click={close} aria-hidden />
-		<div class="post-container virtual-feed-scroll-container f-column" transition:fly|global={{ x: 20, duration: 100 }}>
+		<div class="post-container f-column" transition:fly|global={{ x: 20, duration: 100 }}>
 			<PostPage {postView} closeable on:close />
 		</div>
 	</div>

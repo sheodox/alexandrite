@@ -133,7 +133,7 @@
 							busy={$saveState.busy}
 							small
 							icon="star"
-							on:click={$saveState.submit}
+							on:click={() => $saveState.submit()}
 							disabled={$saveState.busy}
 						/>
 						{#if myComment}
@@ -242,6 +242,7 @@
 	import { profile, instance } from '$lib/profiles/profiles';
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 	import PostBadges from '$lib/PostBadges.svelte';
+	import type { CommentAPI } from './comment-utils';
 
 	const dispatch = createEventDispatcher<{
 		collapse: number;
@@ -261,6 +262,8 @@
 	export let showPost = false;
 	export let parentComment: CommentView | undefined = undefined;
 	export let postLocked: boolean;
+	// export only! do not pass a value as a prop to this component!
+	export let api: CommentAPI | undefined = undefined;
 
 	// need to assign before the reactivity or the consts below don't work
 	let comment = contentView.view.comment;
@@ -402,7 +405,7 @@
 		maybeDeleting = false;
 	});
 
-	$: saveState = createStatefulAction(async () => {
+	$: saveState = createStatefulAction<void>(async () => {
 		if (!jwt) {
 			return;
 		}
@@ -556,4 +559,10 @@
 
 		overflowMenuOptions = options;
 	}
+
+	$: api = {
+		upvote: () => $voteState.submit(contentView.view.my_vote === 1 ? 0 : 1),
+		downvote: () => $voteState.submit(contentView.view.my_vote === -1 ? 0 : -1),
+		save: () => $saveState.submit()
+	};
 </script>

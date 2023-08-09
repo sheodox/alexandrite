@@ -1,8 +1,17 @@
-<style>
+<style lang="scss">
 	article {
 		width: 50rem;
 		max-width: 100%;
 		margin: 0 auto;
+	}
+
+	article:focus {
+		outline: none;
+
+		:global(.post-preview-card) {
+			outline: 2px solid var(--sx-input-focus-color);
+			outline-offset: 2px;
+		}
 	}
 	.post :global(.card) {
 		overflow: hidden;
@@ -14,8 +23,13 @@
 	}
 </style>
 
-<article class="post pb-4">
-	<Stack dir="c" gap={2} cl="card">
+<!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
+<article
+	class="post pb-4"
+	use:weakOnClick={{ onClick: dispatchOverlay, enabled: supportsOverlay }}
+	bind:this={articleEl}
+>
+	<Stack dir="c" gap={2} cl="card post-preview-card">
 		<Stack dir="c" gap={2}>
 			<div class="responsive-text px-2 pt-2">
 				<Stack dir="r" gap={1} align="start" justify="between" cl="f-wrap">
@@ -37,13 +51,7 @@
 
 			{#if postAssertions.has.image}
 				<div class="card-image">
-					{#if supportsOverlay}
-						<button class="m-0 p-0 align-self-center w-100" on:click={() => dispatch('overlay', postView.post.id)}
-							><CardPostImage {postView} /></button
-						>
-					{:else}
-						<CardPostImage {postView} />
-					{/if}
+					<CardPostImage {postView} />
 				</div>
 			{/if}
 
@@ -83,6 +91,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import { makePostAssertions } from '../post-utils';
+	import { weakOnClick } from '$lib/utils';
 	import Markdown from '$lib/Markdown.svelte';
 	import PostEmbed from '../PostEmbed.svelte';
 
@@ -91,8 +100,14 @@
 		'expand-content': { id: number; expanded: boolean };
 	}>();
 
+	function dispatchOverlay() {
+		dispatch('overlay', postView.post.id);
+	}
+
 	export let postView: PostView;
 	export let supportsOverlay = true;
+
+	let articleEl: HTMLElement;
 
 	$: postAssertions = makePostAssertions(postView);
 </script>

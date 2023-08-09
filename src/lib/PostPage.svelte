@@ -48,21 +48,33 @@
 	}
 </style>
 
+<!-- keydown is just an extra convenience, not the only way to close the post -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class:sidebar-hidden={!$sidebarVisible}
 	class:sidebar-visible={$sidebarVisible}
 	class="f-row post-page-root"
 	class:centered
+	on:keydown={onPostPageKeydown}
 >
-	<div class="page-column page-column-post virtual-feed-scroll-container f-1">
+	<!-- need tabindex to allow focusing with keyboard to scroll  -->
+	<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+	<div class="page-column page-column-post virtual-feed-scroll-container f-1" tabindex={0} use:focus>
 		<section class="f-column p-2 f-1 post">
 			{#if closeable}
-				<button on:click={() => dispatch('close')} class="tertiary m-2"><Icon icon="times" /> Close Post</button>
+				<button on:click={dispatchClose} class="tertiary m-2"><Icon icon="times" /> Close Post</button>
 			{/if}
 			<div class="ml-4 mb-1">
 				<Breadcrumbs {links} linkifyLast />
 			</div>
-			<PostLayout {postView} expandPostContent={showPost} supportsOverlay={false} forceLayout="LIST" {viewSource}>
+			<PostLayout
+				{postView}
+				expandPostContent={showPost}
+				supportsOverlay={false}
+				forceLayout="LIST"
+				{viewSource}
+				bind:api={postLayoutApi}
+			>
 				<Stack dir="r" slot="before-embed" cl="p-1 pb-3">
 					{@const small = $screenDimensions.width < 800 ? 'small' : ''}
 					<a href="#comments" class="button tertiary {small}"
@@ -150,11 +162,12 @@
 					bind:viewportTopIndex={commentViewportTopIndex}
 					searchMatchIds={commentSearchMatchIds}
 					postLocked={postView.post.locked}
+					bind:commentAPIs
 				/>
 			</ContentViewProvider>
 			<PostNavigationBar
-				on:scroll-next={onScrollNext}
-				on:scroll-previous={onScrollPrevious}
+				on:scroll-next={onScrollNextTopLevel}
+				on:scroll-previous={onScrollPreviousTopLevel}
 				on:scroll-next-result={() => onCommentSearchIndexChange(1)}
 				on:scroll-previous-result={() => onCommentSearchIndexChange(-1)}
 				on:clear-search={() => (searchText = '')}
@@ -170,7 +183,8 @@
 			/>
 		</section>
 	</div>
-	<div class="page-column page-column-sidebar virtual-feed-scroll-container">
+	<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+	<div class="page-column page-column-sidebar virtual-feed-scroll-container" tabindex="0">
 		<aside>
 			<CommunitySidebar community={postView.community} />
 		</aside>
@@ -178,7 +192,7 @@
 </div>
 
 <script lang="ts">
-	import { Search, Stack, Icon, Breadcrumbs, Accordion } from 'sheodox-ui';
+	import { Search, Stack, Icon, Breadcrumbs, Accordion, focus } from 'sheodox-ui';
 	import PostLayout from './feeds/posts/PostLayout.svelte';
 	import CommentTree from '$lib/comments/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
@@ -188,7 +202,7 @@
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
-	import { createStatefulForm, type ActionFn, localStorageBackedStore } from './utils';
+	import { createStatefulForm, type ActionFn, localStorageBackedStore, isElementEditable } from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import {
@@ -200,9 +214,9 @@
 	import ContentViewProvider from './ContentViewProvider.svelte';
 	import { profile, instance } from './profiles/profiles';
 	import type { VirtualFeedAPI } from './virtual-feed';
-	import type { CommentBranch } from './comments/comment-utils';
+	import type { CommentAPI, CommentBranch } from './comments/comment-utils';
 	import { getCommunityContext } from './community-context/community-context';
-	import { makePostAssertions } from './feeds/posts/post-utils';
+	import { makePostAssertions, type PostLayoutAPI } from './feeds/posts/post-utils';
 	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
@@ -217,6 +231,9 @@
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
 	const { screenDimensions } = getAppContext();
+
+	let commentAPIs: CommentAPI[] | undefined;
+	let postLayoutApi: PostLayoutAPI | undefined;
 
 	const communityContext = getCommunityContext();
 	$: communityName = nameAtInstance(postView.community);
@@ -256,6 +273,8 @@
 		? $commentCVStore.find((cv) => cv.type === 'comment' && cv.view.comment.id === rootCommentId)
 		: null;
 	$: commentContextId = rootComment && rootComment.type === 'comment' ? getCommentContextId(rootComment.view) : null;
+
+	const dispatchClose = () => dispatch('close');
 
 	// export so the parent can index them in sorted order with post navigation buttons
 	export let commentTree: CommentBranch[] = [];
@@ -394,6 +413,14 @@
 	}
 
 	function onScrollPrevious() {
+		virtualFeedAPI.scrollToIndex(commentViewportTopIndex - 1);
+	}
+
+	function onScrollNext() {
+		virtualFeedAPI.scrollToIndex(commentViewportTopIndex + 1);
+	}
+
+	function onScrollPreviousTopLevel() {
 		let previousIndex = -1;
 
 		for (let i = commentViewportTopIndex - 1; i >= 0; i--) {
@@ -408,7 +435,7 @@
 		}
 	}
 
-	function onScrollNext() {
+	function onScrollNextTopLevel() {
 		const nextIndex = commentTree.findIndex((cb, i) => {
 			return cb.depth === 0 && i > commentViewportTopIndex;
 		});
@@ -550,4 +577,44 @@
 			postCVStore.updateView(postViewToContentView(pv));
 		}
 	});
+
+	function onPostPageKeydown(e: KeyboardEvent) {
+		// don't handle keys if in an editable element
+		if (isElementEditable(e.target as HTMLElement)) {
+			return;
+		}
+
+		const key = e.key.toLowerCase(),
+			topCommentApi = commentAPIs && commentAPIs[commentViewportTopIndex];
+
+		// escape closes the post
+		if (key === 'escape') {
+			// TODO make this also check for pending replies
+			if (!newCommentText || confirm('You have an unsubmitted comment, are you sure you want to close the post?')) {
+				dispatchClose();
+			}
+		}
+		// j and k go to the next/prev comment, but
+		// if shift is held it'll do the next/prev top level comment or
+		// search result if searching
+		else if (key === 'j') {
+			if (e.shiftKey) {
+				searchText ? onCommentSearchIndexChange(1) : onScrollNextTopLevel();
+			} else {
+				onScrollNext();
+			}
+		} else if (key === 'k') {
+			if (e.shiftKey) {
+				searchText ? onCommentSearchIndexChange(-1) : onScrollPreviousTopLevel();
+			} else {
+				onScrollPrevious();
+			}
+		} else if (key === 'a') {
+			e.shiftKey ? postLayoutApi?.upvote() : topCommentApi?.upvote();
+		} else if (key === 'z') {
+			e.shiftKey ? postLayoutApi?.downvote() : topCommentApi?.downvote();
+		} else if (key === 's') {
+			e.shiftKey ? postLayoutApi?.save() : topCommentApi?.save();
+		}
+	}
 </script>

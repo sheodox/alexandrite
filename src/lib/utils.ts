@@ -200,3 +200,66 @@ export function navigateOnChange(el: HTMLFormElement) {
 		destroy: () => el.removeEventListener('change', onChange)
 	};
 }
+
+export function isInteractiveElementBetween(container: HTMLElement, eventTarget: HTMLElement) {
+	// Check if there's an element matching a selector somewhere between
+	// 'el' (our container) and the 'clicked' element. Necessary because
+	// if you click on a 'span' within an 'a', we need ignore this event,
+	// because it'll be handled by that 'a' (or button).
+	function within(selector: string) {
+		const closestEl = eventTarget.closest(selector);
+		return closestEl && container.contains(closestEl);
+	}
+
+	// if they clicked something inside of an interactive element, let that
+	// element handle it instead
+	return within('button') || within('a');
+}
+
+// Turns the passed element into a "button", so any clicks/enter on the element that aren't otherwise
+// handled by another element will trigget your onClick handler. This is used to make post cards clickable anywhere
+export function weakOnClick(el: HTMLElement, opts: { onClick: () => unknown; enabled?: boolean }) {
+	el.setAttribute('role', 'button');
+	el.setAttribute('tabindex', '0');
+
+	const enabled = opts.enabled ?? true;
+
+	function callbackIfContained(target: HTMLElement) {
+		if (!enabled || isInteractiveElementBetween(el, target)) {
+			return;
+		}
+
+		opts.onClick();
+	}
+
+	function onContainerClick(e: MouseEvent) {
+		callbackIfContained(e.target as HTMLElement);
+	}
+
+	function onContainerKeyDown(e: KeyboardEvent) {
+		if (e.key !== 'Enter' || isElementEditable(e.target as HTMLElement)) {
+			return;
+		}
+		callbackIfContained(e.target as HTMLElement);
+	}
+
+	el.addEventListener('click', onContainerClick);
+	el.addEventListener('keydown', onContainerKeyDown);
+
+	return {
+		destroy: () => {
+			el.removeEventListener('click', onContainerClick);
+			el.removeEventListener('keydown', onContainerKeyDown);
+		}
+	};
+}
+
+// hotkeys without modifiers (like j/k for scrolling between things in a feed)
+// need to not run their hotkey handlers if the element they're fired from
+// is editable text, otherwise every time you type a `j` in a comment it'd
+// try and scroll you to the next comment
+export function isElementEditable(el: HTMLElement) {
+	const nodeName = el.nodeName.toLowerCase();
+
+	return ['input', 'textarea', 'select'].includes(nodeName);
+}

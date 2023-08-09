@@ -39,7 +39,17 @@
 >
 	<div class="posts-page-content">
 		<Stack dir="r" gap={2}>
-			<div class="feed-column feed-column-feed virtual-feed-scroll-container">
+			<!-- need to focus because this is the main scrollable area, otherwise it's
+			not possible to immediately scroll with keyboard, also want to handle hotkeys for convenience -->
+			<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<div
+				class="feed-column feed-column-feed virtual-feed-scroll-container"
+				tabindex={0}
+				use:focus
+				bind:this={feedColumnEl}
+				on:keydown={onFeedKeydown}
+			>
 				<ContentViewProvider store={cvHeaderStore}>
 					{#each $cvHeaderStore as contentView}
 						{#if contentView.type === 'community'}
@@ -60,10 +70,13 @@
 					{selectedType}
 					{loadingContent}
 					{loadingContentFailed}
+					bind:viewportTopIndex
+					bind:virtualFeedApi
+					bind:postLayoutAPIs
 				/>
 			</div>
 			{#if feedAdjacentPostView?.type === 'post' && $feedLayout === 'COLUMNS'}
-				<div class="feed-column feed-column-post virtual-feed-scroll-container f-column">
+				<div class="feed-column feed-column-post f-column">
 					{#key feedAdjacentPostView.id}
 						<PostPage postView={feedAdjacentPostView.view} closeable on:close={closeOverlay} />
 					{/key}
@@ -92,7 +105,7 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
 	import { derived } from 'svelte/store';
-	import { Stack } from 'sheodox-ui';
+	import { Stack, focus } from 'sheodox-ui';
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
 	import InstanceSidebar from '$lib/instance/InstanceSidebar.svelte';
 	import OverlayPost from '$lib/OverlayPost.svelte';
@@ -113,6 +126,9 @@
 	} from '$lib/content-views';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { profile, instance } from '$lib/profiles/profiles';
+	import type { VirtualFeedAPI } from '$lib/virtual-feed';
+	import { isElementEditable, isInteractiveElementBetween } from '$lib/utils';
+	import type { PostLayoutAPI } from './post-utils';
 
 	export let feedType: FeedType;
 	export let loadingContent: boolean;
@@ -135,6 +151,37 @@
 	const cvHeaderStore = createContentViewStore();
 	cvHeaderStore.clear();
 	const cvs: ContentView[] = [];
+
+	let feedColumnEl: HTMLElement;
+	// PostFeed's VirtualFeed api and viewport top, needed to handle hotkeys
+	let viewportTopIndex: number, virtualFeedApi: VirtualFeedAPI;
+	let postLayoutAPIs: PostLayoutAPI[] = [];
+
+	function onFeedKeydown(e: KeyboardEvent) {
+		if (isElementEditable(e.target as HTMLElement)) {
+			return;
+		}
+
+		const viewportTopPostAPI = postLayoutAPIs[viewportTopIndex];
+		const key = e.key.toLowerCase();
+
+		if (key === 'j') {
+			virtualFeedApi.scrollToIndex(viewportTopIndex + 1);
+		} else if (key === 'k') {
+			virtualFeedApi.scrollToIndex(viewportTopIndex - 1);
+		} else if (key === 'enter' && !isInteractiveElementBetween(feedColumnEl, e.target as HTMLElement)) {
+			const post = $cvStore[viewportTopIndex];
+			if (post?.type === 'post') {
+				openPostAdjacent(post.id);
+			}
+		} else if (key === 'a' && viewportTopPostAPI) {
+			viewportTopPostAPI.upvote();
+		} else if (key === 'z' && viewportTopPostAPI) {
+			viewportTopPostAPI.downvote();
+		} else if (key === 's' && viewportTopPostAPI) {
+			viewportTopPostAPI.save();
+		}
+	}
 
 	$: viewingInColumn = !!feedAdjacentPostView && $feedLayout === 'COLUMNS';
 
@@ -171,14 +218,19 @@
 	let feedAdjacentPostViewId: null | number = null;
 	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);
 
+	async function openPostAdjacent(postId: number) {
+		feedAdjacentPostViewId = postId;
+		history.pushState(null, '', `/${$instance}/post/${postId}`);
+	}
+
 	async function onOverlay(e: CustomEvent<number>) {
-		feedAdjacentPostViewId = e.detail;
-		history.pushState(null, '', `/${$instance}/post/${e.detail}`);
+		openPostAdjacent(e.detail);
 	}
 
 	function closeOverlay() {
 		feedAdjacentPostViewId = null;
 		history.pushState(null, '', pageBaseUrl);
+		feedColumnEl.focus();
 	}
 
 	afterNavigate(() => {

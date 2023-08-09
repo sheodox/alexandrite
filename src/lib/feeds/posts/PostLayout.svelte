@@ -54,7 +54,7 @@
 					small
 					cl="m-0"
 					icon="star"
-					on:click={$saveState.submit}
+					on:click={() => $saveState.submit()}
 					disabled={$saveState.busy}
 				/>
 			{/if}
@@ -136,7 +136,7 @@
 	import { nameAtInstance } from '$lib/nav-utils';
 	import PostVoteButtons from './PostVoteButtons.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { hasImageExtension } from './post-utils';
+	import { hasImageExtension, type PostLayoutAPI } from './post-utils';
 	import PostCommentCount from './PostCommentCount.svelte';
 
 	export let postView: PostView;
@@ -146,6 +146,8 @@
 	export let viewSource = false;
 	export let forceLayout: PostPreviewLayout | undefined = undefined;
 	export let lastOfList = true;
+	// export only! don't pass a value
+	export let api: PostLayoutAPI | undefined = undefined;
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -218,7 +220,7 @@
 		cvStore.updateView(postViewToContentView(pv));
 	});
 
-	$: saveState = createStatefulAction(async () => {
+	$: saveState = createStatefulAction<void>(async () => {
 		if (!jwt) {
 			return;
 		}
@@ -440,4 +442,12 @@
 		expandPostContent = !expandPostContent;
 		dispatch('expand-content', { id: postView.post.id, expanded: expandPostContent });
 	}
+
+	// expose some methods to the post feed, so it can handle hotkeys
+	$: api = {
+		// undo the vote if it's already that vote
+		upvote: () => $voteState.submit(postView.my_vote === 1 ? 0 : 1),
+		downvote: () => $voteState.submit(postView.my_vote === -1 ? 0 : -1),
+		save: () => $saveState.submit()
+	};
 </script>

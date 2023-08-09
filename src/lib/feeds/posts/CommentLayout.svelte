@@ -11,7 +11,7 @@
 
 {#if $postPreviewLayout === 'CARD'}
 	<div class="container pb-4">
-		<div class="card comment-card mx-2 p-2">
+		<div class="card comment-card p-2">
 			<slot />
 		</div>
 	</div>

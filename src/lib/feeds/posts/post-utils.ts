@@ -1,5 +1,12 @@
 import type { PostView } from 'lemmy-js-client';
 
+// allow the consumer of PostLayout to perform actions on the post (from hotkeys)
+export interface PostLayoutAPI {
+	upvote: () => Promise<unknown>;
+	downvote: () => Promise<unknown>;
+	save: () => Promise<unknown>;
+}
+
 export function isValidUrl(url?: string): url is string {
 	if (!url?.trim()) {
 		return false;
