@@ -4,6 +4,8 @@
 	}
 </style>
 
+<Title title="Hotkeys - Help" />
+
 <p>Several hotkeys are available depending on where you are focused.</p>
 
 <p>
@@ -17,6 +19,7 @@
 
 <script lang="ts">
 	import { Icon } from 'sheodox-ui';
+	import Title from '$lib/Title.svelte';
 	import HotkeyTable from './HotkeyTable.svelte';
 
 	const feedHotkeys = [

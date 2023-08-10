@@ -23,6 +23,8 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
+	declare const __ALEXANDRITE_VERSION__: string;
 }
+declare const __ALEXANDRITE_VERSION__: string;
 
 export {};

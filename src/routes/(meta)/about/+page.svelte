@@ -6,7 +6,12 @@
 	p {
 		font-size: var(--sx-font-size-4);
 	}
+	.version {
+		font-family: monospace;
+	}
 </style>
+
+<Title title="About" />
 
 <Layout size="narrow">
 	<div class="has-inline-links">
@@ -43,10 +48,20 @@
 		<p>It's the name of the gem stone in my wife's wedding ring, and I just think it looks cool.</p>
 
 		<p><strong>Have a great day!</strong></p>
+
+		<h2>Version</h2>
+
+		<p>
+			Alexandrite version <span class="sx-badge-gray m-0 version">{__ALEXANDRITE_VERSION__}</span>
+		</p>
+		<p>
+			<ExternalLink href="https://github.com/sheodox/alexandrite/releases">View Release history</ExternalLink>
+		</p>
 	</div>
 </Layout>
 
 <script lang="ts">
 	import { Layout, ExternalLink } from 'sheodox-ui';
 	import { profile } from '$lib/profiles/profiles';
+	import Title from '$lib/Title.svelte';
 </script>
