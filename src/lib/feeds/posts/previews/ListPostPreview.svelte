@@ -15,7 +15,7 @@
 	}
 </style>
 
-<article class="post px-2 f-row align-items-center post-mode-{mode}">
+<article class="post px-2 f-row align-items-center post-mode-{mode}" use:checkSize>
 	<Stack dir="c" gap={2} cl="w-100 py-1">
 		<div class="f-row gap-3 align-items-start post-stuff">
 			<Stack dir="r" gap={2} align="center">
@@ -40,9 +40,8 @@
 					to
 					<slot name="community" />
 				</Stack>
-				{#if mode === 'list' && $postListLayoutContentPreview}
-					<PostEmbed {postView} preview reflectRead />
-					<PostBody {postView} preview reflectRead dedupeEmbed />
+				{#if direction === 'row' && mode === 'list'}
+					<ListContentPreviews {postView} />
 				{/if}
 				<Stack dir="r" gap={2} align="center">
 					<slot name="embed-expand" />
@@ -51,6 +50,9 @@
 				</Stack>
 			</Stack>
 		</div>
+		{#if direction === 'column' && mode === 'list'}
+			<ListContentPreviews {postView} />
+		{/if}
 	</Stack>
 </article>
 
@@ -59,13 +61,11 @@
 	import PostTitle from '../PostTitle.svelte';
 	import PostThumbnail from '../PostThumbnail.svelte';
 	import PostTime from '../PostTime.svelte';
-	import PostEmbed from '../PostEmbed.svelte';
-	import PostBody from './PostBody.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import { getAppContext } from '$lib/app-context';
 	import { makePostAssertions } from '../post-utils';
-	import { getSettingsContext } from '$lib/settings-context';
+	import ListContentPreviews from './ListContentPreviews.svelte';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -75,9 +75,17 @@
 	export let postView: PostView;
 	export let mode: 'show' | 'list' = 'list';
 	export let supportsOverlay = true;
+	let direction = 'row';
 
 	const { screenDimensions } = getAppContext();
-	const { postListLayoutContentPreview } = getSettingsContext();
+
+	function checkSize(el: HTMLElement) {
+		const obs = new ResizeObserver((entries) => {
+			direction = (entries.at(0)?.borderBoxSize[0]?.inlineSize ?? 0) < 900 ? 'column' : 'row';
+		});
+		obs.observe(el);
+		return { destroy: () => obs.disconnect() };
+	}
 
 	$: mobileScreenWidth = $screenDimensions.width < 600;
 	$: thumbnailHeight = mobileScreenWidth ? '3rem' : '6rem';
