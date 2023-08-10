@@ -17,10 +17,6 @@
 		overflow: hidden;
 		border: 1px solid var(--sx-gray-transparent);
 	}
-	.embed-preview {
-		max-height: 10rem;
-		overflow: hidden;
-	}
 </style>
 
 <article
@@ -54,7 +50,7 @@
 				</div>
 			{/if}
 
-			{#if postView.post.embed_description || postView.post.embed_title}
+			{#if postView.post.embed_description || (postView.post.embed_title && mode === 'list')}
 				<div class="px-2">
 					<PostEmbed {postView} reflectRead preview />
 				</div>
@@ -64,11 +60,9 @@
 				</div>
 			{/if}
 
-			{#if postAssertions.has.body && postView.post.body !== postView.post.embed_description}
-				<div class="card card-body mx-2 embed-preview responsive-text" class:muted={postView.read}>
-					<span class="muted fw-bold embed-title-hint sx-font-size-2"><Icon icon="quote-left" /> Post</span>
-					<br />
-					<Markdown noImages md={postView.post.body ?? ''} />
+			{#if mode === 'list'}
+				<div class="px-2">
+					<PostBody {postView} preview reflectRead dedupeEmbed />
 				</div>
 			{/if}
 			<Stack dir="r" gap={2} align="center" justify="between" cl="px-2">
@@ -83,7 +77,7 @@
 </article>
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
+	import { Stack } from 'sheodox-ui';
 	import PostTitle from '../PostTitle.svelte';
 	import CardPostImage from './CardPostImage.svelte';
 	import PostTime from '../PostTime.svelte';
@@ -91,7 +85,7 @@
 	import type { PostView } from 'lemmy-js-client';
 	import { makePostAssertions } from '../post-utils';
 	import { weakOnClick } from '$lib/utils';
-	import Markdown from '$lib/Markdown.svelte';
+	import PostBody from './PostBody.svelte';
 	import PostEmbed from '../PostEmbed.svelte';
 
 	const dispatch = createEventDispatcher<{
@@ -105,6 +99,7 @@
 
 	export let postView: PostView;
 	export let supportsOverlay = true;
+	export let mode: 'show' | 'list' = 'list';
 
 	let articleEl: HTMLElement;
 

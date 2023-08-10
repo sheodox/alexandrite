@@ -168,6 +168,10 @@
 		loadImagesAsWebp = localStorageBackedStore('load-images-as-webp', AlexandriteSettingsDefaults.loadImagesAsWebp),
 		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
 		postPreviewLayout = localStorageBackedStore('post-preview-layout', AlexandriteSettingsDefaults.postPreviewLayout),
+		postListLayoutContentPreview = localStorageBackedStore(
+			'post-list-layout-content-preview',
+			AlexandriteSettingsDefaults.postListLayoutContentPreview
+		),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		cssVariables = writable<Record<string, string | number>>({});
@@ -239,7 +243,8 @@
 		loadImagesAsWebp,
 		feedLayout,
 		navSidebarDocked,
-		postPreviewLayout
+		postPreviewLayout,
+		postListLayoutContentPreview
 	});
 
 	$: instanceText = $profile.username ? `${$profile.username}@${$profile.instance}` : $profile.instance;

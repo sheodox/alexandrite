@@ -17,7 +17,7 @@
 
 <article class="post px-2 f-row align-items-center post-mode-{mode}">
 	<Stack dir="c" gap={2} cl="w-100 py-1">
-		<div class="f-row gap-3 align-items-center post-stuff">
+		<div class="f-row gap-3 align-items-start post-stuff">
 			<Stack dir="r" gap={2} align="center">
 				<slot name="vote-buttons" small={mobileScreenWidth} dir="column" />
 				{#if supportsOverlay}
@@ -28,8 +28,8 @@
 					<PostThumbnail {postView} height={thumbnailHeight} />
 				{/if}
 			</Stack>
-			<Stack dir="c" gap={2}>
-				<PostTitle {postView} on:overlay modeList={true} {supportsOverlay} />
+			<Stack dir="c" gap={2} cl="f-1">
+				<PostTitle {postView} on:overlay modeList={mode === 'list'} {supportsOverlay} />
 				{#if postAssertions.is.externalLink}
 					<div class="responsive-text">
 						<slot name="post-link" />
@@ -40,6 +40,10 @@
 					to
 					<slot name="community" />
 				</Stack>
+				{#if mode === 'list' && $postListLayoutContentPreview}
+					<PostEmbed {postView} preview reflectRead />
+					<PostBody {postView} preview reflectRead dedupeEmbed />
+				{/if}
 				<Stack dir="r" gap={2} align="center">
 					<slot name="embed-expand" />
 					<slot name="actions" />
@@ -55,10 +59,13 @@
 	import PostTitle from '../PostTitle.svelte';
 	import PostThumbnail from '../PostThumbnail.svelte';
 	import PostTime from '../PostTime.svelte';
+	import PostEmbed from '../PostEmbed.svelte';
+	import PostBody from './PostBody.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import { getAppContext } from '$lib/app-context';
 	import { makePostAssertions } from '../post-utils';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -70,6 +77,7 @@
 	export let supportsOverlay = true;
 
 	const { screenDimensions } = getAppContext();
+	const { postListLayoutContentPreview } = getSettingsContext();
 
 	$: mobileScreenWidth = $screenDimensions.width < 600;
 	$: thumbnailHeight = mobileScreenWidth ? '3rem' : '6rem';

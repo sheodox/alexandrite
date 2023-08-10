@@ -74,6 +74,7 @@
 				forceLayout="LIST"
 				{viewSource}
 				bind:api={postLayoutApi}
+				mode="show"
 			>
 				<Stack dir="r" slot="before-embed" cl="p-1 pb-3">
 					{@const small = $screenDimensions.width < 800 ? 'small' : ''}

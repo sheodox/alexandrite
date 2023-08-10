@@ -20,12 +20,13 @@
 	</div>
 	{@const selected = options.find((opt) => opt.value === group)}
 	{#if selected}
-		<p class="muted description">
+		<p class="muted description mb-0 px-1">
 			<Icon icon="question-circle" variant="regular" />
 			<strong>{selected.label}:</strong>
 			{selected.description}
 		</p>
 	{/if}
+	<slot />
 </Fieldset>
 
 <script lang="ts">

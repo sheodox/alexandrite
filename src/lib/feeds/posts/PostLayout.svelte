@@ -5,7 +5,7 @@
 	}
 </style>
 
-<svelte:component this={component} bind:postView on:overlay {supportsOverlay}>
+<svelte:component this={component} bind:postView on:overlay {supportsOverlay} {mode}>
 	<svelte:fragment slot="vote-buttons" let:small let:dir>
 		<!-- TS doesn't realize i'm only passing valid values, it sees dir as type string -->
 		<PostVoteButtons {postView} {voteState} {small} dir={dir === 'row' ? 'row' : 'column'} />
@@ -145,6 +145,7 @@
 	export let expandPostContent: boolean;
 	export let viewSource = false;
 	export let forceLayout: PostPreviewLayout | undefined = undefined;
+	export let mode: 'show' | 'list' = 'list';
 	export let lastOfList = true;
 	// export only! don't pass a value
 	export let api: PostLayoutAPI | undefined = undefined;

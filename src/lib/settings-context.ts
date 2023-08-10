@@ -73,6 +73,7 @@ export interface AlexandriteSettings {
 	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
 	postPreviewLayout: PostPreviewLayout;
+	postListLayoutContentPreview: boolean;
 }
 
 const probablyMobile = window.innerWidth < 800;
@@ -85,7 +86,8 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	loadImagesAsWebp: true,
 	// todo check if this is a good breakpoint
 	feedLayout: 'AUTO',
-	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST'
+	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST',
+	postListLayoutContentPreview: false
 };
 
 export type AlexandriteSettingsStores = {
