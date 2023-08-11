@@ -36,11 +36,26 @@ export function hasImageExtension(url?: string) {
 	}
 }
 
+export function hasVideoExtension(url?: string) {
+	if (!isValidUrl(url)) {
+		return false;
+	}
+
+	try {
+		const u = new URL(url);
+		return /\.(mp4|mpv|mov)$/.test(u.pathname);
+	} catch (e) {
+		return false;
+	}
+}
+
 export interface PostAssertions {
 	imageSrc?: string;
+	videoSrc?: string;
 	// existence of certain types of embedded content
 	has: {
 		image: boolean;
+		video: boolean;
 		body: boolean;
 		embed: boolean;
 		any: boolean;
@@ -53,19 +68,25 @@ export interface PostAssertions {
 
 export function makePostAssertions(pv: PostView, myUserId?: number): PostAssertions {
 	let imageSrc = pv.post.thumbnail_url;
+	let videoSrc = pv.post.embed_video_url;
 
 	if (!imageSrc && hasImageExtension(pv.post.url)) {
 		imageSrc = pv.post.url;
 	}
+	if (!videoSrc && hasVideoExtension(pv.post.url)) {
+		videoSrc = pv.post.url;
+	}
 
 	const hasParts = {
 		image: !!imageSrc,
+		video: !!videoSrc,
 		body: !!pv.post.body?.trim(),
-		embed: !!pv.post.embed_title
+		embed: !!(pv.post.embed_title || videoSrc)
 	};
 
 	return {
 		imageSrc,
+		videoSrc,
 		// assertions about embedded contents
 		has: {
 			...hasParts,

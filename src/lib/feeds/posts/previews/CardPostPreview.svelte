@@ -50,6 +50,12 @@
 				</div>
 			{/if}
 
+			{#if postAssertions.has.video}
+				<div class="card-image">
+					<CardPostVideo {postView} />
+				</div>
+			{/if}
+
 			{#if postView.post.embed_description || (postView.post.embed_title && mode === 'list')}
 				<div class="px-2">
 					<PostEmbed {postView} reflectRead preview />
@@ -80,6 +86,7 @@
 	import { Stack } from 'sheodox-ui';
 	import PostTitle from '../PostTitle.svelte';
 	import CardPostImage from './CardPostImage.svelte';
+	import CardPostVideo from './CardPostVideo.svelte';
 	import PostTime from '../PostTime.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PostView } from 'lemmy-js-client';
