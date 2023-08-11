@@ -52,6 +52,8 @@
 		<h2>Version</h2>
 
 		<p>
+			<!-- eslint doesn't recognize this, but all the other types know it's defined -->
+			<!-- eslint-disable-next-line no-undef -->
 			Alexandrite version <span class="sx-badge-gray m-0 version">{__ALEXANDRITE_VERSION__}</span>
 		</p>
 		<p>
