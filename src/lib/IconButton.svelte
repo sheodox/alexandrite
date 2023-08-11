@@ -9,7 +9,7 @@
 <Tooltip>
 	<span slot="tooltip">{text}</span>
 	<button
-		class="f-row align-items-center justify-content-center gap-2 {cl}"
+		class="f-row m-0 align-items-center justify-content-center gap-2 {cl}"
 		on:click
 		class:small
 		disabled={disabled || busy}

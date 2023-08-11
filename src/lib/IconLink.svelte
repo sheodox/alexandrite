@@ -1,6 +1,6 @@
 <Tooltip>
 	<span slot="tooltip">{text}</span>
-	<a {href} on:click class:small class="button {cl} ws-nowrap">
+	<a {href} on:click class:small class="button m-0 {cl} ws-nowrap responsive-text">
 		<Icon {icon} {variant} />
 		<span class="sr-only">{text}</span>
 		<slot />

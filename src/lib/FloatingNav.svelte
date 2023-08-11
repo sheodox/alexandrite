@@ -6,11 +6,7 @@
 	}
 </style>
 
-<div class="floating-nav f-row p-1 m-1 align-items-center">
-	<!-- just need an element in the nav to try searching for the closest vitual
-		feed scroll area for contained (some element scrolls, not the window) virtual
-		feeds like when viewing a post in a feed -->
-	<div bind:this={elementInNav} />
+<div class="floating-nav f-row m-1 p-1 align-items-center gap-1" bind:this={elementInNav}>
 	{#if showScrollToTop}
 		<IconButton cl="tertiary" on:click={scrollToTop} icon="angles-up" text="Scroll to top" />
 	{/if}

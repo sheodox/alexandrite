@@ -3,15 +3,20 @@
 		/* match the width of icons in dropdown menus from sheodox-ui */
 		width: 1.5rem;
 	}
+	.extra-actions-trigger {
+		aspect-ratio: 1;
+		display: block;
+		width: 1em;
+	}
 </style>
 
 {#if actions.length}
 	{@const text = 'Extra actions'}
 	<Tooltip title={text}>
 		<MenuButton triggerClasses="small m-0">
-			<span slot="trigger">
+			<span slot="trigger" class="extra-actions-trigger">
 				<span class="sr-only">{text}</span>
-				<Icon icon="caret-down" />
+				<Icon icon="ellipsis-vertical" />
 			</span>
 
 			<ul slot="menu">

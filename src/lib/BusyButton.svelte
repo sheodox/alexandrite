@@ -7,7 +7,7 @@
 </style>
 
 <button
-	class="align-items-center justify-content-center gap-2 {cl}"
+	class="align-items-center justify-content-center gap-2 m-0 {cl}"
 	disabled={busy || disabled}
 	on:click
 	{style}

@@ -21,6 +21,9 @@
 		justify-content: center;
 		min-width: 3em;
 	}
+	.icon {
+		width: 1em;
+	}
 </style>
 
 <div class="{dir === 'row' ? 'f-row' : 'f-column'} align-items-center">
@@ -33,7 +36,9 @@
 		use:ripple
 	>
 		<span class="sr-only">Vote up</span>
-		<Icon icon="arrow-up" />
+		<div class="icon">
+			<Icon icon="arrow-up" />
+		</div>
 	</button>
 	{#if $profile.settings.show_scores}
 		<Tooltip>
@@ -43,7 +48,7 @@
 				<Icon icon="arrow-down" /><span class="sr-only">Down:</span>
 				{downvotes}
 			</span>
-			<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center">
+			<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center responsive-text">
 				{#if votePending}
 					<Spinner />
 				{:else}
@@ -63,7 +68,9 @@
 			use:ripple
 		>
 			<span class="sr-only">Vote up</span>
-			<Icon icon="arrow-down" />
+			<div class="icon">
+				<Icon icon="arrow-down" />
+			</div>
 		</button>
 	{/if}
 </div>

@@ -60,13 +60,13 @@
 				</div>
 			{/if}
 
-			{#if mode === 'list'}
+			{#if mode === 'list' && postAssertions.has.body}
 				<div class="px-2">
 					<PostBody {postView} preview reflectRead dedupeEmbed />
 				</div>
 			{/if}
 			<Stack dir="r" gap={2} align="center" justify="between" cl="px-2">
-				<Stack dir="r" gap={1} align="center">
+				<Stack dir="r" gap={1} align="center" cl="responsive-text">
 					<slot name="embed-expand" />
 					<slot name="actions" />
 				</Stack>

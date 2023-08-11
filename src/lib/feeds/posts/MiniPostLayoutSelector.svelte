@@ -1,7 +1,7 @@
 <Tooltip>
 	<span slot="tooltip">Feed Post Layout</span>
 	<MenuButton triggerClasses="m-0 tertiary">
-		<span slot="trigger">
+		<span slot="trigger" class="responsive-text">
 			{#if selectedOption}
 				<Icon icon={selectedOption.icon} />
 				<span>{selectedOption.label}</span>

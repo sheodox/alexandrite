@@ -42,10 +42,6 @@
 		width: 80rem;
 		max-width: 100%;
 	}
-	.small {
-		font-size: var(--sx-font-size-2);
-		padding: var(--sx-spacing-2);
-	}
 </style>
 
 <!-- keydown is just an extra convenience, not the only way to close the post -->
@@ -72,7 +68,6 @@
 				expandPostContent={showPost}
 				supportsOverlay={false}
 				forceLayout="LIST"
-				{viewSource}
 				bind:api={postLayoutApi}
 				mode="show"
 			>
@@ -81,17 +76,6 @@
 					<a href="#comments" class="button tertiary {small}"
 						><Icon icon="chevron-down" /> To Comments ({postView.counts.comments})</a
 					>
-					{#if postAssertions.has.any}
-						<button class="tertiary {small}" on:click={() => (showPost = !showPost)}
-							><Icon icon="newspaper" /> {showPost ? 'Hide' : 'Show'} Content</button
-						>
-					{/if}
-					{#if postAssertions.has.body}
-						<button class="tertiary {small}" on:click={() => (viewSource = !viewSource)}>
-							<Icon icon="code" />
-							{viewSource ? 'Hide' : 'View'} Source
-						</button>
-					{/if}
 				</Stack>
 			</PostLayout>
 			<hr class="w-100" id="comments" />
@@ -217,7 +201,7 @@
 	import type { VirtualFeedAPI } from './virtual-feed';
 	import type { CommentAPI, CommentBranch } from './comments/comment-utils';
 	import { getCommunityContext } from './community-context/community-context';
-	import { makePostAssertions, type PostLayoutAPI } from './feeds/posts/post-utils';
+	import type { PostLayoutAPI } from './feeds/posts/post-utils';
 	import { getAppContext } from './app-context';
 
 	const dispatch = createEventDispatcher<{ close: void }>();
@@ -243,8 +227,6 @@
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
-	$: postAssertions = makePostAssertions(postView);
-
 	const postCVStore = getContentViewStore();
 
 	const commentCVStore = createContentViewStore();
@@ -255,7 +237,6 @@
 
 	let commentExpandLoadingIds = new Set<number>();
 	let newCommentForm: HTMLFormElement;
-	let viewSource = false;
 	let commentsPageNum = 1,
 		selectedSort = 'Hot',
 		newCommentText = '',

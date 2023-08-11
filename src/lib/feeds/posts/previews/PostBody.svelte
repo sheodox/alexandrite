@@ -6,20 +6,32 @@
 		max-height: 10rem;
 		overflow: hidden;
 	}
+	.fr {
+		float: right;
+	}
 </style>
 
 {#if postAssertions.has.body && (!dedupeEmbed || postView.post.body !== postView.post.embed_description)}
 	<div class="card m-0">
 		<div class="card-body embed-preview responsive-text" class:muted={postView.read && reflectRead} class:preview>
-			<span class="muted fw-bold embed-title-hint sx-font-size-2"><Icon icon="quote-left" /> Post</span>
-			<br />
-			<Markdown noImages md={postView.post.body ?? ''} />
+			{#if !preview}
+				<div class="fr">
+					<IconButton
+						on:click={() => (viewSource = !viewSource)}
+						small
+						icon="code"
+						text={(viewSource ? 'Hide' : 'View') + ' Source'}
+						cl="tertiary"
+					/>
+				</div>
+			{/if}
+			<Markdown noImages md={postView.post.body ?? ''} {viewSource} />
 		</div>
 	</div>
 {/if}
 
 <script lang="ts">
-	import { Icon } from 'sheodox-ui';
+	import IconButton from '$lib/IconButton.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import type { PostView } from 'lemmy-js-client';
 	import { makePostAssertions } from '../post-utils';
@@ -30,6 +42,8 @@
 	export let dedupeEmbed = false;
 	// if the text should be dimmed if the post has been read
 	export let reflectRead = false;
+
+	let viewSource = false;
 
 	$: postAssertions = makePostAssertions(postView);
 </script>

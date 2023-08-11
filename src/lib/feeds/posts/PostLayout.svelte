@@ -104,7 +104,7 @@
 
 {#if expandPostContent}
 	<div class="mx-2">
-		<PostContent {postView} {viewSource} />
+		<PostContent {postView} />
 	</div>
 {/if}
 
@@ -143,7 +143,6 @@
 	export let readOnly = false;
 	export let supportsOverlay = true;
 	export let expandPostContent: boolean;
-	export let viewSource = false;
 	export let forceLayout: PostPreviewLayout | undefined = undefined;
 	export let mode: 'show' | 'list' = 'list';
 	export let lastOfList = true;

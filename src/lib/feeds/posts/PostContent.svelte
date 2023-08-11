@@ -8,9 +8,7 @@
 <div class="embed-content f-column gap-2">
 	<PostEmbed {postView} />
 	{#if hasBody}
-		<div>
-			<Markdown md={postView.post.body ?? ''} {viewSource} />
-		</div>
+		<PostBody {postView} />
 	{/if}
 	{#if probablyImage && postView.post.url}
 		<!-- not passing nsfw, it's handled by not showing the post contents
@@ -23,13 +21,12 @@
 
 <script lang="ts">
 	import type { PostView } from 'lemmy-js-client';
-	import Markdown from '$lib/Markdown.svelte';
+	import PostBody from './previews/PostBody.svelte';
 	import Image from '$lib/Image.svelte';
 	import PostEmbed from './PostEmbed.svelte';
 	import { hasImageExtension } from './post-utils';
 
 	export let postView: PostView;
-	export let viewSource = false;
 
 	$: probablyImage = hasImageExtension(postView.post.url || '');
 	$: hasBody = !!postView.post.body;

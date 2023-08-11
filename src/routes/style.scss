@@ -3,7 +3,9 @@
 }
 
 @media (max-width: 600px) {
-	.responsive-text {
+	.responsive-text,
+	.responsive-text i,
+	.responsive-text button {
 		font-size: var(--sx-font-size-2) !important;
 	}
 }

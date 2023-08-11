@@ -43,7 +43,7 @@
 				{#if direction === 'row' && mode === 'list'}
 					<ListContentPreviews {postView} />
 				{/if}
-				<Stack dir="r" gap={2} align="center">
+				<Stack dir="r" gap={2} align="center" cl="responsive-text">
 					<slot name="embed-expand" />
 					<slot name="actions" />
 					<PostTime {postView} />
