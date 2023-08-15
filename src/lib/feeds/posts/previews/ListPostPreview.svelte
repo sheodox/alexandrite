@@ -43,15 +43,24 @@
 				{#if direction === 'row' && mode === 'list'}
 					<ListContentPreviews {postView} />
 				{/if}
-				<Stack dir="r" gap={2} align="center" cl="responsive-text">
-					<slot name="embed-expand" />
-					<slot name="actions" />
-					<PostTime {postView} />
-				</Stack>
+				{#if !buttonsBelow}
+					<Stack dir="r" gap={2} align="center" cl="responsive-text">
+						<slot name="embed-expand" />
+						<slot name="actions" />
+						<PostTime {postView} />
+					</Stack>
+				{/if}
 			</Stack>
 		</div>
 		{#if direction === 'column' && mode === 'list'}
 			<ListContentPreviews {postView} />
+		{/if}
+		{#if buttonsBelow}
+			<Stack dir="r" gap={2} align="center" cl="responsive-text">
+				<slot name="embed-expand" />
+				<slot name="actions" />
+				<PostTime {postView} />
+			</Stack>
 		{/if}
 	</Stack>
 </article>
@@ -76,12 +85,15 @@
 	export let mode: 'show' | 'list' = 'list';
 	export let supportsOverlay = true;
 	let direction = 'row';
+	let buttonsBelow = false;
 
 	const { screenDimensions } = getAppContext();
 
 	function checkSize(el: HTMLElement) {
 		const obs = new ResizeObserver((entries) => {
-			direction = (entries.at(0)?.borderBoxSize[0]?.inlineSize ?? 0) < 900 ? 'column' : 'row';
+			const availableWidth = entries.at(0)?.borderBoxSize[0]?.inlineSize ?? 0;
+			direction = availableWidth < 900 ? 'column' : 'row';
+			buttonsBelow = availableWidth < 600;
 		});
 		obs.observe(el);
 		return { destroy: () => obs.disconnect() };

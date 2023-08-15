@@ -1,13 +1,13 @@
 <style lang="scss">
-	a {
+	a.post-title {
 		transition: color 0.1s;
 		color: var(--sx-gray-25);
 		&:hover {
-			color: white !important;
+			color: var(--sx-gray-25) !important;
 		}
 	}
-	a.read {
-		color: var(--sx-gray-200);
+	a.post-title.read {
+		color: var(--sx-muted);
 	}
 	@media (max-width: 800px) {
 		a {

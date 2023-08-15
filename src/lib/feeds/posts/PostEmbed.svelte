@@ -6,10 +6,13 @@
 		max-height: 10rem;
 		overflow: hidden;
 	}
+	div.read {
+		color: var(--sx-muted);
+	}
 </style>
 
 {#if hasEmbedText}
-	<div class="m-0 card embed-preview responsive-text" class:muted={postView.read && reflectRead} class:preview>
+	<div class="m-0 card embed-preview responsive-text" class:read={postView.read && reflectRead} class:preview>
 		<p class="card-body m-0">
 			{#if postView.post.embed_title}
 				<span class="muted fw-bold embed-title-hint">

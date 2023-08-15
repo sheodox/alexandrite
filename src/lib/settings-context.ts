@@ -66,7 +66,14 @@ export const PostPreviewLayoutOptions: {
 ];
 
 export interface AlexandriteSettings {
+	//theme options
+	colorScheme: 'light' | 'dark' | null;
 	themeHue: number;
+	linkHue: number;
+	upvoteHue: number;
+	downvoteHue: number;
+	themeSaturation: number;
+	//other options
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
 	navSidebarDocked: boolean;
@@ -79,7 +86,13 @@ export interface AlexandriteSettings {
 const probablyMobile = window.innerWidth < 800;
 
 export const AlexandriteSettingsDefaults: AlexandriteSettings = {
+	// null uses the system default
+	colorScheme: null,
 	themeHue: 280,
+	linkHue: 197,
+	upvoteHue: 298,
+	downvoteHue: 212,
+	themeSaturation: 1,
 	nsfwImageHandling: 'HIDE',
 	sidebarVisible: !probablyMobile,
 	navSidebarDocked: false,

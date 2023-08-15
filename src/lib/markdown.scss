@@ -19,8 +19,24 @@
 		border-radius: 5px;
 		padding: var(--sx-spacing-1);
 
+		&.view-source {
+			.sx-theme-dark & {
+				color: var(--sx-text-color);
+			}
+			.sx-theme-light & {
+				color: var(--sx-gray-900);
+			}
+		}
+
 		code {
 			background: none;
+		}
+
+		.sx-theme-dark & {
+			background: var(--sx-gray-transparent-light);
+		}
+		.sx-theme-light & {
+			background: var(--sx-gray-100);
 		}
 	}
 	summary {

@@ -1,6 +1,6 @@
 <style>
 	:root {
-		--sx-hue-gray: 280 !important;
+		--sxo-hue-gray: 280;
 	}
 </style>
 

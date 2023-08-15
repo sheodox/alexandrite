@@ -8,7 +8,7 @@
 <div class:submitting>
 	<Stack dir="c" gap={2}>
 		<Stack dir="c">
-			<MarkdownEditor name="content" {label} bind:value />
+			<MarkdownEditor name="content" {label} bind:value {autofocus} />
 		</Stack>
 
 		<Stack dir="r" justify="between" align="center">
@@ -54,6 +54,7 @@
 	export let showSubmit = true;
 	export let useLanguage = true;
 	export let community: Community | undefined = undefined;
+	export let autofocus = false;
 	const initialValue = value;
 
 	const communityContext = getCommunityContext();

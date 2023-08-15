@@ -6,6 +6,9 @@
 		max-height: 10rem;
 		overflow: hidden;
 	}
+	div.read {
+		color: var(--sx-muted);
+	}
 	.fr {
 		float: right;
 	}
@@ -13,7 +16,7 @@
 
 {#if postAssertions.has.body && (!dedupeEmbed || postView.post.body !== postView.post.embed_description)}
 	<div class="card m-0">
-		<div class="card-body embed-preview responsive-text" class:muted={postView.read && reflectRead} class:preview>
+		<div class="card-body embed-preview responsive-text" class:read={postView.read && reflectRead} class:preview>
 			{#if !preview}
 				<div class="fr">
 					<IconButton
@@ -25,7 +28,7 @@
 					/>
 				</div>
 			{/if}
-			<Markdown noImages md={postView.post.body ?? ''} {viewSource} />
+			<Markdown noImages={preview} md={postView.post.body ?? ''} {viewSource} />
 		</div>
 	</div>
 {/if}
