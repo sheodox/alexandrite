@@ -2,7 +2,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="markdown-renderer has-inline-links" on:click={toggleFullSize}>
 	{#if viewSource}
-		<pre class="ws-pre-line">{md}</pre>
+		<pre class="ws-pre-line view-source">{md}</pre>
 	{:else}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html rendered}

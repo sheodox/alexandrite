@@ -7,7 +7,7 @@
 		overflow: hidden;
 	}
 	div.read {
-		color: var(--sx-gray-200);
+		color: var(--sx-muted);
 	}
 </style>
 

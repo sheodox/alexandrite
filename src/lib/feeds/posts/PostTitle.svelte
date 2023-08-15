@@ -7,7 +7,7 @@
 		}
 	}
 	a.post-title.read {
-		color: var(--sx-gray-200);
+		color: var(--sx-muted);
 	}
 	@media (max-width: 800px) {
 		a {

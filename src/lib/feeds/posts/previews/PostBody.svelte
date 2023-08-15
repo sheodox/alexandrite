@@ -7,7 +7,7 @@
 		overflow: hidden;
 	}
 	div.read {
-		color: var(--sx-gray-200);
+		color: var(--sx-muted);
 	}
 	.fr {
 		float: right;
@@ -28,7 +28,7 @@
 					/>
 				</div>
 			{/if}
-			<Markdown noImages md={postView.post.body ?? ''} {viewSource} />
+			<Markdown noImages={preview} md={postView.post.body ?? ''} {viewSource} />
 		</div>
 	</div>
 {/if}
