@@ -174,7 +174,7 @@
 			</Stack>
 		{/if}
 		{#if $buffer[bk.showEditComposer] && !postLocked}
-			<form bind:this={editForm} class="reply-editor">
+			<form bind:this={editForm} class="reply-editor" use:submitOnHardEnter>
 				<input type="hidden" name="commentId" value={comment.id} />
 				<CommentEditor
 					bind:value={$buffer[bk.editText]}
@@ -184,11 +184,12 @@
 					on:cancel={() => ($buffer[bk.showEditComposer] = false)}
 					submitting={$editState.busy}
 					community={contentView.view.community}
+					autofocus
 				/>
 			</form>
 		{/if}
 		{#if $buffer[bk.showReplyComposer] && $profile.loggedIn && !postLocked}
-			<form bind:this={replyForm} class="reply-editor">
+			<form bind:this={replyForm} class="reply-editor" use:submitOnHardEnter>
 				<input type="hidden" name="parentId" value={comment.id} />
 				<CommentEditor
 					cancellable
@@ -196,6 +197,7 @@
 					on:cancel={() => ($buffer[bk.showReplyComposer] = false)}
 					submitting={$replyState.busy}
 					community={contentView.view.community}
+					autofocus
 				/>
 			</form>
 		{/if}
@@ -228,7 +230,13 @@
 	import CommunityLink from '../CommunityLink.svelte';
 	import EllipsisText from '$lib/EllipsisText.svelte';
 	import { getCommentContextId, nameAtInstance } from '../nav-utils';
-	import { createStatefulForm, type ActionFn, createStatefulAction, type ExtraAction } from '../utils';
+	import {
+		createStatefulForm,
+		type ActionFn,
+		createStatefulAction,
+		type ExtraAction,
+		submitOnHardEnter
+	} from '../utils';
 	import { getVirtualFeedBuffer } from '../virtual-feed';
 	import {
 		commentViewToContentView,

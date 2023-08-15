@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import { readable, writable } from 'svelte/store';
+import { getCtrlBasedHotkeys } from './app-context';
 
 // a wrapper for things in a MenuButton, used by ExtraActions.svelte
 export interface ExtraAction {
@@ -262,4 +263,31 @@ export function isElementEditable(el: HTMLElement) {
 	const nodeName = el.nodeName.toLowerCase();
 
 	return ['input', 'textarea', 'select'].includes(nodeName);
+}
+
+export function submitOnHardEnter(formEl: HTMLFormElement) {
+	// make a button that can trigger a proper form submit.
+	// we need a button that would trigger submitting a form if
+	// clicked, so formEl.requestSubmit works. and
+	// formEL.submit() is unusable because it doesn't run handlers
+	// and does an unwanted full page navigation
+	const submitEl = document.createElement('button');
+	submitEl.style.display = 'none';
+	submitEl.classList.add('hard-enter-submit-button');
+
+	formEl.appendChild(submitEl);
+	function onKeydown(e: KeyboardEvent) {
+		const ctrl = getCtrlBasedHotkeys() ? e.ctrlKey : e.metaKey;
+
+		if (e.key === 'Enter' && ctrl) {
+			formEl.requestSubmit(submitEl);
+		}
+	}
+
+	formEl.addEventListener('keydown', onKeydown);
+	return {
+		destroy: () => {
+			formEl.addEventListener('keydown', onKeydown);
+		}
+	};
 }

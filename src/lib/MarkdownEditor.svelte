@@ -17,6 +17,7 @@
 	<Stack dir="c">
 		<Stack dir="c">
 			<label for={textareaId} class="fw-bold p-2">{label}</label>
+			<!-- svelte-ignore a11y-autofocus -->
 			<textarea
 				id={textareaId}
 				rows="6"
@@ -26,6 +27,7 @@
 				bind:this={textarea}
 				{required}
 				on:keydown={keydown}
+				{autofocus}
 			/>
 			<Stack dir="r" gap={1}>
 				<IconButton icon="bold" text="Bold" type="button" on:click={format.bold} />
@@ -76,6 +78,7 @@
 	export let name: string;
 	export let disabled = false;
 	export let required = true;
+	export let autofocus = false;
 
 	let busy = false;
 
