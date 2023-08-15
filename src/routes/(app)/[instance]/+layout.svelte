@@ -107,7 +107,7 @@
 	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import CommunityContext from '$lib/community-context/CommunityContext.svelte';
 	import ModContext from '$lib/mod/ModContext.svelte';
-	import { Sidebar, Header, Icon, Search, Toasts, Modals } from 'sheodox-ui';
+	import { Sidebar, Header, Icon, Search, Toasts, Modals, getSxColorSchemeContext } from 'sheodox-ui';
 	import ProfileOverlay from '$lib/profiles/ProfileOverlay.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import AppSidebar from './AppSidebar.svelte';
@@ -164,6 +164,10 @@
 
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
+		linkHue = localStorageBackedStore('link-hue', AlexandriteSettingsDefaults.linkHue),
+		upvoteHue = localStorageBackedStore('upvote-hue', AlexandriteSettingsDefaults.upvoteHue),
+		downvoteHue = localStorageBackedStore('downvote-hue', AlexandriteSettingsDefaults.downvoteHue),
+		themeSaturation = localStorageBackedStore('theme-saturation', AlexandriteSettingsDefaults.themeSaturation),
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
 		loadImagesAsWebp = localStorageBackedStore('load-images-as-webp', AlexandriteSettingsDefaults.loadImagesAsWebp),
 		feedLayout = localStorageBackedStore('feed-layout', AlexandriteSettingsDefaults.feedLayout),
@@ -174,7 +178,12 @@
 		),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
+		colorScheme = localStorageBackedStore('color-scheme', AlexandriteSettingsDefaults.colorScheme),
 		cssVariables = writable<Record<string, string | number>>({});
+
+	const sxColorScheme = getSxColorSchemeContext();
+
+	$: $sxColorScheme = $colorScheme;
 
 	async function checkUnread() {
 		if (!jwt) {
@@ -237,7 +246,12 @@
 	});
 
 	setSettingsContext({
+		colorScheme,
 		themeHue,
+		linkHue,
+		upvoteHue,
+		downvoteHue,
+		themeSaturation,
 		nsfwImageHandling,
 		sidebarVisible,
 		loadImagesAsWebp,
@@ -257,7 +271,11 @@
 		headerResizeObserver: ResizeObserver,
 		storeUnsubs: Unsubscriber[] = [];
 
-	$: $cssVariables['--sx-hue-gray'] = $themeHue + ' !important';
+	$: $cssVariables['--sxo-hue-gray'] = $themeHue;
+	$: $cssVariables['--sxo-hue-link'] = $linkHue;
+	$: $cssVariables['--upvote-hue'] = $upvoteHue;
+	$: $cssVariables['--downvote-hue'] = $downvoteHue;
+	$: $cssVariables['--sxo-hue-gray-saturation-strength'] = $themeSaturation;
 
 	onMount(async () => {
 		// track the height of the header, wanted for some styling in various places

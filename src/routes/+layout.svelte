@@ -1,6 +1,4 @@
-<slot />
-
-<SheodoxUIStyles />
+<SheodoxUIStyles><slot /></SheodoxUIStyles>
 
 <script lang="ts">
 	import { SheodoxUIStyles } from 'sheodox-ui';

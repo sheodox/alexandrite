@@ -1,18 +1,28 @@
-<style>
+<style lang="scss">
 	button {
 		color: var(--sx-gray-200);
 	}
-	.vote-up:enabled:hover {
-		color: var(--sx-pink-500);
+	.vote-up:enabled {
+		&:hover,
+		&[aria-pressed='true'] {
+			:global(.sx-theme-dark) & {
+				color: hsl(var(--upvote-hue), 85%, 70%);
+			}
+			:global(.sx-theme-light) & {
+				color: hsl(var(--upvote-hue), 85%, 50%);
+			}
+		}
 	}
-	.vote-up[aria-pressed='true'] {
-		color: var(--sx-pink-400);
-	}
-	.vote-down:enabled:hover {
-		color: var(--sx-blue-500);
-	}
-	.vote-down[aria-pressed='true'] {
-		color: var(--sx-blue-400);
+	.vote-down:enabled {
+		&:hover,
+		&[aria-pressed='true'] {
+			:global(.sx-theme-dark) & {
+				color: hsl(var(--downvote-hue), 85%, 70%);
+			}
+			:global(.sx-theme-light) & {
+				color: hsl(var(--downvote-hue), 85%, 50%);
+			}
+		}
 	}
 	.vote-counter {
 		height: 1.4rem;
@@ -20,13 +30,21 @@
 		align-items: center;
 		justify-content: center;
 		min-width: 3em;
+		border-radius: 5px;
+
+		.voted--1 & {
+			color: hsl(var(--downvote-hue), 85%, 70%);
+		}
+		.voted-1 & {
+			color: hsl(var(--upvote-hue), 85%, 70%);
+		}
 	}
 	.icon {
 		width: 1em;
 	}
 </style>
 
-<div class="{dir === 'row' ? 'f-row' : 'f-column'} align-items-center">
+<div class="vote-buttons {dir === 'row' ? 'f-row' : 'f-column'} align-items-center voted-{vote}">
 	<button
 		aria-pressed={votedUp}
 		class="vote-up"
@@ -48,7 +66,7 @@
 				<Icon icon="arrow-down" /><span class="sr-only">Down:</span>
 				{downvotes}
 			</span>
-			<span class="vote-counter sx-badge-{counterColor} text-align-center align-self-center responsive-text">
+			<span class="vote-counter text-align-center align-self-center responsive-text fw-bold">
 				{#if votePending}
 					<Spinner />
 				{:else}
@@ -100,12 +118,6 @@
 	$: votedUp = vote === 1;
 	// no vote is 0
 	$: votedDown = vote === -1;
-
-	$: counterColor = {
-		'-1': 'blue',
-		'0': 'gray',
-		'1': 'pink'
-	}[vote ?? 0];
 
 	function voteAs(clickedVote: number) {
 		const newVote = vote === clickedVote ? 0 : clickedVote;

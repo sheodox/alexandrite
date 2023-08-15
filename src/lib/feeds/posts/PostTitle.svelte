@@ -3,7 +3,7 @@
 		transition: color 0.1s;
 		color: var(--sx-gray-25);
 		&:hover {
-			color: white !important;
+			color: var(--sx-gray-25) !important;
 		}
 	}
 	a.read {
