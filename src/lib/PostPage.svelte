@@ -91,7 +91,7 @@
 					<Accordion bind:open={$showNewCommentComposer} buttonClasses="tertiary">
 						<span slot="title">Leave a comment</span>
 						{#key $showNewCommentComposer}
-							<form bind:this={newCommentForm}>
+							<form bind:this={newCommentForm} use:submitOnHardEnter>
 								<CommentEditor
 									submitting={$newCommentState.busy}
 									bind:value={newCommentText}
@@ -193,7 +193,13 @@
 	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
-	import { createStatefulForm, type ActionFn, localStorageBackedStore, isElementEditable } from './utils';
+	import {
+		createStatefulForm,
+		type ActionFn,
+		localStorageBackedStore,
+		isElementEditable,
+		submitOnHardEnter
+	} from './utils';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import {
