@@ -4,6 +4,10 @@
 		background: var(--sx-gray-transparent);
 		border-radius: 5px;
 	}
+	.menu-button-trigger {
+		width: 1em;
+		display: block;
+	}
 </style>
 
 <div class="report p-2">
@@ -12,18 +16,22 @@
 			<Stack dir="r" gap={1} align="center" cl="f-1">
 				Report by <UserLink user={creator} /><UserBadges user={creator} {bannedFromCommunity} />
 			</Stack>
-			<Stack dir="r" gap={2} align="center">
-				{#if !$bannedUsers.has(creator.id)}
-					<span class="sx-badge-gray">Unsure if banned.</span>
-				{/if}
-				<BanButton
-					banned={bannedFromCommunity}
-					personId={creator.id}
-					{communityId}
-					on:ban
-					personName={creator.display_name || creator.name}
-				/>
-			</Stack>
+			<MenuButton triggerClasses="small">
+				<span slot="trigger" class="menu-button-trigger">
+					<Icon icon="ellipsis-vertical" />
+					<span class="sr-only">Menu</span>
+				</span>
+				<ul slot="menu">
+					<BanButton
+						banned={bannedFromCommunity}
+						personId={creator.id}
+						{communityId}
+						on:ban
+						personName={creator.display_name || creator.name}
+						{banStateKnown}
+					/>
+				</ul>
+			</MenuButton>
 		</div>
 		<p class="m-0">
 			<span class="muted fw-bold">Reason:</span>
@@ -53,7 +61,7 @@
 </div>
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, MenuButton, Icon } from 'sheodox-ui';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import BanButton from './BanButton.svelte';
 	import UserLink from '$lib/UserLink.svelte';
@@ -72,4 +80,5 @@
 	export let reason: string;
 	export let busy: boolean;
 	$: bannedFromCommunity = $bannedUsers.get(creator.id) ?? false;
+	$: banStateKnown = $bannedUsers.has(creator.id);
 </script>
