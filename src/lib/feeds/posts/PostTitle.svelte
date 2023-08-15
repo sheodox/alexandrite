@@ -1,12 +1,12 @@
 <style lang="scss">
-	a {
+	a.post-title {
 		transition: color 0.1s;
 		color: var(--sx-gray-25);
 		&:hover {
 			color: var(--sx-gray-25) !important;
 		}
 	}
-	a.read {
+	a.post-title.read {
 		color: var(--sx-gray-200);
 	}
 	@media (max-width: 800px) {
