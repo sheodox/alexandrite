@@ -16,10 +16,6 @@
 			height: 1em;
 			width: 1em;
 		}
-		&.medium {
-			height: 1.6rem;
-			width: 1.6rem;
-		}
 		&.large {
 			height: 3rem;
 			width: 3rem;

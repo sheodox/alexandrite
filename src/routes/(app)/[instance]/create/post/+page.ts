@@ -2,7 +2,7 @@ import { profile } from '$lib/profiles/profiles';
 import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
 
-export let load = (async ({ url }) => {
+export const load = (async ({ url }) => {
 	const { client, jwt } = get(profile);
 	const crossPostId = url.searchParams.get('crosspost');
 
