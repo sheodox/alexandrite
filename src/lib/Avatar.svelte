@@ -12,6 +12,8 @@
 
 		:global(img) {
 			object-fit: cover;
+			height: var(--avatar-size);
+			width: var(--avatar-size);
 		}
 	}
 	.avatar-fallback {

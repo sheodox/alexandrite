@@ -22,7 +22,7 @@
 
 <div class="thumbnail" style="--thumbnail-height: {height};">
 	{#if thumbnailUrl}
-		<Image src={thumbnailUrl} mode="thumbnail" nsfw={postView.post.nsfw} />
+		<Image src={thumbnailUrl} mode="thumbnail" nsfw={postView.post.nsfw || postView.community.nsfw} />
 	{:else}
 		<!-- only showing the placeholder thumbnail if that's the orientation -->
 		<Stack justify="center" align="center">

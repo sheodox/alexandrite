@@ -16,8 +16,8 @@
 	}
 </style>
 
-<div class="card-image" class:nsfw={postView.post.nsfw}>
-	{#if postView.post.nsfw && $nsfwImageHandling === 'HIDE' && !showAnyway}
+<div class="card-image" class:nsfw={postView.post.nsfw || postView.community.nsfw}>
+	{#if (postView.post.nsfw || postView.community.nsfw) && $nsfwImageHandling === 'HIDE' && !showAnyway}
 		<div class="card-image-placeholder">
 			<button class="tertiary" on:click|stopPropagation={() => (showAnyway = true)}> Show NSFW </button>
 		</div>
