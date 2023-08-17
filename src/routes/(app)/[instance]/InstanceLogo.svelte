@@ -1,4 +1,15 @@
-<Avatar src={$siteMeta.site_view.site.icon} icon="network-external" {size} resolution={96} />
+<style lang="scss">
+	div {
+		margin-right: var(--sx-spacing-2);
+		:global(img) {
+			margin: 0 !important;
+		}
+	}
+</style>
+
+<div>
+	<Avatar src={$siteMeta.site_view.site.icon} icon="network-external" {size} resolution={96} />
+</div>
 
 <script lang="ts">
 	import Avatar from '$lib/Avatar.svelte';

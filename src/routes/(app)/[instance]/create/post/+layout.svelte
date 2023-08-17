@@ -8,9 +8,11 @@
 <Title title="Post" />
 
 <Layout size="medium">
-	<div class="community-header my-2">
-		<CommunityHeader contentView={communityViewToContentView(data.communityView)} readOnly />
-	</div>
+	{#if data.communityView}
+		<div class="community-header my-2">
+			<CommunityHeader contentView={communityViewToContentView(data.communityView)} readOnly />
+		</div>
+	{/if}
 
 	<slot />
 </Layout>

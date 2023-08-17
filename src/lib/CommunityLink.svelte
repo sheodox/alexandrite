@@ -27,7 +27,11 @@
 	}
 </style>
 
-<a href="/{$profile.instance}/c/{communityName}" class:inline-link={inlineLink} data-sveltekit-preload-data="off">
+<a
+	href={href ? href : `/${$profile.instance}/c/${communityName}`}
+	class:inline-link={inlineLink}
+	data-sveltekit-preload-data="off"
+>
 	{#if inlineLink}
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
@@ -59,13 +63,9 @@
 		</Tooltip>
 	{:else}
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
-			<div class="community-avatar medium">
-				{#if community.icon && $profile.settings.show_avatars}
-					<Image src={community.icon} mode="thumbnail" />
-				{:else}
-					<Icon icon="users" />
-				{/if}
-			</div>
+			{#if $profile.settings.show_avatars}
+				<Avatar src={community.icon} size="2rem" icon="users" />
+			{/if}
 			<span>
 				<NameAtInstance place={community} displayName={community.title} prefix="" />
 			</span>
@@ -74,7 +74,8 @@
 </a>
 
 <script lang="ts">
-	import { Stack, Icon, Tooltip } from 'sheodox-ui';
+	import { Stack, Tooltip } from 'sheodox-ui';
+	import Avatar from './Avatar.svelte';
 	import Image from './Image.svelte';
 	import { nameAtInstance } from './nav-utils';
 	import CommunityBadges from './feeds/posts/CommunityBadges.svelte';
@@ -85,6 +86,10 @@
 
 	export let community: Community;
 	export let inlineLink = true;
+	// if the link should actually go somewhere else, but still have community "branding", use that link instead.
+	// this is used for links to crossposts, where the community should be the visible part of the link, but the
+	// link should actually go to the post in that community
+	export let href: string | null = null;
 
 	$: communityName = nameAtInstance(community);
 </script>

@@ -96,8 +96,13 @@
 	</svelte:fragment>
 </svelte:component>
 
-{#if layout === 'LIST' && !lastOfList}
-	<hr class="w-100" />
+{#if crossPosts?.length}
+	<Stack dir="r" gap={1} cl="f-wrap ml-2 mb-4">
+		Cross-posted to:
+		{#each crossPosts as pv}
+			<CommunityLink href="/{$profile.instance}/post/{pv.post.id}" community={pv.community} />
+		{/each}
+	</Stack>
 {/if}
 
 <slot name="before-embed" />
@@ -112,8 +117,12 @@
 	<ReasonModal on:reason={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
 {/if}
 
+{#if layout === 'LIST' && !lastOfList}
+	<hr class="w-100" />
+{/if}
+
 <script lang="ts">
-	import { Tooltip, Icon, createAutoExpireToast } from 'sheodox-ui';
+	import { Stack, Tooltip, Icon, createAutoExpireToast } from 'sheodox-ui';
 	import { getAppContext } from '$lib/app-context';
 	import { getSettingsContext, type PostPreviewLayout } from '$lib/settings-context';
 	import CardPostPreview from './previews/CardPostPreview.svelte';
@@ -145,7 +154,10 @@
 	export let expandPostContent: boolean;
 	export let forceLayout: PostPreviewLayout | undefined = undefined;
 	export let mode: 'show' | 'list' = 'list';
+	// if this is the last post in a list of posts, controls whether a
+	// separator is shown below the post on some layouts
 	export let lastOfList = true;
+	export let crossPosts: PostView[] | null = null;
 	// export only! don't pass a value
 	export let api: PostLayoutAPI | undefined = undefined;
 
@@ -339,6 +351,13 @@
 				text: 'Delete Post',
 				href: postBaseUrl + 'delete',
 				icon: 'trash-can'
+			});
+		}
+		if (loggedIn) {
+			options.push({
+				text: 'Crosspost',
+				href: `/${$profile.instance}/create/post?crosspost=${postView.post.id}`,
+				icon: 'clone'
 			});
 		}
 		if (loggedIn && !isMyPost) {

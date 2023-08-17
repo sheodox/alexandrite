@@ -6,11 +6,11 @@
 		align-items: center;
 		overflow: hidden;
 		line-height: 0;
+		border-radius: var(--avatar-size);
+		height: var(--avatar-size);
+		width: var(--avatar-size);
 
 		:global(img) {
-			border-radius: var(--avatar-size);
-			height: var(--avatar-size);
-			width: var(--avatar-size);
 			object-fit: cover;
 		}
 	}
@@ -19,7 +19,11 @@
 	}
 </style>
 
-<div class="avatar {cl}" style="--avatar-size: {size};" class:avatar-fallback={!hasImage}>
+<div
+	class="avatar f-row justify-content-center align-items-center {cl}"
+	style="--avatar-size: {size};"
+	class:avatar-fallback={!hasImage}
+>
 	{#if hasImage && src}
 		<Image {src} mode="thumbnail" thumbnailResolution={resolution} />
 	{:else}

@@ -65,6 +65,7 @@
 			</div>
 			<PostLayout
 				{postView}
+				{crossPosts}
 				bind:expandPostContent={showPost}
 				supportsOverlay={false}
 				forceLayout="LIST"
@@ -224,6 +225,9 @@
 	export let centered = false;
 	// if the user should see a 'Close' button, useful when viewing a feed in column layout
 	export let closeable = false;
+	// when we are viewing a post directly we'll already know the cross posts, but we need
+	// to load them on mount when viewing in a feed adjacent post
+	export let crossPosts: PostView[] | null = null;
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
 	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
@@ -249,9 +253,9 @@
 	}
 	$: commentViews = $commentCVStore.map((cv) => cv.view as CommentView);
 
-	let commentExpandLoadingIds = new Set<number>();
-	let newCommentForm: HTMLFormElement;
-	let commentsPageNum = 1,
+	let commentExpandLoadingIds = new Set<number>(),
+		newCommentForm: HTMLFormElement,
+		commentsPageNum = 1,
 		selectedSort = 'Hot',
 		newCommentText = '',
 		searchText = '',
@@ -565,12 +569,13 @@
 	onMount(async () => {
 		if (jwt) {
 			// getting the post has a side effect of marking it and its comments as read
-			const pv = await client.getPost({ id: postView.post.id, auth: jwt }).then(({ post_view }) => {
-				post_view.read = true;
-				post_view.unread_comments = 0;
-				return post_view;
+			const res = await client.getPost({ id: postView.post.id, auth: jwt }).then((res) => {
+				res.post_view.read = true;
+				res.post_view.unread_comments = 0;
+				return res;
 			});
-			postCVStore.updateView(postViewToContentView(pv));
+			crossPosts = res.cross_posts;
+			postCVStore.updateView(postViewToContentView(res.post_view));
 		}
 	});
 

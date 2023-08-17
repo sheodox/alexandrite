@@ -74,13 +74,21 @@ export class Throttler {
 
 	constructor(
 		private callback: () => unknown,
-		private throttleMS: number = 200
+		private throttleMS: number = 200,
+		private debounce = false
 	) {}
 
 	run() {
-		if (this.timeout) {
+		if (this.timeout && !this.debounce) {
 			return;
 		}
+
+		// if debouncing instead of throttling we need to clear the timeout
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+			this.timeout = null;
+		}
+
 		this.timeout = setTimeout(() => {
 			this.timeout = null;
 			this.callback();

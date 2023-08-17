@@ -3,7 +3,9 @@
 	<ContentViewProvider store={cvStore}>
 		{@const content = $cvStore.at(0)}
 		{#if content?.type === 'post'}
-			<PostPage postView={content.view} centered />
+			{#key content.id}
+				<PostPage postView={content.view} crossPosts={data.crossPosts} centered />
+			{/key}
 		{/if}
 	</ContentViewProvider>
 {:else}
@@ -20,7 +22,7 @@
 	export let data;
 
 	const cvStore = createContentViewStore();
-	if (data.postView) {
+	$: if (data.postView) {
 		cvStore.set([postViewToContentView(data.postView)]);
 	}
 </script>

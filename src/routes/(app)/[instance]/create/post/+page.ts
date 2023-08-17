@@ -2,13 +2,16 @@ import { profile } from '$lib/profiles/profiles';
 import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
 
-export const load = (async ({ params }) => {
+export let load = (async ({ url }) => {
 	const { client, jwt } = get(profile);
-
-	const res = await client.getPost({ id: +params.postId, auth: jwt });
+	const crossPostId = url.searchParams.get('crosspost');
 
 	return {
-		postView: res.post_view,
-		crossPosts: res.cross_posts
+		crossPost: crossPostId
+			? client.getPost({
+					auth: jwt,
+					id: +crossPostId
+			  })
+			: null
 	};
 }) satisfies PageLoad;
