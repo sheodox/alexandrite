@@ -55,7 +55,6 @@
 	$: discussionLanguages = $communityRes?.discussion_languages;
 
 	onMount(() => {
-		console.log({ crossPost });
 		if (crossPost) {
 			url = crossPost.post.url ?? '';
 			title = crossPost.post.name;

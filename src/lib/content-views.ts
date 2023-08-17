@@ -199,6 +199,8 @@ export interface ContentViewStore {
 	subscribe: Writable<ContentView[]>['subscribe'];
 	set: (views: ContentView[]) => void;
 	clear: () => void;
+	// remove a single item from the store
+	remove: (id: number) => void;
 	// used to add a new page of data to the end
 	append: (views: ContentView[]) => void;
 	// used to put some stuff at the top of the views (like when posting a comment on a post)
@@ -236,11 +238,15 @@ export const createContentViewStore = (): ContentViewStore => {
 		store.update((vs) => views.concat(vs));
 	};
 	const clear = () => store.set([]);
+	const remove = (id: number) => {
+		store.update((vs) => vs.filter((v) => v.id !== id));
+	};
 
 	return {
 		subscribe: store.subscribe,
 		set: store.set,
 		clear,
+		remove,
 		append,
 		prepend,
 		updateView,

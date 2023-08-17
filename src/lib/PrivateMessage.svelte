@@ -29,20 +29,59 @@
 				<UserLink user={otherPerson} />
 				<UserBadges user={otherPerson} />
 				<span class="muted">&centerdot;</span>
-				<RelativeTime date={privateMessageView.private_message.published} />
+				<RelativeTime date={privateMessageView.private_message.published} verb="Sent" />
+				{#if privateMessageView.private_message.updated}
+					<RelativeTime date={privateMessageView.private_message.updated} icon="edit" variant="icon" verb="Edited" />
+				{/if}
 			</Stack>
 			<Markdown md={privateMessageView.private_message.content} />
 			<Stack dir="r" gap={2} align="center">
 				<slot name="actions-start" {toMe} />
 
-				<IconButton icon="reply" small on:click={() => (showReply = true)} disabled={showReply} text="Reply" />
+				<IconButton
+					icon="reply"
+					small
+					on:click={() => {
+						showReply = true;
+						showEdit = false;
+					}}
+					disabled={showReply}
+					text="Reply"
+				/>
+				{#if !toMe}
+					<IconButton
+						icon="edit"
+						small
+						on:click={() => {
+							showEdit = true;
+							showReply = false;
+						}}
+						disabled={showEdit}
+						text="Edit"
+					/>
+					<IconButton icon="trash-can" small on:click={onDelete} text="Delete" />
+				{/if}
 				<LogButton on:click={() => console.log({ privateMessageView })} />
 			</Stack>
 
 			{#if showReply}
-				<div class="mx-8">
-					<PrivateMessageCompose to={otherPerson} on:sent={sent} on:cancel={() => (showReply = false)} cancellable />
-				</div>
+				<PrivateMessageCompose
+					label="Reply"
+					to={otherPerson}
+					on:cancel={() => (showReply = false)}
+					cancellable
+					on:sent={onReplied}
+				/>
+			{/if}
+			{#if showEdit}
+				<PrivateMessageCompose
+					label="Edit Message"
+					to={otherPerson}
+					on:update={onEdited}
+					on:cancel={() => (showEdit = false)}
+					cancellable
+					{privateMessageView}
+				/>
 			{/if}
 		</Stack>
 	</div>
@@ -59,15 +98,41 @@
 	import LogButton from './LogButton.svelte';
 	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import { profile } from './profiles/profiles';
+	import { getContentViewStore, messageViewToContentView } from './content-views';
 
 	export let privateMessageView: PrivateMessageView;
 
-	let showReply = false;
+	const cvStore = getContentViewStore();
 
+	let showReply = false,
+		showEdit = false;
+
+	$: client = $profile.client;
+	$: jwt = $profile.jwt;
 	$: toMe = privateMessageView.recipient.local && privateMessageView.recipient.name === $profile.username;
 	$: otherPerson = toMe ? privateMessageView.creator : privateMessageView.recipient;
 
-	function sent() {
+	function onEdited(e: CustomEvent<PrivateMessageView>) {
+		cvStore.updateView(messageViewToContentView(e.detail));
+		showEdit = false;
+	}
+
+	function onReplied(e: CustomEvent<PrivateMessageView>) {
+		cvStore.prepend([messageViewToContentView(e.detail)]);
 		showReply = false;
+	}
+
+	async function onDelete() {
+		if (!jwt) {
+			return;
+		}
+		if (confirm('Are you sure you want to delete this message?')) {
+			await client.deletePrivateMessage({
+				auth: jwt,
+				deleted: true,
+				private_message_id: privateMessageView.private_message.id
+			});
+			cvStore.remove(privateMessageView.private_message.id);
+		}
 	}
 </script>
