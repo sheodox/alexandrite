@@ -8,9 +8,9 @@
 		><InstanceLogo size="3rem" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
 	</span>
 	<Stack slot="actions" dir="c" gap={2} cl="mt-2">
-		{#each $siteMeta.taglines as tagline}
+		{#if tagline}
 			<Alert variant="info"><Markdown md={tagline.content} /></Alert>
-		{/each}
+		{/if}
 	</Stack>
 </Sidebar>
 
@@ -21,6 +21,7 @@
 	import Markdown from '$lib/Markdown.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import InstanceLogo from '../../routes/(app)/[instance]/InstanceLogo.svelte';
+	import type { Tagline } from 'lemmy-js-client';
 
 	const { siteMeta } = getAppContext();
 	$: siteView = $siteMeta.site_view;
@@ -47,4 +48,14 @@
 			value: $siteMeta.version
 		}
 	];
+
+	$: tagline = randomTagline($siteMeta.taglines);
+
+	function randomTagline(taglines: Tagline[]) {
+		if (!taglines.length || false) {
+			return null;
+		}
+
+		return taglines[Math.floor(Math.random() * taglines.length)];
+	}
 </script>
