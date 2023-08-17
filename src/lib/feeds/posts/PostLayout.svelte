@@ -355,7 +355,7 @@
 		}
 		if (loggedIn) {
 			options.push({
-				text: 'Crosspost',
+				text: 'Cross-post',
 				href: `/${$profile.instance}/create/post?crosspost=${postView.post.id}`,
 				icon: 'clone'
 			});
