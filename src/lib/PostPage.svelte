@@ -261,7 +261,8 @@
 		searchText = '',
 		loadingComments = false,
 		// assume if they came here following a comment link, commenting on the post is less important
-		showPost = rootCommentId === null && (!postView.post.nsfw || $nsfwImageHandling === 'SHOW'),
+		showPost =
+			rootCommentId === null && ((!postView.post.nsfw && !postView.community.nsfw) || $nsfwImageHandling === 'SHOW'),
 		commentLoadFailed = false,
 		endOfCommentsFeed = false,
 		virtualFeedAPI: VirtualFeedAPI,
