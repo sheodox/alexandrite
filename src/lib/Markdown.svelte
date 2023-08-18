@@ -140,6 +140,9 @@
 
 				if (newPathname) {
 					token[idx].attrSet('href', `/${$instance}${newPathname}${url.search}`);
+				} else {
+					// open any external urls in a new tab
+					token[idx].attrSet('target', '_blank');
 				}
 			}
 
