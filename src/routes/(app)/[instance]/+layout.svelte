@@ -291,6 +291,9 @@
 			headerResizeObserver.observe(header);
 		}
 
+		// if they want the sidebar to stay open, start with it open
+		$navSidebarOpen = $navSidebarDocked;
+
 		storeUnsubs.push(
 			cssVariables.subscribe((vars) => {
 				let style = document.getElementById(styleId);
