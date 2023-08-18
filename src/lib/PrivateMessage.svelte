@@ -60,7 +60,10 @@
 						text="Edit"
 					/>
 					<IconButton icon="trash-can" small on:click={onDelete} text="Delete" />
+				{:else}
+					<IconButton icon="flag" small on:click={() => (showReportModal = true)} text="Report" />
 				{/if}
+
 				<LogButton on:click={() => console.log({ privateMessageView })} />
 			</Stack>
 
@@ -87,11 +90,16 @@
 	</div>
 </div>
 
+{#if showReportModal}
+	<ReasonModal on:reason={(e) => $reportState.submit(e)} bind:visible={showReportModal} busy={$reportState.busy} />
+{/if}
+
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, createAutoExpireToast } from 'sheodox-ui';
 	import RelativeTime from './RelativeTime.svelte';
 	import Markdown from './Markdown.svelte';
 	import type { PrivateMessageView } from 'lemmy-js-client';
+	import ReasonModal from '$lib/ReasonModal.svelte';
 	import IconButton from './IconButton.svelte';
 	import UserLink from './UserLink.svelte';
 	import PrivateMessageCompose from './PrivateMessageCompose.svelte';
@@ -99,13 +107,31 @@
 	import UserBadges from './feeds/posts/UserBadges.svelte';
 	import { profile } from './profiles/profiles';
 	import { getContentViewStore, messageViewToContentView } from './content-views';
+	import { createStatefulAction } from './utils';
 
 	export let privateMessageView: PrivateMessageView;
 
 	const cvStore = getContentViewStore();
 
 	let showReply = false,
-		showEdit = false;
+		showEdit = false,
+		showReportModal = false;
+
+	const reportState = createStatefulAction(async (e: CustomEvent<string>) => {
+		if (!jwt) {
+			return;
+		}
+		await client.createPrivateMessageReport({
+			auth: jwt,
+			reason: e.detail,
+			private_message_id: privateMessageView.private_message.id
+		});
+
+		createAutoExpireToast({
+			message: 'Message Reported'
+		});
+		showReportModal = false;
+	});
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;

@@ -262,6 +262,7 @@
 		createAutoExpireToast({
 			message: 'Post Reported'
 		});
+		showReportModal = false;
 	});
 
 	const featureLocalPending = getModActionPending('feature-post-local', postView.post.id);
