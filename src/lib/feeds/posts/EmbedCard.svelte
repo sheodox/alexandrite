@@ -21,11 +21,9 @@
 					</span>
 					{title}
 				</span>
-				<br />
 			{/if}
 			{#if externalLink}
 				<PrettyExternalLink href={externalLink} />
-				<br />
 			{/if}
 			{description ?? ''}
 			<slot />
