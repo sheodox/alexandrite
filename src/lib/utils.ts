@@ -2,6 +2,17 @@ import { goto } from '$app/navigation';
 import { readable, writable } from 'svelte/store';
 import { getCtrlBasedHotkeys } from './app-context';
 
+export function safeUrl(url: string | null) {
+	if (!url) {
+		return null;
+	}
+	try {
+		return new URL(url);
+	} catch (e) {
+		return null;
+	}
+}
+
 // a wrapper for things in a MenuButton, used by ExtraActions.svelte
 export interface ExtraAction {
 	text: string;

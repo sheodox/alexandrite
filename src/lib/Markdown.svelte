@@ -19,6 +19,7 @@
 	import type Token from 'markdown-it/lib/token';
 	import './markdown.scss';
 	import { instance } from './profiles/profiles';
+	import { safeUrl } from './utils';
 
 	export let md: string;
 	export let noImages = false;
@@ -156,17 +157,6 @@
 		const target = e.target as HTMLElement;
 		if (target.tagName.toLowerCase() === 'img') {
 			target.classList.toggle('show-full');
-		}
-	}
-
-	function safeUrl(url: string | null) {
-		if (!url) {
-			return null;
-		}
-		try {
-			return new URL(url);
-		} catch (e) {
-			return null;
 		}
 	}
 </script>

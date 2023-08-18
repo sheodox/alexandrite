@@ -62,13 +62,16 @@
 			{instanceText}
 		</span>
 
-		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} />
+		{#if $profile.loggedIn}
+			<HeaderCreateMenu />
+		{/if}
 		<HeaderUserMenu on:accounts={() => (showAccountsSelector = true)} />
 		<IconButton
 			icon={$sidebarVisible ? 'angles-right' : 'angles-left'}
 			on:click={() => ($sidebarVisible = !$sidebarVisible)}
 			text="Toggle sidebar"
 		/>
+		<LogButton on:click={() => console.log(data)} text="Log Layout Data" small={false} />
 	</div>
 </Header>
 
@@ -107,6 +110,7 @@
 	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import CommunityContext from '$lib/community-context/CommunityContext.svelte';
 	import ModContext from '$lib/mod/ModContext.svelte';
+	import HeaderCreateMenu from './HeaderCreateMenu.svelte';
 	import { Sidebar, Header, Icon, Search, Toasts, Modals, getSxColorSchemeContext } from 'sheodox-ui';
 	import ProfileOverlay from '$lib/profiles/ProfileOverlay.svelte';
 	import { onDestroy, onMount } from 'svelte';
