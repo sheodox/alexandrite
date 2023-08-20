@@ -18,6 +18,15 @@
 	.image-mode-thumbnail.blur:not(:hover) img {
 		filter: blur(10px);
 	}
+	.image-mode-full.blur {
+		// need to do this otherwise the blur overflows its container and goes all over the card
+		display: block;
+		overflow: hidden;
+
+		&:not(:hover) img {
+			filter: blur(40px);
+		}
+	}
 	img {
 		width: 100%;
 	}

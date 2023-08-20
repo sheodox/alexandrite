@@ -16,14 +16,22 @@
 	}
 </style>
 
-<div class="card-image" class:nsfw={postView.post.nsfw || postView.community.nsfw}>
+<div class="card-image" class:nsfw={isNsfw}>
 	{#if (postView.post.nsfw || postView.community.nsfw) && $nsfwImageHandling === 'HIDE' && !showAnyway}
 		<div class="card-image-placeholder">
 			<button class="tertiary" on:click|stopPropagation={() => (showAnyway = true)}> Show NSFW </button>
 		</div>
 	{:else if postAssertions.imageSrc}
-		<!-- not passing nsfw, this component handles it otherwise we'd have nested buttons -->
-		<Image src={postAssertions.imageSrc} full resizable={false} lazy={false} loadingHeight="20rem" />
+		<!-- not passing nsfw when handling='show' this component handles it otherwise we'd have nested buttons,
+		but we need to still tell it when it needs to blur otherwise you see unblurred nsfw content -->
+		<Image
+			src={postAssertions.imageSrc}
+			full
+			resizable={false}
+			lazy={false}
+			loadingHeight="20rem"
+			nsfw={$nsfwImageHandling === 'BLUR' && isNsfw}
+		/>
 	{/if}
 </div>
 
@@ -39,4 +47,5 @@
 
 	let showAnyway = false;
 	$: postAssertions = makePostAssertions(postView);
+	$: isNsfw = postView.post.nsfw || postView.community.nsfw;
 </script>
