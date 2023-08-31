@@ -70,6 +70,7 @@
 		resolved={view.comment_report.resolved}
 		resolver={view.resolver}
 		communityId={view.community.id}
+		reportedAt={view.comment_report.published}
 		on:ban={onBan}
 	/>
 </Stack>

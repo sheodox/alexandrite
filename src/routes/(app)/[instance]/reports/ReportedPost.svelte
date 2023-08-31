@@ -54,6 +54,7 @@
 	</Stack>
 	<Report
 		busy={$toggleResolvedState.busy}
+		reportedAt={view.post_report.published}
 		on:resolve={(e) => $toggleResolvedState.submit(e.detail)}
 		creator={view.creator}
 		reason={view.post_report.reason}

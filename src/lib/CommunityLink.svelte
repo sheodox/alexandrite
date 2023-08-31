@@ -32,7 +32,7 @@
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
 				<Stack gap={2} dir="r" align="center">
-					{#if community.icon && $profile.settings.show_avatars}
+					{#if community.icon && showIcon}
 						<div class="community-avatar large">
 							<Image src={community.icon} mode="thumbnail" />
 						</div>
@@ -46,7 +46,7 @@
 				{/if}
 			</div>
 			<span class="f-row gap-1 align-items-center">
-				{#if community.icon && $profile.settings.show_avatars}
+				{#if community.icon && showIcon}
 					<div class="community-avatar small">
 						<Image src={community.icon} mode="thumbnail" thumbnailResolution={16} />
 					</div>
@@ -54,12 +54,14 @@
 				<EllipsisText
 					><NameAtInstance place={community} displayName={community.title} prefix="" wrappable={false} /></EllipsisText
 				>
-				<CommunityBadges {community} />
+				{#if showBadges}
+					<CommunityBadges {community} />
+				{/if}
 			</span>
 		</Tooltip>
 	{:else}
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
-			{#if $profile.settings.show_avatars}
+			{#if $profile.settings.show_avatars && showIcon}
 				<Avatar src={community.icon} size="2rem" icon="users" />
 			{/if}
 			<span>
@@ -79,6 +81,7 @@
 	import NameAtInstance from './NameAtInstance.svelte';
 	import EllipsisText from './EllipsisText.svelte';
 	import { profile } from './profiles/profiles';
+	import { getSettingsContext } from './settings-context';
 
 	export let community: Community;
 	export let inlineLink = true;
@@ -86,6 +89,17 @@
 	// this is used for links to crossposts, where the community should be the visible part of the link, but the
 	// link should actually go to the post in that community
 	export let href: string | null = null;
+	export let showBadges = true;
+
+	const { nsfwImageHandling } = getSettingsContext();
 
 	$: communityName = nameAtInstance(community);
+
+	// hide community avatars if the community is nsfw and the user doesn't want to explicitly see nsfw content,
+	// as the community avatar often will also be nsfw
+	$: nsfwShowable = !community.nsfw || $nsfwImageHandling === 'SHOW';
+
+	// just in case, don't show icons for communities that were removed for some reason
+	$: showIcon =
+		$profile.settings.show_avatars && community.icon && !community.deleted && !community.removed && nsfwShowable;
 </script>

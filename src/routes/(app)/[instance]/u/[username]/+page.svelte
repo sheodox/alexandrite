@@ -15,26 +15,37 @@
 			pageBaseUrl={data.pageBaseUrl}
 		>
 			<div slot="sidebar">
-				<article>
-					<h1>Stats</h1>
-					<UserCounts personView={data.personView} />
-
-					{#if data.personView.person.bio}
-						<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
-							<Markdown md={data.personView.person.bio} />
-						</Fieldset>
-					{/if}
-				</article>
-				{#if data.moderates && data.moderates.length}
+				<Stack dir="c" gap={2}>
 					<article>
-						<h2 class="mb-0">Moderates</h2>
-						<Stack dir="c" gap={2}>
-							{#each data.moderates as mod}
-								<CommunityLink community={mod.community} />
-							{/each}
-						</Stack>
+						<h1>Stats</h1>
+						<UserCounts personView={data.personView} />
+
+						{#if data.personView.person.bio}
+							<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
+								<Markdown md={data.personView.person.bio} />
+							</Fieldset>
+						{/if}
 					</article>
-				{/if}
+
+					<ModlogLink
+						highlight={false}
+						highlightColor={'gray'}
+						warn={$showModlogWarning}
+						label="Modlog (actions on this user)"
+						targetId={data.personView.person.id}
+					/>
+
+					{#if data.moderates && data.moderates.length}
+						<article>
+							<h2 class="mb-0">Moderates</h2>
+							<Stack dir="c" gap={2}>
+								{#each data.moderates as mod}
+									<CommunityLink community={mod.community} />
+								{/each}
+							</Stack>
+						</article>
+					{/if}
+				</Stack>
 
 				<hr class="my-8" />
 			</div>
@@ -54,9 +65,12 @@
 	import { loadFeedData } from '$lib/feed-query.js';
 	import type { PageData } from './$types';
 	import { createContentViewStore, type ContentView } from '$lib/content-views';
+	import ModlogLink from '$lib/ModlogLink.svelte';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	export let data;
 
+	const { showModlogWarning } = getSettingsContext();
 	const cvStore = createContentViewStore();
 
 	let loader: ReturnType<typeof initFeed>;

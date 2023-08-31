@@ -15,6 +15,7 @@
 		<div class="f-row align-items-center gap-1">
 			<Stack dir="r" gap={1} align="center" cl="f-1">
 				Report by <UserLink user={creator} /><UserBadges user={creator} {bannedFromCommunity} />
+				<RelativeTime date={reportedAt} />
 			</Stack>
 			<MenuButton triggerClasses="small">
 				<span slot="trigger" class="menu-button-trigger">
@@ -64,6 +65,7 @@
 	import { Stack, MenuButton, Icon } from 'sheodox-ui';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import BanButton from './BanButton.svelte';
+	import RelativeTime from '$lib/RelativeTime.svelte';
 	import UserLink from '$lib/UserLink.svelte';
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
 	import type { Person } from 'lemmy-js-client';
@@ -79,6 +81,8 @@
 	export let creator: Person;
 	export let reason: string;
 	export let busy: boolean;
+	export let reportedAt: string;
+
 	$: bannedFromCommunity = $bannedUsers.get(creator.id) ?? false;
 	$: banStateKnown = $bannedUsers.has(creator.id);
 </script>

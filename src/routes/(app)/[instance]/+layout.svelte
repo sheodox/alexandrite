@@ -183,6 +183,11 @@
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		colorScheme = localStorageBackedStore('color-scheme', AlexandriteSettingsDefaults.colorScheme),
+		showModlogWarning = localStorageBackedStore('show-modlog', AlexandriteSettingsDefaults.showModlogWarning),
+		showModlogWarningModerated = localStorageBackedStore(
+			'show-modlog-moderated',
+			AlexandriteSettingsDefaults.showModlogWarningModerated
+		),
 		cssVariables = writable<Record<string, string | number>>({});
 
 	const sxColorScheme = getSxColorSchemeContext();
@@ -262,7 +267,9 @@
 		feedLayout,
 		navSidebarDocked,
 		postPreviewLayout,
-		postListLayoutContentPreview
+		postListLayoutContentPreview,
+		showModlogWarning,
+		showModlogWarningModerated
 	});
 
 	$: instanceText = $profile.username ? `${$profile.username}@${$profile.instance}` : $profile.instance;
