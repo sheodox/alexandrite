@@ -1,8 +1,4 @@
 <style>
-	ul .spinner {
-		/* match the width of icons in dropdown menus from sheodox-ui */
-		width: 1.5rem;
-	}
 	.extra-actions-trigger {
 		aspect-ratio: 1;
 		display: block;
@@ -13,7 +9,7 @@
 {#if actions.length}
 	{@const text = 'Extra actions'}
 	<Tooltip title={text}>
-		<MenuButton triggerClasses="small m-0">
+		<MenuButton triggerClasses="{small ? 'small' : ''} m-0 {cl}">
 			<span slot="trigger" class="extra-actions-trigger">
 				<span class="sr-only">{text}</span>
 				<Icon icon="ellipsis-vertical" />
@@ -21,24 +17,8 @@
 
 			<ul slot="menu">
 				{#each actions as opt}
-					{@const variant = opt.variant || 'solid'}
 					<li>
-						{#if opt.href}
-							<a href={opt.href} class="button"><Icon icon={opt.icon} {variant} /> {opt.text}</a>
-						{:else if opt.click}
-							<button on:click={opt.click} class="button" disabled={opt.busy ?? false} use:ripple>
-								<div class="f-row gap-1">
-									{#if opt.busy}
-										<div class="spinner">
-											<Spinner />
-										</div>
-									{:else}
-										<Icon icon={opt.icon} {variant} />
-									{/if}
-									<span>{opt.text}</span>
-								</div>
-							</button>
-						{/if}
+						<ExtraActionButton action={opt} />
 					</li>
 				{/each}
 			</ul>
@@ -47,9 +27,11 @@
 {/if}
 
 <script lang="ts">
-	import { Tooltip, MenuButton, Icon, ripple } from 'sheodox-ui';
+	import { Tooltip, MenuButton, Icon } from 'sheodox-ui';
 	import type { ExtraAction } from './utils';
-	import Spinner from './Spinner.svelte';
+	import ExtraActionButton from './ExtraActionButton.svelte';
 
 	export let actions: ExtraAction[];
+	export let small = false;
+	export let cl = '';
 </script>

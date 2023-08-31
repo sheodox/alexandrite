@@ -67,7 +67,7 @@
 				</a>
 			</Tooltip>
 			<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
-			<ExtraActions actions={overflowMenuOptions} />
+			<ExtraActions small actions={overflowMenuOptions} />
 		{/if}
 	</svelte:fragment>
 
