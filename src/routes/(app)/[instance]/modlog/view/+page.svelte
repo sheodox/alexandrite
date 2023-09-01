@@ -36,7 +36,7 @@
 					</select>
 				</label>
 
-				{#if data.communityModerators}
+				{#if data.communityModerators && !censorMods}
 					<label>
 						Filter by moderator
 						<br />
@@ -67,7 +67,7 @@
 			</thead>
 			<tbody>
 				{#each data.modlogs as modlog}
-					<ModlogAction {modlog} {showCommunity} />
+					<ModlogAction {modlog} {showCommunity} {censorMods} />
 				{:else}
 					<tr>
 						<td colspan="100"> No more logs </td>
@@ -97,6 +97,10 @@
 	export let data;
 
 	const { siteMeta } = getAppContext();
+	$: isCommunityModerator =
+		data.communityModerators?.some((mod) => mod.id === $siteMeta.my_user?.local_user_view.local_user.person_id) ??
+		false;
+	$: censorMods = !$siteMeta.my_user?.local_user_view.person.admin && !isCommunityModerator;
 
 	$: showCommunity = data.communityName === null;
 	$: showSecondaryHeader = showCommunity || data.targetUser;
@@ -120,7 +124,7 @@
 		{ value: 'ModTransferCommunity', label: 'Community Transfers' },
 		{ value: 'ModAdd', label: 'Admin Team' },
 		{ value: 'ModBan', label: 'Instance Bans' },
-		// no clue what this is, doesn't seem to be used?
+		// TODO: this seems to be an admin only thing, need to test some time
 		// { value: 'ModHideCommunity', label: 'Community Hiding' },
 		{ value: 'AdminPurgePerson', label: 'Admin Person Purging' },
 		{ value: 'AdminPurgeCommunity', label: 'Admin Community Purging' },

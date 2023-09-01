@@ -25,8 +25,12 @@
 	{#if modlog.moderator}
 		<td>
 			<Stack dir="c" gap={1}>
-				<UserLink user={modlog.moderator} />
-				<UserBadges user={modlog.moderator} />
+				{#if censorMods}
+					<span>{censorModerator(modlog.moderator)}</span>
+				{:else}
+					<UserLink user={modlog.moderator} />
+					<UserBadges user={modlog.moderator} />
+				{/if}
 			</Stack>
 		</td>
 	{/if}
@@ -85,10 +89,20 @@
 	import CommunityBadges from '$lib/feeds/posts/CommunityBadges.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
+	import type { Person } from 'lemmy-js-client';
+	import { getAppContext } from '$lib/app-context';
 
 	export let modlog: ContentViewModlog;
 	export let showCommunity: boolean;
+	export let censorMods: boolean;
+
+	const { siteMeta } = getAppContext();
+
 	$: action = getAction(modlog);
+
+	function censorModerator(mod: Person) {
+		return $siteMeta.admins.some((admin) => admin.person.id === mod.id) ? 'Admin' : 'Mod';
+	}
 
 	const dateFmt = new Intl.DateTimeFormat(navigator.languages[0], {
 		dateStyle: 'medium',
