@@ -5,9 +5,13 @@
 	.preview {
 		max-height: 10rem;
 		overflow: hidden;
+		color: transparent;
+		--post-body-color: var(--sx-text-color);
+		background: linear-gradient(to bottom, var(--post-body-color), var(--post-body-color) 7rem, transparent 10rem);
+		background-clip: text;
 	}
 	div.read {
-		color: var(--sx-muted);
+		--post-body-color: var(--sx-muted);
 	}
 	.fr {
 		float: right;
