@@ -23,6 +23,7 @@
 				>
 					{view.post.name}
 				</a>
+				<VoteBreakdown upvotes={view.counts.upvotes} downvotes={view.counts.downvotes} score={view.counts.score} />
 			</Stack>
 			{#if view.post.url && (!probablyImage || !view.post.thumbnail_url)}
 				<PrettyExternalLink href={view.post.url} />
@@ -54,6 +55,7 @@
 	</Stack>
 	<Report
 		busy={$toggleResolvedState.busy}
+		reportedAt={view.post_report.published}
 		on:resolve={(e) => $toggleResolvedState.submit(e.detail)}
 		creator={view.creator}
 		reason={view.post_report.reason}
@@ -66,6 +68,7 @@
 
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
+	import VoteBreakdown from '$lib/VoteBreakdown.svelte';
 	import Report from './Report.svelte';
 	import type { BanFromCommunityResponse, PostReportView } from 'lemmy-js-client';
 	import BusyButton from '$lib/BusyButton.svelte';

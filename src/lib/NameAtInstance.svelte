@@ -3,7 +3,7 @@
 <script lang="ts">
 	export let place: NamedThing;
 	export let displayName = '';
-	export let prefix: string; // @, !, /m/ etc
+	export let prefix = ''; // @, !, /m/ etc
 	export let wrappable = true;
 
 	$: name = displayName || place.name;

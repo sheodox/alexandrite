@@ -21,7 +21,7 @@
 <Tooltip>
 	<div slot="tooltip">
 		<Stack gap={2} dir="r" align="center">
-			{#if user.avatar && $profile.settings.show_avatars}
+			{#if user.avatar && showAvatar}
 				<div class="user-avatar">
 					<Image src={user.avatar} mode="thumbnail" />
 				</div>
@@ -38,7 +38,7 @@
 		data-sveltekit-preload-data="off"
 		class:op={isOP}
 	>
-		{#if user.avatar && $profile.settings.show_avatars}
+		{#if user.avatar && showAvatar}
 			<div class="user-avatar inline">
 				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />
 			</div>
@@ -61,4 +61,6 @@
 	export let isOP = false;
 
 	$: creatorName = nameAtInstance(user);
+
+	$: showAvatar = $profile.settings.show_avatars && user.avatar && !user.deleted && !user.banned;
 </script>

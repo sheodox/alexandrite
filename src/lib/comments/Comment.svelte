@@ -166,7 +166,7 @@
 							{/if}
 						{/if}
 					{/if}
-					<ExtraActions actions={overflowMenuOptions} />
+					<ExtraActions small actions={overflowMenuOptions} />
 				{/if}
 				{#if deletePending}
 					<Spinner />

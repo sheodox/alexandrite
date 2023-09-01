@@ -81,6 +81,10 @@ export interface AlexandriteSettings {
 	feedLayout: FeedLayout;
 	postPreviewLayout: PostPreviewLayout;
 	postListLayoutContentPreview: boolean;
+	// whether to show a confirm page before showing the actual modlog
+	showModlogWarning: boolean;
+	// same as above, but for communities the user is responsible for
+	showModlogWarningModerated: boolean;
 }
 
 const probablyMobile = window.innerWidth < 800;
@@ -100,7 +104,9 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	// todo check if this is a good breakpoint
 	feedLayout: 'AUTO',
 	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST',
-	postListLayoutContentPreview: false
+	postListLayoutContentPreview: false,
+	showModlogWarning: true,
+	showModlogWarningModerated: true
 };
 
 export type AlexandriteSettingsStores = {

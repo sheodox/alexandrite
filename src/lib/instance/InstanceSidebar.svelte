@@ -12,18 +12,28 @@
 			<Alert variant="info"><Markdown md={tagline.content} /></Alert>
 		{/if}
 	</Stack>
+	<div slot="end">
+		<ModlogLink
+			highlight={$siteMeta.my_user?.local_user_view.person.admin ?? false}
+			highlightColor="orange"
+			warn={$showModlogWarning}
+		/>
+	</div>
 </Sidebar>
 
 <script lang="ts">
 	import { Alert, Stack } from 'sheodox-ui';
 	import Sidebar from '$lib/Sidebar.svelte';
 	import NameAtInstance from '$lib/NameAtInstance.svelte';
+	import ModlogLink from '$lib/ModlogLink.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import InstanceLogo from '../../routes/(app)/[instance]/InstanceLogo.svelte';
 	import type { Tagline } from 'lemmy-js-client';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	const { siteMeta } = getAppContext();
+	const { showModlogWarning } = getSettingsContext();
 	$: siteView = $siteMeta.site_view;
 
 	$: siteCounts = [
