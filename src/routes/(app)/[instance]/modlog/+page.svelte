@@ -1,5 +1,6 @@
 <style>
-	a {
+	a,
+	button {
 		min-width: 6rem;
 		text-align: center;
 	}
@@ -15,7 +16,7 @@
 			material. Proceed with caution.
 		</Alert>
 		<Stack dir="r" gap={2} justify="center">
-			<a class="button tertiary" href={communityHref}>No</a>
+			<button class="tertiary" on:click={() => history.back()}>No</button>
 			<a class="button danger" href="/{$profile.instance}/modlog/view{location.search}">Yes</a>
 		</Stack>
 		<p class="m-0 text-align-center">
@@ -28,6 +29,4 @@
 	import { Alert, Layout, Stack } from 'sheodox-ui';
 	import { profile } from '$lib/profiles/profiles';
 	export let data;
-
-	$: communityHref = `/${$profile.instance}/c/${data.communityName}`;
 </script>
