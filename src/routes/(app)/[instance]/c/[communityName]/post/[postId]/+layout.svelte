@@ -7,7 +7,7 @@
 
 <Title title="Post" />
 
-<Layout size="medium">
+<Layout size="medium" cl="mb-8">
 	{#if data.communityView}
 		<div class="community-header my-2">
 			<CommunityHeader contentView={communityViewToContentView(data.communityView)} readOnly />
