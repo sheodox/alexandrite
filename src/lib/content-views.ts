@@ -481,6 +481,14 @@ export function modRemoveCommentViewToContentView(view: ModRemoveCommentView): C
 		community: view.community
 	};
 }
+
+function makeCommunityTarget(community: Community) {
+	return {
+		icon: 'users',
+		text: '/c/' + (community.title || community.name),
+		href: `/${inst}/c/${nameAtInstance(community)}`
+	};
+}
 export function modRemovedCommunitiesViewToContentView(view: ModRemoveCommunityView): ContentViewModRemoveCommunity {
 	return {
 		type: 'mod-remove-community',
@@ -490,11 +498,7 @@ export function modRemovedCommunitiesViewToContentView(view: ModRemoveCommunityV
 		when: view.mod_remove_community.when_,
 		removed: view.mod_remove_community.removed,
 		reason: view.mod_remove_community.reason,
-		target: {
-			icon: 'users',
-			text: '/c/' + (view.community.title || view.community.name),
-			href: `/${inst}/c/${nameAtInstance(view.community)}`
-		},
+		target: makeCommunityTarget(view.community),
 		community: view.community
 	};
 }
@@ -629,9 +633,7 @@ export function modHideCommunityViewToContentView(view: ModHideCommunityView): C
 		when: view.mod_hide_community.when_,
 		reason: view.mod_hide_community.reason,
 		removed: view.mod_hide_community.hidden,
-		target: {
-			text: view.community.title ?? view.community.name
-		},
+		target: makeCommunityTarget(view.community),
 		community: view.community
 	};
 }

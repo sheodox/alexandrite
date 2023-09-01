@@ -241,10 +241,17 @@
 				text: 'Community Transferred'
 			};
 		} else if (modlog.type === 'admin-mod-hide-community') {
-			return {
-				icon: 'eye-slash',
-				text: 'Community Hidden'
-			};
+			return modlog.removed
+				? {
+						color: 'orange',
+						icon: 'eye-slash',
+						text: 'Community Hidden'
+				  }
+				: {
+						color: 'orange',
+						icon: 'eye',
+						text: 'Community Unhidden'
+				  };
 		}
 
 		return {
