@@ -23,6 +23,7 @@
 				>
 					{view.post.name}
 				</a>
+				<VoteBreakdown upvotes={view.counts.upvotes} downvotes={view.counts.downvotes} score={view.counts.score} />
 			</Stack>
 			{#if view.post.url && (!probablyImage || !view.post.thumbnail_url)}
 				<PrettyExternalLink href={view.post.url} />
@@ -67,6 +68,7 @@
 
 <script lang="ts">
 	import { Stack } from 'sheodox-ui';
+	import VoteBreakdown from '$lib/VoteBreakdown.svelte';
 	import Report from './Report.svelte';
 	import type { BanFromCommunityResponse, PostReportView } from 'lemmy-js-client';
 	import BusyButton from '$lib/BusyButton.svelte';

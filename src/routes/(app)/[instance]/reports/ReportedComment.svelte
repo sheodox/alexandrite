@@ -29,6 +29,7 @@
 		<a href="/{$profile.instance}/comment/{view.comment.id}">
 			<RelativeTime date={view.comment.published} />
 		</a>
+		<VoteBreakdown upvotes={view.counts.upvotes} downvotes={view.counts.downvotes} score={view.counts.score} />
 		{#if view.comment.updated && view.comment.updated !== view.comment.published}
 			<RelativeTime date={view.comment.updated} variant="icon" icon="edit" verb="Edited" />
 		{/if}
@@ -83,6 +84,7 @@
 	import IconLink from '$lib/IconLink.svelte';
 	import type { BanFromCommunityResponse, CommentReportView } from 'lemmy-js-client';
 	import UserLink from '$lib/UserLink.svelte';
+	import VoteBreakdown from '$lib/VoteBreakdown.svelte';
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
 	import BanButton from './BanButton.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
