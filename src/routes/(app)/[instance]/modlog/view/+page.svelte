@@ -12,7 +12,11 @@
 			<h2 class="m-0 sx-font-size-8 f-row gap-0">
 				{#if data.communityView}
 					/c/{data.communityView.community.title}
-				{:else if data.targetUser}
+				{/if}
+				{#if data.communityView && data.targetUser}
+					&centerdot;
+				{/if}
+				{#if data.targetUser}
 					Actions on /u/<NameAtInstance place={data.targetUser.person_view.person} />
 				{/if}
 			</h2>

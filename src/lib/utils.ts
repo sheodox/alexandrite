@@ -1,6 +1,7 @@
 import { goto } from '$app/navigation';
-import { readable, writable } from 'svelte/store';
+import { readable, writable, type Writable } from 'svelte/store';
 import { getCtrlBasedHotkeys } from './app-context';
+import { parseISO } from 'date-fns';
 
 export function safeUrl(url: string | null) {
 	if (!url) {
@@ -20,7 +21,12 @@ export interface ExtraAction {
 	icon: string;
 	click?: () => unknown;
 	variant?: 'regular' | 'solid';
+	// disable the button, switch icon to spinner
 	busy?: boolean;
+	// disable the button
+	disabled?: boolean;
+	// don't render the button at all
+	hidden?: boolean;
 }
 
 export const localStorageSet = <T>(key: string, value?: T) => {
@@ -47,7 +53,14 @@ export const localStorageGet = <T>(key: string, defaultValue: T) => {
 	}
 };
 
-export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schemaVersion = 0, setAlways = false) => {
+export const localStorageBackedStore = <T>(
+	lsKey: string,
+	defaultValue: T,
+	opts?: { schemaVersion?: number; setAlways?: boolean }
+): Writable<T> => {
+	const schemaVersion = opts?.schemaVersion ?? 0;
+	const setAlways = opts?.setAlways ?? false;
+
 	const key = `alexandrite-setting-${lsKey}-v${schemaVersion}`;
 	let value = defaultValue;
 
@@ -57,27 +70,50 @@ export const localStorageBackedStore = <T>(lsKey: string, defaultValue: T, schem
 			value = JSON.parse(item);
 		}
 	} catch (e) {
-		/* ignore, use default */
+		// ignore, use default, but if they want the value always set, set it.
+		// this is used to set the default instance if one isn't set, so following
+		// a link from a friend will keep you on that instance next time unless changed
+		if (setAlways && defaultValue && typeof localStorage !== 'undefined') {
+			localStorage.setItem(key, JSON.stringify(defaultValue));
+		}
 	}
 
-	const store = writable<T>(value);
-	// whenever the value changes, write it to local storage
-	// TODO listen to storage events and update from other tabs!
-	let initialized = setAlways;
-	store.subscribe((val) => {
-		// don't do it on the first subscribe callback, the value hasn't changed
-		if (!initialized) {
-			initialized = true;
+	const store = writable<T>(value, (set) => {
+		if (typeof window === 'undefined') {
 			return;
 		}
-		try {
-			localStorage.setItem(key, JSON.stringify(val));
-		} catch (e) {
-			/* sveltekit tooling in dev throws on localStorage */
+
+		// sync the store's value to changes on other tabs, this event is fired when
+		// local/sessionStorage is changed in another browser tab. this lets us coordinate
+		// things between tabs, so things like the unreadCount always match in other tabs
+		function onStorage(e: StorageEvent) {
+			if (e.storageArea === localStorage && e.key === key) {
+				const newVal = localStorageGet<T>(key, defaultValue);
+
+				set(newVal);
+			}
 		}
+
+		window.addEventListener('storage', onStorage);
+
+		return () => {
+			window.removeEventListener('storage', onStorage);
+		};
 	});
 
-	return store;
+	return {
+		...store,
+		// wrap 'set' so we can listen to changes without a subscriber
+		set: (val) => {
+			try {
+				localStorage.setItem(key, JSON.stringify(val));
+			} catch (e) {
+				/* sveltekit tooling in dev throws on localStorage */
+			}
+
+			store.set(val);
+		}
+	};
 };
 
 export class Throttler {
@@ -310,3 +346,87 @@ export function submitOnHardEnter(formEl: HTMLFormElement) {
 		}
 	};
 }
+
+// lemmy dates are missing the 'Z', but this will be fixed at some point,
+// utility function to handle both cases
+export function parseDate(isoStr: string) {
+	if (!isoStr.includes('Z')) {
+		isoStr += 'Z';
+	}
+	return parseISO(isoStr);
+}
+
+// all the different valid types of message that the message bus can handle
+export enum CrossTabMessageTypes {
+	Test = 'test',
+	Test2 = 'test2'
+}
+
+interface CrossTabMessage {
+	type: CrossTabMessageTypes;
+	value: ReturnType<typeof JSON.parse>;
+}
+
+class CrossTabMessageBus {
+	key = 'alexandrite-tab-message-bus';
+	listeners = new Map<string, CrossTabMessage['value']>();
+	destroyFns: (() => void)[] = [];
+
+	constructor() {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		const onStorage = (e: StorageEvent) => {
+			if (e.storageArea === localStorage && e.key === this.key && e.newValue) {
+				const msg: CrossTabMessage = JSON.parse(e.newValue);
+				const listeners = this.listeners.get(msg.type) ?? [];
+
+				for (const listener of listeners) {
+					listener(msg.value);
+				}
+			}
+		};
+		window.addEventListener('storage', onStorage);
+
+		this.destroyFns.push(() => window.removeEventListener('storage', onStorage));
+	}
+	on<T>(type: CrossTabMessageTypes, fn: (val: T) => unknown) {
+		const listeners = this.listeners.get(type) ?? [];
+		listeners.push(fn);
+		this.listeners.set(type, listeners);
+	}
+	off<T>(type: CrossTabMessageTypes, fn: (val: T) => unknown) {
+		const listeners = this.listeners.get(type) || [],
+			index = listeners.indexOf(fn);
+
+		if (index > -1) {
+			index.splice(index, 1);
+		}
+
+		this.listeners.set(type, listeners);
+	}
+	emit(type: CrossTabMessageTypes, value: CrossTabMessage['value']) {
+		if (typeof window === 'undefined') {
+			return;
+		}
+		localStorage.setItem(this.key, JSON.stringify({ type, value }));
+	}
+	destroy() {
+		for (const fn of this.destroyFns) {
+			fn();
+		}
+
+		this.destroyFns = [];
+	}
+}
+
+export const crossTabEventBus = new CrossTabMessageBus();
+
+// crossTabEventBus.on(CrossTabMessageTypes.Test, (val) => {
+// 	console.log(val);
+// });
+//
+// for (let i = 0; i < 100; i++) {
+// 	crossTabEventBus.emit(CrossTabMessageTypes.Test, 'hello!!! ' + i);
+// }

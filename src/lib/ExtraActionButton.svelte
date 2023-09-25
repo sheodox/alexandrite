@@ -5,21 +5,28 @@
 	}
 </style>
 
-{#if action.href}
-	<a href={action.href} class="button m-0 ws-nowrap {cl}"><Icon icon={action.icon} {variant} /> {action.text}</a>
-{:else if action.click}
-	<button on:click={action.click} class="button m-0 ws-nowrap {cl}" disabled={action.busy ?? false} use:ripple>
-		<div class="f-row gap-1">
-			{#if action.busy}
-				<div class="spinner">
-					<Spinner />
-				</div>
-			{:else}
-				<Icon icon={action.icon} {variant} />
-			{/if}
-			<span>{action.text}</span>
-		</div>
-	</button>
+{#if !action.hidden}
+	{#if action.href}
+		<a href={action.href} class="button m-0 ws-nowrap {cl}"><Icon icon={action.icon} {variant} /> {action.text}</a>
+	{:else if action.click}
+		<button
+			on:click={action.click}
+			class="button m-0 ws-nowrap {cl}"
+			disabled={action.busy ?? action.disabled ?? false}
+			use:ripple
+		>
+			<div class="f-row gap-1">
+				{#if action.busy}
+					<div class="spinner">
+						<Spinner />
+					</div>
+				{:else}
+					<Icon icon={action.icon} {variant} />
+				{/if}
+				<span>{action.text}</span>
+			</div>
+		</button>
+	{/if}
 {/if}
 
 <script lang="ts">

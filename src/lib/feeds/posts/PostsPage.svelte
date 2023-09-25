@@ -89,7 +89,7 @@
 		<aside class="feed-column">
 			<slot name="sidebar" />
 			{#if communityView && moderators}
-				<CommunitySidebar {communityView} {moderators} community={communityView.community} />
+				<CommunitySidebar communityName={nameAtInstance(communityView.community)} />
 
 				<hr class="my-8" />
 			{/if}
@@ -129,6 +129,7 @@
 	import type { VirtualFeedAPI } from '$lib/virtual-feed';
 	import { isElementEditable, isInteractiveElementBetween } from '$lib/utils';
 	import type { PostLayoutAPI } from './post-utils';
+	import { nameAtInstance } from '$lib/nav-utils';
 
 	export let feedType: FeedType;
 	export let loadingContent: boolean;

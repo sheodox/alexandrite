@@ -1,4 +1,10 @@
-import type { BanFromCommunityResponse, CommentResponse, PostFeatureType, PostResponse } from 'lemmy-js-client';
+import type {
+	AddModToCommunityResponse,
+	BanFromCommunityResponse,
+	CommentResponse,
+	PostFeatureType,
+	PostResponse
+} from 'lemmy-js-client';
 import { getContext, setContext } from 'svelte';
 import { derived, type Writable } from 'svelte/store';
 
@@ -22,6 +28,12 @@ export interface ModContext {
 	}) => Promise<PostResponse | undefined>;
 	lockPost: (opts: { postId: number; locked: boolean }) => Promise<PostResponse | undefined>;
 	distinguishComment: (opts: { commentId: number; distinguished: boolean }) => Promise<CommentResponse | undefined>;
+	addMod: (opts: {
+		added: boolean;
+		communityId: number;
+		personId: number;
+		personName: string;
+	}) => Promise<AddModToCommunityResponse | undefined>;
 }
 
 export type ModAction =
@@ -31,10 +43,11 @@ export type ModAction =
 	| 'feature-post-community'
 	| 'feature-post-local'
 	| 'lock-post'
-	| 'distinguish-comment';
+	| 'distinguish-comment'
+	| 'add-mod';
 
 // get a store indicating if an action is pending for a given user/post/comment etc
-export const getModActionPending = (action: ModAction, id: number) => {
+export const getModActionPending = (action: ModAction, id: number | string) => {
 	const { pending } = getModContext();
 	return derived([pending], ([pending]) => {
 		return pending.has(`${action}-${id}`);

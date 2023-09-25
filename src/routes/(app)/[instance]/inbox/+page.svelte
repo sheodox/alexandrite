@@ -70,13 +70,12 @@
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import InboxReadButton from '$lib/InboxReadButton.svelte';
 	import type { PageData } from './$types';
-	import { parseISO } from 'date-fns';
 	import { getAppContext } from '$lib/app-context';
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
 	import type { CommentSortType } from 'lemmy-js-client';
-	import { createStatefulAction, navigateOnChange } from '$lib/utils';
+	import { createStatefulAction, navigateOnChange, parseDate } from '$lib/utils';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		createContentViewStore,
@@ -201,8 +200,8 @@
 
 		if (data.query.listing === 'All') {
 			return [...replies, ...mentions, ...messages].sort((a, b) => {
-				const aPublished = parseISO(a.published + 'Z').getTime(),
-					bPublished = parseISO(b.published + 'Z').getTime();
+				const aPublished = parseDate(a.published).getTime(),
+					bPublished = parseDate(b.published).getTime();
 
 				if (data.query.sort === 'New') {
 					return bPublished - aPublished;

@@ -36,7 +36,7 @@
 				</Stack>
 				<Stack gap={2} dir="r" align="center">
 					<span class="sx-badge-gray"
-						><Icon icon="cake-candles" /> Since {dateFormatter.format(parseISO(published + 'Z'))}</span
+						><Icon icon="cake-candles" /> Since {dateFormatter.format(parseDate(published))}</span
 					>
 
 					<slot name="badges" />
@@ -47,10 +47,10 @@
 </section>
 
 <script lang="ts">
-	import { parseISO } from 'date-fns';
 	import { Stack, Icon } from 'sheodox-ui';
 	import Image from '$lib/Image.svelte';
 	import { getAppContext } from '$lib/app-context';
+	import { parseDate } from '$lib/utils';
 
 	const dateFormatter = new Intl.DateTimeFormat('en', {
 		dateStyle: 'medium'

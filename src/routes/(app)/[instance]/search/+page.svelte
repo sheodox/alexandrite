@@ -91,7 +91,6 @@
 	import Comment from '$lib/comments/Comment.svelte';
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import type { PageData } from './$types';
-	import { parseISO } from 'date-fns';
 	import Title from '$lib/Title.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import { feedLoader } from '$lib/post-loader';
@@ -112,7 +111,7 @@
 		personViewToContentView,
 		postViewToContentView
 	} from '$lib/content-views';
-	import { navigateOnChange } from '$lib/utils';
+	import { navigateOnChange, parseDate } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
@@ -232,8 +231,8 @@
 			users = data.users.map(personViewToContentView);
 
 		return [...posts, ...comments, ...communities, ...users].sort((a, b) => {
-			const aPublished = parseISO(a.published + 'Z').getTime(),
-				bPublished = parseISO(b.published + 'Z').getTime();
+			const aPublished = parseDate(a.published).getTime(),
+				bPublished = parseDate(b.published).getTime();
 
 			if (data.query.sort === 'New') {
 				return bPublished - aPublished;

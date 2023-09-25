@@ -47,7 +47,7 @@ profiles.subscribe((val) => {
 // if you're forced to use just one instance set that as the default but ignore the localStorage pinning
 export const defaultInstance = config.forcedInstance
 	? writable(config.forcedInstance)
-	: localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), 0, true);
+	: localStorageBackedStore<string>(lsKeys.defaultInstance, getDefaultInstance(), { setAlways: true });
 export const instance = writable(getRouteInstance());
 
 // set the instance and go to it, used when selecting a profile on the login screen so the account

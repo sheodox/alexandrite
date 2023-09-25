@@ -154,7 +154,7 @@ export const postReportViewToContentView = (view: PostReportView): ContentViewPo
 		view,
 		id: view.post_report.id,
 		score: view.counts.score,
-		published: view.post.published
+		published: view.post_report.published
 	};
 };
 
@@ -175,7 +175,7 @@ export const commentReportViewToContentView = (view: CommentReportView): Content
 		view,
 		id: view.comment_report.id,
 		score: view.counts.score,
-		published: view.comment.published
+		published: view.comment_report.published
 	};
 };
 

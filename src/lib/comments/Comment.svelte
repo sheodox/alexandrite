@@ -166,7 +166,7 @@
 							{/if}
 						{/if}
 					{/if}
-					<ExtraActions small actions={overflowMenuOptions} />
+					<ExtraActions small actions={overflowMenuOptions} on:open={onExtraActionsOpen} />
 				{/if}
 				{#if deletePending}
 					<Spinner />
@@ -251,6 +251,8 @@
 	import { getModActionPending, getModContext } from '../mod/mod-context';
 	import PostBadges from '$lib/PostBadges.svelte';
 	import type { CommentAPI } from './comment-utils';
+	import { getCommunityContext } from '$lib/community-context/community-context';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	const dispatch = createEventDispatcher<{
 		collapse: number;
@@ -260,6 +262,8 @@
 	const cvStore = getContentViewStore();
 
 	const modContext = getModContext();
+	const communityContext = getCommunityContext();
+	const { showModlogWarning, showModlogWarningModerated } = getSettingsContext();
 
 	export let searchText = '';
 	export let isSearchMatch = false;
@@ -354,6 +358,13 @@
 	$: contextCommentId = getCommentContextId(contentView.view);
 	$: isCommunityModerator =
 		$siteMeta.my_user?.moderates?.some((m) => m.community.id === contentView.communityId) ?? false;
+	const { weaklyGetCommunity } = getCommunityContext();
+	// this should already be retrieved by the postpage
+	$: communityName = nameAtInstance(contentView.view.community);
+	$: community = weaklyGetCommunity(communityName);
+	$: commentMadeByModerator = $community?.moderators.some((m) => m.moderator.id === contentView.view.creator.id);
+	// we can't show the mod add/remove options unless we know who the mods are
+	$: moderatorsUnknown = !$community?.moderators;
 
 	function updateCV(commentView: CommentView) {
 		cvStore.updateView(commentViewToContentView(commentView));
@@ -508,6 +519,19 @@
 		}
 	}
 
+	const modAddPending = getModActionPending(
+		'add-mod',
+		`${contentView.view.community.id}-${contentView.view.creator.id}`
+	);
+	async function onModAdd() {
+		await modContext.addMod({
+			added: !commentMadeByModerator,
+			personName: nameAtInstance(contentView.view.creator, contentView.view.creator.display_name),
+			personId: contentView.view.creator.id,
+			communityId: contentView.view.community.id
+		});
+	}
+
 	let overflowMenuOptions: ExtraAction[] = [];
 
 	$: {
@@ -563,9 +587,41 @@
 				click: onBan,
 				busy: $banPending
 			});
+
+			options.push({
+				text: `Mod - ${commentMadeByModerator ? 'Remove mod' : 'Add mod'}`,
+				icon: commentMadeByModerator ? 'user-minus' : 'user-plus',
+				click: onModAdd,
+				busy: $modAddPending,
+				disabled: moderatorsUnknown
+			});
+		}
+
+		const isAdmin = $siteMeta.my_user?.local_user_view.person.admin ?? false;
+
+		if (isCommunityModerator || isAdmin) {
+			const warn = isCommunityModerator ? $showModlogWarningModerated : $showModlogWarning,
+				modlogBase = `/${$profile.instance}/modlog${warn ? '' : '/view'}`;
+
+			options.push({
+				text: `Mod - View user modlog in /c/${contentView.view.community.name}`,
+				href: modlogBase + `?community=${contentView.view.community.id}&target=${contentView.view.creator.id}`,
+				icon: 'shield-halved'
+			});
+
+			options.push({
+				text: `Mod - View user modlog`,
+				href: modlogBase + `?target=${contentView.view.creator.id}`,
+				icon: 'shield-halved'
+			});
 		}
 
 		overflowMenuOptions = options;
+	}
+
+	function onExtraActionsOpen() {
+		// get the full community details, so we know who the moderators are and can offer add/remove mod buttons
+		communityContext.getFullCommunity(contentView.view.community);
 	}
 
 	$: api = {

@@ -63,7 +63,7 @@
 				</div>
 			{/if}
 			{#if modlog.expires}
-				<span>Expires: {parseExpiration(modlog.expires)}</span>
+				<p class="f-row gap-1 m-0">Expires: <RelativeTime date={modlog.expires} /></p>
 			{/if}
 		</Stack>
 	</td>
@@ -84,13 +84,13 @@
 	import type { ContentViewModlog } from '$lib/content-views';
 	import { Icon, Stack } from 'sheodox-ui';
 	import UserLink from '$lib/UserLink.svelte';
-	import { parseISO } from 'date-fns';
 	import RelativeTime from '$lib/RelativeTime.svelte';
 	import CommunityBadges from '$lib/feeds/posts/CommunityBadges.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
 	import type { Person } from 'lemmy-js-client';
 	import { getAppContext } from '$lib/app-context';
+	import { parseDate } from '$lib/utils';
 
 	export let modlog: ContentViewModlog;
 	export let showCommunity: boolean;
@@ -111,7 +111,7 @@
 
 	function parseExpiration(expires: string) {
 		try {
-			return dateFmt.format(parseISO(expires + 'Z'));
+			return dateFmt.format(parseDate(expires));
 		} catch (e) {
 			// it's possible to ban someone with an expiration that's unparsably far in the future
 			return 'Unknown';
