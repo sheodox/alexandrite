@@ -31,9 +31,9 @@
 		differenceInMinutes,
 		differenceInMonths,
 		differenceInSeconds,
-		differenceInYears,
-		parseISO
+		differenceInYears
 	} from 'date-fns';
+	import { parseDate } from './utils';
 	export let date: string;
 
 	export let variant: 'icon' | 'text' = 'text';
@@ -44,7 +44,7 @@
 		style: 'narrow'
 	});
 
-	$: d = parseISO(date + 'Z');
+	$: d = parseDate(date);
 	let formatted = '';
 	$: {
 		const now = new Date(),
@@ -58,7 +58,7 @@
 			};
 
 		for (const unit of ['years', 'months', 'days', 'hours', 'minutes', 'seconds'] as const) {
-			if (diff[unit] < 0) {
+			if (Math.abs(diff[unit]) > 0) {
 				formatted = rtf.format(diff[unit], unit);
 				break;
 			}

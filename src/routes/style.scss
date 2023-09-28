@@ -9,3 +9,20 @@
 		font-size: var(--sx-font-size-2) !important;
 	}
 }
+
+ul.hover-list {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+
+	li {
+		display: flex;
+		align-items: center;
+		flex-grow: 1;
+
+		&:hover {
+			background: var(--sx-gray-transparent);
+			border-radius: 5px;
+		}
+	}
+}

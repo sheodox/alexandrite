@@ -63,7 +63,7 @@
 				</div>
 			{/if}
 			{#if modlog.expires}
-				<span>Expires: {parseExpiration(modlog.expires)}</span>
+				<p class="f-row gap-1 m-0">Expires: <RelativeTime date={modlog.expires} /></p>
 			{/if}
 		</Stack>
 	</td>
@@ -84,7 +84,6 @@
 	import type { ContentViewModlog } from '$lib/content-views';
 	import { Icon, Stack } from 'sheodox-ui';
 	import UserLink from '$lib/UserLink.svelte';
-	import { parseISO } from 'date-fns';
 	import RelativeTime from '$lib/RelativeTime.svelte';
 	import CommunityBadges from '$lib/feeds/posts/CommunityBadges.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
@@ -102,20 +101,6 @@
 
 	function censorModerator(mod: Person) {
 		return $siteMeta.admins.some((admin) => admin.person.id === mod.id) ? 'Admin' : 'Mod';
-	}
-
-	const dateFmt = new Intl.DateTimeFormat(navigator.languages[0], {
-		dateStyle: 'medium',
-		timeStyle: 'short'
-	});
-
-	function parseExpiration(expires: string) {
-		try {
-			return dateFmt.format(parseISO(expires + 'Z'));
-		} catch (e) {
-			// it's possible to ban someone with an expiration that's unparsably far in the future
-			return 'Unknown';
-		}
 	}
 
 	function getAction(modlog: ContentViewModlog) {

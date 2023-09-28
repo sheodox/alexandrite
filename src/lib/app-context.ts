@@ -6,6 +6,8 @@ import type { Readable } from 'svelte/motion';
 export const APP_CONTEXT_KEY = '__SX_APP_CONTEXT__';
 
 export interface AppContext {
+	// the logged in user's ID
+	userId: Readable<number | null>;
 	ctrlBasedHotkeys: boolean;
 	siteMeta: Writable<GetSiteResponse>;
 	unreadCount: Writable<number>;

@@ -178,7 +178,7 @@
 	<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 	<div class="page-column page-column-sidebar virtual-feed-scroll-container" tabindex="0">
 		<aside>
-			<CommunitySidebar community={postView.community} />
+			<CommunitySidebar {communityName} />
 		</aside>
 	</div>
 </div>

@@ -24,36 +24,40 @@
 		</div>
 
 		<div class="p-2" class:layout-card={$postPreviewLayout === 'CARD'}>
-			<VirtualFeed
-				feedSize={$cvStore.length}
-				on:more
-				{endOfFeed}
-				feedEndIcon="file-circle-xmark"
-				feedEndMessage="No more posts!"
-				loading={loadingContent}
-				loadMoreFailed={loadingContentFailed}
-				bind:viewportTopIndex
-				bind:api={virtualFeedApi}
-			>
-				<svelte:fragment let:index>
-					{@const contentView = $cvStore[index]}
-					{@const lastOfList = index + 1 === $cvStore.length}
-					{#if contentView.type === 'post'}
-						<PostLayout
-							postView={contentView.view}
-							on:overlay
-							on:expand-content={onPostExpandContent}
-							expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
-							{lastOfList}
-							bind:api={postLayoutAPIs[index]}
-						/>
-					{:else if contentView.type === 'comment'}
-						<CommentLayout {lastOfList}>
-							<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
-						</CommentLayout>
-					{/if}
-				</svelte:fragment>
-			</VirtualFeed>
+			<!-- use this as a key so the feed resets when changing the view type, as
+			all of the virtual feed sizing is invalid after the feed type changes -->
+			{#key $postPreviewLayout}
+				<VirtualFeed
+					feedSize={$cvStore.length}
+					on:more
+					{endOfFeed}
+					feedEndIcon="file-circle-xmark"
+					feedEndMessage="No more posts!"
+					loading={loadingContent}
+					loadMoreFailed={loadingContentFailed}
+					bind:viewportTopIndex
+					bind:api={virtualFeedApi}
+				>
+					<svelte:fragment let:index>
+						{@const contentView = $cvStore[index]}
+						{@const lastOfList = index + 1 === $cvStore.length}
+						{#if contentView.type === 'post'}
+							<PostLayout
+								postView={contentView.view}
+								on:overlay
+								on:expand-content={onPostExpandContent}
+								expandPostContent={postsWithInlineExpandedContent.has(contentView.view.post.id)}
+								{lastOfList}
+								bind:api={postLayoutAPIs[index]}
+							/>
+						{:else if contentView.type === 'comment'}
+							<CommentLayout {lastOfList}>
+								<Comment {contentView} showPost postOP="" postLocked={contentView.view.post.locked} />
+							</CommentLayout>
+						{/if}
+					</svelte:fragment>
+				</VirtualFeed>
+			{/key}
 		</div>
 	</Stack>
 	<FeedNav />

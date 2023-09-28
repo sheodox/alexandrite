@@ -1,6 +1,7 @@
+import { getAppContext } from '$lib/app-context';
 import { nameAtInstance } from '$lib/nav-utils';
 import { profile } from '$lib/profiles/profiles';
-import type { Community, GetCommunityResponse } from 'lemmy-js-client';
+import type { Community, CommunityModeratorView, GetCommunityResponse } from 'lemmy-js-client';
 import { getContext, setContext } from 'svelte';
 import { get, derived, type Writable, type Readable, writable } from 'svelte/store';
 
@@ -17,6 +18,7 @@ export interface CommunityContext {
 	// prevents loading every community when viewing a big list of comments.
 	weaklyGetCommunity: (name: string) => Readable<null | GetCommunityResponse>;
 	updateCommunity: (res: GetCommunityResponse) => void;
+	hasModSeniority: (moderators: CommunityModeratorView[] | undefined, personId: number) => boolean;
 }
 
 export const getCommunityContext = () => {
@@ -24,6 +26,8 @@ export const getCommunityContext = () => {
 };
 
 export const createCommunityContext = () => {
+	const appContext = getAppContext();
+
 	const communities = writable(new Map<string, GetCommunityResponse>()),
 		// make sure we don't initiate loading a community if a request is already in flight
 		loading = new Set<string>();
@@ -70,6 +74,28 @@ export const createCommunityContext = () => {
 				coms.set(nameAtInstance(res.community_view.community), res);
 				return coms;
 			});
+		},
+		// you have seniority over (and can de-mod) mods appointed after you
+		hasModSeniority: (mods: CommunityModeratorView[] | undefined, personId: number) => {
+			const myId = get(appContext.userId);
+			if (!myId) {
+				return false;
+			}
+			// need to trigger loading the mod details elsewhere
+			if (!mods) {
+				return false;
+			}
+
+			const myIndex = mods.findIndex((m) => m.moderator.id === myId),
+				otherIndex = mods.findIndex((m) => m.moderator.id === personId);
+
+			// no seniority if either are not mods
+			if (myIndex === -1 || otherIndex === -1) {
+				return false;
+			}
+
+			// todo take admins into account
+			return myIndex < otherIndex;
 		}
 	};
 

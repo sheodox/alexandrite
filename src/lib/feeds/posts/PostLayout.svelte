@@ -67,7 +67,7 @@
 				</a>
 			</Tooltip>
 			<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
-			<ExtraActions small actions={overflowMenuOptions} />
+			<ExtraActions small actions={overflowMenuOptions} on:open={onExtraActionsOpen} />
 		{/if}
 	</svelte:fragment>
 
@@ -147,6 +147,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { hasImageExtension, type PostLayoutAPI } from './post-utils';
 	import PostCommentCount from './PostCommentCount.svelte';
+	import { getCommunityContext } from '$lib/community-context/community-context';
 
 	export let postView: PostView;
 	export let readOnly = false;
@@ -169,7 +170,8 @@
 	const cvStore = getContentViewStore();
 	const modContext = getModContext();
 	const { siteMeta } = getAppContext();
-	const { postPreviewLayout } = getSettingsContext();
+	const { weaklyGetCommunity, getFullCommunity } = getCommunityContext();
+	const { postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
 
 	$: layout = forceLayout ?? $postPreviewLayout;
 
@@ -185,6 +187,12 @@
 	$: isCommunityModerator =
 		$siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
 	$: isAdminOfCommunity = $siteMeta.my_user?.local_user_view.person.admin && postView.community.local;
+	$: communityName = nameAtInstance(postView.community);
+	$: community = weaklyGetCommunity(communityName);
+	$: postMadeByModerator = $community?.moderators.some((m) => m.moderator.id === postView.creator.id);
+	// we can't show the mod add/remove options unless we know who the mods are
+	$: moderatorsUnknown = !$community?.moderators;
+
 	let showReportModal = false;
 
 	$: component = getLayoutComponent(layout);
@@ -334,6 +342,16 @@
 		}
 	}
 
+	const modAddPending = getModActionPending('add-mod', `${postView.community.id}-${postView.creator.id}`);
+	async function onModAdd() {
+		await modContext.addMod({
+			added: !postMadeByModerator,
+			personName: nameAtInstance(postView.creator, postView.creator.display_name),
+			personId: postView.creator.id,
+			communityId: postView.community.id
+		});
+	}
+
 	let overflowMenuOptions: ExtraAction[] = [];
 
 	$: {
@@ -364,7 +382,7 @@
 		if (loggedIn && !isMyPost) {
 			options.push({
 				text: 'Send Message',
-				href: `/message/${postView.creator.id}`,
+				href: `/${$profile.instance}/message/${postView.creator.id}`,
 				icon: 'message'
 			});
 			options.push({
@@ -413,7 +431,14 @@
 				icon: postView.creator_banned_from_community ? 'check' : 'ban',
 				busy: $banPending
 			});
-			// todo appoint as mod
+
+			options.push({
+				text: `Mod - ${postMadeByModerator ? 'Remove mod' : 'Add mod'}`,
+				icon: postMadeByModerator ? 'user-minus' : 'user-plus',
+				click: onModAdd,
+				busy: $modAddPending,
+				disabled: moderatorsUnknown
+			});
 		}
 
 		if (loggedIn && isAdminOfCommunity) {
@@ -425,7 +450,31 @@
 			});
 		}
 
+		const isAdmin = $siteMeta.my_user?.local_user_view.person.admin ?? false;
+
+		if (isCommunityModerator || isAdmin) {
+			const warn = isCommunityModerator ? $showModlogWarningModerated : $showModlogWarning,
+				modlogBase = `/${$profile.instance}/modlog${warn ? '' : '/view'}`;
+
+			options.push({
+				text: `Mod - View user modlog in /c/${postView.community.name}`,
+				href: modlogBase + `?community=${postView.community.id}&target=${postView.creator.id}`,
+				icon: 'shield-halved'
+			});
+
+			options.push({
+				text: `Mod - View user modlog`,
+				href: modlogBase + `?target=${postView.creator.id}`,
+				icon: 'shield-halved'
+			});
+		}
+
 		overflowMenuOptions = options;
+	}
+
+	function onExtraActionsOpen() {
+		// load moderators when actions opened, so we know if the user is a mod of this community already
+		getFullCommunity(postView.community);
 	}
 
 	async function onBlockUser() {

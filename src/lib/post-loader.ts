@@ -1,7 +1,7 @@
-import { parseISO } from 'date-fns';
 import type { CommentView, PostView } from 'lemmy-js-client';
 import type { ApiFeedLoad } from './feed-query';
 import { postViewToContentView, type ContentView, commentViewToContentView } from './content-views';
+import { parseDate } from './utils';
 
 interface MorePage<T> {
 	error: boolean;
@@ -15,8 +15,8 @@ export const getContentViews = (postViews: PostView[], commentViews: CommentView
 	// to merge in both types of content and show them in some reasonable order
 	if (type === 'Overview' && sort) {
 		content.sort((a, b) => {
-			const aPublished = parseISO(a.published + 'Z').getTime(),
-				bPublished = parseISO(b.published + 'Z').getTime();
+			const aPublished = parseDate(a.published).getTime(),
+				bPublished = parseDate(b.published).getTime();
 
 			if (sort === 'New') {
 				return bPublished - aPublished;

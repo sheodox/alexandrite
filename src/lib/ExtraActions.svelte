@@ -9,7 +9,7 @@
 {#if actions.length}
 	{@const text = 'Extra actions'}
 	<Tooltip title={text}>
-		<MenuButton triggerClasses="{small ? 'small' : ''} m-0 {cl}">
+		<MenuButton triggerClasses="{small ? 'small' : ''} m-0 {cl}" on:open>
 			<span slot="trigger" class="extra-actions-trigger">
 				<span class="sr-only">{text}</span>
 				<Icon icon="ellipsis-vertical" />

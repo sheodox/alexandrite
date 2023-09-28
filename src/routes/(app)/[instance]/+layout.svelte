@@ -88,11 +88,11 @@
 	</Sidebar>
 
 	<main class="f-column f-1">
-		<ModContext>
-			<CommunityContext>
+		<CommunityContext>
+			<ModContext>
 				<slot />
-			</CommunityContext>
-		</ModContext>
+			</ModContext>
+		</CommunityContext>
 	</main>
 
 	{#if showAccountsSelector}
@@ -120,7 +120,7 @@
 	import Spinner from '$lib/Spinner.svelte';
 	import IconLink from '$lib/IconLink.svelte';
 	import Logo from '$lib/Logo.svelte';
-	import { writable, type Unsubscriber, readable } from 'svelte/store';
+	import { writable, type Unsubscriber, readable, derived } from 'svelte/store';
 	import IconButton from '$lib/IconButton.svelte';
 	import { setSettingsContext } from '$lib/settings-context';
 	import HeaderUserMenu from './HeaderUserMenu.svelte';
@@ -251,6 +251,9 @@
 
 			window.addEventListener('resize', update);
 			return () => window.removeEventListener('resize', update);
+		}),
+		userId: derived(siteMeta, (siteMeta) => {
+			return siteMeta.my_user?.local_user_view.person.id ?? null;
 		})
 	});
 

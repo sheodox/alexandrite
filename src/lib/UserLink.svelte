@@ -1,18 +1,4 @@
 <style lang="scss">
-	.user-avatar {
-		height: 3rem;
-		width: 3rem;
-		:global(img) {
-			object-fit: cover;
-			border-radius: 10rem;
-			height: 100%;
-			width: 100%;
-		}
-	}
-	.user-avatar.inline {
-		height: 1em;
-		width: 1em;
-	}
 	.op {
 		color: var(--sx-peach-300) !important;
 	}
@@ -23,7 +9,7 @@
 		<Stack gap={2} dir="r" align="center">
 			{#if user.avatar && showAvatar}
 				<div class="user-avatar">
-					<Image src={user.avatar} mode="thumbnail" />
+					<Avatar src={user.avatar} icon="user" size="3rem" />
 				</div>
 			{/if}
 			<h1 class="sx-font-size-4 m-0">
@@ -38,9 +24,9 @@
 		data-sveltekit-preload-data="off"
 		class:op={isOP}
 	>
-		{#if user.avatar && showAvatar}
+		{#if (user.avatar && showAvatar) || showAvatarFallback}
 			<div class="user-avatar inline">
-				<Image src={user.avatar} mode="thumbnail" thumbnailResolution={16} />
+				<Avatar src={user.avatar} size="1em" icon="user" />
 			</div>
 		{/if}
 		<span>
@@ -51,7 +37,7 @@
 
 <script lang="ts">
 	import { Stack, Tooltip } from 'sheodox-ui';
-	import Image from './Image.svelte';
+	import Avatar from './Avatar.svelte';
 	import NameAtInstance from './NameAtInstance.svelte';
 	import type { Person } from 'lemmy-js-client';
 	import { nameAtInstance } from './nav-utils';
@@ -59,6 +45,7 @@
 
 	export let user: Person;
 	export let isOP = false;
+	export let showAvatarFallback = false;
 
 	$: creatorName = nameAtInstance(user);
 

@@ -55,10 +55,9 @@
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import BusyButton from '$lib/BusyButton.svelte';
-	import { createStatefulAction, navigateOnChange } from '$lib/utils.js';
+	import { createStatefulAction, navigateOnChange, parseDate } from '$lib/utils.js';
 	import type { PageData } from './$types';
 	import { feedLoader } from '$lib/post-loader';
-	import { parseISO } from 'date-fns';
 	import ReportedPost from './ReportedPost.svelte';
 	import ReportedComment from './ReportedComment.svelte';
 	import { writable } from 'svelte/store';
@@ -180,11 +179,11 @@
 
 		if (data.query.type === 'All') {
 			return [...posts, ...comments].sort((a, b) => {
-				const aPublished = parseISO(a.published + 'Z').getTime(),
-					bPublished = parseISO(b.published + 'Z').getTime();
+				const aPublished = parseDate(a.published).getTime(),
+					bPublished = parseDate(b.published).getTime();
 
-				// oldest first, probably the most visible thing?
-				return aPublished - bPublished;
+				// newest first
+				return bPublished - aPublished;
 			});
 		}
 
