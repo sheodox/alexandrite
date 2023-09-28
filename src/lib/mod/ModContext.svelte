@@ -43,9 +43,12 @@
 	import { showPromptModal, createAutoExpireToast } from 'sheodox-ui';
 	import { profile } from '$lib/profiles/profiles';
 	import { getCommunityContext } from '$lib/community-context/community-context';
+	import { getAppContext } from '$lib/app-context';
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
+
+	const { siteMeta } = getAppContext();
 
 	const pending = writable(new Set<string>()),
 		DAY_MS = 1000 * 60 * 60 * 24;
@@ -315,6 +318,17 @@
 			successToast(opt.added ? `Added ${opt.personName} to mods` : `Removed ${opt.personName} from mods`);
 
 			communityContext.updateCommunity(await client.getCommunity({ auth: jwt, id: opt.communityId }));
+
+			if (opt.personId === $siteMeta.my_user?.local_user_view.person.id && !opt.added) {
+				// user resigned, remove this community from siteMeta to hide mod actions
+				siteMeta.update((meta) => {
+					if (meta.my_user && (meta.my_user?.moderates?.length ?? 0) > 0) {
+						// filter out that community
+						meta.my_user.moderates = meta.my_user.moderates.filter((mod) => mod.community.id !== opt.communityId);
+					}
+					return meta;
+				});
+			}
 
 			return res;
 		} finally {

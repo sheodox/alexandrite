@@ -78,9 +78,7 @@
 	$: community = communityView?.community;
 	$: moderators = $communityRes?.moderators;
 	$: communityHref = community ? `/${$profile.instance}/c/${nameAtInstance(community)}` : '';
-	$: userModerates = $siteMeta.my_user?.moderates.some(
-		(moderates) => community && moderates.community.id === community.id
-	);
+	$: userModerates = moderators?.some((mod) => mod.moderator.id === $siteMeta.my_user?.local_user_view.person.id);
 	$: userIsHeadMod = moderators?.[0]?.moderator.id === $userId;
 	$: warnModlog = userModerates ? $showModlogWarningModerated : $showModlogWarning;
 
