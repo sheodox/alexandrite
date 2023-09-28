@@ -141,8 +141,8 @@
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
-	const unreadCount = localStorageBackedStore('unread-count', 0),
-		unreadReportCount = localStorageBackedStore('unread-reports-count', 0);
+	const unreadCount = writable(0),
+		unreadReportCount = writable(0);
 
 	let showLoadingOverlay = false,
 		showOverlayTimeout: ReturnType<typeof setTimeout>,
