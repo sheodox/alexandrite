@@ -39,7 +39,7 @@
 <script lang="ts">
 	import { Modal, Icon, TextInput, Stack, Checkbox } from 'sheodox-ui';
 	import { writable } from 'svelte/store';
-	import { setModContext, type ModAction, type ModContext, getModContext } from './mod-context';
+	import { setModContext, type ModAction, type ModContext } from './mod-context';
 	import { showPromptModal, createAutoExpireToast } from 'sheodox-ui';
 	import { profile } from '$lib/profiles/profiles';
 	import { getCommunityContext } from '$lib/community-context/community-context';

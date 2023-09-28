@@ -90,7 +90,6 @@
 	import UserBadges from '$lib/feeds/posts/UserBadges.svelte';
 	import type { Person } from 'lemmy-js-client';
 	import { getAppContext } from '$lib/app-context';
-	import { parseDate } from '$lib/utils';
 
 	export let modlog: ContentViewModlog;
 	export let showCommunity: boolean;
@@ -102,20 +101,6 @@
 
 	function censorModerator(mod: Person) {
 		return $siteMeta.admins.some((admin) => admin.person.id === mod.id) ? 'Admin' : 'Mod';
-	}
-
-	const dateFmt = new Intl.DateTimeFormat(navigator.languages[0], {
-		dateStyle: 'medium',
-		timeStyle: 'short'
-	});
-
-	function parseExpiration(expires: string) {
-		try {
-			return dateFmt.format(parseDate(expires));
-		} catch (e) {
-			// it's possible to ban someone with an expiration that's unparsably far in the future
-			return 'Unknown';
-		}
 	}
 
 	function getAction(modlog: ContentViewModlog) {
