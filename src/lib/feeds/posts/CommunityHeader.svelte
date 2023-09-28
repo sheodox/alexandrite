@@ -54,11 +54,15 @@
 
 	let actions: ExtraAction[];
 	$: actions = [
-		{
-			text: 'Post',
-			icon: 'plus',
-			href: `/${$profile.instance}/create/post?community=${nameAtInstance(community)}`
-		},
+		...($profile.loggedIn
+			? [
+					{
+						text: 'Post',
+						icon: 'plus',
+						href: `/${$profile.instance}/create/post?community=${nameAtInstance(community)}`
+					}
+			  ]
+			: []),
 		{
 			text: 'Search',
 			icon: 'magnifying-glass',
