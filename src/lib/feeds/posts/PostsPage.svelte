@@ -44,7 +44,7 @@
 			<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<div
-				class="feed-column feed-column-feed virtual-feed-scroll-container"
+				class="feed-column feed-column-feed virtual-feed-scroll-container default-focus-area"
 				tabindex={0}
 				use:focus
 				bind:this={feedColumnEl}
