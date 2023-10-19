@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { readable, writable, type Writable } from 'svelte/store';
+import { readable, writable, type Updater, type Writable } from 'svelte/store';
 import { getCtrlBasedHotkeys } from './app-context';
 import { parseISO } from 'date-fns';
 
@@ -103,7 +103,20 @@ export const localStorageBackedStore = <T>(
 
 	return {
 		...store,
-		// wrap 'set' so we can listen to changes without a subscriber
+		// wrap 'set' and 'update' so we can listen to changes without a subscriber
+		update: (updater: Updater<T>) => {
+			store.update((val) => {
+				val = updater(val);
+
+				try {
+					localStorage.setItem(key, JSON.stringify(val));
+				} catch (e) {
+					/* sveltekit tooling in dev throws on localStorage */
+				}
+
+				return val;
+			});
+		},
 		set: (val) => {
 			try {
 				localStorage.setItem(key, JSON.stringify(val));
