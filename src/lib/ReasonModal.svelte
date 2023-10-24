@@ -1,13 +1,11 @@
 <Modal bind:visible {title}>
 	<div class="modal-body">
-		<slot />
-		<br />
 		<form on:submit|preventDefault={submit}>
 			<TextInput bind:value={reason} autofocus>Reason</TextInput>
 		</form>
 	</div>
-	<div class="modal-footer">
-		<button on:click={() => (visible = false)} class="tertiary">Cancel</button>
+	<div class="modal-footer gap-2">
+		<button on:click={() => (visible = false)} class="tertiary m-0">Cancel</button>
 		<BusyButton on:click={submit} cl="danger" {busy}>Submit</BusyButton>
 	</div>
 </Modal>

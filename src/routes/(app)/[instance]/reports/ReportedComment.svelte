@@ -135,13 +135,13 @@
 
 		if (res) {
 			// update all views instead of just one, in case there are multiple reports,
-			// we want to accurately reflect the deleted steate
+			// we want to accurately reflect the deleted state
 			cvStore.updateViews((views) => {
 				return views.map((v) => {
 					if (v.type === 'comment-report' && v.view.comment.id === view.comment.id) {
 						v.view = {
 							...v.view,
-							...res.comment_view
+							comment: res.comment_view.comment
 						};
 					}
 					return v;
