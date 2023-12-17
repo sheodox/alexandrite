@@ -12,8 +12,7 @@ export const load = (async ({ url }) => {
 
 	if (communityId) {
 		cv = await client.getCommunity({
-			id: +communityId,
-			auth: jwt
+			id: +communityId
 		});
 	}
 

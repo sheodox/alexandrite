@@ -35,6 +35,14 @@
 			>. Any support is appreciated, either financially or by sharing the site with your friends!
 		</p>
 
+		<ExternalLink href="https://www.buymeacoffee.com/sheodox">
+			<img
+				src="/buy_me_a_coffee.png"
+				alt="Buy Me A Coffee"
+				style="height: 40px !important;width: 144.6px !important;"
+			/>
+		</ExternalLink>
+
 		<p>Alexandrite is nothing without Lemmy and the various instances. Remember to support them too!</p>
 
 		<h2>Other Project By Me</h2>

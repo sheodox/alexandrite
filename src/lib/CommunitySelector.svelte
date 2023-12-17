@@ -90,7 +90,6 @@
 				}
 
 				const res = await client.getCommunity({
-					auth: jwt,
 					name: communityName
 				});
 
@@ -102,7 +101,6 @@
 			}
 		} else {
 			const comms = await client.search({
-				auth: jwt,
 				type_: 'Communities',
 				q: searchText,
 				limit: 50

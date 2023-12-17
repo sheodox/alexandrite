@@ -8,8 +8,7 @@ export const load = (async ({ params }) => {
 	return {
 		personView: await client
 			.getPersonDetails({
-				person_id: Number(params.recipientId),
-				auth: jwt
+				person_id: Number(params.recipientId)
 			})
 			.then((d) => d.person_view)
 	};

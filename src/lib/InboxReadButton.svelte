@@ -37,7 +37,6 @@
 
 		if (content.type === 'reply') {
 			const res = await client.markCommentReplyAsRead({
-				auth: jwt,
 				comment_reply_id: id,
 				read
 			});
@@ -45,14 +44,12 @@
 			cvStore.updateView(replyViewToContentView(res.comment_reply_view));
 		} else if (content.type === 'mention') {
 			const res = await client.markPersonMentionAsRead({
-				auth: jwt,
 				person_mention_id: id,
 				read
 			});
 			cvStore.updateView(mentionViewToContentView(res.person_mention_view));
 		} else if (content.type === 'message') {
 			const res = await client.markPrivateMessageAsRead({
-				auth: jwt,
 				private_message_id: id,
 				read
 			});

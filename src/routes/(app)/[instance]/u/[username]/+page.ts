@@ -7,8 +7,7 @@ export const load = (async ({ params, url }) => {
 	const { client, jwt } = get(profile);
 
 	const details = await client.getPersonDetails({
-		username,
-		auth: jwt
+		username
 	});
 	return {
 		personView: details.person_view,

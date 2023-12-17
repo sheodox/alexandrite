@@ -13,11 +13,7 @@
 		{/if}
 	</Stack>
 	<div slot="end">
-		<ModlogLink
-			highlight={$siteMeta.my_user?.local_user_view.person.admin ?? false}
-			highlightColor="orange"
-			warn={$showModlogWarning}
-		/>
+		<ModlogLink highlight={isAdmin ?? false} highlightColor="orange" warn={$showModlogWarning} />
 	</div>
 </Sidebar>
 
@@ -35,6 +31,9 @@
 	const { siteMeta } = getAppContext();
 	const { showModlogWarning } = getSettingsContext();
 	$: siteView = $siteMeta.site_view;
+	$: isAdmin = $siteMeta.admins.some(
+		(admin) => admin.person.actor_id === $siteMeta.my_user?.local_user_view.person.actor_id
+	);
 
 	$: siteCounts = [
 		{

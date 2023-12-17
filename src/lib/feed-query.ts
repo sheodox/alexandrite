@@ -55,7 +55,6 @@ export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad>
 	if (filters.username) {
 		const userDetails = await client.getPersonDetails({
 			sort: postQuery.sort,
-			auth: jwt,
 			username: filters.username,
 			limit: 50,
 			page,
@@ -72,7 +71,6 @@ export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad>
 	if (typePosts || typeSaved) {
 		const postViews = await client
 			.getPosts({
-				auth: jwt,
 				limit: 50,
 				page,
 				community_name: filters.communityName ?? undefined,
@@ -98,7 +96,6 @@ export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad>
 			query,
 			commentViews: await client
 				.getComments({
-					auth: jwt,
 					page,
 					sort: query.sort,
 					type_: query.listing,

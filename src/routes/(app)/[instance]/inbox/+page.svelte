@@ -110,9 +110,7 @@
 			return;
 		}
 
-		await client.markAllAsRead({
-			auth: jwt
-		});
+		await client.markAllAsRead();
 		invalidateAll();
 		checkUnread();
 	});
@@ -148,7 +146,6 @@
 		}
 
 		const form = {
-			auth: jwt,
 			sort: data.query.sort as CommentSortType,
 			unread_only: data.query.type === 'Unread',
 			page,

@@ -106,7 +106,6 @@
 		try {
 			if (!opt.ban) {
 				const res = await client.banFromCommunity({
-					auth: jwt,
 					person_id: opt.personId,
 					community_id: opt.communityId,
 					ban: false
@@ -143,7 +142,6 @@
 							: // expires is the number of *seconds* since epoch
 							  Math.floor(calculateBanExpiration(banOpts.expireDays).getTime() / 1000),
 						res = await client.banFromCommunity({
-							auth: jwt,
 							person_id: opt.personId,
 							community_id: opt.communityId,
 							ban: true,
@@ -171,7 +169,6 @@
 		try {
 			if (!opt.removed) {
 				const res = await client.removePost({
-					auth: jwt,
 					post_id: opt.postId,
 					removed: false
 				});
@@ -183,7 +180,6 @@
 
 				if (reason !== null) {
 					const res = await client.removePost({
-						auth: jwt,
 						post_id: opt.postId,
 						reason,
 						removed: true
@@ -207,7 +203,6 @@
 		try {
 			if (!opt.removed) {
 				const res = await client.removeComment({
-					auth: jwt,
 					comment_id: opt.commentId,
 					removed: false
 				});
@@ -218,7 +213,6 @@
 
 				if (reason !== null) {
 					const res = await client.removeComment({
-						auth: jwt,
 						comment_id: opt.commentId,
 						reason,
 						removed: true
@@ -242,7 +236,6 @@
 		setPending(pendingType, opt.postId, true);
 		try {
 			const res = await client.featurePost({
-				auth: jwt,
 				post_id: opt.postId,
 				featured: opt.featured,
 				feature_type: opt.featureType
@@ -266,7 +259,6 @@
 		setPending('lock-post', opt.postId, true);
 		try {
 			const res = await client.lockPost({
-				auth: jwt,
 				post_id: opt.postId,
 				locked: opt.locked
 			});
@@ -286,7 +278,6 @@
 		setPending('distinguish-comment', opt.commentId, true);
 		try {
 			const res = await client.distinguishComment({
-				auth: jwt,
 				comment_id: opt.commentId,
 				distinguished: opt.distinguished
 			});
@@ -309,7 +300,6 @@
 
 		try {
 			const res = await client.addModToCommunity({
-				auth: jwt,
 				added: opt.added,
 				community_id: opt.communityId,
 				person_id: opt.personId
@@ -317,7 +307,7 @@
 
 			successToast(opt.added ? `Added ${opt.personName} to mods` : `Removed ${opt.personName} from mods`);
 
-			communityContext.updateCommunity(await client.getCommunity({ auth: jwt, id: opt.communityId }));
+			communityContext.updateCommunity(await client.getCommunity({ id: opt.communityId }));
 
 			if (opt.personId === $siteMeta.my_user?.local_user_view.person.id && !opt.added) {
 				// user resigned, remove this community from siteMeta to hide mod actions

@@ -5,7 +5,7 @@ import type { PageLoad } from './$types';
 export const load = (async ({ params }) => {
 	const { client, jwt } = get(profile);
 
-	const res = await client.getPost({ id: +params.postId, auth: jwt });
+	const res = await client.getPost({ id: +params.postId });
 
 	return {
 		postView: res.post_view,

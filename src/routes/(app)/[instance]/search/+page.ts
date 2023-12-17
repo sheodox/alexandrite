@@ -20,7 +20,6 @@ export const load = (async ({ url }) => {
 		communityView: searchArgs.community
 			? client
 					.getCommunity({
-						auth: jwt,
 						name: searchArgs.community
 					})
 					.then(({ community_view }) => community_view)
@@ -28,7 +27,6 @@ export const load = (async ({ url }) => {
 		personView: searchArgs.creator
 			? client
 					.getPersonDetails({
-						auth: jwt,
 						person_id: Number(searchArgs.creator)
 					})
 					.then(({ person_view }) => person_view)

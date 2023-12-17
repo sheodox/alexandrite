@@ -7,8 +7,6 @@ export const load = (async () => {
 
 	// reload siteMeta instead of using context so it updates with new blocks
 	return {
-		siteMeta: client.getSite({
-			auth: jwt
-		})
+		siteMeta: client.getSite()
 	};
 }) satisfies PageLoad;

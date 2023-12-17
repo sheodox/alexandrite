@@ -37,7 +37,6 @@ export const createCommunityContext = () => {
 		const { client, jwt } = get(profile);
 
 		const res = await client.getCommunity({
-			auth: jwt,
 			name
 		});
 

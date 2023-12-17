@@ -176,7 +176,6 @@
 				}
 
 				const searchRes = await client.search({
-					auth: jwt,
 					limit: 50,
 					page: query.page,
 					sort: query.sort as SortType,

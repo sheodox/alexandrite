@@ -452,7 +452,6 @@
 		}
 		const res = await client.createComment({
 			content: body.content as string,
-			auth: jwt,
 			post_id: postView.post.id,
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
@@ -514,7 +513,6 @@
 
 		const { comments, busy, error } = await loadComments(async () => {
 			const { comments } = await client.getComments({
-				auth: jwt,
 				post_id: postView.post.id,
 				limit: 100,
 				page: commentsPageNum++,
@@ -541,7 +539,6 @@
 		commentExpandLoadingIds = commentExpandLoadingIds;
 		await loadComments(async () => {
 			const { comments } = await client.getComments({
-				auth: jwt,
 				post_id: postView.post.id,
 				limit: 100,
 				parent_id: e.detail,
@@ -570,7 +567,7 @@
 	onMount(async () => {
 		if (jwt) {
 			// getting the post has a side effect of marking it and its comments as read
-			const res = await client.getPost({ id: postView.post.id, auth: jwt }).then((res) => {
+			const res = await client.getPost({ id: postView.post.id }).then((res) => {
 				res.post_view.read = true;
 				res.post_view.unread_comments = 0;
 				return res;

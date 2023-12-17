@@ -34,7 +34,6 @@ export const load = (async ({ url }) => {
 			: null,
 		modlogs: client
 			.getModlog({
-				auth: jwt,
 				community_id: communityId,
 				mod_person_id: moderatorId,
 				other_person_id: targetId,

@@ -9,7 +9,6 @@ export const load = (async ({ url }) => {
 	return {
 		crossPost: crossPostId
 			? client.getPost({
-					auth: jwt,
 					id: +crossPostId
 			  })
 			: null

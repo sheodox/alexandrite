@@ -9,8 +9,7 @@ export const load = (async ({ url }) => {
 
 	const cv = communityName
 		? await client.getCommunity({
-				name: communityName,
-				auth: jwt
+				name: communityName
 		  })
 		: null;
 

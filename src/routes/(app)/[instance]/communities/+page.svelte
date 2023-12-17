@@ -80,7 +80,6 @@
 			async (page) => {
 				return await client
 					.listCommunities({
-						auth: jwt,
 						page,
 						limit: 50,
 						type_: data.query.listing,

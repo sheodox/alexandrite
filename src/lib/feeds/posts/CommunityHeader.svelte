@@ -38,7 +38,6 @@
 			return;
 		}
 		const res = await client.blockCommunity({
-			auth: jwt,
 			community_id: community.id,
 			block
 		});

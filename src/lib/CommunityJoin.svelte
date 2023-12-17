@@ -31,7 +31,6 @@
 		}
 
 		const res = await client.followCommunity({
-			auth: jwt,
 			follow: communityView.subscribed === 'NotSubscribed',
 			community_id: communityView.community.id
 		});

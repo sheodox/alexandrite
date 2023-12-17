@@ -104,7 +104,10 @@
 	$: isCommunityModerator =
 		data.communityModerators?.some((mod) => mod.id === $siteMeta.my_user?.local_user_view.local_user.person_id) ??
 		false;
-	$: censorMods = !$siteMeta.my_user?.local_user_view.person.admin && !isCommunityModerator;
+	$: isAdmin = $siteMeta.admins.some(
+		(admin) => admin.person.actor_id === $siteMeta.my_user?.local_user_view.person.actor_id
+	);
+	$: censorMods = !isAdmin && !isCommunityModerator;
 
 	$: showCommunity = data.communityName === null;
 	$: showSecondaryHeader = showCommunity || data.targetUser;

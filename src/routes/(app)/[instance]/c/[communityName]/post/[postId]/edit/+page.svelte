@@ -11,6 +11,7 @@
 		content={data.postView.post.body}
 		url={data.postView.post.url}
 		postButtonText="Update"
+		nsfw={data.postView.post.nsfw}
 	/>
 </form>
 
@@ -54,7 +55,6 @@
 		try {
 			// treat both Subscribed and Pending as the same
 			await client.editPost({
-				auth: jwt,
 				post_id: Number(data.postView.post.id),
 				...formFields
 			});
