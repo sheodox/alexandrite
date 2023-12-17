@@ -3,7 +3,7 @@ import { get } from 'svelte/store';
 import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ url }) => {
-	const { client, jwt, settings } = get(profile);
+	const { client, settings } = get(profile);
 
 	const searchArgs = {
 		q: url.searchParams.get('q') ?? '',

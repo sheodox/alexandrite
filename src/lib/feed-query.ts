@@ -33,7 +33,7 @@ interface FeedDataQuery {
 }
 
 export const loadFeedData = async (filters: FeedDataQuery): Promise<ApiFeedLoad> => {
-	const { client, jwt, settings } = get(profile),
+	const { client, settings } = get(profile),
 		page = Number(filters.page ?? '1'),
 		selectedType = filters.type ?? (filters.username ? 'Overview' : 'Posts'),
 		selectedListing = filters.listing,

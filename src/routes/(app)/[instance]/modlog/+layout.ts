@@ -5,7 +5,7 @@ import type { GetCommunityResponse } from 'lemmy-js-client';
 import { nameAtInstance } from '$lib/nav-utils';
 
 export const load = (async ({ url }) => {
-	const { client, jwt } = get(profile),
+	const { client } = get(profile),
 		communityId = url.searchParams.get('community');
 
 	let cv: GetCommunityResponse | null = null;

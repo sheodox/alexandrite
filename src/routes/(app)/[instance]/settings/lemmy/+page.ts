@@ -4,7 +4,7 @@ import { get } from 'svelte/store';
 import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 
 export const load = (async () => {
-	const { client, jwt, id } = get(profile);
+	const { client, id } = get(profile);
 
 	const site = await client.getSite();
 

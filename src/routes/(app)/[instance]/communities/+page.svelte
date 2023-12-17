@@ -56,7 +56,6 @@
 	import { profile } from '$lib/profiles/profiles';
 
 	$: client = $profile.client;
-	$: jwt = $profile.jwt;
 	$: loggedIn = $profile.loggedIn;
 
 	export let data;

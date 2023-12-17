@@ -117,7 +117,6 @@
 	export let data;
 
 	$: client = $profile.client;
-	$: jwt = $profile.jwt;
 	$: loggedIn = $profile.loggedIn;
 
 	const cvStore = createContentViewStore();

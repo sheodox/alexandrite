@@ -3,7 +3,7 @@ import { get } from 'svelte/store';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = get(profile);
+	const { client } = get(profile);
 
 	const res = await client.getPost({ id: +params.postId });
 

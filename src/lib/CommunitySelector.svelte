@@ -39,7 +39,6 @@
 	const { siteMeta } = getAppContext();
 
 	$: client = $profile.client;
-	$: jwt = $profile.jwt;
 
 	let searchText = '';
 
