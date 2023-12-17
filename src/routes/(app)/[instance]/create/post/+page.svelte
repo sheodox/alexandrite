@@ -50,7 +50,6 @@
 
 		// treat both Subscribed and Pending as the same
 		const postRes = await client.createPost({
-			auth: jwt,
 			// tricks bots by submitting an empty string, just doing what lemmy-ui is doing
 			honeypot,
 			community_id: Number(body.communityId),

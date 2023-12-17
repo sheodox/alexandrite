@@ -121,7 +121,6 @@
 		}
 
 		const form = {
-			auth: jwt,
 			unresolved_only: data.query.state === 'Unread',
 			page,
 			limit: 20

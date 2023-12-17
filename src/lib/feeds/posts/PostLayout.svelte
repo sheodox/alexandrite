@@ -186,7 +186,10 @@
 	$: isMyPost = postView.creator.local && postView.creator.name === username;
 	$: isCommunityModerator =
 		$siteMeta.my_user?.moderates?.some((m) => m.community.id === postView.community.id) ?? false;
-	$: isAdminOfCommunity = $siteMeta.my_user?.local_user_view.person.admin && postView.community.local;
+	$: isAdmin = $siteMeta.admins.some(
+		(admin) => admin.person.actor_id === $siteMeta.my_user?.local_user_view.person.actor_id
+	);
+	$: isAdminOfCommunity = isAdmin && postView.community.local;
 	$: communityName = nameAtInstance(postView.community);
 	$: community = weaklyGetCommunity(communityName);
 	$: postMadeByModerator = $community?.moderators.some((m) => m.moderator.id === postView.creator.id);
@@ -228,7 +231,6 @@
 
 		const pv = await client
 			.likePost({
-				auth: jwt,
 				post_id: postView.post.id,
 				score: score
 			})
@@ -248,7 +250,6 @@
 		const pv = await client
 			.savePost({
 				post_id: postView.post.id,
-				auth: jwt,
 				save: !postView.saved
 			})
 			.then(({ post_view }) => post_view);
@@ -262,7 +263,6 @@
 			return;
 		}
 		await client.createPostReport({
-			auth: jwt,
 			reason: e.detail,
 			post_id: postView.post.id
 		});
@@ -450,8 +450,6 @@
 			});
 		}
 
-		const isAdmin = $siteMeta.my_user?.local_user_view.person.admin ?? false;
-
 		if (isCommunityModerator || isAdmin) {
 			const warn = isCommunityModerator ? $showModlogWarningModerated : $showModlogWarning,
 				modlogBase = `/${$profile.instance}/modlog${warn ? '' : '/view'}`;
@@ -482,7 +480,6 @@
 			return;
 		}
 		await client.blockPerson({
-			auth: jwt,
 			person_id: postView.creator.id,
 			block: true
 		});
@@ -500,7 +497,6 @@
 			return;
 		}
 		await client.blockCommunity({
-			auth: jwt,
 			community_id: postView.community.id,
 			block: true
 		});

@@ -9,9 +9,7 @@ export const load = (async () => {
 		throw redirect(303, '/instance');
 	}
 
-	const site = await client.getSite({
-		auth: jwt
-	});
+	const site = await client.getSite();
 
 	const localUser = site.my_user?.local_user_view.local_user;
 	if (localUser) {

@@ -4,11 +4,10 @@ import { profile } from '$lib/profiles/profiles';
 
 export const load = (async ({ params, url }) => {
 	const username = params.username;
-	const { client, jwt } = get(profile);
+	const { client } = get(profile);
 
 	const details = await client.getPersonDetails({
-		username,
-		auth: jwt
+		username
 	});
 	return {
 		personView: details.person_view,

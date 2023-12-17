@@ -56,7 +56,6 @@
 	import { profile } from '$lib/profiles/profiles';
 
 	$: client = $profile.client;
-	$: jwt = $profile.jwt;
 	$: loggedIn = $profile.loggedIn;
 
 	export let data;
@@ -80,7 +79,6 @@
 			async (page) => {
 				return await client
 					.listCommunities({
-						auth: jwt,
 						page,
 						limit: 50,
 						type_: data.query.listing,

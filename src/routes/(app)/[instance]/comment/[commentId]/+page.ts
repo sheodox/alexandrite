@@ -4,11 +4,10 @@ import { profile } from '$lib/profiles/profiles';
 import { get } from 'svelte/store';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = get(profile);
+	const { client } = get(profile);
 
 	const { comments } = await client.getComments({
 			parent_id: +params.commentId,
-			auth: jwt,
 			max_depth: 8,
 			type_: 'All',
 			sort: 'Hot'
@@ -22,6 +21,6 @@ export const load = (async ({ params }) => {
 	return {
 		commentViews: comments,
 		commentId: +params.commentId,
-		postView: client.getPost({ id: postId, auth: jwt }).then(({ post_view }) => post_view)
+		postView: client.getPost({ id: postId }).then(({ post_view }) => post_view)
 	};
 }) satisfies PageLoad;

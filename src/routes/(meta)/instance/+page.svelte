@@ -143,11 +143,13 @@
 
 		const baseUrl = 'https://' + instance;
 
-		const client = createLemmyClient(baseUrl);
+		// temporary client to test connection and server details first, then login.
+		// a new client is used after that once a jwt is obtained
+		const probeClient = createLemmyClient(baseUrl, { useProfile: false });
 		let site: GetSiteResponse;
 
 		try {
-			site = await client.getSite({});
+			site = await probeClient.getSite();
 		} catch (e) {
 			errMsg = `Error connecting to "${instance}", check to make sure your instance is spelled correctly.`;
 			return;
@@ -167,15 +169,15 @@
 
 			let jwt = '';
 			try {
-				jwt = (await client.login(loginForm)).jwt ?? '';
+				jwt = (await probeClient.login(loginForm)).jwt ?? '';
 			} catch (e) {
 				errMsg = 'Login failed: ' + getMessageFromError(e);
 				return;
 			}
 
-			const site = await client.getSite({
-				auth: jwt
-			});
+			const client = createLemmyClient(baseUrl, { jwt });
+
+			const site = await client.getSite();
 
 			const user = site.my_user?.local_user_view;
 

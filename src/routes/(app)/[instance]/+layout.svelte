@@ -199,9 +199,7 @@
 			return;
 		}
 
-		const unread = await client.getUnreadCount({
-			auth: jwt
-		});
+		const unread = await client.getUnreadCount();
 
 		$unreadCount = unread.replies + unread.mentions + unread.private_messages;
 	}
@@ -211,9 +209,7 @@
 			return;
 		}
 
-		const unread = await client.getReportCount({
-			auth: jwt
-		});
+		const unread = await client.getReportCount({});
 
 		$unreadReportCount = unread.post_reports + unread.comment_reports;
 	}

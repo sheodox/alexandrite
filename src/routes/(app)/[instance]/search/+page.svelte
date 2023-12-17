@@ -117,7 +117,6 @@
 	export let data;
 
 	$: client = $profile.client;
-	$: jwt = $profile.jwt;
 	$: loggedIn = $profile.loggedIn;
 
 	const cvStore = createContentViewStore();
@@ -176,7 +175,6 @@
 				}
 
 				const searchRes = await client.search({
-					auth: jwt,
 					limit: 50,
 					page: query.page,
 					sort: query.sort as SortType,

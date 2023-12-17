@@ -2,8 +2,8 @@ import { error } from '@sveltejs/kit';
 import { LemmyHttp } from 'lemmy-js-client';
 import { createAutoExpireToast } from 'sheodox-ui';
 import { getMessageFromError } from './error-messages';
-
-const APP_USER_AGENT = 'Alexandrite https://alexandrite.app';
+import { profile } from './profiles/profiles';
+import { get } from 'svelte/store';
 
 function tryParse(str: string) {
 	try {
@@ -13,17 +13,49 @@ function tryParse(str: string) {
 	}
 }
 
-export const createLemmyClient = (instanceUrl: string, onExpire?: () => unknown) => {
+export const createLemmyClient = (
+	instanceUrl: string,
+	{ onExpire, useProfile = true, jwt }: { onExpire?: () => unknown; useProfile?: boolean; jwt?: string }
+) => {
 	return new LemmyHttp(instanceUrl, {
 		fetchFunction: async (input: URL | RequestInfo, init?: RequestInit | undefined) => {
 			if (!init) {
 				init = {};
 			}
 
-			init.headers = {
-				'user-agent': APP_USER_AGENT,
-				...(init.headers || {})
-			};
+			if (useProfile) {
+				// use the passed jwt if given (used on login page)
+				jwt ??= get(profile).jwt;
+
+				init.headers = {
+					...(init.headers || {}),
+					...(jwt
+						? {
+								Authorization: `Bearer ${jwt}`
+						  }
+						: {})
+				};
+
+				// 0.18.x compatibility for auth
+				if (input instanceof URL && jwt) {
+					input.searchParams.set('auth', jwt);
+				} else if (typeof input === 'string' && jwt) {
+					const u = new URL(input);
+					u.searchParams.set('auth', jwt);
+					input = u.toString();
+				}
+
+				// taken from Photon, thanks Xylight!
+				if (init?.body && jwt) {
+					try {
+						const json = JSON.parse(init.body.toString());
+						json.auth = jwt;
+						init.body = JSON.stringify(json);
+					} catch (e) {
+						// It seems this isn't a JSON request. Ignore adding an auth parameter.
+					}
+				}
+			}
 
 			let res;
 			try {

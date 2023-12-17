@@ -122,7 +122,6 @@
 			return;
 		}
 		await client.createPrivateMessageReport({
-			auth: jwt,
 			reason: e.detail,
 			private_message_id: privateMessageView.private_message.id
 		});
@@ -154,7 +153,6 @@
 		}
 		if (confirm('Are you sure you want to delete this message?')) {
 			await client.deletePrivateMessage({
-				auth: jwt,
 				deleted: true,
 				private_message_id: privateMessageView.private_message.id
 			});

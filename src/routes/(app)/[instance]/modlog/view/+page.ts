@@ -7,7 +7,7 @@ import type { ModlogActionType } from 'lemmy-js-client';
 const id = (idStr: string | null) => (idStr ? +idStr : undefined);
 
 export const load = (async ({ url }) => {
-	const { client, jwt } = get(profile),
+	const { client } = get(profile),
 		communityId = id(url.searchParams.get('community')),
 		moderatorId = id(url.searchParams.get('moderator')),
 		targetId = id(url.searchParams.get('target')),
@@ -34,7 +34,6 @@ export const load = (async ({ url }) => {
 			: null,
 		modlogs: client
 			.getModlog({
-				auth: jwt,
 				community_id: communityId,
 				mod_person_id: moderatorId,
 				other_person_id: targetId,

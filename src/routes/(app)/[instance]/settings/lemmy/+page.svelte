@@ -39,9 +39,6 @@
 		<Checkbox name="bot_account" checked={data.person.bot_account}>Bot account</Checkbox>
 		<Checkbox name="show_bot_accounts" checked={data.localUser.show_bot_accounts}>Show bot accounts</Checkbox>
 		<Checkbox name="show_read_posts" checked={data.localUser.show_read_posts}>Show read posts</Checkbox>
-		<Checkbox name="show_new_post_notifs" checked={data.localUser.show_new_post_notifs}
-			>Show notifications for new posts</Checkbox
-		>
 		<Checkbox name="send_notifications_to_email" checked={data.localUser.send_notifications_to_email}
 			>Send notifications to email</Checkbox
 		>
@@ -57,7 +54,7 @@
 	import { createStatefulForm } from '$lib/utils';
 	import { TextInput, Checkbox, Fieldset, Stack, createAutoExpireToast } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
-	import type { ListingType, SortType } from 'lemmy-js-client';
+	import type { ListingType, SaveUserSettings, SortType } from 'lemmy-js-client';
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 	import LanguageSettings from './LanguageSettings.svelte';
@@ -75,8 +72,7 @@
 			return;
 		}
 
-		const settings = {
-			auth: jwt,
+		const settings: SaveUserSettings = {
 			display_name: body.display_name as string,
 			email: body.email as string,
 			bio: body.bio as string,
@@ -90,7 +86,6 @@
 			bot_account: body.bot_account === 'on',
 			show_bot_accounts: body.show_bot_accounts === 'on',
 			show_read_posts: body.show_read_posts === 'on',
-			show_new_post_notifs: body.show_new_post_notifs === 'on',
 			send_notifications_to_email: body.send_notifications_to_email === 'on'
 		};
 

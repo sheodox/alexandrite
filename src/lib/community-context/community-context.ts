@@ -34,10 +34,9 @@ export const createCommunityContext = () => {
 
 	async function loadCommunity(name: string) {
 		loading.add(name);
-		const { client, jwt } = get(profile);
+		const { client } = get(profile);
 
 		const res = await client.getCommunity({
-			auth: jwt,
 			name
 		});
 

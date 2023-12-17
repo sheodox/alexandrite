@@ -3,10 +3,9 @@ import { profile } from '$lib/profiles/profiles';
 import { get } from 'svelte/store';
 
 export const load = (async ({ url, params }) => {
-	const { client, jwt, settings } = get(profile);
+	const { client, settings } = get(profile);
 	const cv = await client.getCommunity({
-		name: params.communityName,
-		auth: jwt
+		name: params.communityName
 	});
 
 	return {

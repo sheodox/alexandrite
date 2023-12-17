@@ -139,7 +139,6 @@
 		}
 
 		const res = await client.resolvePostReport({
-			auth: jwt,
 			report_id: view.post_report.id,
 			resolved
 		});

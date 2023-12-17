@@ -116,7 +116,6 @@
 		}
 
 		const res = await client.resolveCommentReport({
-			auth: jwt,
 			report_id: view.comment_report.id,
 			resolved: !view.comment_report.resolved
 		});

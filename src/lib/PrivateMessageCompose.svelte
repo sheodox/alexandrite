@@ -61,7 +61,6 @@
 			// if they're editing a message, save the changes, don't send a new one
 			if (privateMessageView) {
 				res = await client.editPrivateMessage({
-					auth: jwt,
 					content: body.content as string,
 					private_message_id: privateMessageView.private_message.id
 				});
@@ -70,7 +69,6 @@
 			} else {
 				//else just create a new message
 				res = await client.createPrivateMessage({
-					auth: jwt,
 					content: body.content as string,
 					recipient_id: to.id
 				});

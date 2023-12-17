@@ -17,8 +17,10 @@
 	import { profile } from '$lib/profiles/profiles';
 	import { getCommunityContext } from '$lib/community-context/community-context';
 	import { nameAtInstance } from '$lib/nav-utils';
+	import { getAppContext } from '$lib/app-context';
 
 	$: username = $profile.username;
+	const { siteMeta } = getAppContext();
 
 	export let user: Person;
 	export let postOP: string | boolean | undefined = ''; // actor_id of someone who made a post
@@ -29,6 +31,7 @@
 	const communityContext = getCommunityContext();
 	$: com = community ? communityContext.weaklyGetCommunity(nameAtInstance(community)) : null;
 	$: isMod = $com?.moderators.some((mod) => mod.moderator.actor_id === user.actor_id);
+	$: isAdmin = $siteMeta.admins.some((admin) => admin.person.actor_id === user.actor_id);
 
 	$: badges = (function () {
 		const badges = [];
@@ -49,7 +52,7 @@
 		if (user.bot_account) {
 			badges.push({ color: 'cyan', text: 'Bot' });
 		}
-		if (user.admin) {
+		if (isAdmin) {
 			badges.push({ color: 'orange', text: 'Admin' });
 		}
 		if (isMod) {

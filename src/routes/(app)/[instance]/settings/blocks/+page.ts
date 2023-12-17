@@ -3,12 +3,10 @@ import type { PageLoad } from './$types';
 import { profile } from '$lib/profiles/profiles';
 
 export const load = (async () => {
-	const { client, jwt } = get(profile);
+	const { client } = get(profile);
 
 	// reload siteMeta instead of using context so it updates with new blocks
 	return {
-		siteMeta: client.getSite({
-			auth: jwt
-		})
+		siteMeta: client.getSite()
 	};
 }) satisfies PageLoad;

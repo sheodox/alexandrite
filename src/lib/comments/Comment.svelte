@@ -310,6 +310,9 @@
 	let showReportModal = false;
 	let replyForm: HTMLFormElement;
 	let editForm: HTMLFormElement;
+	$: isAdmin = $siteMeta.admins.some(
+		(admin) => admin.person.actor_id === $siteMeta.my_user?.local_user_view.person.actor_id
+	);
 	$: replyState = createStatefulForm(replyForm, replySubmit);
 	$: editState = createStatefulForm(editForm, editSubmit);
 	$: voteState = createStatefulAction<number>(async (score) => {
@@ -318,7 +321,6 @@
 		}
 
 		const res = await client.likeComment({
-			auth: jwt,
 			comment_id: comment.id,
 			score
 		});
@@ -378,7 +380,6 @@
 
 		const res = await client.createComment({
 			content: body.content as string,
-			auth: jwt,
 			post_id: contentView.view.post.id,
 			parent_id,
 			language_id: body.languageId ? Number(body.languageId) : undefined
@@ -400,7 +401,6 @@
 
 		const res = await client.editComment({
 			content: body.content as string,
-			auth: jwt,
 			comment_id: Number(body.commentId),
 			language_id: body.languageId ? Number(body.languageId) : undefined
 		});
@@ -415,7 +415,6 @@
 		}
 
 		const res = await client.deleteComment({
-			auth: jwt,
 			comment_id: comment.id,
 			deleted
 		});
@@ -429,7 +428,6 @@
 			return;
 		}
 		const res = await client.saveComment({
-			auth: jwt,
 			comment_id: contentView.view.comment.id,
 			save: !contentView.view.saved
 		});
@@ -441,7 +439,6 @@
 			return;
 		}
 		await client.createCommentReport({
-			auth: jwt,
 			reason: e.detail,
 			comment_id: contentView.view.comment.id
 		});
@@ -458,7 +455,6 @@
 			return;
 		}
 		await client.blockPerson({
-			auth: jwt,
 			person_id: contentView.view.creator.id,
 			block
 		});
@@ -596,8 +592,6 @@
 				disabled: moderatorsUnknown
 			});
 		}
-
-		const isAdmin = $siteMeta.my_user?.local_user_view.person.admin ?? false;
 
 		if (isCommunityModerator || isAdmin) {
 			const warn = isCommunityModerator ? $showModlogWarningModerated : $showModlogWarning,

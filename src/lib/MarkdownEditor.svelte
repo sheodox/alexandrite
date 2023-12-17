@@ -194,7 +194,6 @@
 	// 		busy = true;
 	// 		const { selectionStart } = textarea,
 	// 			res = await client.uploadImage({
-	// 				auth: jwt,
 	// 				image: file
 	// 			});
 	// 		console.log(res);

@@ -14,7 +14,7 @@ export const load = (async ({ params }) => {
 		throw error(400, 'Not Logged In');
 	}
 
-	const postView = client.getPost({ id: +params.postId, auth: jwt }).then(({ post_view }) => post_view);
+	const postView = client.getPost({ id: +params.postId }).then(({ post_view }) => post_view);
 
 	// TODO redirect if it's not your post
 

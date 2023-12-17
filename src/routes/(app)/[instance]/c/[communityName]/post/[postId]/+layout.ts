@@ -3,11 +3,10 @@ import { get } from 'svelte/store';
 import type { LayoutLoad } from './$types';
 
 export const load = (async ({ params }) => {
-	const { client, jwt } = get(profile);
+	const { client } = get(profile);
 
 	const cv = await client.getCommunity({
-		name: params.communityName,
-		auth: jwt
+		name: params.communityName
 	});
 
 	return {

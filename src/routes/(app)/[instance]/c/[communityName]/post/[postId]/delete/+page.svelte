@@ -55,7 +55,6 @@
 
 		try {
 			await client.deletePost({
-				auth: jwt,
 				post_id: data.postView.post.id,
 				// todo support un-deleting? comments can be undeleted, but
 				// it seems you can't view a deleted post so not sure how you'd undelete a post

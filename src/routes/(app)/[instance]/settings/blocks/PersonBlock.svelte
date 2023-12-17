@@ -21,7 +21,6 @@
 		}
 
 		await client.blockPerson({
-			auth: jwt,
 			person_id: person.id,
 			block: false
 		});
