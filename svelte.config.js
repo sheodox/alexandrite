@@ -12,6 +12,13 @@ const config = {
 		adapter: process.env.ALEXANDRITE_RUN_IN_NODE === 'true' ? adapterNode() : adapterAuto(),
 		env: {
 			publicPrefix: 'ALEXANDRITE_'
+		},
+		csp: {
+			directives: {
+				'script-src': ['self'],
+				'frame-ancestors': ['none'],
+				'frame-src': ['none']
+			}
 		}
 	}
 };
