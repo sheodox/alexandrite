@@ -119,6 +119,10 @@ export const PostSortOptions = [
 		label: 'Active'
 	},
 	{
+		value: 'Scaled',
+		label: 'Scaled'
+	},
+	{
 		value: 'New',
 		label: 'New'
 	},
