@@ -2,10 +2,10 @@
 	$sidebarWidth: 30rem;
 
 	aside {
-		background-color: var(--sx-gray-800);
 		width: #{$sidebarWidth};
 		padding: 1rem;
 		overflow: auto;
+		border-left: 1px solid var(--sx-gray-transparent-light);
 	}
 	.sidebar-hidden aside {
 		display: none;
@@ -19,7 +19,6 @@
 		position: relative;
 	}
 	.feed-column-feed {
-		background-color: var(--sx-gray-700);
 		flex: 1;
 		flex-basis: 300px;
 	}
@@ -62,6 +61,7 @@
 				<PostFeed
 					{feedType}
 					on:more
+					on:refresh
 					on:overlay={onOverlay}
 					{endOfFeed}
 					{isMyFeed}
@@ -125,7 +125,7 @@
 		type ContentView
 	} from '$lib/content-views';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
-	import { profile, instance } from '$lib/profiles/profiles';
+	import { profile } from '$lib/profiles/profiles';
 	import type { VirtualFeedAPI } from '$lib/virtual-feed';
 	import { isElementEditable, isInteractiveElementBetween } from '$lib/utils';
 	import type { PostLayoutAPI } from './post-utils';
@@ -141,8 +141,6 @@
 	export let selectedType: string; // default  'posts';
 	export let selectedListing: string; // default 'local';
 	export let selectedSort: string; // default 'Hot';
-	// the URL of the page we're on, to go back to when closing feed adjacent posts
-	export let pageBaseUrl: string;
 
 	const { screenDimensions, navSidebarOpen } = getAppContext();
 	const { sidebarVisible, feedLayout: feedLayoutSetting, navSidebarDocked } = getSettingsContext();
@@ -221,7 +219,6 @@
 
 	async function openPostAdjacent(postId: number) {
 		feedAdjacentPostViewId = postId;
-		history.pushState(null, '', `/${$instance}/post/${postId}`);
 	}
 
 	async function onOverlay(e: CustomEvent<number>) {
@@ -230,7 +227,6 @@
 
 	function closeOverlay() {
 		feedAdjacentPostViewId = null;
-		history.pushState(null, '', pageBaseUrl);
 		feedColumnEl.focus();
 	}
 

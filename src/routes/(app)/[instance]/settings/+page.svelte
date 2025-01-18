@@ -1,5 +1,5 @@
 <Stack dir="c" gap={4} align="start">
-	<div class="mx-2">
+	<div class="mx-2 f-column gap-1">
 		<Checkbox bind:checked={$navSidebarDocked} on:change={onSidebarDockChange}>Keep navigation sidebar open</Checkbox>
 		<Checkbox bind:checked={$loadImagesAsWebp}>Load images as <code>.webp</code></Checkbox>
 		<Checkbox bind:checked={$showModlogWarning}>Show modlog content warning</Checkbox>

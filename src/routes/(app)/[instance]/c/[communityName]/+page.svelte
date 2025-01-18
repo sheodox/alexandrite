@@ -3,6 +3,7 @@
 	<ContentViewProvider store={cvStore}>
 		<PostsPage
 			on:more={more}
+			on:refresh={() => refresh(data)}
 			feedType="community"
 			{communityView}
 			{moderators}
@@ -12,7 +13,6 @@
 			selectedSort={data.query.sort}
 			{loadingContent}
 			{loadingContentFailed}
-			pageBaseUrl={data.pageBaseUrl}
 		/>
 	</ContentViewProvider>
 {/key}
@@ -43,8 +43,13 @@
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
-		loader = initFeed(data);
+		refresh(data);
+	}
+
+	function refresh(d: PageData) {
+		loader = initFeed(d);
 		cvStore.clear();
+		// load the first page of data
 		more();
 	}
 

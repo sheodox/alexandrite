@@ -2,7 +2,7 @@
 	<NameAtInstance place={personView.person} displayName={personView.person.display_name} prefix="@" slot="name" />
 	<Stack slot="actions" dir="r" gap={2} align="center">
 		<a class="button tertiary" rel="noreferrer" target="_blank" href={personView.person.actor_id}>
-			<Icon icon="network-wired" />
+			<Icon icon="circle-nodes" />
 			On {personInstance}
 		</a>
 		{#if !isMe}

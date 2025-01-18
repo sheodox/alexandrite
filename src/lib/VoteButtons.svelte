@@ -1,6 +1,7 @@
 <style lang="scss">
 	button {
 		color: var(--sx-gray-200);
+		border: 1px solid currentColor;
 	}
 	.vote-up:enabled {
 		&:hover,

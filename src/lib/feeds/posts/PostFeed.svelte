@@ -60,7 +60,7 @@
 			{/key}
 		</div>
 	</Stack>
-	<FeedNav />
+	<FeedNav on:refresh />
 </div>
 
 <script lang="ts">

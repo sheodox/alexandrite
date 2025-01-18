@@ -1,7 +1,7 @@
 {#if import.meta.env.MODE === 'development'}
 	<Tooltip>
 		<span slot="tooltip">{text}</span>
-		<button on:click class:small use:ripple class="m-0">
+		<button on:click class:small use:ripple class="m-0 {cl}">
 			<Icon icon="scroll" />
 			<span class="sr-only">{text}</span>
 		</button>
@@ -13,4 +13,5 @@
 
 	export let text = 'Log This';
 	export let small = true;
+	export let cl = '';
 </script>

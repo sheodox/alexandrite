@@ -4,6 +4,7 @@
 	<ContentViewProvider store={cvStore}>
 		<PostsPage
 			on:more={() => more(data.query.type)}
+			on:refresh={() => refresh(data)}
 			feedType="user"
 			personView={data.personView}
 			{endOfFeed}
@@ -12,7 +13,6 @@
 			selectedSort={data.query.sort}
 			{loadingContent}
 			{loadingContentFailed}
-			pageBaseUrl={data.pageBaseUrl}
 		>
 			<div slot="sidebar">
 				<Stack dir="c" gap={2}>
@@ -75,6 +75,10 @@
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
+		refresh(data);
+	}
+
+	function refresh(data: PageData) {
 		loader = initFeed(data);
 		// load the first page of data
 		cvStore.clear();
