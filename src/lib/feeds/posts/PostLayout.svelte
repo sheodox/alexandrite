@@ -32,12 +32,13 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="actions">
+		{@const actionButtonClasses = $postPreviewLayout === 'CARD' ? 'tertiary' : 'small'}
 		<Tooltip>
 			<span slot="tooltip"
 				>Comments {#if postView.unread_comments > 0}<span class="sx-badge-orange">+Unread</span>{/if}</span
 			>
 			{#if supportsOverlay}
-				<button on:click={onCommentCountClick} class="tertiary">
+				<button on:click={onCommentCountClick} class={actionButtonClasses}>
 					<PostCommentCount {postView} />
 				</button>
 			{:else}
@@ -51,7 +52,8 @@
 					variant={postView.saved ? 'solid' : 'regular'}
 					pressed={postView.saved}
 					busy={$saveState.busy}
-					cl="m-0 tertiary"
+					cl="m-0 {actionButtonClasses}"
+					small={$postPreviewLayout !== 'CARD'}
 					icon="star"
 					on:click={() => $saveState.submit()}
 					disabled={$saveState.busy}
@@ -60,13 +62,18 @@
 			{@const postLinkText = 'Original Post'}
 			<Tooltip>
 				<span slot="tooltip">{postLinkText}</span>
-				<a class="button tertiary" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
+				<a class="button {actionButtonClasses}" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
 					<Icon icon="circle-nodes" />
 					<span class="sr-only">{postLinkText}</span>
 				</a>
 			</Tooltip>
-			<LogButton text="Log PostView" on:click={() => console.log({ postView })} cl="tertiary" small={false} />
-			<ExtraActions actions={overflowMenuOptions} on:open={onExtraActionsOpen} cl="tertiary" />
+			<LogButton
+				text="Log PostView"
+				on:click={() => console.log({ postView })}
+				small={false}
+				cl={actionButtonClasses}
+			/>
+			<ExtraActions actions={overflowMenuOptions} on:open={onExtraActionsOpen} cl={actionButtonClasses} />
 		{/if}
 	</svelte:fragment>
 
