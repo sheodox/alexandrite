@@ -17,7 +17,7 @@ export const NSFWHandlingOptions: { value: NSFWImageHandling; label: string; des
 	{ value: 'SHOW', label: 'Show', description: 'Always show NSFW images' }
 ];
 
-export type FeedLayout = 'AUTO' | 'OVERLAY' | 'COLUMNS';
+export type FeedLayout = 'AUTO' | 'OVERLAY' | 'COLUMNS' | 'REDIRECT';
 
 export const FeedLayoutOptions: { value: FeedLayout; label: string; description: string }[] = [
 	{
@@ -34,6 +34,11 @@ export const FeedLayoutOptions: { value: FeedLayout; label: string; description:
 		value: 'COLUMNS',
 		label: 'Columns',
 		description: 'View the feed and a post side by side. Lets you multitask.'
+	},
+	{
+		value: 'REDIRECT',
+		label: 'Redirect',
+		description: 'Opening a post brings you directly to that post instead of showing it alongside the feed.'
 	}
 ];
 

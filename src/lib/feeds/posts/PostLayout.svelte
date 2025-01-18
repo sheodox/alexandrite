@@ -37,7 +37,7 @@
 				>Comments {#if postView.unread_comments > 0}<span class="sx-badge-orange">+Unread</span>{/if}</span
 			>
 			{#if supportsOverlay}
-				<button on:click={() => dispatch('overlay', postView.post.id)} class="tertiary">
+				<button on:click={onCommentCountClick} class="tertiary">
 					<PostCommentCount {postView} />
 				</button>
 			{:else}
@@ -147,6 +147,7 @@
 	import { hasImageExtension, type PostLayoutAPI } from './post-utils';
 	import PostCommentCount from './PostCommentCount.svelte';
 	import { getCommunityContext } from '$lib/community-context/community-context';
+	import { goto } from '$app/navigation';
 
 	export let postView: PostView;
 	export let readOnly = false;
@@ -170,7 +171,7 @@
 	const modContext = getModContext();
 	const { siteMeta } = getAppContext();
 	const { weaklyGetCommunity, getFullCommunity } = getCommunityContext();
-	const { postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
+	const { feedLayout, postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
 
 	$: layout = forceLayout ?? $postPreviewLayout;
 
@@ -505,6 +506,15 @@
 	function onExpandToggle() {
 		expandPostContent = !expandPostContent;
 		dispatch('expand-content', { id: postView.post.id, expanded: expandPostContent });
+	}
+
+	function onCommentCountClick() {
+		console.log({ setting: $feedLayout });
+		if ($feedLayout === 'REDIRECT') {
+			goto(`/${$profile.instance}/post/${postView.post.id}`);
+		} else {
+			dispatch('overlay', postView.post.id);
+		}
 	}
 
 	// expose some methods to the post feed, so it can handle hotkeys

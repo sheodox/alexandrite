@@ -33,6 +33,9 @@
 	import type { PostView } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
 	import { profile } from '$lib/profiles/profiles';
+	import { getSettingsContext } from '$lib/settings-context';
+
+	const { feedLayout } = getSettingsContext();
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -44,8 +47,8 @@
 	export let cl = 'sx-font-size-5';
 
 	function titleClick(e: MouseEvent) {
-		// users can normally ctrl+click links to oppen in a new tab, don't interfere with that!
-		if (e.ctrlKey || e.metaKey) {
+		// users can normally ctrl+click links to open in a new tab, don't interfere with that!
+		if (e.ctrlKey || e.metaKey || $feedLayout === 'REDIRECT') {
 			return;
 		}
 
