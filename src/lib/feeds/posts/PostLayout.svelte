@@ -70,7 +70,7 @@
 			<LogButton
 				text="Log PostView"
 				on:click={() => console.log({ postView })}
-				small={false}
+				small={$postPreviewLayout !== 'CARD'}
 				cl={actionButtonClasses}
 			/>
 			<ExtraActions actions={overflowMenuOptions} on:open={onExtraActionsOpen} cl={actionButtonClasses} />
