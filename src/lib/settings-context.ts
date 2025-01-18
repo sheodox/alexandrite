@@ -17,7 +17,7 @@ export const NSFWHandlingOptions: { value: NSFWImageHandling; label: string; des
 	{ value: 'SHOW', label: 'Show', description: 'Always show NSFW images' }
 ];
 
-export type FeedLayout = 'AUTO' | 'OVERLAY' | 'COLUMNS';
+export type FeedLayout = 'AUTO' | 'OVERLAY' | 'COLUMNS' | 'REDIRECT';
 
 export const FeedLayoutOptions: { value: FeedLayout; label: string; description: string }[] = [
 	{
@@ -34,6 +34,11 @@ export const FeedLayoutOptions: { value: FeedLayout; label: string; description:
 		value: 'COLUMNS',
 		label: 'Columns',
 		description: 'View the feed and a post side by side. Lets you multitask.'
+	},
+	{
+		value: 'REDIRECT',
+		label: 'Redirect',
+		description: 'Opening a post brings you directly to that post instead of showing it alongside the feed.'
 	}
 ];
 
@@ -65,6 +70,12 @@ export const PostPreviewLayoutOptions: {
 	}
 ];
 
+/*
+ * To create a new setting:
+ * 1. add it to the type below
+ * 2. add a default to the defaults below it
+ * 3. create a new store and pass it to setSettingsContext in the root instance layout
+ */
 export interface AlexandriteSettings {
 	//theme options
 	colorScheme: 'light' | 'dark' | null;
@@ -81,6 +92,7 @@ export interface AlexandriteSettings {
 	feedLayout: FeedLayout;
 	postPreviewLayout: PostPreviewLayout;
 	postListLayoutContentPreview: boolean;
+	postCardLayoutLeftAlignedButtons: boolean;
 	// whether to show a confirm page before showing the actual modlog
 	showModlogWarning: boolean;
 	// same as above, but for communities the user is responsible for
@@ -105,6 +117,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	feedLayout: 'AUTO',
 	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST',
 	postListLayoutContentPreview: false,
+	postCardLayoutLeftAlignedButtons: true,
 	showModlogWarning: true,
 	showModlogWarningModerated: true
 };

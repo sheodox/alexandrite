@@ -14,7 +14,7 @@
 		right: 0;
 		position: absolute;
 		overflow: auto;
-		background: var(--sx-gray-700);
+		background: var(--sx-gray-875);
 	}
 	.close-bg {
 		background: var(--sx-gray-transparent-darker);

@@ -180,6 +180,10 @@
 			'post-list-layout-content-preview',
 			AlexandriteSettingsDefaults.postListLayoutContentPreview
 		),
+		postCardLayoutLeftAlignedButtons = localStorageBackedStore(
+			'post-card-layout-left-aligned-buttons',
+			AlexandriteSettingsDefaults.postCardLayoutLeftAlignedButtons
+		),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		colorScheme = localStorageBackedStore('color-scheme', AlexandriteSettingsDefaults.colorScheme),
@@ -267,6 +271,7 @@
 		navSidebarDocked,
 		postPreviewLayout,
 		postListLayoutContentPreview,
+		postCardLayoutLeftAlignedButtons,
 		showModlogWarning,
 		showModlogWarningModerated
 	});

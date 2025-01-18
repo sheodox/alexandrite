@@ -30,9 +30,6 @@
 		position: relative;
 		max-height: calc(100vh - var(--app-header-height));
 	}
-	.post {
-		background: var(--sx-gray-700);
-	}
 	.post-page-root {
 		position: relative;
 		flex: 1;
@@ -85,7 +82,7 @@
 					{/if}
 				</Stack>
 			</PostLayout>
-			<hr class="w-100" id="comments" />
+			<hr class="w-100 mt-3" id="comments" />
 
 			{#if $profile.loggedIn && !postView.post.locked}
 				<div class="comment-editor p-2">

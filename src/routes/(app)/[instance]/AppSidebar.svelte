@@ -22,35 +22,57 @@
 				<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /> <span>{link.text}</span></a>
 			{/each}
 
-			<SidebarSubscriptionList
-				title="Favorites"
-				communities={favoriteCommunities.map((v) => v.community)}
-				favorites={$favoriteCommunitiesIds}
-				on:favorite={(e) => onFavorite(e.detail)}
-			/>
+			{#if combinedCommunityList.length > 0}
+				<TextInput bind:value={communitySearch} placeholder="type name or @instance">Search Communities</TextInput>
+			{/if}
 
-			{#if $siteMeta.my_user}
+			{#if communitySearch !== ''}
 				<SidebarSubscriptionList
-					title="Moderating"
-					communities={$siteMeta.my_user.moderates.map((v) => v.community)}
+					title="Search Results"
+					communities={searchCommunities(communitySearch, combinedCommunityList)}
+					favorites={$favoriteCommunitiesIds}
+					on:favorite={(e) => onFavorite(e.detail)}
+				/>
+				{#if !communitySearch.startsWith('@')}
+					<a
+						href="/{$profile.instance}/search?q={encodeURIComponent(communitySearch)}&type=Communities"
+						class="inline-link"
+					>
+						Search <em>"{communitySearch}"</em>
+						<Icon icon="arrow-right" />
+					</a>
+				{/if}
+			{:else}
+				<SidebarSubscriptionList
+					title="Favorites"
+					communities={favoriteCommunities.map((v) => v.community)}
+					favorites={$favoriteCommunitiesIds}
+					on:favorite={(e) => onFavorite(e.detail)}
+				/>
+
+				{#if $siteMeta.my_user}
+					<SidebarSubscriptionList
+						title="Moderating"
+						communities={$siteMeta.my_user.moderates.map((v) => v.community)}
+						favorites={$favoriteCommunitiesIds}
+						on:favorite={(e) => onFavorite(e.detail)}
+					/>
+				{/if}
+
+				<SidebarSubscriptionList
+					title="Subscriptions"
+					communities={subscriptions.map((v) => v.community)}
 					favorites={$favoriteCommunitiesIds}
 					on:favorite={(e) => onFavorite(e.detail)}
 				/>
 			{/if}
-
-			<SidebarSubscriptionList
-				title="Subscriptions"
-				communities={subscriptions.map((v) => v.community)}
-				favorites={$favoriteCommunitiesIds}
-				on:favorite={(e) => onFavorite(e.detail)}
-			/>
 		</Stack>
 	</nav>
 </div>
 
 <script lang="ts">
-	import type { CommunityFollowerView } from 'lemmy-js-client';
-	import { Stack, ExternalLink, Icon } from 'sheodox-ui';
+	import type { Community, CommunityFollowerView } from 'lemmy-js-client';
+	import { Stack, ExternalLink, Icon, TextInput } from 'sheodox-ui';
 	import SidebarSubscriptionList from './SidebarSubscriptionList.svelte';
 	import { getAppContext } from '$lib/app-context';
 	import { localStorageBackedStore } from '$lib/utils';
@@ -59,11 +81,35 @@
 
 	export let subscriptions: CommunityFollowerView[] = [];
 
+	let communitySearch = '';
+
 	const { siteMeta } = getAppContext();
 
 	const favoriteCommunitiesIds = localStorageBackedStore<number[]>('favorite-communities', []);
 
 	$: favoriteCommunities = subscriptions.filter((sub) => $favoriteCommunitiesIds.includes(sub.community.id));
+
+	$: combinedCommunityList = Array.from(
+		new Map<number, Community>([
+			...favoriteCommunities.map((com) => [com.community.id, com.community] as [number, Community]),
+			...($siteMeta.my_user?.moderates ?? []).map((com) => [com.community.id, com.community] as [number, Community]),
+			...subscriptions.map((com) => [com.community.id, com.community] as [number, Community])
+		]).values()
+	).sort((a, b) => {
+		return (a.title ?? a.name).localeCompare(b.title ?? b.name);
+	});
+
+	function searchCommunities(searchText: string, communities: Community[]) {
+		const matches = (text: string) => text.toLowerCase().includes(searchText.toLowerCase());
+
+		return communities.filter((com) => {
+			if (searchText.startsWith('@')) {
+				const instanceHostname = new URL(com.actor_id).hostname;
+				return instanceHostname.includes(searchText.toLowerCase().replace(/^@/, ''));
+			}
+			return matches(com.title) || matches(com.name);
+		});
+	}
 
 	function onFavorite({ communityId, favorite }: { communityId: number; favorite: boolean }) {
 		if (favorite) {

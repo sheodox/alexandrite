@@ -32,12 +32,13 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="actions">
+		{@const actionButtonClasses = $postPreviewLayout === 'CARD' ? 'tertiary' : 'small'}
 		<Tooltip>
 			<span slot="tooltip"
 				>Comments {#if postView.unread_comments > 0}<span class="sx-badge-orange">+Unread</span>{/if}</span
 			>
 			{#if supportsOverlay}
-				<button on:click={() => dispatch('overlay', postView.post.id)} class="small">
+				<button on:click={onCommentCountClick} class={actionButtonClasses}>
 					<PostCommentCount {postView} />
 				</button>
 			{:else}
@@ -51,8 +52,8 @@
 					variant={postView.saved ? 'solid' : 'regular'}
 					pressed={postView.saved}
 					busy={$saveState.busy}
-					small
-					cl="m-0"
+					cl="m-0 {actionButtonClasses}"
+					small={$postPreviewLayout !== 'CARD'}
 					icon="star"
 					on:click={() => $saveState.submit()}
 					disabled={$saveState.busy}
@@ -61,13 +62,18 @@
 			{@const postLinkText = 'Original Post'}
 			<Tooltip>
 				<span slot="tooltip">{postLinkText}</span>
-				<a class="button small" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
-					<Icon icon="network-wired" />
+				<a class="button {actionButtonClasses}" href={postView.post.ap_id} target="_blank" rel="noreferrer noopener">
+					<Icon icon="circle-nodes" />
 					<span class="sr-only">{postLinkText}</span>
 				</a>
 			</Tooltip>
-			<LogButton text="Log PostView" on:click={() => console.log({ postView })} />
-			<ExtraActions small actions={overflowMenuOptions} on:open={onExtraActionsOpen} />
+			<LogButton
+				text="Log PostView"
+				on:click={() => console.log({ postView })}
+				small={$postPreviewLayout !== 'CARD'}
+				cl={actionButtonClasses}
+			/>
+			<ExtraActions actions={overflowMenuOptions} on:open={onExtraActionsOpen} cl={actionButtonClasses} />
 		{/if}
 	</svelte:fragment>
 
@@ -148,6 +154,7 @@
 	import { hasImageExtension, type PostLayoutAPI } from './post-utils';
 	import PostCommentCount from './PostCommentCount.svelte';
 	import { getCommunityContext } from '$lib/community-context/community-context';
+	import { goto } from '$app/navigation';
 
 	export let postView: PostView;
 	export let readOnly = false;
@@ -171,7 +178,7 @@
 	const modContext = getModContext();
 	const { siteMeta } = getAppContext();
 	const { weaklyGetCommunity, getFullCommunity } = getCommunityContext();
-	const { postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
+	const { feedLayout, postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
 
 	$: layout = forceLayout ?? $postPreviewLayout;
 
@@ -506,6 +513,15 @@
 	function onExpandToggle() {
 		expandPostContent = !expandPostContent;
 		dispatch('expand-content', { id: postView.post.id, expanded: expandPostContent });
+	}
+
+	function onCommentCountClick() {
+		console.log({ setting: $feedLayout });
+		if ($feedLayout === 'REDIRECT') {
+			goto(`/${$profile.instance}/post/${postView.post.id}`);
+		} else {
+			dispatch('overlay', postView.post.id);
+		}
 	}
 
 	// expose some methods to the post feed, so it can handle hotkeys

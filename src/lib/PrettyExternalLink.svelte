@@ -13,7 +13,7 @@
 	$: valid = /https?:\/\//.test(href);
 
 	const ellipsis = '...',
-		maxDisplayedPathLength = 10;
+		maxDisplayedPathLength = 20;
 
 	function prettyUrl(href: string) {
 		const u = new URL(href),

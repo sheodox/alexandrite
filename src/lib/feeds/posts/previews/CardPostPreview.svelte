@@ -65,12 +65,17 @@
 					<PostBody {postView} preview reflectRead dedupeEmbed />
 				</div>
 			{/if}
-			<Stack dir="r" gap={2} align="center" justify="between" cl="px-2">
+			<Stack dir="r" gap={2} align="center" justify="between" cl="px-2 pb-2">
+				{#if $postCardLayoutLeftAlignedButtons}
+					<slot name="vote-buttons" small={false} dir="row" />
+				{/if}
 				<Stack dir="r" gap={1} align="center" cl="responsive-text">
 					<slot name="embed-expand" />
 					<slot name="actions" />
 				</Stack>
-				<slot name="vote-buttons" small={false} dir="row" />
+				{#if !$postCardLayoutLeftAlignedButtons}
+					<slot name="vote-buttons" small={false} dir="row" />
+				{/if}
 			</Stack>
 		</Stack>
 	</Stack>
@@ -87,6 +92,7 @@
 	import { weakOnClick } from '$lib/utils';
 	import PostBody from './PostBody.svelte';
 	import PostEmbed from '../PostEmbed.svelte';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	const dispatch = createEventDispatcher<{
 		overlay: number;
@@ -102,6 +108,8 @@
 	export let mode: 'show' | 'list' = 'list';
 
 	let articleEl: HTMLElement;
+
+	const { postCardLayoutLeftAlignedButtons } = getSettingsContext();
 
 	$: postAssertions = makePostAssertions(postView);
 </script>
