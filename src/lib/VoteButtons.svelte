@@ -1,7 +1,10 @@
 <style lang="scss">
 	button {
 		color: var(--sx-gray-200);
-		border: 1px solid currentColor;
+
+		&.vote-buttons-bordered {
+			border: 1px solid currentColor;
+		}
 	}
 	.vote-up:enabled {
 		&:hover,
@@ -50,6 +53,7 @@
 		aria-pressed={votedUp}
 		class="vote-up"
 		class:small
+		class:vote-buttons-bordered={bordered}
 		on:click={() => voteAs(1)}
 		disabled={!loggedIn || votePending}
 		use:ripple
@@ -82,6 +86,7 @@
 			aria-pressed={votedDown}
 			class="vote-down"
 			class:small
+			class:vote-buttons-bordered={bordered}
 			on:click={() => voteAs(-1)}
 			disabled={!loggedIn || votePending}
 			use:ripple
@@ -115,6 +120,7 @@
 	export let small = false;
 	export let dir: 'row' | 'column' = 'row';
 	export let votePending = false;
+	export let bordered = false;
 
 	$: votedUp = vote === 1;
 	// no vote is 0
