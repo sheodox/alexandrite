@@ -32,7 +32,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="actions">
-		{@const actionButtonClasses = $postPreviewLayout === 'CARD' ? 'tertiary' : 'small'}
+		{@const actionButtonClasses = layout === 'CARD' ? 'tertiary' : 'small'}
 		<Tooltip>
 			<span slot="tooltip"
 				>Comments {#if postView.unread_comments > 0}<span class="sx-badge-orange">+Unread</span>{/if}</span
