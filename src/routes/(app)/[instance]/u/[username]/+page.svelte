@@ -39,16 +39,18 @@
 					{/if}
 					<article class="f-column gap-4">
 						{#if data.personView.person.bio}
-							<div>
-								<h2 class="m-0">Bio</h2>
-								<div class="bio p-2">
-									<Markdown md={data.personView.person.bio} />
+							<Accordion bind:open={$userBioOpen}>
+								<span slot="title"><Icon icon="circle-user" /> Bio</span>
+								<div>
+									<div class="bio p-2">
+										<Markdown md={data.personView.person.bio} />
+									</div>
 								</div>
-							</div>
+							</Accordion>
 						{/if}
 
-						<div>
-							<h2 class="m-0">Stats</h2>
+						<Accordion bind:open={$userStatsOpen}>
+							<span slot="title"><Icon icon="chart-simple" /> Stats</span>
 							<ul class="sx-list">
 								<UserCounts personView={data.personView} />
 
@@ -70,19 +72,21 @@
 									</li>
 								{/if}
 							</ul>
-						</div>
+						</Accordion>
 					</article>
 
 					{#if data.moderates && data.moderates.length}
 						<article>
-							<h2 class="mb-0">Moderates</h2>
-							<ul class="sx-list">
-								{#each data.moderates as mod}
-									<li class="sx-list-item">
-										<CommunityLink community={mod.community} />
-									</li>
-								{/each}
-							</ul>
+							<Accordion bind:open={$userModeratesOpen}>
+								<span slot="title"><Icon icon="user-shield" /> Moderates</span>
+								<ul class="sx-list">
+									{#each data.moderates as mod}
+										<li class="sx-list-item">
+											<CommunityLink community={mod.community} />
+										</li>
+									{/each}
+								</ul>
+							</Accordion>
 						</article>
 					{/if}
 				</Stack>
@@ -94,7 +98,7 @@
 {/key}
 
 <script lang="ts">
-	import { Stack, ExternalLink, Icon } from 'sheodox-ui';
+	import { Accordion, Stack, ExternalLink, Icon } from 'sheodox-ui';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
 	import Markdown from '$lib/Markdown.svelte';
@@ -109,11 +113,16 @@
 	import ModlogLink from '$lib/ModlogLink.svelte';
 	import { getSettingsContext } from '$lib/settings-context';
 	import { profile } from '$lib/profiles/profiles';
+	import { localStorageBackedStore } from '$lib/utils';
 
 	export let data;
 
 	const { showModlogWarning } = getSettingsContext();
 	const cvStore = createContentViewStore();
+
+	const userBioOpen = localStorageBackedStore('user-page-sidebar-bio-open', true);
+	const userStatsOpen = localStorageBackedStore('user-page-sidebar-stats-open', true);
+	const userModeratesOpen = localStorageBackedStore('user-page-sidebar-moderates-open', true);
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
