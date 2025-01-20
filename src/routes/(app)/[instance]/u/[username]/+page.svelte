@@ -1,3 +1,11 @@
+<style lang="scss">
+	.bio {
+		background: var(--sx-gray-transparent);
+		border-radius: 10px;
+		overflow: hidden;
+	}
+</style>
+
 <Title title={data.personUsername} />
 
 {#key data}
@@ -15,34 +23,70 @@
 			{loadingContentFailed}
 		>
 			<div slot="sidebar">
-				<Stack dir="c" gap={2}>
-					<article>
-						<h1>Stats</h1>
-						<UserCounts personView={data.personView} />
+				<Stack dir="c" gap={4}>
+					<h1 class="m-0">
+						<NameAtInstance
+							place={data.personView.person}
+							displayName={data.personView.person.display_name}
+							prefix="@"
+						/>
+					</h1>
 
+					{#if isMe}
+						<a class="button secondary w-100 m-0 text-align-center mb-4" href="/{$profile.instance}/settings/lemmy">
+							<Icon icon="edit" /> Edit Profile
+						</a>
+					{/if}
+					<article class="f-column gap-4">
 						{#if data.personView.person.bio}
-							<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
-								<Markdown md={data.personView.person.bio} />
-							</Fieldset>
+							<Accordion bind:open={$userBioOpen}>
+								<span slot="title"><Icon icon="circle-user" /> Bio</span>
+								<div>
+									<div class="bio p-2">
+										<Markdown md={data.personView.person.bio} />
+									</div>
+								</div>
+							</Accordion>
 						{/if}
-					</article>
 
-					<ModlogLink
-						highlight={false}
-						highlightColor={'gray'}
-						warn={$showModlogWarning}
-						label="Modlog (actions on this user)"
-						targetId={data.personView.person.id}
-					/>
+						<Accordion bind:open={$userStatsOpen}>
+							<span slot="title"><Icon icon="chart-simple" /> Stats</span>
+							<ul class="sx-list">
+								<UserCounts personView={data.personView} />
+
+								<li class="sx-list-item">
+									<ModlogLink
+										highlight={false}
+										highlightColor={'gray'}
+										warn={$showModlogWarning}
+										label="Modlog (actions on this user)"
+										targetId={data.personView.person.id}
+									/>
+								</li>
+								<!-- probably unnecessary to check this, but just in case -->
+								{#if data.personView.person.actor_id.startsWith('http')}
+									<li class="sx-list-item">
+										<ExternalLink href={data.personView.person.actor_id} cl="inline-link"
+											><Icon icon="arrow-up-right-from-square" /> Original Profile</ExternalLink
+										>
+									</li>
+								{/if}
+							</ul>
+						</Accordion>
+					</article>
 
 					{#if data.moderates && data.moderates.length}
 						<article>
-							<h2 class="mb-0">Moderates</h2>
-							<Stack dir="c" gap={2}>
-								{#each data.moderates as mod}
-									<CommunityLink community={mod.community} />
-								{/each}
-							</Stack>
+							<Accordion bind:open={$userModeratesOpen}>
+								<span slot="title"><Icon icon="user-shield" /> Moderates</span>
+								<ul class="sx-list">
+									{#each data.moderates as mod}
+										<li class="sx-list-item">
+											<CommunityLink community={mod.community} />
+										</li>
+									{/each}
+								</ul>
+							</Accordion>
 						</article>
 					{/if}
 				</Stack>
@@ -54,10 +98,11 @@
 {/key}
 
 <script lang="ts">
-	import { Stack, Fieldset } from 'sheodox-ui';
+	import { Accordion, Stack, ExternalLink, Icon } from 'sheodox-ui';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
 	import Markdown from '$lib/Markdown.svelte';
+	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { userFeedLoader } from '$lib/post-loader.js';
@@ -67,16 +112,24 @@
 	import { createContentViewStore, type ContentView } from '$lib/content-views';
 	import ModlogLink from '$lib/ModlogLink.svelte';
 	import { getSettingsContext } from '$lib/settings-context';
+	import { profile } from '$lib/profiles/profiles';
+	import { localStorageBackedStore } from '$lib/utils';
 
 	export let data;
 
 	const { showModlogWarning } = getSettingsContext();
 	const cvStore = createContentViewStore();
 
+	const userBioOpen = localStorageBackedStore('user-page-sidebar-bio-open', true);
+	const userStatsOpen = localStorageBackedStore('user-page-sidebar-stats-open', true);
+	const userModeratesOpen = localStorageBackedStore('user-page-sidebar-moderates-open', true);
+
 	let loader: ReturnType<typeof initFeed>;
 	$: {
 		refresh(data);
 	}
+
+	$: isMe = data.personView.person.local && data.personView.person.name === $profile.username;
 
 	function refresh(data: PageData) {
 		loader = initFeed(data);
