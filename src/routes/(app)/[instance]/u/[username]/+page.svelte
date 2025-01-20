@@ -23,10 +23,20 @@
 			{loadingContentFailed}
 		>
 			<div slot="sidebar">
-				<h1>
-					<NameAtInstance place={data.personView.person} displayName={data.personView.person.display_name} prefix="@" />
-				</h1>
-				<Stack dir="c" gap={2}>
+				<Stack dir="c" gap={4}>
+					<h1 class="m-0">
+						<NameAtInstance
+							place={data.personView.person}
+							displayName={data.personView.person.display_name}
+							prefix="@"
+						/>
+					</h1>
+
+					{#if isMe}
+						<a class="button secondary w-100 m-0 text-align-center mb-4" href="/{$profile.instance}/settings/lemmy">
+							<Icon icon="edit" /> Edit Profile
+						</a>
+					{/if}
 					<article class="f-column gap-4">
 						{#if data.personView.person.bio}
 							<div>
@@ -98,6 +108,7 @@
 	import { createContentViewStore, type ContentView } from '$lib/content-views';
 	import ModlogLink from '$lib/ModlogLink.svelte';
 	import { getSettingsContext } from '$lib/settings-context';
+	import { profile } from '$lib/profiles/profiles';
 
 	export let data;
 
@@ -108,6 +119,8 @@
 	$: {
 		refresh(data);
 	}
+
+	$: isMe = data.personView.person.local && data.personView.person.name === $profile.username;
 
 	function refresh(data: PageData) {
 		loader = initFeed(data);
