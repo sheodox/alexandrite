@@ -54,7 +54,7 @@
 	import BusyButton from './BusyButton.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
 	import { getCommunityContext } from './community-context/community-context';
-	import type { Community, Post, PostView, SiteMetadata } from 'lemmy-js-client';
+	import type { Community, Post, PostView, LinkMetadata } from 'lemmy-js-client';
 	import { onMount } from 'svelte';
 	import { createStatefulAction, safeUrl } from './utils';
 	import { profile } from './profiles/profiles';
@@ -70,7 +70,7 @@
 	export let crossPost: PostView | null = null;
 	export let nsfw = false;
 
-	let urlMetadata: SiteMetadata | null = null;
+	let urlMetadata: LinkMetadata | null = null;
 
 	$: client = $profile.client;
 
