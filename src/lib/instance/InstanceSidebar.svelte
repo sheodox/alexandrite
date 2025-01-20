@@ -11,6 +11,7 @@
 	description={siteView.site.description ?? ''}
 	sidebar={siteView.site.sidebar}
 	context="Your Instance"
+	bind:descriptionOpen={$descriptionOpen}
 >
 	<span slot="name" class="f-row gap-2 align-items-center"
 		><InstanceLogo size="3rem" /><NameAtInstance prefix="" place={{ ...siteView.site, local: true }} />
@@ -20,10 +21,10 @@
 			<Alert variant="info"><Markdown md={tagline.content} /></Alert>
 		{/if}
 	</Stack>
-	<div slot="end">
-		<div class="sidebar-details mb-4">
+	<div slot="end" class="f-column gap-4">
+		<Accordion bind:open={$instanceDetailsOpen}>
+			<span slot="title"><Icon icon="server" /> Instance Details</span>
 			<div class="f-column gap-4">
-				<h2 class="m-0">Instance Details</h2>
 				<ul class="sx-list">
 					{#each serverStats as stat}
 						<li class="sx-list-item two-columns">
@@ -59,10 +60,10 @@
 					</Accordion>
 				{/if}
 			</div>
-		</div>
+		</Accordion>
 
-		<div class="sidebar-details">
-			<h2 class="m-0 mb-2">External Links</h2>
+		<Accordion bind:open={$externalLinksOpen}>
+			<span slot="title">External Links</span>
 			<ul class="sx-list">
 				{#each externalLinks as link}
 					<li class="sx-list-item">
@@ -72,7 +73,7 @@
 					</li>
 				{/each}
 			</ul>
-		</div>
+		</Accordion>
 	</div>
 </Sidebar>
 
@@ -88,9 +89,14 @@
 	import { getSettingsContext } from '$lib/settings-context';
 	import { profile } from '../profiles/profiles';
 	import UserLink from '$lib/UserLink.svelte';
+	import { localStorageBackedStore } from '$lib/utils';
 
 	const { siteMeta } = getAppContext();
 	const { showModlogWarning } = getSettingsContext();
+	const descriptionOpen = localStorageBackedStore('instance-sidebar-description-open', true);
+	const instanceDetailsOpen = localStorageBackedStore('instance-sidebar-instance-details-open', true);
+	const externalLinksOpen = localStorageBackedStore('instance-sidebar-external-links-open', true);
+
 	$: siteView = $siteMeta.site_view;
 	$: isAdmin = $siteMeta.admins.some(
 		(admin) => admin.person.actor_id === $siteMeta.my_user?.local_user_view.person.actor_id

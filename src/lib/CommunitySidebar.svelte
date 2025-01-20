@@ -1,14 +1,11 @@
-<style lang="scss">
-	.sidebar-details {
-		background: var(--sx-gray-transparent);
-		border-radius: 10px;
-		padding: var(--sx-spacing-2);
-	}
-</style>
-
 <article>
 	{#if community && communityView}
-		<Sidebar description={community.description ?? ''} bannerImageSrc={community.banner} context="Community">
+		<Sidebar
+			description={community.description ?? ''}
+			bannerImageSrc={community.banner}
+			context="Community"
+			bind:descriptionOpen={$descriptionOpen}
+		>
 			<a href={communityHref} slot="name">
 				<NameAtInstance place={community} prefix="!" />
 			</a>
@@ -20,9 +17,9 @@
 					{/if}
 				</Stack>
 			</div>
-			<div slot="end" class="sidebar-details">
-				<Stack dir="c" gap={4}>
-					<h2 class="m-0">Community Details</h2>
+			<div slot="end">
+				<Accordion bind:open={$communityDetailsOpen}>
+					<span slot="title"><Icon icon="users" /> Community Details</span>
 					<ul class="sx-list">
 						{#each communityStats as stat}
 							<li class="sx-list-item two-columns">
@@ -67,7 +64,7 @@
 							</Stack>
 						</Accordion>
 					{/if}
-				</Stack>
+				</Accordion>
 			</div>
 		</Sidebar>
 	{/if}
@@ -88,6 +85,7 @@
 	import { getCommunityContext } from './community-context/community-context';
 	import { getModActionPending, getModContext } from './mod/mod-context';
 	import { readable } from 'svelte/store';
+	import { localStorageBackedStore } from './utils';
 
 	export let communityName: string;
 
@@ -144,6 +142,9 @@
 	const { showModlogWarning, showModlogWarningModerated } = getSettingsContext();
 	const { hasModSeniority } = getCommunityContext();
 	const modContext = getModContext();
+
+	const descriptionOpen = localStorageBackedStore('community-sidebar-description-open', true);
+	const communityDetailsOpen = localStorageBackedStore('community-sidebar-community-details-open', true);
 
 	const userModResignPending = community
 		? getModActionPending('add-mod', `${community.id}-${userId}`)

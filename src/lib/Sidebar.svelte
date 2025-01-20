@@ -37,13 +37,15 @@
 
 	{#if description}
 		<p class="has-inline-links">
-			<Markdown md={description || ''} />
-		</p>
-	{/if}
-
-	{#if sidebar}
-		<p class="has-inline-links">
-			<Markdown md={sidebar || ''} />
+			<Accordion bind:open={descriptionOpen}>
+				<span slot="title"><Icon icon="info-circle" /> Description</span>
+				<Markdown md={description || ''} />
+				{#if sidebar}
+					<p class="has-inline-links">
+						<Markdown md={sidebar || ''} />
+					</p>
+				{/if}
+			</Accordion>
 		</p>
 	{/if}
 
@@ -51,7 +53,7 @@
 </article>
 
 <script lang="ts">
-	import { Stack, Tooltip, Icon } from 'sheodox-ui';
+	import { Stack, Tooltip, Icon, Accordion } from 'sheodox-ui';
 	import Markdown from '$lib/Markdown.svelte';
 	import Image from './Image.svelte';
 
@@ -62,4 +64,6 @@
 	// the kind of sidebar this is, to make it more obvious if the community/instance
 	// name isn't descriptive enough
 	export let context: string;
+
+	export let descriptionOpen = true;
 </script>
