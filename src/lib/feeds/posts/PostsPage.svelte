@@ -103,7 +103,7 @@
 {/if}
 
 <script lang="ts">
-	import { afterNavigate } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { derived } from 'svelte/store';
 	import { Stack, focus } from 'sheodox-ui';
 	import PostFeed from '$lib/feeds/posts/PostFeed.svelte';
@@ -218,6 +218,10 @@
 	$: feedAdjacentPostView = $cvStore.find((cv) => cv.id === feedAdjacentPostViewId);
 
 	async function openPostAdjacent(postId: number) {
+		if ($feedLayout === 'REDIRECT') {
+			goto(`/${$profile.instance}/post/${postId}`);
+			return;
+		}
 		feedAdjacentPostViewId = postId;
 	}
 
