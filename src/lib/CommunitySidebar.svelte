@@ -1,3 +1,11 @@
+<style lang="scss">
+	.sidebar-details {
+		background: var(--sx-gray-transparent);
+		border-radius: 10px;
+		padding: var(--sx-spacing-2);
+	}
+</style>
+
 <article>
 	{#if community && communityView}
 		<Sidebar description={community.description ?? ''} bannerImageSrc={community.banner} context="Community">
@@ -10,32 +18,43 @@
 					{#if communityView}
 						<CommunityCounts {communityView} />
 					{/if}
-					<Stack dir="r" gap={2} align="center">
-						<ExternalLink href={community.actor_id} cl="inline-link">
-							<Icon icon="arrow-up-right-from-square" />
-							View on {communityInstance}
-						</ExternalLink>
-					</Stack>
 				</Stack>
 			</div>
-			<div slot="end">
-				<Stack dir="c" gap={2}>
+			<div slot="end" class="sidebar-details">
+				<Stack dir="c" gap={4}>
+					<h2 class="m-0">Community Details</h2>
+					<ul class="sx-list">
+						{#each communityStats as stat}
+							<li class="sx-list-item two-columns">
+								<span class="column">{stat.label}</span>
+								<span class="column text-align-right">{stat.value.toLocaleString()} <Icon icon={stat.icon} /></span>
+							</li>
+						{/each}
+						<li class="sx-list-item">
+							<ModlogLink
+								communityId={community.id}
+								highlight={userModerates ?? false}
+								highlightColor="green"
+								warn={warnModlog}
+							/>
+						</li>
+						<li class="sx-list-item">
+							<ExternalLink href={community.actor_id} cl="inline-link">
+								<Icon icon="arrow-up-right-from-square" />
+								View on {communityInstance}
+							</ExternalLink>
+						</li>
+					</ul>
+
 					{#if moderators}
-						<Accordion buttonClasses="tertiary">
-							<span slot="title">Moderation</span>
+						<Accordion>
+							<span slot="title">Moderators</span>
 							<Stack dir="c" gap={2}>
-								<Stack dir="r" gap={2} align="center" justify="between">
-									<h3 class="m-0">Moderators</h3>
-									<ModlogLink
-										communityId={community.id}
-										highlight={userModerates ?? false}
-										highlightColor="green"
-										warn={warnModlog}
-									/>
-								</Stack>
-								<ul class="p-0 hover-list" style="list-style: none">
+								<ul class="sx-list">
 									{#each moderators as mod}
-										<ModeratorRow hasSeniority={hasModSeniority(moderators, mod.moderator.id)} {mod} />
+										<li class="sx-list-item">
+											<ModeratorRow hasSeniority={hasModSeniority(moderators, mod.moderator.id)} {mod} />
+										</li>
 									{/each}
 								</ul>
 								{#if userModerates && !userIsHeadMod}
@@ -81,6 +100,43 @@
 	$: userModerates = moderators?.some((mod) => mod.moderator.id === $siteMeta.my_user?.local_user_view.person.id);
 	$: userIsHeadMod = moderators?.[0]?.moderator.id === $userId;
 	$: warnModlog = userModerates ? $showModlogWarningModerated : $showModlogWarning;
+	$: communityStats = [
+		{
+			label: 'Posts',
+			value: communityView?.counts.posts ?? 0,
+			icon: 'file-lines'
+		},
+		{
+			label: 'Comments',
+			value: communityView?.counts.comments ?? 0,
+			icon: 'comments'
+		},
+		{
+			label: 'Subscribers',
+			value: communityView?.counts.subscribers ?? 0,
+			icon: 'users'
+		},
+		{
+			label: 'Daily Active Users',
+			value: communityView?.counts.users_active_day ?? 0,
+			icon: 'users'
+		},
+		{
+			label: 'Weekly Active Users',
+			value: communityView?.counts.users_active_week ?? 0,
+			icon: 'users'
+		},
+		{
+			label: 'Montly Active Users',
+			value: communityView?.counts.users_active_month ?? 0,
+			icon: 'users'
+		},
+		{
+			label: 'Half-Year Active Users',
+			value: communityView?.counts.users_active_half_year ?? 0,
+			icon: 'users'
+		}
+	];
 
 	$: communityInstance = community ? new URL(community.actor_id).host : null;
 

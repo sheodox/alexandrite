@@ -1,5 +1,5 @@
 <style lang="scss">
-	.sidbar-details {
+	.sidebar-details {
 		background: var(--sx-gray-transparent);
 		border-radius: 10px;
 		padding: var(--sx-spacing-2);
@@ -21,9 +21,9 @@
 		{/if}
 	</Stack>
 	<div slot="end">
-		<div class="sidbar-details mb-4">
-			<h2 class="m-0 mb-2">Instance Details</h2>
+		<div class="sidebar-details mb-4">
 			<div class="f-column gap-4">
+				<h2 class="m-0">Instance Details</h2>
 				<ul class="sx-list">
 					{#each serverStats as stat}
 						<li class="sx-list-item two-columns">
@@ -61,7 +61,7 @@
 			</div>
 		</div>
 
-		<div class="sidbar-details">
+		<div class="sidebar-details">
 			<h2 class="m-0 mb-2">External Links</h2>
 			<ul class="sx-list">
 				{#each externalLinks as link}
