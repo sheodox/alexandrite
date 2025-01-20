@@ -1,11 +1,3 @@
-<style lang="scss">
-	.sidebar-details {
-		background: var(--sx-gray-transparent);
-		border-radius: 10px;
-		padding: var(--sx-spacing-2);
-	}
-</style>
-
 <Sidebar
 	counts={siteCounts}
 	description={siteView.site.description ?? ''}
