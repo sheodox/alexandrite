@@ -1,14 +1,11 @@
-<Stack dir="c" gap={2}>
-	{#each counts as count}
-		<Stack dir="r" gap={2} align="center">
-			<strong>{count.count.toLocaleString()}</strong>
-			<span class="muted">{count.label}</span>
-		</Stack>
-	{/each}
-</Stack>
+{#each counts as count}
+	<li class="sx-list-item two-columns">
+		<span class="column">{count.label}</span>
+		<strong class="column text-align-right">{count.count.toLocaleString()}</strong>
+	</li>
+{/each}
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
 	import type { PersonView } from 'lemmy-js-client';
 
 	export let personView: PersonView;

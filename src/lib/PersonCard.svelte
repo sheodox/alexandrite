@@ -27,9 +27,11 @@
 			</a>
 		</Stack>
 
-		<Stack cl="card-body" dir="c" gap={2}>
-			<UserCounts {personView} />
-		</Stack>
+		<div class="card-body">
+			<ul class="sx-list">
+				<UserCounts {personView} />
+			</ul>
+		</div>
 	</div>
 </div>
 

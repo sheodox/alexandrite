@@ -1,3 +1,11 @@
+<style lang="scss">
+	.bio {
+		background: var(--sx-gray-transparent);
+		border-radius: 10px;
+		overflow: hidden;
+	}
+</style>
+
 <Title title={data.personUsername} />
 
 {#key data}
@@ -15,34 +23,56 @@
 			{loadingContentFailed}
 		>
 			<div slot="sidebar">
+				<h1>
+					<NameAtInstance place={data.personView.person} displayName={data.personView.person.display_name} prefix="@" />
+				</h1>
 				<Stack dir="c" gap={2}>
-					<article>
-						<h1>Stats</h1>
-						<UserCounts personView={data.personView} />
-
+					<article class="f-column gap-4">
 						{#if data.personView.person.bio}
-							<Fieldset legend="Bio" fieldsetClasses="m-0 mt-3">
-								<Markdown md={data.personView.person.bio} />
-							</Fieldset>
+							<div>
+								<h2 class="m-0">Bio</h2>
+								<div class="bio p-2">
+									<Markdown md={data.personView.person.bio} />
+								</div>
+							</div>
 						{/if}
-					</article>
 
-					<ModlogLink
-						highlight={false}
-						highlightColor={'gray'}
-						warn={$showModlogWarning}
-						label="Modlog (actions on this user)"
-						targetId={data.personView.person.id}
-					/>
+						<div>
+							<h2 class="m-0">Stats</h2>
+							<ul class="sx-list">
+								<UserCounts personView={data.personView} />
+
+								<li class="sx-list-item">
+									<ModlogLink
+										highlight={false}
+										highlightColor={'gray'}
+										warn={$showModlogWarning}
+										label="Modlog (actions on this user)"
+										targetId={data.personView.person.id}
+									/>
+								</li>
+								<!-- probably unnecessary to check this, but just in case -->
+								{#if data.personView.person.actor_id.startsWith('http')}
+									<li class="sx-list-item">
+										<ExternalLink href={data.personView.person.actor_id} cl="inline-link"
+											><Icon icon="arrow-up-right-from-square" /> Original Profile</ExternalLink
+										>
+									</li>
+								{/if}
+							</ul>
+						</div>
+					</article>
 
 					{#if data.moderates && data.moderates.length}
 						<article>
 							<h2 class="mb-0">Moderates</h2>
-							<Stack dir="c" gap={2}>
+							<ul class="sx-list">
 								{#each data.moderates as mod}
-									<CommunityLink community={mod.community} />
+									<li class="sx-list-item">
+										<CommunityLink community={mod.community} />
+									</li>
 								{/each}
-							</Stack>
+							</ul>
 						</article>
 					{/if}
 				</Stack>
@@ -54,10 +84,11 @@
 {/key}
 
 <script lang="ts">
-	import { Stack, Fieldset } from 'sheodox-ui';
+	import { Stack, ExternalLink, Icon } from 'sheodox-ui';
 	import PostsPage from '$lib/feeds/posts/PostsPage.svelte';
 	import UserCounts from '$lib/UserCounts.svelte';
 	import Markdown from '$lib/Markdown.svelte';
+	import NameAtInstance from '$lib/NameAtInstance.svelte';
 	import CommunityLink from '$lib/CommunityLink.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import { userFeedLoader } from '$lib/post-loader.js';
