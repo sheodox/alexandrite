@@ -63,6 +63,9 @@
 		<Stack gap={2} dir="r" align="center" cl="icon-link">
 			{#if $profile.settings.show_avatars && showIcon}
 				<Avatar src={community.icon} size="2rem" icon="users" />
+			{:else}
+				<!-- show a fallback avatar so stuff like CommunitySelector looks right -->
+				<Avatar src={''} size="2rem" icon="users" />
 			{/if}
 			<span>
 				<NameAtInstance place={community} displayName={community.title} prefix="" />

@@ -102,7 +102,8 @@
 			const comms = await client.search({
 				type_: 'Communities',
 				q: searchText,
-				limit: 50
+				limit: 50,
+				sort: 'TopAll'
 			});
 
 			// don't give results for the wrong search if it's changed by now
