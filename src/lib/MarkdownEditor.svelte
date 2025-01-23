@@ -132,7 +132,7 @@
 	import { getCtrlBasedHotkeys } from './app-context';
 	import { profile } from './profiles/profiles';
 	import Spinner from './Spinner.svelte';
-	import { UploadImageResponse } from 'lemmy-js-client';
+	import type { UploadImageResponse } from 'lemmy-js-client';
 	import Image from './Image.svelte';
 	import { copyToClipboard } from './utils';
 
