@@ -516,7 +516,6 @@
 	}
 
 	function onCommentCountClick() {
-		console.log({ setting: $feedLayout });
 		if ($feedLayout === 'REDIRECT') {
 			goto(`/${$profile.instance}/post/${postView.post.id}`);
 		} else {

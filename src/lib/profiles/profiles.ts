@@ -142,9 +142,14 @@ export function setDefaultProfile(id: string) {
 	localStorageSet(lsKeys.defaultInstance, id);
 }
 function profileToStoreValue(profile: Profile) {
+	const { client, fetchFunction } = createLemmyClient(`https://${profile.instance}`, {
+		onExpire: handleExpiredProfile
+	});
+
 	return {
 		...profile,
-		client: createLemmyClient(`https://${profile.instance}`, { onExpire: handleExpiredProfile }),
+		client,
+		fetchFunction,
 		loggedIn: !!profile.jwt
 	};
 }

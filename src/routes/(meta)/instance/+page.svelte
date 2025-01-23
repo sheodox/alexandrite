@@ -145,7 +145,7 @@
 
 		// temporary client to test connection and server details first, then login.
 		// a new client is used after that once a jwt is obtained
-		const probeClient = createLemmyClient(baseUrl, { useProfile: false });
+		const probeClient = createLemmyClient(baseUrl, { useProfile: false }).client;
 		let site: GetSiteResponse;
 
 		try {
@@ -175,7 +175,7 @@
 				return;
 			}
 
-			const client = createLemmyClient(baseUrl, { jwt });
+			const client = createLemmyClient(baseUrl, { jwt }).client;
 
 			const site = await client.getSite();
 

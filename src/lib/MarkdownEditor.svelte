@@ -11,23 +11,57 @@
 			margin: 0;
 		}
 	}
+	.upload-preview {
+		position: relative;
+		max-height: 20rem;
+		max-width: 100%;
+		width: 30rem;
+		border-radius: 10px;
+		border: 2px solid var(--sx-gray-transparent-lighter);
+		overflow: hidden;
+	}
+	.upload-url {
+		font-family: monospace, sans-serif;
+		width: 100%;
+		white-space: nowrap;
+		overflow: hidden;
+		background: var(--sx-gray-transparent-darker);
+
+		> .url {
+			overflow-x: scroll;
+			padding: var(--sx-spacing-3);
+		}
+	}
 </style>
 
 <div class="markdown-editor" style="--sx-arg-fieldset-legend-color: var(--sx-gray-75);">
 	<Stack dir="c">
 		<Stack dir="c">
-			<label for={textareaId} class="fw-bold p-2">{label}</label>
+			<Stack dir="r" gap={4} align="center" justify="between">
+				<label for={textareaId} class="fw-bold p-2">{label}</label>
+				{#if busy}
+					<div class="px-2">
+						<Spinner />
+					</div>
+				{:else if imageUploads.length}
+					<button type="button" class="small" on:click={() => (showManageUploads = true)}
+						><Icon icon="images" /> Manage Uploads</button
+					>
+				{/if}
+			</Stack>
 			<!-- svelte-ignore a11y-autofocus -->
 			<textarea
 				id={textareaId}
 				rows="6"
 				bind:value
 				{name}
-				disabled={disabled || busy}
+				{disabled}
+				readonly={busy}
 				bind:this={textarea}
 				{required}
 				on:keydown={keydown}
 				{autofocus}
+				on:paste={onPaste}
 			/>
 			<Stack dir="r" gap={1}>
 				<IconButton icon="bold" text="Bold" type="button" on:click={format.bold} />
@@ -59,13 +93,48 @@
 	</Stack>
 </div>
 
+{#if showManageUploads}
+	<Modal title="Manage Uploads" bind:visible={showManageUploads}>
+		<div class="modal-body f-column gap-4">
+			{#each imageUploads as upload}
+				{#if upload.url}
+					<div class="upload-preview">
+						<div class="upload-url f-row align-items-center">
+							<span class="url">{upload.url}</span>
+
+							<IconButton
+								on:click={() => upload.url && copyToClipboard(upload.url)}
+								cl="tertiary mr-1"
+								icon="copy"
+								text="Copy URL"
+							/>
+							<IconButton
+								on:click={() => deleteUpload(upload)}
+								cl="delete-upload danger mr-1"
+								icon="trash"
+								text="Delete Image"
+							/>
+						</div>
+						<Image src={upload.url} />
+					</div>
+				{/if}
+			{/each}
+		</div>
+	</Modal>
+{/if}
+
 <script lang="ts">
-	import { Icon, Stack, Checkbox, Fieldset } from 'sheodox-ui';
+	import { Icon, Stack, Checkbox, Fieldset, Modal, createAutoExpireToast } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import { tick } from 'svelte';
 	import { getCtrlBasedHotkeys } from './app-context';
+	import { profile } from './profiles/profiles';
+	import Spinner from './Spinner.svelte';
+	import { UploadImageResponse } from 'lemmy-js-client';
+	import Image from './Image.svelte';
+	import { copyToClipboard } from './utils';
 
 	const ctrlBasedHotkeys = getCtrlBasedHotkeys();
 
@@ -82,6 +151,13 @@
 
 	let busy = false;
 
+	// TODO export and  cache this in a feed buffer for comments, so scrolling doesn't delete images!
+	let imageUploads: UploadImageResponse[] = [];
+
+	let showManageUploads = false;
+
+	$: client = $profile.client;
+
 	const format = {
 		bold: () => applySurround('**'),
 		italic: () => applySurround('*'),
@@ -94,6 +170,33 @@
 		superscript: () => applySurround('^'),
 		spoiler: applySpoiler
 	};
+
+	async function deleteUpload(upload: UploadImageResponse) {
+		if (!upload.delete_url) {
+			return;
+		}
+
+		const deleteRes = await $profile.fetchFunction(upload.delete_url);
+
+		if (deleteRes.ok) {
+			imageUploads = imageUploads.filter((u) => u !== upload);
+
+			// remove just this image's markup from the text, if the image is
+			// meant to be deleted, no reason to keep the markup to a dead link
+			const imageEmbedReg = new RegExp(`!\\[.*?(?<!\\\\)\\]\\(${upload.url}\\)`, 'g');
+			value = value.replace(imageEmbedReg, '');
+
+			// if this was the last image, there's nothing to show in the dialog anymore
+			if (imageUploads.length === 0) {
+				showManageUploads = false;
+			}
+		} else {
+			createAutoExpireToast({
+				variant: 'error',
+				message: 'Failed to delete image!'
+			});
+		}
+	}
 
 	async function applyCode() {
 		const start = textarea.selectionStart,
@@ -188,23 +291,27 @@
 		textarea.selectionEnd = end + leadingStr.length;
 	}
 
-	// async function onPaste(e: ClipboardEvent) {
-	// 	const file = e.clipboardData?.files.item(0);
-	// 	if (file && file.type.includes('image')) {
-	// 		busy = true;
-	// 		const { selectionStart } = textarea,
-	// 			res = await client.uploadImage({
-	// 				image: file
-	// 			});
-	// 		console.log(res);
-	//
-	// 		value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
-	//
-	// 		await tick();
-	// 		textarea.focus();
-	// 		textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
-	//
-	// 		busy = false;
-	// 	}
-	// }
+	async function onPaste(e: ClipboardEvent) {
+		const file = e.clipboardData?.files.item(0);
+		if (file && file.type.includes('image')) {
+			busy = true;
+			const { selectionStart } = textarea,
+				res = await client.uploadImage({
+					image: file
+				});
+
+			console.log(res);
+
+			imageUploads = [...imageUploads, res];
+
+			value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
+
+			await tick();
+			textarea.focus();
+			textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
+			textarea.selectionEnd = selectionStart + 2;
+
+			busy = false;
+		}
+	}
 </script>

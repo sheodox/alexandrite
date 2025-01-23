@@ -3,6 +3,10 @@ import { readable, writable, type Updater, type Writable } from 'svelte/store';
 import { getCtrlBasedHotkeys } from './app-context';
 import { parseISO } from 'date-fns';
 
+export function copyToClipboard(text: string) {
+	navigator.clipboard.writeText(text);
+}
+
 export function safeUrl(url: string | null) {
 	if (!url) {
 		return null;
