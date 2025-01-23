@@ -300,8 +300,6 @@
 					image: file
 				});
 
-			console.log(res);
-
 			imageUploads = [...imageUploads, res];
 
 			value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
