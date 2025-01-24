@@ -29,7 +29,7 @@ export const load = (async ({ url }) => {
 		targetUser: targetId
 			? client.getPersonDetails({
 					person_id: targetId,
-					limit: 0
+					limit: 1
 			  })
 			: null,
 		modlogs: client
