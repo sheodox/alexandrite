@@ -1,6 +1,6 @@
 {
 	"name": "Alexandrite",
-	"version": "0.8.15",
+	"version": "0.8.16",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --host 0.0.0.0",
