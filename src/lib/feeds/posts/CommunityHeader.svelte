@@ -1,4 +1,4 @@
-<FeedHeader icon={community.icon ?? ''} published={community.published}>
+<FeedHeader icon={community.icon ?? ''} published={community.published} banner={community.banner}>
 	<NameAtInstance place={community} displayName={community.title} prefix="" slot="name" />
 	<Stack dir="r" gap={2} align="center" slot="actions" cl="f-1">
 		{#if !readOnly}
