@@ -39,7 +39,7 @@
 			/>
 			{#if upload}
 				<IconButton
-					on:click={() => deleteUpload(upload)}
+					on:click={() => upload && deleteUpload(upload)}
 					cl="delete-upload danger mr-1"
 					icon="trash"
 					text="Delete Image"
