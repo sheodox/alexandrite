@@ -18,11 +18,22 @@
 		width: 0;
 		visibility: hidden;
 	}
+	.current-url-preview + .input-container {
+		border-top: 1px solid var(--sx-gray-transparent-lighter);
+	}
 </style>
 
 <div class="image-input f-column card card-body p-0">
+	{#if name}
+		<input type="hidden" value={currentUploadUrl} {name} />
+	{/if}
+	{#if showCurrentUpload && currentUploadUrl}
+		<div class="current-url-preview p-4">
+			<UploadedMedia bind:currentUploadUrl />
+		</div>
+	{/if}
 	<div class="input-container f-row gap-4" class:has-upload={!!mostRecentUpload}>
-		<label for={fileInputId} class="p-4"> <Icon icon="image" /> Image </label>
+		<label for={fileInputId} class="p-4"> <Icon icon="image" /> {label} </label>
 		<input
 			type="file"
 			accept="image/*,video/*"
@@ -58,6 +69,12 @@
 	import Spinner from './Spinner.svelte';
 	import { genId } from 'sheodox-ui/util';
 
+	export let label = 'Image';
+	export let showCurrentUpload = false;
+	export let currentUploadUrl = '';
+	// 'name' field on a hidden input, value=currentUploadUrl
+	export let name = '';
+
 	const fileInputId = `post-compose-image-file-input-${genId()}`;
 
 	const dispatch = createEventDispatcher<{
@@ -69,6 +86,7 @@
 
 	function onDeleteUpload(e: CustomEvent<UploadImageResponse>) {
 		mostRecentUpload = null;
+		currentUploadUrl = '';
 		dispatch('delete-upload', e.detail);
 	}
 
@@ -93,6 +111,7 @@
 				});
 
 				mostRecentUpload = res;
+				currentUploadUrl = res.url ?? '';
 				dispatch('upload', res);
 			} finally {
 				busy = false;
