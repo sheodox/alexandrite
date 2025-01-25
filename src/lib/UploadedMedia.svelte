@@ -5,6 +5,7 @@
 		border-radius: 10px;
 		border: 2px solid var(--sx-gray-transparent-lighter);
 		overflow: hidden;
+		flex-shrink: 0;
 	}
 	.upload-url {
 		font-family: monospace, sans-serif;
