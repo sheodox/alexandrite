@@ -51,7 +51,7 @@
 
 <script lang="ts">
 	import { Icon } from 'sheodox-ui';
-	import { UploadImageResponse } from 'lemmy-js-client';
+	import type { UploadImageResponse } from 'lemmy-js-client';
 	import { createEventDispatcher } from 'svelte';
 	import { profile } from './profiles/profiles';
 	import UploadedMedia from './UploadedMedia.svelte';
