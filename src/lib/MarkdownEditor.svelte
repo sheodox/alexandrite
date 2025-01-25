@@ -11,6 +11,9 @@
 			margin: 0;
 		}
 	}
+	.image-upload-input {
+		display: none;
+	}
 </style>
 
 <div class="markdown-editor" style="--sx-arg-fieldset-legend-color: var(--sx-gray-75);">
@@ -53,6 +56,20 @@
 				<IconButton icon="subscript" text="Subscript" type="button" on:click={format.subscript} />
 				<IconButton icon="superscript" text="Superscript" type="button" on:click={format.superscript} />
 				<IconButton icon="triangle-exclamation" text="Spoiler" type="button" on:click={format.spoiler} />
+				<Tooltip>
+					<span slot="tooltip">Upload Image</span>
+					<label class="button m-0">
+						<input
+							type="file"
+							class="image-upload-input"
+							on:change={onFileInputChange}
+							disabled={busy}
+							accept="image/*,video/*"
+						/>
+						<Icon icon="image" />
+						<span class="sr-only">Upload Image</span>
+					</label>
+				</Tooltip>
 			</Stack>
 		</Stack>
 
@@ -83,7 +100,7 @@
 {/if}
 
 <script lang="ts">
-	import { Icon, Stack, Checkbox, Fieldset, Modal } from 'sheodox-ui';
+	import { Icon, Stack, Checkbox, Fieldset, Modal, Tooltip } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
@@ -237,25 +254,53 @@
 		textarea.selectionEnd = end + leadingStr.length;
 	}
 
+	async function onImageUploaded(upload: UploadImageResponse) {
+		const { selectionStart } = textarea;
+
+		imageUploads = [...imageUploads, upload];
+
+		value = value.substring(0, selectionStart) + '![](' + upload.url + ')' + value.substring(selectionStart);
+
+		await tick();
+		textarea.focus();
+		textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
+		textarea.selectionEnd = selectionStart + 2;
+	}
+
+	function fileIsMediaType(file: File) {
+		return file.type.includes('image') || file.type.includes('video');
+	}
+
 	async function onPaste(e: ClipboardEvent) {
 		const file = e.clipboardData?.files.item(0);
-		if (file && file.type.includes('image')) {
+		if (file && fileIsMediaType(file)) {
 			busy = true;
-			const { selectionStart } = textarea,
-				res = await client.uploadImage({
+			try {
+				const res = await client.uploadImage({
 					image: file
 				});
 
-			imageUploads = [...imageUploads, res];
+				onImageUploaded(res);
+			} finally {
+				busy = false;
+			}
+		}
+	}
 
-			value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
+	async function onFileInputChange(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		const file = e.currentTarget?.files?.item(0);
+		if (file && fileIsMediaType(file)) {
+			e.currentTarget.value = '';
+			busy = true;
 
-			await tick();
-			textarea.focus();
-			textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
-			textarea.selectionEnd = selectionStart + 2;
-
-			busy = false;
+			try {
+				const res = await client.uploadImage({
+					image: file
+				});
+				onImageUploaded(res);
+			} finally {
+				busy = false;
+			}
 		}
 	}
 </script>

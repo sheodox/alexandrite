@@ -72,15 +72,15 @@ export const createLemmyClient = (
 		}
 
 		if (!res.ok) {
-			const text = await res.text();
-
-			const lemmyError = tryParse(text)?.error ?? '';
+			const text = await res.text(),
+				maybeParsed = tryParse(text),
+				lemmyError = maybeParsed?.error ?? '';
 
 			if (lemmyError === 'not_logged_in') {
 				onExpire?.();
 			}
 
-			const errMsg = lemmyError ? getMessageFromError(lemmyError) : text;
+			const errMsg = lemmyError ? getMessageFromError(lemmyError) : maybeParsed?.msg ?? text;
 
 			createAutoExpireToast({
 				variant: 'error',

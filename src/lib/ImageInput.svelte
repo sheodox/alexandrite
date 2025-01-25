@@ -22,11 +22,11 @@
 
 <div class="image-input f-column card card-body p-0">
 	<div class="input-container f-row gap-4" class:has-upload={!!mostRecentUpload}>
-		<label for="post-compose-image-file-input" class="p-4"> <Icon icon="image" /> Image </label>
+		<label for={fileInputId} class="p-4"> <Icon icon="image" /> Image </label>
 		<input
 			type="file"
 			accept="image/*,video/*"
-			id="post-compose-image-file-input"
+			id={fileInputId}
 			class="py-4"
 			on:change={onFileInputChange}
 			class:px-4={!busy}
@@ -56,6 +56,9 @@
 	import { profile } from './profiles/profiles';
 	import UploadedMedia from './UploadedMedia.svelte';
 	import Spinner from './Spinner.svelte';
+	import { genId } from 'sheodox-ui/util';
+
+	const fileInputId = `post-compose-image-file-input-${genId()}`;
 
 	const dispatch = createEventDispatcher<{
 		// when an uploaded image is deleted
@@ -80,19 +83,20 @@
 
 	async function onFileInputChange(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
 		const file = e.currentTarget?.files?.item(0);
-		if (file && file.type.includes('image')) {
+		if (file && (file.type.includes('image') || file.type.includes('video'))) {
 			e.currentTarget.value = '';
 			busy = true;
 
-			const res = await client.uploadImage({
-				image: file
-			});
+			try {
+				const res = await client.uploadImage({
+					image: file
+				});
 
-			mostRecentUpload = res;
-
-			busy = false;
-
-			dispatch('upload', res);
+				mostRecentUpload = res;
+				dispatch('upload', res);
+			} finally {
+				busy = false;
+			}
 		}
 	}
 </script>

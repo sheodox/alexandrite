@@ -18,6 +18,10 @@
 			padding: var(--sx-spacing-3);
 		}
 	}
+
+	video {
+		width: 100%;
+	}
 </style>
 
 {#if upload.url}
@@ -44,7 +48,12 @@
 			/>
 		</div>
 		<div class="media-preview">
-			<Image src={upload.url} resizable={false} loadingHeight="20rem" />
+			{#if hasImageExtension(upload.url)}
+				<Image src={upload.url} resizable={false} loadingHeight="20rem" />
+			{:else if hasVideoExtension(upload.url)}
+				<!-- svelte-ignore a11y-media-has-caption -->
+				<video src={upload.url} controls />
+			{/if}
 		</div>
 	</div>
 {/if}
@@ -57,6 +66,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { profile } from './profiles/profiles';
 	import { createAutoExpireToast } from 'sheodox-ui';
+	import { hasImageExtension, hasVideoExtension } from './feeds/posts/post-utils';
 
 	export let upload: UploadImageResponse;
 

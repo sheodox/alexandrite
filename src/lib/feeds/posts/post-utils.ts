@@ -36,6 +36,19 @@ export function hasImageExtension(url?: string) {
 	}
 }
 
+export function hasVideoExtension(url?: string) {
+	if (!isValidUrl(url)) {
+		return false;
+	}
+
+	try {
+		const u = new URL(url);
+		return /\.(mp4|webm)$/.test(u.pathname);
+	} catch (e) {
+		return false;
+	}
+}
+
 export interface PostAssertions {
 	imageSrc?: string;
 	// existence of certain types of embedded content
