@@ -11,8 +11,18 @@
 		<MarkdownEditor label="Bio" name="bio" value={data.person.bio ?? ''} required={false} />
 		<TextInput name="email" value={data.localUser.email ?? ''}>Email</TextInput>
 		<TextInput name="matrix_user_id" value={data.person.matrix_user_id ?? ''}>Matrix User</TextInput>
-		<!-- avatar -->
-		<!-- banner -->
+		<ImageInput
+			label="Avatar"
+			showCurrentUpload={avatarUrl === data.person.avatar}
+			bind:currentUploadUrl={avatarUrl}
+			name="avatar"
+		/>
+		<ImageInput
+			label="Banner"
+			showCurrentUpload={bannerUrl === data.person.banner}
+			bind:currentUploadUrl={bannerUrl}
+			name="banner"
+		/>
 		<!-- interface language, need to localize alexandrite! -->
 		<LanguageSettings bind:selected={discussionLanguages} languages={data.languages} />
 
@@ -58,6 +68,7 @@
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { profile, updateProfileSettings } from '$lib/profiles/profiles';
 	import LanguageSettings from './LanguageSettings.svelte';
+	import ImageInput from '$lib/ImageInput.svelte';
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
@@ -66,6 +77,9 @@
 	let discussionLanguages = data.discussionLanguages;
 
 	let settingsForm: HTMLFormElement;
+
+	let avatarUrl = data.person.avatar,
+		bannerUrl = data.person.banner;
 
 	$: formState = createStatefulForm(settingsForm, async (body) => {
 		if (!jwt) {
@@ -86,7 +100,9 @@
 			bot_account: body.bot_account === 'on',
 			show_bot_accounts: body.show_bot_accounts === 'on',
 			show_read_posts: body.show_read_posts === 'on',
-			send_notifications_to_email: body.send_notifications_to_email === 'on'
+			send_notifications_to_email: body.send_notifications_to_email === 'on',
+			avatar: body.avatar as string,
+			banner: body.banner as string
 		};
 
 		await client.saveUserSettings(settings);

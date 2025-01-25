@@ -6,11 +6,22 @@
 		object-fit: cover;
 	}
 	.feed-header {
-		background: var(--sx-gray-800);
+		position: relative;
 	}
 	.feed-avatar {
 		// don't let the image get squished
 		flex-shrink: 0;
+	}
+
+	.banner {
+		opacity: 0.6;
+		position: absolute;
+		top: 0;
+		right: 0;
+		left: 0;
+		bottom: 0;
+		pointer-events: none;
+		z-index: -1;
 	}
 
 	@media (max-width: 600px) {
@@ -22,6 +33,10 @@
 </style>
 
 <section class="{narrow ? 'p-3' : 'p-8'} feed-header">
+	<div
+		class="banner"
+		style={`background: ${banner ? `center / cover no-repeat url(${banner})` : 'var(--sx-gray-800)'}`}
+	/>
 	<Stack gap={2} dir="c">
 		<Stack dir="r" gap={narrow ? 3 : 6} align="center">
 			{#if icon}
@@ -60,6 +75,7 @@
 
 	export let published: string;
 	export let icon: string;
+	export let banner = '';
 
 	$: narrow = $screenDimensions.width < 600;
 </script>

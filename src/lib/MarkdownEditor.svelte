@@ -11,23 +11,39 @@
 			margin: 0;
 		}
 	}
+	.image-upload-input {
+		display: none;
+	}
 </style>
 
 <div class="markdown-editor" style="--sx-arg-fieldset-legend-color: var(--sx-gray-75);">
 	<Stack dir="c">
 		<Stack dir="c">
-			<label for={textareaId} class="fw-bold p-2">{label}</label>
+			<Stack dir="r" gap={4} align="center" justify="between">
+				<label for={textareaId} class="fw-bold p-2">{label}</label>
+				{#if busy}
+					<div class="px-2">
+						<Spinner />
+					</div>
+				{:else if imageUploads.length}
+					<button type="button" class="small" on:click={() => (showManageUploads = true)}
+						><Icon icon="images" /> Manage Uploads</button
+					>
+				{/if}
+			</Stack>
 			<!-- svelte-ignore a11y-autofocus -->
 			<textarea
 				id={textareaId}
 				rows="6"
 				bind:value
 				{name}
-				disabled={disabled || busy}
+				{disabled}
+				readonly={busy}
 				bind:this={textarea}
 				{required}
 				on:keydown={keydown}
 				{autofocus}
+				on:paste={onPaste}
 			/>
 			<Stack dir="r" gap={1}>
 				<IconButton icon="bold" text="Bold" type="button" on:click={format.bold} />
@@ -40,6 +56,20 @@
 				<IconButton icon="subscript" text="Subscript" type="button" on:click={format.subscript} />
 				<IconButton icon="superscript" text="Superscript" type="button" on:click={format.superscript} />
 				<IconButton icon="triangle-exclamation" text="Spoiler" type="button" on:click={format.spoiler} />
+				<Tooltip>
+					<span slot="tooltip">Upload Image</span>
+					<label class="button m-0">
+						<input
+							type="file"
+							class="image-upload-input"
+							on:change={onFileInputChange}
+							disabled={busy}
+							accept="image/*,video/*"
+						/>
+						<Icon icon="image" />
+						<span class="sr-only">Upload Image</span>
+					</label>
+				</Tooltip>
 			</Stack>
 		</Stack>
 
@@ -59,13 +89,27 @@
 	</Stack>
 </div>
 
+{#if showManageUploads}
+	<Modal title="Manage Uploads" bind:visible={showManageUploads}>
+		<div class="modal-body f-column gap-4">
+			{#each imageUploads as upload}
+				<UploadedMedia {upload} on:delete-upload={onUploadDeleted} />
+			{/each}
+		</div>
+	</Modal>
+{/if}
+
 <script lang="ts">
-	import { Icon, Stack, Checkbox, Fieldset } from 'sheodox-ui';
+	import { Icon, Stack, Checkbox, Fieldset, Modal, Tooltip } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import { tick } from 'svelte';
 	import { getCtrlBasedHotkeys } from './app-context';
+	import { profile } from './profiles/profiles';
+	import Spinner from './Spinner.svelte';
+	import type { UploadImageResponse } from 'lemmy-js-client';
+	import UploadedMedia from './UploadedMedia.svelte';
 
 	const ctrlBasedHotkeys = getCtrlBasedHotkeys();
 
@@ -82,6 +126,13 @@
 
 	let busy = false;
 
+	// TODO export and  cache this in a feed buffer for comments, so scrolling doesn't delete images!
+	let imageUploads: UploadImageResponse[] = [];
+
+	let showManageUploads = false;
+
+	$: client = $profile.client;
+
 	const format = {
 		bold: () => applySurround('**'),
 		italic: () => applySurround('*'),
@@ -94,6 +145,21 @@
 		superscript: () => applySurround('^'),
 		spoiler: applySpoiler
 	};
+
+	async function onUploadDeleted(e: CustomEvent<UploadImageResponse>) {
+		const upload = e.detail;
+		imageUploads = imageUploads.filter((u) => u.url !== upload.url);
+
+		// remove just this image's markup from the text, if the image is
+		// meant to be deleted, no reason to keep the markup to a dead link
+		const imageEmbedReg = new RegExp(`!\\[.*?(?<!\\\\)\\]\\(${upload.url}\\)`, 'g');
+		value = value.replace(imageEmbedReg, '');
+
+		// if this was the last image, there's nothing to show in the dialog anymore
+		if (imageUploads.length === 0) {
+			showManageUploads = false;
+		}
+	}
 
 	async function applyCode() {
 		const start = textarea.selectionStart,
@@ -188,23 +254,53 @@
 		textarea.selectionEnd = end + leadingStr.length;
 	}
 
-	// async function onPaste(e: ClipboardEvent) {
-	// 	const file = e.clipboardData?.files.item(0);
-	// 	if (file && file.type.includes('image')) {
-	// 		busy = true;
-	// 		const { selectionStart } = textarea,
-	// 			res = await client.uploadImage({
-	// 				image: file
-	// 			});
-	// 		console.log(res);
-	//
-	// 		value = value.substring(0, selectionStart) + '![](' + res.url + ')' + value.substring(selectionStart);
-	//
-	// 		await tick();
-	// 		textarea.focus();
-	// 		textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
-	//
-	// 		busy = false;
-	// 	}
-	// }
+	async function onImageUploaded(upload: UploadImageResponse) {
+		const { selectionStart } = textarea;
+
+		imageUploads = [...imageUploads, upload];
+
+		value = value.substring(0, selectionStart) + '![](' + upload.url + ')' + value.substring(selectionStart);
+
+		await tick();
+		textarea.focus();
+		textarea.selectionStart = selectionStart + 2; // place cursor in the alt text location
+		textarea.selectionEnd = selectionStart + 2;
+	}
+
+	function fileIsMediaType(file: File) {
+		return file.type.includes('image') || file.type.includes('video');
+	}
+
+	async function onPaste(e: ClipboardEvent) {
+		const file = e.clipboardData?.files.item(0);
+		if (file && fileIsMediaType(file)) {
+			busy = true;
+			try {
+				const res = await client.uploadImage({
+					image: file
+				});
+
+				onImageUploaded(res);
+			} finally {
+				busy = false;
+			}
+		}
+	}
+
+	async function onFileInputChange(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		const file = e.currentTarget?.files?.item(0);
+		if (file && fileIsMediaType(file)) {
+			e.currentTarget.value = '';
+			busy = true;
+
+			try {
+				const res = await client.uploadImage({
+					image: file
+				});
+				onImageUploaded(res);
+			} finally {
+				busy = false;
+			}
+		}
+	}
 </script>

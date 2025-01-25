@@ -1,11 +1,6 @@
 <article>
 	{#if community && communityView}
-		<Sidebar
-			description={community.description ?? ''}
-			bannerImageSrc={community.banner}
-			context="Community"
-			bind:descriptionOpen={$descriptionOpen}
-		>
+		<Sidebar description={community.description ?? ''} context="Community" bind:descriptionOpen={$descriptionOpen}>
 			<a href={communityHref} slot="name">
 				<NameAtInstance place={community} prefix="!" />
 			</a>
