@@ -4,7 +4,7 @@
 	}
 </style>
 
-<Stack dir="c" gap={2}>
+<Stack dir="c" gap={4}>
 	{#if errorMessage}
 		<Alert variant="error">{errorMessage}</Alert>
 	{/if}
@@ -13,6 +13,7 @@
 	<input name="honeypot" value="" class="dn" />
 
 	<TextInput name="title" bind:value={title}>Title</TextInput>
+	<ImageInput on:upload={onUpload} on:delete-upload={onDeleteUpload} />
 	<Stack dir="r" gap={2} justify="between" align="start" cl="f-wrap">
 		<div class="f-1">
 			<TextInput name="url" bind:value={url} placeholder="https://example.com">URL</TextInput>
@@ -53,8 +54,9 @@
 	import EmbedCard from './feeds/posts/EmbedCard.svelte';
 	import BusyButton from './BusyButton.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
+	import ImageInput from './ImageInput.svelte';
 	import { getCommunityContext } from './community-context/community-context';
-	import type { Community, Post, PostView, LinkMetadata } from 'lemmy-js-client';
+	import type { Community, Post, PostView, LinkMetadata, UploadImageResponse } from 'lemmy-js-client';
 	import { onMount } from 'svelte';
 	import { createStatefulAction, safeUrl } from './utils';
 	import { profile } from './profiles/profiles';
@@ -89,6 +91,18 @@
 			nsfw = crossPost.post.nsfw ?? false;
 		}
 	});
+
+	function onUpload(e: CustomEvent<UploadImageResponse>) {
+		// images are uploaded independent of the post, and the image is the post url
+		url = e.detail.url ?? '';
+	}
+
+	function onDeleteUpload(e: CustomEvent<UploadImageResponse>) {
+		// if an image was deleted and that's what the post url is, clear it because it's gone
+		if (url === e.detail.url) {
+			url = '';
+		}
+	}
 
 	function crossPostBody(post: Post) {
 		return `cross-posted from: ${post.ap_id}` + (post.body ? `\n\n${post.body.replace(/^/gm, '> ')}` : '');

@@ -11,27 +11,6 @@
 			margin: 0;
 		}
 	}
-	.upload-preview {
-		position: relative;
-		max-height: 20rem;
-		max-width: 100%;
-		width: 30rem;
-		border-radius: 10px;
-		border: 2px solid var(--sx-gray-transparent-lighter);
-		overflow: hidden;
-	}
-	.upload-url {
-		font-family: monospace, sans-serif;
-		width: 100%;
-		white-space: nowrap;
-		overflow: hidden;
-		background: var(--sx-gray-transparent-darker);
-
-		> .url {
-			overflow-x: scroll;
-			padding: var(--sx-spacing-3);
-		}
-	}
 </style>
 
 <div class="markdown-editor" style="--sx-arg-fieldset-legend-color: var(--sx-gray-75);">
@@ -97,34 +76,14 @@
 	<Modal title="Manage Uploads" bind:visible={showManageUploads}>
 		<div class="modal-body f-column gap-4">
 			{#each imageUploads as upload}
-				{#if upload.url}
-					<div class="upload-preview">
-						<div class="upload-url f-row align-items-center">
-							<span class="url">{upload.url}</span>
-
-							<IconButton
-								on:click={() => upload.url && copyToClipboard(upload.url)}
-								cl="tertiary mr-1"
-								icon="copy"
-								text="Copy URL"
-							/>
-							<IconButton
-								on:click={() => deleteUpload(upload)}
-								cl="delete-upload danger mr-1"
-								icon="trash"
-								text="Delete Image"
-							/>
-						</div>
-						<Image src={upload.url} />
-					</div>
-				{/if}
+				<UploadedMedia {upload} on:delete-upload={onUploadDeleted} />
 			{/each}
 		</div>
 	</Modal>
 {/if}
 
 <script lang="ts">
-	import { Icon, Stack, Checkbox, Fieldset, Modal, createAutoExpireToast } from 'sheodox-ui';
+	import { Icon, Stack, Checkbox, Fieldset, Modal } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 	import Markdown from './Markdown.svelte';
 	import IconButton from '$lib/IconButton.svelte';
@@ -133,8 +92,7 @@
 	import { profile } from './profiles/profiles';
 	import Spinner from './Spinner.svelte';
 	import type { UploadImageResponse } from 'lemmy-js-client';
-	import Image from './Image.svelte';
-	import { copyToClipboard } from './utils';
+	import UploadedMedia from './UploadedMedia.svelte';
 
 	const ctrlBasedHotkeys = getCtrlBasedHotkeys();
 
@@ -171,30 +129,18 @@
 		spoiler: applySpoiler
 	};
 
-	async function deleteUpload(upload: UploadImageResponse) {
-		if (!upload.delete_url) {
-			return;
-		}
+	async function onUploadDeleted(e: CustomEvent<UploadImageResponse>) {
+		const upload = e.detail;
+		imageUploads = imageUploads.filter((u) => u.url !== upload.url);
 
-		const deleteRes = await $profile.fetchFunction(upload.delete_url);
+		// remove just this image's markup from the text, if the image is
+		// meant to be deleted, no reason to keep the markup to a dead link
+		const imageEmbedReg = new RegExp(`!\\[.*?(?<!\\\\)\\]\\(${upload.url}\\)`, 'g');
+		value = value.replace(imageEmbedReg, '');
 
-		if (deleteRes.ok) {
-			imageUploads = imageUploads.filter((u) => u !== upload);
-
-			// remove just this image's markup from the text, if the image is
-			// meant to be deleted, no reason to keep the markup to a dead link
-			const imageEmbedReg = new RegExp(`!\\[.*?(?<!\\\\)\\]\\(${upload.url}\\)`, 'g');
-			value = value.replace(imageEmbedReg, '');
-
-			// if this was the last image, there's nothing to show in the dialog anymore
-			if (imageUploads.length === 0) {
-				showManageUploads = false;
-			}
-		} else {
-			createAutoExpireToast({
-				variant: 'error',
-				message: 'Failed to delete image!'
-			});
+		// if this was the last image, there's nothing to show in the dialog anymore
+		if (imageUploads.length === 0) {
+			showManageUploads = false;
 		}
 	}
 
