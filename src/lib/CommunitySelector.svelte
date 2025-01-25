@@ -47,7 +47,13 @@
 
 	let searchResults: Community[] = [];
 
-	$: communities = searchText ? searchResults : $siteMeta.my_user?.follows.map((f) => f.community) || [];
+	$: communities = searchText
+		? searchResults
+		: $siteMeta.my_user?.follows
+				.map((f) => f.community)
+				.sort((a, b) => {
+					return (a.title || a.name).toLowerCase().localeCompare((b.title || b.name).toLowerCase());
+				}) || [];
 
 	$: postableCommunities = communities.filter((com) => {
 		// only let the user select communities that they can actually post in
