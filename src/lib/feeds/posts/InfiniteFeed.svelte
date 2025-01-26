@@ -12,7 +12,9 @@
 		<button class="tertiary" on:click={() => dispatch('more')} disabled={loading}> Load More</button>
 	</FeedBanner>
 {:else}
-	<FeedBanner message={feedEndMessage} icon={feedEndIcon} />
+	<FeedBanner message={feedEndMessage} icon={feedEndIcon}>
+		<slot name="feed-end-banner" />
+	</FeedBanner>
 {/if}
 
 <script lang="ts">
