@@ -14,7 +14,7 @@
 	}
 
 	.banner {
-		opacity: 0.6;
+		opacity: 0.4;
 		position: absolute;
 		top: 0;
 		right: 0;
