@@ -17,7 +17,7 @@
 						<CommunityCounts {communityView} />
 					{/if}
 					{#if communityAddress}
-						<div class="community-address">
+						<div class="community-address mb-4">
 							<CopyableText text={communityAddress} />
 						</div>
 					{/if}
@@ -26,7 +26,7 @@
 			<div slot="end">
 				<Accordion bind:open={$communityDetailsOpen}>
 					<span slot="title"><Icon icon="users" /> Community Details</span>
-					<ul class="sx-list">
+					<ul class="sx-list mb-2">
 						{#each communityStats as stat}
 							<li class="sx-list-item two-columns">
 								<span class="column">{stat.label}</span>
