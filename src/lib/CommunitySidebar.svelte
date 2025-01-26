@@ -1,3 +1,9 @@
+<style lang="scss">
+	.community-address {
+		align-self: start;
+	}
+</style>
+
 <article>
 	{#if community && communityView}
 		<Sidebar description={community.description ?? ''} context="Community" bind:descriptionOpen={$descriptionOpen}>
@@ -9,6 +15,11 @@
 				<Stack dir="c" gap={2}>
 					{#if communityView}
 						<CommunityCounts {communityView} />
+					{/if}
+					{#if communityAddress}
+						<div class="community-address">
+							<CopyableText text={communityAddress} />
+						</div>
 					{/if}
 				</Stack>
 			</div>
@@ -81,6 +92,7 @@
 	import { getModActionPending, getModContext } from './mod/mod-context';
 	import { readable } from 'svelte/store';
 	import { localStorageBackedStore } from './utils';
+	import CopyableText from './CopyableText.svelte';
 
 	export let communityName: string;
 
@@ -132,6 +144,7 @@
 	];
 
 	$: communityInstance = community ? new URL(community.actor_id).host : null;
+	$: communityAddress = community ? '!' + nameAtInstance(community, '', { alwaysShowInstance: true }) : '';
 
 	const { siteMeta, userId } = getAppContext();
 	const { showModlogWarning, showModlogWarningModerated } = getSettingsContext();

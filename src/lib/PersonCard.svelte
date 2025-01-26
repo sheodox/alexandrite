@@ -10,10 +10,13 @@
 	.icon :global(img) {
 		object-fit: cover;
 	}
+	.user-address {
+		align-self: start;
+	}
 </style>
 
 <div class="p-2">
-	<div class="card p-4">
+	<div class="card p-4 f-column gap-2">
 		<Stack dir="r" align="center" cl="card-title" gap={2}>
 			<div class="icon f-row align-items-center justify-content-center">
 				{#if personView.person.avatar && $profile.settings.show_avatars}
@@ -27,7 +30,11 @@
 			</a>
 		</Stack>
 
-		<div class="card-body">
+		<div class="user-address">
+			<CopyableText text={userAddress} />
+		</div>
+
+		<div class="card-body p-0">
 			<ul class="sx-list">
 				<UserCounts {personView} />
 			</ul>
@@ -43,6 +50,8 @@
 	import type { PersonView } from 'lemmy-js-client';
 	import UserCounts from './UserCounts.svelte';
 	import { profile } from './profiles/profiles';
+	import CopyableText from './CopyableText.svelte';
 
 	export let personView: PersonView;
+	$: userAddress = '@' + nameAtInstance(personView.person, '', { alwaysShowInstance: true });
 </script>

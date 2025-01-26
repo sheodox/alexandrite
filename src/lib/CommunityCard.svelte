@@ -30,6 +30,8 @@
 		</Stack>
 
 		<Stack cl="card-body" dir="c" gap={2}>
+			{@const communityAddress = '!' + nameAtInstance(communityView.community, '', { alwaysShowInstance: true })}
+			<CopyableText text={communityAddress} />
 			<CommunityBadges extended community={communityView.community} />
 			<Stack dir="r" align="center" gap={2}>
 				<CommunityJoin {communityView} />
@@ -56,6 +58,7 @@
 	import CommunityCounts from '$lib/CommunityCounts.svelte';
 	import CommunityJoin from '$lib/CommunityJoin.svelte';
 	import { profile } from '$lib/profiles/profiles';
+	import CopyableText from './CopyableText.svelte';
 
 	export let communityView: CommunityView;
 	$: communityName = nameAtInstance(communityView.community);
