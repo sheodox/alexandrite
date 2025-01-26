@@ -8,64 +8,76 @@
 			width: 2.5rem;
 		}
 	}
+
+	.separator {
+		border-bottom: 1px solid var(--sx-gray-transparent-light);
+		width: 100%;
+	}
 </style>
 
 <div>
-	<Stack cl="mx-4 sx-badge-gray sx-font-size-2" dir="r" align="center" gap={1}>
+	<Stack cl="mx-2 sx-badge-gray sx-font-size-2" dir="r" align="center" gap={1}>
 		<Logo size="tiny" />
 		<span class="fw-normal">Powered by</span>
 		<ExternalLink href="https://github.com/sheodox/alexandrite">Alexandrite</ExternalLink>
 	</Stack>
-	<nav class="sx-sidebar-simple-links">
-		<Stack dir="c" gap={1}>
-			{#each links as link}
-				<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /> <span>{link.text}</span></a>
-			{/each}
+	<nav class="sx-sidebar-simple-links p-0 mt-4">
+		<Stack dir="c" gap={4}>
+			<div class="separator" />
+			<div class="f-column gap-1 px-2">
+				{#each links as link}
+					<a href={link.href} class="icon-link plain-link"><Icon icon={link.icon} /> <span>{link.text}</span></a>
+				{/each}
+			</div>
 
-			{#if combinedCommunityList.length > 0}
-				<TextInput bind:value={communitySearch} placeholder="type name or @instance">Search Communities</TextInput>
-			{/if}
+			<div class="separator" />
 
-			{#if communitySearch !== ''}
-				<SidebarSubscriptionList
-					title="Search Results"
-					communities={searchCommunities(communitySearch, combinedCommunityList)}
-					favorites={$favoriteCommunitiesIds}
-					on:favorite={(e) => onFavorite(e.detail)}
-				/>
-				{#if !communitySearch.startsWith('@')}
-					<a
-						href="/{$profile.instance}/search?q={encodeURIComponent(communitySearch)}&type=Communities"
-						class="inline-link"
-					>
-						Search <em>"{communitySearch}"</em>
-						<Icon icon="arrow-right" />
-					</a>
+			<div class="f-column gap-1 px-2">
+				{#if combinedCommunityList.length > 0}
+					<TextInput bind:value={communitySearch} placeholder="type name or @instance">Search Communities</TextInput>
 				{/if}
-			{:else}
-				<SidebarSubscriptionList
-					title="Favorites"
-					communities={favoriteCommunities.map((v) => v.community)}
-					favorites={$favoriteCommunitiesIds}
-					on:favorite={(e) => onFavorite(e.detail)}
-				/>
 
-				{#if $siteMeta.my_user}
+				{#if communitySearch !== ''}
 					<SidebarSubscriptionList
-						title="Moderating"
-						communities={$siteMeta.my_user.moderates.map((v) => v.community)}
+						title="Search Results"
+						communities={searchCommunities(communitySearch, combinedCommunityList)}
+						favorites={$favoriteCommunitiesIds}
+						on:favorite={(e) => onFavorite(e.detail)}
+					/>
+					{#if !communitySearch.startsWith('@')}
+						<a
+							href="/{$profile.instance}/search?q={encodeURIComponent(communitySearch)}&type=Communities"
+							class="inline-link"
+						>
+							Search <em>"{communitySearch}"</em>
+							<Icon icon="arrow-right" />
+						</a>
+					{/if}
+				{:else}
+					<SidebarSubscriptionList
+						title="Favorites"
+						communities={favoriteCommunities.map((v) => v.community)}
+						favorites={$favoriteCommunitiesIds}
+						on:favorite={(e) => onFavorite(e.detail)}
+					/>
+
+					{#if $siteMeta.my_user}
+						<SidebarSubscriptionList
+							title="Moderating"
+							communities={$siteMeta.my_user.moderates.map((v) => v.community)}
+							favorites={$favoriteCommunitiesIds}
+							on:favorite={(e) => onFavorite(e.detail)}
+						/>
+					{/if}
+
+					<SidebarSubscriptionList
+						title="Subscriptions"
+						communities={subscriptions.map((v) => v.community)}
 						favorites={$favoriteCommunitiesIds}
 						on:favorite={(e) => onFavorite(e.detail)}
 					/>
 				{/if}
-
-				<SidebarSubscriptionList
-					title="Subscriptions"
-					communities={subscriptions.map((v) => v.community)}
-					favorites={$favoriteCommunitiesIds}
-					on:favorite={(e) => onFavorite(e.detail)}
-				/>
-			{/if}
+			</div>
 		</Stack>
 	</nav>
 </div>
