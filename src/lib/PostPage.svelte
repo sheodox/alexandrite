@@ -227,7 +227,7 @@
 	export let crossPosts: PostView[] | null = null;
 
 	const showNewCommentComposer = localStorageBackedStore('show-new-comment-composer', true);
-	const { sidebarVisible, nsfwImageHandling } = getSettingsContext();
+	const { sidebarVisible, nsfwImageHandling, commentDefaultSort } = getSettingsContext();
 	const { screenDimensions } = getAppContext();
 
 	let commentAPIs: CommentAPI[] | undefined;
@@ -253,7 +253,7 @@
 	let commentExpandLoadingIds = new Set<number>(),
 		newCommentForm: HTMLFormElement,
 		commentsPageNum = 1,
-		selectedSort = 'Hot',
+		selectedSort = $commentDefaultSort,
 		newCommentText = '',
 		searchText = '',
 		loadingComments = false,

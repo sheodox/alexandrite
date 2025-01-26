@@ -250,19 +250,28 @@ export const InboxSortOptions = [
 export const CommentSortOptions = [
 	{
 		value: 'Hot',
-		label: 'Hot'
+		label: 'Hot',
+		description: ''
 	},
 	{
 		value: 'Top',
-		label: 'Top'
+		label: 'Top',
+		description: ''
+	},
+	{
+		value: 'Controversial',
+		label: 'Controversial',
+		description: ''
 	},
 	{
 		value: 'New',
-		label: 'New'
+		label: 'New',
+		description: ''
 	},
 	{
 		value: 'Old',
-		label: 'Old'
+		label: 'Old',
+		description: ''
 	}
 ];
 

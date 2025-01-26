@@ -19,7 +19,7 @@
 		{/each}
 	</div>
 	{@const selected = options.find((opt) => opt.value === group)}
-	{#if selected}
+	{#if selected && selected.description}
 		<p class="muted description mb-0 px-1">
 			<Icon icon="question-circle" variant="regular" />
 			<strong>{selected.label}:</strong>
@@ -33,7 +33,7 @@
 	import { Fieldset, Icon } from 'sheodox-ui';
 	import { genId } from 'sheodox-ui/util';
 
-	export let options: { value: string | null; label: string; description: string }[];
+	export let options: { value: string | null; label: string; description?: string }[];
 	export let legend: string;
 	export let group: (typeof options)[number]['value'];
 
