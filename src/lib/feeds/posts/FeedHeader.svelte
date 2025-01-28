@@ -13,8 +13,26 @@
 		flex-shrink: 0;
 	}
 
+	.feed-header :global(:is(button.tertiary, a.button)) {
+		background: var(--sx-gray-500);
+		&:hover {
+			background: var(--sx-gray-400);
+		}
+	}
+
+	h1 {
+		text-shadow:
+			0 0 100px black,
+			0 0 50px black,
+			0 0 25px black;
+	}
+
+	.sx-badge-gray {
+		background: var(--sx-gray-600) !important;
+	}
+
 	.banner {
-		opacity: 0.4;
+		opacity: 0.8;
 		position: absolute;
 		top: 0;
 		right: 0;
