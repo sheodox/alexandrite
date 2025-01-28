@@ -13,7 +13,7 @@
 		flex-shrink: 0;
 	}
 
-	.feed-header :global(:is(button.tertiary, a.button)) {
+	.feed-header.has-banner :global(:is(button.tertiary, a.button)) {
 		background: var(--sx-gray-500);
 		&:hover {
 			background: var(--sx-gray-400);
@@ -50,7 +50,7 @@
 	}
 </style>
 
-<section class="{narrow ? 'p-3' : 'p-8'} feed-header">
+<section class="{narrow ? 'p-3' : 'p-8'} feed-header" class:has-banner={!!banner}>
 	<div
 		class="banner"
 		style={`background: ${banner ? `center / cover no-repeat url(${banner})` : 'var(--sx-gray-800)'}`}
