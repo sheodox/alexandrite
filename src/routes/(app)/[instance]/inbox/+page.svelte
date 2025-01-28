@@ -7,11 +7,11 @@
 	disabled={$unreadCount === 0}>Mark All As Read</BusyButton
 >
 
-<form method="GET" use:navigateOnChange>
+<form method="GET" use:navigateOnChange bind:this={formEl}>
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
 			<Stack gap={4} align="center" dir="r">
-				<ToggleGroup options={InboxTypes} name="type" selected={data.query.type} />
+				<ToggleGroup options={InboxTypes} name="type" bind:selected={queryType} />
 				<ToggleGroup options={InboxListings} name="listing" selected={data.query.listing} />
 				<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
 					{#each InboxSortOptions as opt}
@@ -37,6 +37,13 @@
 			loading={loadingContent}
 			loadMoreFailed={loadingContentFailed}
 		>
+			<div slot="feed-end-banner">
+				{#if data.query.type === 'Unread'}
+					<button class="secondary" on:click={onGotoRead}>
+						<Icon icon="envelope-circle-check" /> View Read
+					</button>
+				{/if}
+			</div>
 			<svelte:fragment let:index>
 				{@const content = $cvStore[index]}
 				{#if content.type === 'mention' || content.type === 'reply'}
@@ -61,7 +68,7 @@
 </Stack>
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, Icon } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/comments/Comment.svelte';
@@ -84,8 +91,13 @@
 		replyViewToContentView
 	} from '$lib/content-views';
 	import { profile } from '$lib/profiles/profiles';
+	import { tick } from 'svelte';
 
 	export let data;
+
+	let queryType = data.query.type;
+
+	let formEl: HTMLFormElement;
 
 	const { unreadCount, checkUnread } = getAppContext();
 	$: client = $profile.client;
@@ -123,6 +135,13 @@
 	}
 
 	type InboxData = Awaited<ReturnType<typeof fetchInboxPage>>;
+
+	async function onGotoRead() {
+		queryType = 'All';
+
+		await tick();
+		formEl.dispatchEvent(new Event('change'));
+	}
 
 	function initFeed(data: PageData) {
 		const newLoader = feedLoader<InboxData>(

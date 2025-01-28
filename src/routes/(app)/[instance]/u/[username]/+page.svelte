@@ -4,6 +4,10 @@
 		border-radius: 10px;
 		overflow: hidden;
 	}
+
+	.user-address {
+		align-self: start;
+	}
 </style>
 
 <Title title={data.personUsername} />
@@ -31,6 +35,10 @@
 							prefix="@"
 						/>
 					</h1>
+
+					<div class="user-address">
+						<CopyableText text={userAddress} />
+					</div>
 
 					{#if isMe}
 						<a class="button secondary w-100 m-0 text-align-center mb-4" href="/{$profile.instance}/settings/lemmy">
@@ -114,6 +122,8 @@
 	import { getSettingsContext } from '$lib/settings-context';
 	import { profile } from '$lib/profiles/profiles';
 	import { localStorageBackedStore } from '$lib/utils';
+	import CopyableText from '$lib/CopyableText.svelte';
+	import { nameAtInstance } from '$lib/nav-utils';
 
 	export let data;
 
@@ -130,6 +140,7 @@
 	}
 
 	$: isMe = data.personView.person.local && data.personView.person.name === $profile.username;
+	$: userAddress = '@' + nameAtInstance(data.personView.person, '', { alwaysShowInstance: true });
 
 	function refresh(data: PageData) {
 		loader = initFeed(data);

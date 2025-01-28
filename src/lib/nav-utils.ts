@@ -6,9 +6,9 @@ interface NamedThing {
 	actor_id: string;
 }
 
-export const nameAtInstance = (thing: NamedThing, displayName?: string) => {
+export const nameAtInstance = (thing: NamedThing, displayName?: string, opts?: { alwaysShowInstance: boolean }) => {
 	let name = displayName || thing.name;
-	if (!thing.local) {
+	if (!thing.local || opts?.alwaysShowInstance) {
 		const host = new URL(thing.actor_id).hostname;
 		name += '@' + host;
 	}

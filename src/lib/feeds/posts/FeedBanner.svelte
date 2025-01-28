@@ -5,7 +5,7 @@
 </style>
 
 <section class="feed-banner f-row justify-content-center">
-	<Stack dir="c" align="center" justify="center" cl="f-1">
+	<Stack dir="c" align="center" justify="center" cl="f-1" gap={4}>
 		<p class="m-0 sx-font-size-12">
 			{#if loading}
 				<Spinner />

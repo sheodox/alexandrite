@@ -13,8 +13,26 @@
 		flex-shrink: 0;
 	}
 
+	.feed-header.has-banner :global(:is(button.tertiary, a.button)) {
+		background: var(--sx-gray-500);
+		&:hover {
+			background: var(--sx-gray-400);
+		}
+	}
+
+	h1 {
+		text-shadow:
+			0 0 100px black,
+			0 0 50px black,
+			0 0 25px black;
+	}
+
+	.sx-badge-gray {
+		background: var(--sx-gray-600) !important;
+	}
+
 	.banner {
-		opacity: 0.6;
+		opacity: 0.8;
 		position: absolute;
 		top: 0;
 		right: 0;
@@ -32,7 +50,7 @@
 	}
 </style>
 
-<section class="{narrow ? 'p-3' : 'p-8'} feed-header">
+<section class="{narrow ? 'p-3' : 'p-8'} feed-header" class:has-banner={!!banner}>
 	<div
 		class="banner"
 		style={`background: ${banner ? `center / cover no-repeat url(${banner})` : 'var(--sx-gray-800)'}`}

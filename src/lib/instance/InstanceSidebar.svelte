@@ -16,7 +16,7 @@
 	<div slot="end" class="f-column gap-4">
 		<Accordion bind:open={$instanceDetailsOpen}>
 			<span slot="title"><Icon icon="server" /> Instance Details</span>
-			<div class="f-column gap-4">
+			<div class="f-column gap-2">
 				<ul class="sx-list">
 					{#each serverStats as stat}
 						<li class="sx-list-item two-columns">

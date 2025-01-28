@@ -5,6 +5,7 @@
 	export let displayName = '';
 	export let prefix = ''; // @, !, /m/ etc
 	export let wrappable = true;
+	export let alwaysShowInstance = false;
 
 	$: name = displayName || place.name;
 	$: instance = getInstance(place);
@@ -15,7 +16,7 @@
 		actor_id: string;
 	}
 	const getInstance = (thing: NamedThing) => {
-		if (!thing.local) {
+		if (!thing.local || alwaysShowInstance) {
 			return '@' + new URL(thing.actor_id).hostname;
 		}
 		return '';

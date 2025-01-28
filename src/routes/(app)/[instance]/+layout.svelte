@@ -184,6 +184,10 @@
 			'post-card-layout-left-aligned-buttons',
 			AlexandriteSettingsDefaults.postCardLayoutLeftAlignedButtons
 		),
+		commentDefaultSort = localStorageBackedStore(
+			'comment-default-sort',
+			AlexandriteSettingsDefaults.commentDefaultSort
+		),
 		navSidebarOpen = writable(false),
 		navSidebarDocked = localStorageBackedStore('nav-sidebar-docked', AlexandriteSettingsDefaults.navSidebarDocked),
 		colorScheme = localStorageBackedStore('color-scheme', AlexandriteSettingsDefaults.colorScheme),
@@ -272,6 +276,7 @@
 		postPreviewLayout,
 		postListLayoutContentPreview,
 		postCardLayoutLeftAlignedButtons,
+		commentDefaultSort,
 		showModlogWarning,
 		showModlogWarningModerated
 	});

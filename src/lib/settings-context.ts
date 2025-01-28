@@ -1,3 +1,4 @@
+import type { CommentSortType } from 'lemmy-js-client';
 import { getContext, setContext } from 'svelte';
 import { writable, type Writable } from 'svelte/store';
 
@@ -90,6 +91,7 @@ export interface AlexandriteSettings {
 	navSidebarDocked: boolean;
 	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
+	commentDefaultSort: CommentSortType;
 	postPreviewLayout: PostPreviewLayout;
 	postListLayoutContentPreview: boolean;
 	postCardLayoutLeftAlignedButtons: boolean;
@@ -118,6 +120,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST',
 	postListLayoutContentPreview: false,
 	postCardLayoutLeftAlignedButtons: true,
+	commentDefaultSort: 'Hot',
 	showModlogWarning: true,
 	showModlogWarningModerated: true
 };

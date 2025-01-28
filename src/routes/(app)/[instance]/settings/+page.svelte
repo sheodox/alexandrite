@@ -15,6 +15,7 @@
 	<DescriptiveToggles legend="NSFW Thumbnails" options={NSFWHandlingOptions} bind:group={$nsfwImageHandling} />
 	<FeedPostLayoutSettings />
 	<FeedLayoutSettings />
+	<CommentDefaultSortSettings />
 </Stack>
 
 <script lang="ts">
@@ -24,6 +25,7 @@
 	import DescriptiveToggles from '$lib/DescriptiveToggles.svelte';
 	import FeedPostLayoutSettings from './FeedPostLayoutSettings.svelte';
 	import ThemeSettings from './ThemeSettings.svelte';
+	import CommentDefaultSortSettings from './CommentDefaultSortSettings.svelte';
 	import { getAppContext } from '$lib/app-context';
 
 	const { navSidebarOpen, siteMeta } = getAppContext();

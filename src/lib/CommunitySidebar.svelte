@@ -1,8 +1,14 @@
+<style lang="scss">
+	.community-address {
+		align-self: start;
+	}
+</style>
+
 <article>
 	{#if community && communityView}
 		<Sidebar description={community.description ?? ''} context="Community" bind:descriptionOpen={$descriptionOpen}>
 			<a href={communityHref} slot="name">
-				<NameAtInstance place={community} prefix="!" />
+				<NameAtInstance place={community} displayName={community.title} />
 			</a>
 
 			<div slot="actions">
@@ -10,55 +16,62 @@
 					{#if communityView}
 						<CommunityCounts {communityView} />
 					{/if}
+					{#if communityAddress}
+						<div class="community-address mb-4">
+							<CopyableText text={communityAddress} />
+						</div>
+					{/if}
 				</Stack>
 			</div>
 			<div slot="end">
 				<Accordion bind:open={$communityDetailsOpen}>
 					<span slot="title"><Icon icon="users" /> Community Details</span>
-					<ul class="sx-list">
-						{#each communityStats as stat}
-							<li class="sx-list-item two-columns">
-								<span class="column">{stat.label}</span>
-								<span class="column text-align-right">{stat.value.toLocaleString()} <Icon icon={stat.icon} /></span>
+					<div class="f-column gap-2">
+						<ul class="sx-list">
+							{#each communityStats as stat}
+								<li class="sx-list-item two-columns">
+									<span class="column">{stat.label}</span>
+									<span class="column text-align-right">{stat.value.toLocaleString()} <Icon icon={stat.icon} /></span>
+								</li>
+							{/each}
+							<li class="sx-list-item">
+								<ModlogLink
+									communityId={community.id}
+									highlight={userModerates ?? false}
+									highlightColor="green"
+									warn={warnModlog}
+								/>
 							</li>
-						{/each}
-						<li class="sx-list-item">
-							<ModlogLink
-								communityId={community.id}
-								highlight={userModerates ?? false}
-								highlightColor="green"
-								warn={warnModlog}
-							/>
-						</li>
-						<li class="sx-list-item">
-							<ExternalLink href={community.actor_id} cl="inline-link">
-								<Icon icon="arrow-up-right-from-square" />
-								View on {communityInstance}
-							</ExternalLink>
-						</li>
-					</ul>
+							<li class="sx-list-item">
+								<ExternalLink href={community.actor_id} cl="inline-link">
+									<Icon icon="arrow-up-right-from-square" />
+									View on {communityInstance}
+								</ExternalLink>
+							</li>
+						</ul>
 
-					{#if moderators}
-						<Accordion>
-							<span slot="title">Moderators</span>
-							<Stack dir="c" gap={2}>
-								<ul class="sx-list">
-									{#each moderators as mod}
-										<li class="sx-list-item">
-											<ModeratorRow hasSeniority={hasModSeniority(moderators, mod.moderator.id)} {mod} />
-										</li>
-									{/each}
-								</ul>
-								{#if userModerates && !userIsHeadMod}
-									<Stack dir="r" justify="end">
-										<BusyButton small icon="user-minus" busy={$userModResignPending} on:click={resignFromModTeam}
-											>Leave Mod Team</BusyButton
-										>
-									</Stack>
-								{/if}
-							</Stack>
-						</Accordion>
-					{/if}
+						{#if moderators}
+							<Accordion>
+								<span slot="title">Moderators</span>
+								<Stack dir="c" gap={2}>
+									<ul class="sx-list">
+										{#each moderators as mod}
+											<li class="sx-list-item">
+												<ModeratorRow hasSeniority={hasModSeniority(moderators, mod.moderator.id)} {mod} />
+											</li>
+										{/each}
+									</ul>
+									{#if userModerates && !userIsHeadMod}
+										<Stack dir="r" justify="end">
+											<BusyButton small icon="user-minus" busy={$userModResignPending} on:click={resignFromModTeam}
+												>Leave Mod Team</BusyButton
+											>
+										</Stack>
+									{/if}
+								</Stack>
+							</Accordion>
+						{/if}
+					</div>
 				</Accordion>
 			</div>
 		</Sidebar>
@@ -81,6 +94,7 @@
 	import { getModActionPending, getModContext } from './mod/mod-context';
 	import { readable } from 'svelte/store';
 	import { localStorageBackedStore } from './utils';
+	import CopyableText from './CopyableText.svelte';
 
 	export let communityName: string;
 
@@ -132,6 +146,7 @@
 	];
 
 	$: communityInstance = community ? new URL(community.actor_id).host : null;
+	$: communityAddress = community ? '!' + nameAtInstance(community, '', { alwaysShowInstance: true }) : '';
 
 	const { siteMeta, userId } = getAppContext();
 	const { showModlogWarning, showModlogWarningModerated } = getSettingsContext();

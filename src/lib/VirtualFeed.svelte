@@ -22,7 +22,11 @@
 				</div>
 			{/each}
 		</div>
-		<InfiniteFeed {endOfFeed} {feedEndIcon} {feedEndMessage} {loading} {loadMoreFailed} on:more />
+		<InfiniteFeed {endOfFeed} {feedEndIcon} {feedEndMessage} {loading} {loadMoreFailed} on:more>
+			<div slot="feed-end-banner">
+				<slot name="feed-end-banner" />
+			</div>
+		</InfiniteFeed>
 	</div>
 </div>
 
