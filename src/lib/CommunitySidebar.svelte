@@ -8,7 +8,7 @@
 	{#if community && communityView}
 		<Sidebar description={community.description ?? ''} context="Community" bind:descriptionOpen={$descriptionOpen}>
 			<a href={communityHref} slot="name">
-				<NameAtInstance place={community} prefix="!" />
+				<NameAtInstance place={community} displayName={community.title} />
 			</a>
 
 			<div slot="actions">
