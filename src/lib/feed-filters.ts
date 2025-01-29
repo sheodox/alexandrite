@@ -93,7 +93,7 @@ export const SearchTypeOptions = [
 	}
 ];
 
-export const ListingOptions = (loggedIn: boolean) => [
+export const ListingOptions = (loggedIn: boolean, showModView?: boolean) => [
 	{
 		value: 'Subscribed',
 		label: 'Subscribed',
@@ -106,6 +106,11 @@ export const ListingOptions = (loggedIn: boolean) => [
 	{
 		value: 'All',
 		label: 'All'
+	},
+	{
+		value: 'ModeratorView',
+		label: 'Moderator View',
+		disabled: !showModView
 	}
 ];
 

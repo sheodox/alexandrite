@@ -86,6 +86,7 @@
 	import CommentLayout from './CommentLayout.svelte';
 	import type { VirtualFeedAPI } from '$lib/virtual-feed';
 	import type { PostLayoutAPI } from './post-utils';
+	import { getAppContext } from '$lib/app-context';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -98,6 +99,7 @@
 
 	const cvStore = getContentViewStore();
 	const { postPreviewLayout } = getSettingsContext();
+	const { siteMeta } = getAppContext();
 	// which filters should be shown for this type of content
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);
@@ -132,7 +134,7 @@
 	function getListingOptions(feedType: FeedType) {
 		switch (feedType) {
 			case 'top':
-				return ListingOptions($profile.loggedIn);
+				return ListingOptions($profile.loggedIn, ($siteMeta.my_user?.moderates?.length ?? 0) > 0);
 
 			default:
 				return null;
