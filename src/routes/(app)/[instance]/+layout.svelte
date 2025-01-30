@@ -167,6 +167,7 @@
 	});
 
 	const sidebarVisible = localStorageBackedStore('sidebar-visible', AlexandriteSettingsDefaults.sidebarVisible),
+		showRelativeDates = localStorageBackedStore('show-relative-dates', AlexandriteSettingsDefaults.showRelativeDates),
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
 		linkHue = localStorageBackedStore('link-hue', AlexandriteSettingsDefaults.linkHue),
 		upvoteHue = localStorageBackedStore('upvote-hue', AlexandriteSettingsDefaults.upvoteHue),
@@ -270,6 +271,7 @@
 		themeSaturation,
 		nsfwImageHandling,
 		sidebarVisible,
+		showRelativeDates,
 		loadImagesAsWebp,
 		feedLayout,
 		navSidebarDocked,

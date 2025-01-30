@@ -3,6 +3,7 @@
 		<Checkbox bind:checked={$navSidebarDocked} on:change={onSidebarDockChange}>Keep navigation sidebar open</Checkbox>
 		<Checkbox bind:checked={$loadImagesAsWebp}>Load images as <code>.webp</code></Checkbox>
 		<Checkbox bind:checked={$showModlogWarning}>Show modlog content warning</Checkbox>
+		<Checkbox bind:checked={$showRelativeDates}>Show relative dates</Checkbox>
 		{#if isModerator}
 			<Checkbox bind:checked={$showModlogWarningModerated}
 				>Show modlog content warning (for communities you moderate)</Checkbox
@@ -29,8 +30,14 @@
 	import { getAppContext } from '$lib/app-context';
 
 	const { navSidebarOpen, siteMeta } = getAppContext();
-	const { nsfwImageHandling, navSidebarDocked, loadImagesAsWebp, showModlogWarning, showModlogWarningModerated } =
-		getSettingsContext();
+	const {
+		nsfwImageHandling,
+		navSidebarDocked,
+		loadImagesAsWebp,
+		showModlogWarning,
+		showModlogWarningModerated,
+		showRelativeDates
+	} = getSettingsContext();
 
 	$: isModerator = !!$siteMeta.my_user?.moderates.length;
 

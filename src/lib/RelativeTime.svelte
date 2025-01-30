@@ -2,23 +2,23 @@
 	<Tooltip>
 		<span slot="tooltip">
 			{verb}
-			{d.toLocaleString()}
+			{secondaryText}
 		</span>
 		<span class="muted">
-			{formatted}
+			{primaryText}
 		</span>
 	</Tooltip>
 {:else}
 	<Tooltip>
 		<span slot="tooltip">
 			{verb}
-			{formatted}
+			{secondaryText}
 			<br />
 			{d.toLocaleString()}
 		</span>
 		<span class="muted">
 			<Icon {icon} />
-			<span class="sr-only">{formatted}</span>
+			<span class="sr-only">{primaryText}</span>
 		</span>
 	</Tooltip>
 {/if}
@@ -34,8 +34,11 @@
 		differenceInYears
 	} from 'date-fns';
 	import { parseDate } from './utils';
-	export let date: string;
+	import { getSettingsContext } from './settings-context';
 
+	const { showRelativeDates } = getSettingsContext();
+
+	export let date: string;
 	export let variant: 'icon' | 'text' = 'text';
 	export let icon = 'edit';
 	export let verb = 'Posted';
@@ -64,4 +67,7 @@
 			}
 		}
 	}
+
+	$: primaryText = $showRelativeDates ? formatted : d.toLocaleString();
+	$: secondaryText = $showRelativeDates ? d.toLocaleString() : formatted;
 </script>

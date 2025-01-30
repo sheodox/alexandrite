@@ -88,6 +88,7 @@ export interface AlexandriteSettings {
 	//other options
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
+	showRelativeDates: boolean;
 	navSidebarDocked: boolean;
 	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
@@ -113,6 +114,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	themeSaturation: 1,
 	nsfwImageHandling: 'HIDE',
 	sidebarVisible: !probablyMobile,
+	showRelativeDates: true,
 	navSidebarDocked: false,
 	loadImagesAsWebp: true,
 	// todo check if this is a good breakpoint
