@@ -1,21 +1,29 @@
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
-		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4">
+		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4 f-wrap">
 			<form method="GET" use:navigateOnChange>
 				<section>
 					<Stack gap={4} align="center" cl="f-wrap" dir="r">
 						{#if typeOptions}
-							<ToggleGroup options={typeOptions} bind:selected={selectedType} name="type" />
+							<Select bind:value={selectedType} label="Type" name="type">
+								{#each typeOptions as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</Select>
 						{/if}
 						{#if listingOptions}
-							<ToggleGroup options={listingOptions} bind:selected={selectedListing} name="listing" />
+							<Select bind:value={selectedListing} label="Default Listing" name="listing">
+								{#each listingOptions as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</Select>
 						{/if}
 						{#if sortOptions}
-							<select aria-label="Post Sort" bind:value={selectedSort} name="sort" required>
+							<Select label="Post Sort" bind:value={selectedSort} name="sort" required>
 								{#each sortOptions as opt}
 									<option value={opt.value}>{opt.label}</option>
 								{/each}
-							</select>
+							</Select>
 						{/if}
 					</Stack>
 				</section>
@@ -64,7 +72,7 @@
 </div>
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
+	import { Stack, Select } from 'sheodox-ui';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import FeedNav from '$lib/FeedNav.svelte';
 	import {

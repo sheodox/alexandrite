@@ -6,12 +6,16 @@
 		<form method="GET" use:navigateOnChange>
 			<section>
 				<Stack gap={4} align="center" cl="p-4" dir="r">
-					<ToggleGroup options={ListingOptions(loggedIn)} selected={data.query.listing} name="listing" />
-					<select aria-label="Post Sort" value={data.query.sort} name="sort" required>
+					<Select value={data.query.listing} name="listing" label="Listing">
+						{#each ListingOptions(loggedIn) as opt}
+							<option value={opt.value}>{opt.label}</option>
+						{/each}
+					</Select>
+					<Select label="Sort" value={data.query.sort} name="sort" required>
 						{#each PostSortOptions as opt}
 							<option value={opt.value}>{opt.label}</option>
 						{/each}
-					</select>
+					</Select>
 				</Stack>
 			</section>
 		</form>
@@ -41,7 +45,7 @@
 </Layout>
 
 <script lang="ts">
-	import { Stack, Layout } from 'sheodox-ui';
+	import { Stack, Select, Layout } from 'sheodox-ui';
 	import CommunityCard from '$lib/CommunityCard.svelte';
 	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';

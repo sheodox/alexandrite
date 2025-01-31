@@ -27,20 +27,16 @@
 		<LanguageSettings bind:selected={discussionLanguages} languages={data.languages} />
 
 		<Stack dir="r" gap={2}>
-			<Fieldset legend="Default Listing" fieldsetClasses="m-0">
-				<ToggleGroup
-					options={ListingOptions(true)}
-					name="default_listing_type"
-					selected={data.localUser.default_listing_type}
-				/>
-			</Fieldset>
-			<Fieldset legend="Default Sort" fieldsetClasses="m-0">
-				<select aria-label="Default Sort" value={data.localUser.default_sort_type} name="default_sort_type">
-					{#each PostSortOptions as opt}
-						<option value={opt.value}>{opt.label}</option>
-					{/each}
-				</select>
-			</Fieldset>
+			<Select name="default_listing_type" value={data.localUser.default_listing_type} label="Default Listing">
+				{#each ListingOptions(true) as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</Select>
+			<Select label="Default Sort" value={data.localUser.default_sort_type} name="default_sort_type">
+				{#each PostSortOptions as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</Select>
 		</Stack>
 
 		<Checkbox name="show_nsfw" checked={data.localUser.show_nsfw}>Show NSFW content</Checkbox>
@@ -62,8 +58,7 @@
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import { createStatefulForm } from '$lib/utils';
-	import { TextInput, Checkbox, Fieldset, Stack, createAutoExpireToast } from 'sheodox-ui';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
+	import { TextInput, Checkbox, Fieldset, Stack, Select, createAutoExpireToast } from 'sheodox-ui';
 	import type { ListingType, SaveUserSettings, SortType } from 'lemmy-js-client';
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { profile, updateProfileSettings } from '$lib/profiles/profiles';

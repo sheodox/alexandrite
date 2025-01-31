@@ -20,29 +20,34 @@
 
 <form method="GET" use:navigateOnChange>
 	<section>
-		<Stack gap={4} align="center" cl="py-4" dir="r">
-			<TextInput value={data.query.q} name="q">Search</TextInput>
+		<Stack dir="r" gap={4} justify="between" cl="py-4">
+			<Search value={data.query.q} name="q" label="Search Terms" placeholder="Search" />
+			<Stack gap={4} align="center" dir="r">
+				<Select label="Type" name="type" required value={data.query.type}>
+					{#each SearchTypeOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
 
-			<select aria-label="Type" name="type" required value={data.query.type}>
-				{#each SearchTypeOptions as opt}
-					<option value={opt.value}>{opt.label}</option>
-				{/each}
-			</select>
+				<Select name="listing" value={data.query.listing} label="Listing">
+					{#each ListingOptions(loggedIn) as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
 
-			<ToggleGroup options={ListingOptions(loggedIn)} name="listing" selected={data.query.listing} />
+				<Select label="Sort" name="sort" required value={data.query.sort}>
+					{#each SearchSortOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
 
-			<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
-				{#each SearchSortOptions as opt}
-					<option value={opt.value}>{opt.label}</option>
-				{/each}
-			</select>
-
-			{#if data.query.community}
-				<input type="hidden" name="community" value={data.query.community} />
-			{/if}
-			{#if data.query.creator}
-				<input type="hidden" name="creator" value={data.query.creator} />
-			{/if}
+				{#if data.query.community}
+					<input type="hidden" name="community" value={data.query.community} />
+				{/if}
+				{#if data.query.creator}
+					<input type="hidden" name="creator" value={data.query.creator} />
+				{/if}
+			</Stack>
 		</Stack>
 	</section>
 </form>
@@ -81,8 +86,7 @@
 {/if}
 
 <script lang="ts">
-	import { Alert, Stack, TextInput } from 'sheodox-ui';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
+	import { Alert, Stack, Select, Search } from 'sheodox-ui';
 	import PersonCard from '$lib/PersonCard.svelte';
 	import ContentViewProvider from '$lib/ContentViewProvider.svelte';
 	import CommunityHeader from '$lib/feeds/posts/CommunityHeader.svelte';

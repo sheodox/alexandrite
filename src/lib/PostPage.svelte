@@ -105,15 +105,14 @@
 			<section class="comment-sort-bar">
 				<Stack gap={4} dir="r" justify="between" align="center">
 					<Stack gap={4} align="center" cl="p-2" dir="r">
-						<ToggleGroup
-							options={CommentSortOptions}
-							bind:selected={selectedSort}
-							name="sort"
-							on:change={reloadComments}
-						/>
+						<Select bind:value={selectedSort} name="sort" on:change={reloadComments} label="Sort">
+							{#each CommentSortOptions as opt}
+								<option value={opt.value}>{opt.label}</option>
+							{/each}
+						</Select>
 						<Search bind:value={searchText} placeholder="Search Comments" />
 					</Stack>
-					<button class="tertiary" on:click={reloadComments}><Icon icon="refresh" /> Refresh Comments</button>
+					<IconButton cl="tertiary" on:click={reloadComments} icon="refresh" text="Refresh Comments" />
 				</Stack>
 			</section>
 
@@ -181,16 +180,16 @@
 </div>
 
 <script lang="ts">
-	import { Search, Stack, Icon, Breadcrumbs, Accordion, focus } from 'sheodox-ui';
+	import { Select, Search, Stack, Icon, Breadcrumbs, Accordion, focus } from 'sheodox-ui';
 	import PostLayout from './feeds/posts/PostLayout.svelte';
 	import CommentTree from '$lib/comments/CommentTree.svelte';
 	import CommunitySidebar from './CommunitySidebar.svelte';
 	import type { CommentSortType, CommentView, PostView } from 'lemmy-js-client';
 	import PostNavigationBar from './PostNavigationBar.svelte';
 	import { CommentSortOptions } from './feed-filters';
-	import ToggleGroup from './ToggleGroup.svelte';
 	import CommentEditor from './comments/CommentEditor.svelte';
 	import { getCommentContextId, nameAtInstance } from './nav-utils';
+	import IconButton from './IconButton.svelte';
 	import {
 		createStatefulForm,
 		type ActionFn,
