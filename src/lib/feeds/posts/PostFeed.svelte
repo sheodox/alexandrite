@@ -12,7 +12,7 @@
 							</Select>
 						{/if}
 						{#if listingOptions}
-							<Select bind:value={selectedListing} label="Default Listing" name="listing">
+							<Select bind:value={selectedListing} label="Listing" name="listing">
 								{#each listingOptions as opt}
 									<option value={opt.value}>{opt.label}</option>
 								{/each}
