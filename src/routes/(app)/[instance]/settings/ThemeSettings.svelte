@@ -19,6 +19,7 @@
 					{/each}
 				</select>
 			</label>
+			<Checkbox bind:checked={$pureTheme}>Pure {$colorScheme === null ? 'light/dark' : $colorScheme}</Checkbox>
 			<ThemeSlider label="Theme Hue" min={0} max={360} step={1} bind:value={$themeHue} />
 			<ThemeSlider label="Theme Saturation" min={0} max={5} step={0.1} bind:value={$themeSaturation} />
 			<ThemeSlider label="Link Hue" min={0} max={360} step={1} bind:value={$linkHue} />
@@ -49,11 +50,11 @@
 
 <script lang="ts">
 	import { getSettingsContext, AlexandriteSettingsDefaults } from '$lib/settings-context';
-	import { Stack, Fieldset, Icon } from 'sheodox-ui';
+	import { Checkbox, Stack, Fieldset, Icon } from 'sheodox-ui';
 	import VoteButtons from '$lib/VoteButtons.svelte';
 	import ThemeSlider from './ThemeSlider.svelte';
 
-	const { themeHue, themeSaturation, linkHue, upvoteHue, downvoteHue, colorScheme } = getSettingsContext();
+	const { themeHue, themeSaturation, linkHue, upvoteHue, downvoteHue, colorScheme, pureTheme } = getSettingsContext();
 
 	const colorSchemes = [
 		{
@@ -78,6 +79,7 @@
 			$linkHue = AlexandriteSettingsDefaults.linkHue;
 			$upvoteHue = AlexandriteSettingsDefaults.upvoteHue;
 			$downvoteHue = AlexandriteSettingsDefaults.downvoteHue;
+			$pureTheme = AlexandriteSettingsDefaults.pureTheme;
 		}
 	}
 </script>

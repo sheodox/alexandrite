@@ -75,7 +75,7 @@
 	</div>
 </Header>
 
-<div class="f-row f-1 root-layout-content">
+<div class="f-row f-1 root-layout-content" class:pure-theme={$pureTheme}>
 	<Toasts />
 	<Modals />
 	<Sidebar bind:menuOpen={$navSidebarOpen} docked={$navSidebarDocked}>
@@ -171,6 +171,7 @@
 		themeHue = localStorageBackedStore('theme-hue', AlexandriteSettingsDefaults.themeHue),
 		linkHue = localStorageBackedStore('link-hue', AlexandriteSettingsDefaults.linkHue),
 		upvoteHue = localStorageBackedStore('upvote-hue', AlexandriteSettingsDefaults.upvoteHue),
+		pureTheme = localStorageBackedStore('pure-theme', AlexandriteSettingsDefaults.pureTheme),
 		downvoteHue = localStorageBackedStore('downvote-hue', AlexandriteSettingsDefaults.downvoteHue),
 		themeSaturation = localStorageBackedStore('theme-saturation', AlexandriteSettingsDefaults.themeSaturation),
 		nsfwImageHandling = localStorageBackedStore('nsfw-handling', AlexandriteSettingsDefaults.nsfwImageHandling),
@@ -272,6 +273,7 @@
 		nsfwImageHandling,
 		sidebarVisible,
 		showRelativeDates,
+		pureTheme,
 		loadImagesAsWebp,
 		feedLayout,
 		navSidebarDocked,
@@ -332,6 +334,10 @@
 				}
 
 				style.textContent = `:root { ${rules.join('\n')} }`;
+			}),
+			pureTheme.subscribe((pure) => {
+				// add or remove .pure-theme from the html element so styles.scss overrides apply anywhere on the page
+				document.documentElement.classList.toggle('pure-theme', pure);
 			})
 		);
 

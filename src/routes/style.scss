@@ -44,3 +44,39 @@ body {
 .d-none {
 	display: none;
 }
+
+$pureThemeSelectors: '.pure-theme, body, header, .sx-accordion, .sx-sidebar, .post-preview-card, .card, fieldset, .sidebar, .page-column-sidebar, .post-container, .markdown-editor, .markdown-editor textarea';
+$pureThemeBordered: '.sx-accordion, .post-preview-card, .card, fieldset, .markdown-editor, .markdown-editor textarea';
+
+html.sx-theme-dark.pure-theme {
+	fieldset legend span {
+		top: 0 !important;
+	}
+
+	#{$pureThemeSelectors} {
+		background: black !important;
+	}
+
+	.sx-accordion {
+		border: 1px solid var(--sx-gray-transparent) !important;
+	}
+}
+
+html.sx-theme-light.pure-theme {
+	#{$pureThemeSelectors} {
+		background: white !important;
+	}
+}
+
+html.sx-theme-dark,
+html.sx-theme-light {
+	&.pure-theme {
+		#{$pureThemeBordered} {
+			border: 2px solid var(--sx-gray-transparent) !important;
+		}
+		.markdown-editor textarea {
+			border-left: none !important;
+			border-right: none !important;
+		}
+	}
+}
