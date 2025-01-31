@@ -11,13 +11,21 @@
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
 			<Stack gap={4} align="center" dir="r">
-				<ToggleGroup options={InboxTypes} name="type" bind:selected={queryType} />
-				<ToggleGroup options={InboxListings} name="listing" selected={data.query.listing} />
-				<select aria-label="Post Sort" name="sort" required value={data.query.sort}>
+				<Select name="type" bind:value={queryType} label="Type">
+					{#each InboxTypes as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
+				<Select name="listing" value={data.query.listing} label="Listing">
+					{#each InboxListings as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
+				<Select label="Sort" name="sort" required value={data.query.sort}>
 					{#each InboxSortOptions as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
-				</select>
+				</Select>
 			</Stack>
 			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary" type="button"
 				>Refresh</BusyButton
@@ -68,8 +76,7 @@
 </Stack>
 
 <script lang="ts">
-	import { Stack, Icon } from 'sheodox-ui';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
+	import { Stack, Select, Icon } from 'sheodox-ui';
 	import { InboxListings, InboxSortOptions, InboxTypes } from '$lib/feed-filters';
 	import Comment from '$lib/comments/Comment.svelte';
 	import PrivateMessage from '$lib/PrivateMessage.svelte';

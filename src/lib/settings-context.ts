@@ -85,9 +85,11 @@ export interface AlexandriteSettings {
 	upvoteHue: number;
 	downvoteHue: number;
 	themeSaturation: number;
+	pureTheme: boolean;
 	//other options
 	nsfwImageHandling: NSFWImageHandling;
 	sidebarVisible: boolean;
+	showRelativeDates: boolean;
 	navSidebarDocked: boolean;
 	loadImagesAsWebp: boolean;
 	feedLayout: FeedLayout;
@@ -113,6 +115,8 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	themeSaturation: 1,
 	nsfwImageHandling: 'HIDE',
 	sidebarVisible: !probablyMobile,
+	showRelativeDates: true,
+	pureTheme: false,
 	navSidebarDocked: false,
 	loadImagesAsWebp: true,
 	// todo check if this is a good breakpoint

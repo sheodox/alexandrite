@@ -39,7 +39,12 @@
 		left: 0;
 		bottom: 0;
 		pointer-events: none;
-		z-index: -1;
+		z-index: 1;
+	}
+
+	.feed-header :global(.feed-header-content) {
+		z-index: 2;
+		position: relative;
 	}
 
 	@media (max-width: 600px) {
@@ -55,7 +60,7 @@
 		class="banner"
 		style={`background: ${banner ? `center / cover no-repeat url(${banner})` : 'var(--sx-gray-800)'}`}
 	/>
-	<Stack gap={2} dir="c">
+	<Stack gap={2} dir="c" cl="feed-header-content">
 		<Stack dir="r" gap={narrow ? 3 : 6} align="center">
 			{#if icon}
 				<div class="feed-avatar">

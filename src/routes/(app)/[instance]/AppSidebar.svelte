@@ -15,7 +15,7 @@
 	}
 </style>
 
-<div>
+<div class:pure-theme={$pureTheme}>
 	<Stack cl="mx-2 sx-badge-gray sx-font-size-2" dir="r" align="center" gap={1}>
 		<Logo size="tiny" />
 		<span class="fw-normal">Powered by</span>
@@ -90,12 +90,15 @@
 	import { localStorageBackedStore } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 	import Logo from '$lib/Logo.svelte';
+	import { getSettingsContext } from '$lib/settings-context';
 
 	export let subscriptions: CommunityFollowerView[] = [];
 
 	let communitySearch = '';
 
 	const { siteMeta } = getAppContext();
+
+	const { pureTheme } = getSettingsContext();
 
 	const favoriteCommunitiesIds = localStorageBackedStore<number[]>('favorite-communities', []);
 

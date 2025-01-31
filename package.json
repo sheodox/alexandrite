@@ -1,6 +1,6 @@
 {
 	"name": "Alexandrite",
-	"version": "0.8.17",
+	"version": "0.8.18",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --host 0.0.0.0",
@@ -29,7 +29,7 @@
 		"prettier": "^3.0.3",
 		"prettier-plugin-svelte": "^3.0.3",
 		"sass": "^1.69.4",
-		"sheodox-ui": "^0.20.6",
+		"sheodox-ui": "^0.20.9",
 		"svelte": "^4.2.2",
 		"svelte-check": "^3.5.2",
 		"tslib": "^2.6.2",

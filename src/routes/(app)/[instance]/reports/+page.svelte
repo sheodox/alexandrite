@@ -2,8 +2,16 @@
 	<section>
 		<Stack gap={4} align="center" cl="py-4" dir="r" justify="between">
 			<Stack gap={4} align="center" cl="f-wrap" dir="r">
-				<ToggleGroup options={ReportFeedStateOptions} bind:selected={selectedState} name="state" />
-				<ToggleGroup options={ReportFeedTypeOptions} bind:selected={selectedType} name="type" />
+				<Select bind:value={selectedState} name="state" label="Listing">
+					{#each ReportFeedStateOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
+				<Select bind:value={selectedType} name="type" label="Type">
+					{#each ReportFeedTypeOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</Select>
 			</Stack>
 			<BusyButton on:click={$refreshState.submit} busy={$refreshState.busy} cl="tertiary">Refresh</BusyButton>
 		</Stack>
@@ -43,8 +51,7 @@
 </Stack>
 
 <script lang="ts">
-	import { Stack } from 'sheodox-ui';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
+	import { Stack, Select } from 'sheodox-ui';
 	import { ReportFeedStateOptions, ReportFeedTypeOptions } from '$lib/feed-filters.js';
 	import { getAppContext } from '$lib/app-context.js';
 	import {
