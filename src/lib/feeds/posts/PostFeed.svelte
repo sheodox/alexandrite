@@ -73,7 +73,6 @@
 
 <script lang="ts">
 	import { Stack, Select } from 'sheodox-ui';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import FeedNav from '$lib/FeedNav.svelte';
 	import {
 		NormalFeedTypeOptions,

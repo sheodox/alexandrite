@@ -47,7 +47,6 @@
 <script lang="ts">
 	import { Stack, Select, Layout } from 'sheodox-ui';
 	import CommunityCard from '$lib/CommunityCard.svelte';
-	import ToggleGroup from '$lib/ToggleGroup.svelte';
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
 	import VirtualFeed from '$lib/VirtualFeed.svelte';
 	import type { CommunityView } from 'lemmy-js-client';

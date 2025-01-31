@@ -58,7 +58,7 @@
 	import { ListingOptions, PostSortOptions } from '$lib/feed-filters';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import { createStatefulForm } from '$lib/utils';
-	import { TextInput, Checkbox, Fieldset, Stack, Select, createAutoExpireToast } from 'sheodox-ui';
+	import { TextInput, Checkbox, Stack, Select, createAutoExpireToast } from 'sheodox-ui';
 	import type { ListingType, SaveUserSettings, SortType } from 'lemmy-js-client';
 	import MarkdownEditor from '$lib/MarkdownEditor.svelte';
 	import { profile, updateProfileSettings } from '$lib/profiles/profiles';
