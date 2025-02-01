@@ -23,10 +23,14 @@
 	}
 </style>
 
-<a
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<svelte:element
+	this={variant}
 	href={href ? href : `/${$profile.instance}/c/${communityName}`}
+	class={cl}
 	class:inline-link={inlineLink}
 	data-sveltekit-preload-data="off"
+	on:click={() => dispatch('select', community)}
 >
 	{#if inlineLink}
 		<Tooltip>
@@ -70,9 +74,12 @@
 			<span>
 				<NameAtInstance place={community} displayName={community.title} prefix="" />
 			</span>
+			{#if showBadges}
+				<CommunityBadges {community} />
+			{/if}
 		</Stack>
 	{/if}
-</a>
+</svelte:element>
 
 <script lang="ts">
 	import { Stack, Tooltip } from 'sheodox-ui';
@@ -85,7 +92,10 @@
 	import EllipsisText from './EllipsisText.svelte';
 	import { profile } from './profiles/profiles';
 	import { getSettingsContext } from './settings-context';
+	import { createEventDispatcher } from 'svelte';
 
+	export let cl = '';
+	export let variant: 'a' | 'button' | 'span' = 'a';
 	export let community: Community;
 	export let inlineLink = true;
 	// if the link should actually go somewhere else, but still have community "branding", use that link instead.
@@ -93,6 +103,10 @@
 	// link should actually go to the post in that community
 	export let href: string | null = null;
 	export let showBadges = true;
+
+	const dispatch = createEventDispatcher<{
+		select: Community;
+	}>();
 
 	const { nsfwImageHandling } = getSettingsContext();
 

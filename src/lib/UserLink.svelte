@@ -18,11 +18,14 @@
 		</Stack>
 		<span> {creatorName}</span>
 	</div>
-	<a
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<svelte:element
+		this={variant}
 		href="/{$profile.instance}/u/{creatorName}"
 		class="inline-link f-row gap-1 align-items-center"
 		data-sveltekit-preload-data="off"
 		class:op={isOP}
+		on:click={() => dispatch('select', user)}
 	>
 		{#if (user.avatar && showAvatar) || showAvatarFallback}
 			<div class="user-avatar inline">
@@ -32,7 +35,7 @@
 		<span>
 			<NameAtInstance place={user} displayName={user.display_name} prefix="" />
 		</span>
-	</a>
+	</svelte:element>
 </Tooltip>
 
 <script lang="ts">
@@ -42,10 +45,16 @@
 	import type { Person } from 'lemmy-js-client';
 	import { nameAtInstance } from './nav-utils';
 	import { profile } from './profiles/profiles';
+	import { createEventDispatcher } from 'svelte';
 
+	export let variant: 'a' | 'button' | 'span' = 'a';
 	export let user: Person;
 	export let isOP = false;
 	export let showAvatarFallback = false;
+
+	const dispatch = createEventDispatcher<{
+		select: Person;
+	}>();
 
 	$: creatorName = nameAtInstance(user);
 

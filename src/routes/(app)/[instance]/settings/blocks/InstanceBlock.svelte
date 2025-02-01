@@ -1,17 +1,16 @@
 <div class="f-1">
-	<CommunityLink {community} inlineLink={false} />
+	<div class="p-2">{instance.domain}</div>
 </div>
 <BusyButton on:click={$unblockState.submit} busy={$unblockState.busy} cl="tertiary">Unblock</BusyButton>
 
 <script lang="ts">
-	import type { Community } from 'lemmy-js-client';
-	import CommunityLink from '$lib/CommunityLink.svelte';
+	import type { Instance } from 'lemmy-js-client';
 	import BusyButton from '$lib/BusyButton.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { createStatefulAction } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 
-	export let community: Community;
+	export let instance: Instance;
 
 	const dispatch = createEventDispatcher<{ unblock: number }>();
 	$: client = $profile.client;
@@ -22,10 +21,10 @@
 			return;
 		}
 
-		await client.blockCommunity({
-			community_id: community.id,
+		await client.blockInstance({
+			instance_id: instance.id,
 			block: false
 		});
-		dispatch('unblock', community.id);
+		dispatch('unblock', instance.id);
 	});
 </script>

@@ -1,5 +1,7 @@
-<UserLink user={person} />
-<BusyButton on:click={$unblockState.submit} busy={$unblockState.busy}>Unblock</BusyButton>
+<div class="f-1">
+	<UserLink user={person} showAvatarFallback variant="a" />
+</div>
+<BusyButton on:click={$unblockState.submit} busy={$unblockState.busy} cl="tertiary">Unblock</BusyButton>
 
 <script lang="ts">
 	import type { Person } from 'lemmy-js-client';
