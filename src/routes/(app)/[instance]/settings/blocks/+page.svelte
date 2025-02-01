@@ -76,7 +76,7 @@
 	import InstanceBlock from './InstanceBlock.svelte';
 	import CommunitySelector from '$lib/CommunitySelector.svelte';
 	import UserSelector from '$lib/UserSelector.svelte';
-	import { Community, Instance, Person } from 'lemmy-js-client';
+	import type { Community, Instance, Person } from 'lemmy-js-client';
 	import { createStatefulAction } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 	import InstanceSelector from '$lib/InstanceSelector.svelte';
