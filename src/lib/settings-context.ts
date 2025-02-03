@@ -97,6 +97,7 @@ export interface AlexandriteSettings {
 	postPreviewLayout: PostPreviewLayout;
 	postListLayoutContentPreview: boolean;
 	postCardLayoutLeftAlignedButtons: boolean;
+	postCardLayoutFrostedGlassBackground: boolean;
 	// whether to show a confirm page before showing the actual modlog
 	showModlogWarning: boolean;
 	// same as above, but for communities the user is responsible for
@@ -124,6 +125,7 @@ export const AlexandriteSettingsDefaults: AlexandriteSettings = {
 	postPreviewLayout: probablyMobile ? 'CARD' : 'LIST',
 	postListLayoutContentPreview: false,
 	postCardLayoutLeftAlignedButtons: true,
+	postCardLayoutFrostedGlassBackground: true,
 	commentDefaultSort: 'Hot',
 	showModlogWarning: true,
 	showModlogWarningModerated: true

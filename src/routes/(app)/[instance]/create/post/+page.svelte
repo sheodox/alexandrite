@@ -15,7 +15,11 @@
 		/>
 	</form>
 {:else}
-	<CommunitySelector />
+	<h2 class="m-0">Select a Community</h2>
+	<CommunitySelector
+		href={(com) =>
+			`/${$profile.instance}/create/post?community=${encodeURIComponent(nameAtInstance(com))}${extraQuery}`}
+	/>
 {/if}
 
 <script lang="ts">
@@ -26,12 +30,16 @@
 	import { goto } from '$app/navigation';
 	import { profile, instance } from '$lib/profiles/profiles';
 	import CommunitySelector from '$lib/CommunitySelector.svelte';
+	import { nameAtInstance } from '$lib/nav-utils';
 
 	$: client = $profile.client;
 	$: jwt = $profile.jwt;
 
 	export let data;
 	let errMsg = '';
+
+	const crossPostId = new URL(location.href).searchParams.get('crosspost');
+	const extraQuery = crossPostId && /^\d+$/.test(crossPostId) ? `&crosspost=${crossPostId}` : '';
 
 	let formElement: HTMLFormElement;
 

@@ -6,6 +6,7 @@
 	{:else if $postPreviewLayout === 'CARD'}
 		<Fieldset legend="Card Settings">
 			<Checkbox bind:checked={$postCardLayoutLeftAlignedButtons}>Left-aligned vote buttons</Checkbox>
+			<Checkbox bind:checked={$postCardLayoutFrostedGlassBackground}>Frosted glass background</Checkbox>
 		</Fieldset>
 	{/if}
 </DescriptiveToggles>
@@ -15,5 +16,10 @@
 	import DescriptiveToggles from '$lib/DescriptiveToggles.svelte';
 	import { PostPreviewLayoutOptions, getSettingsContext } from '$lib/settings-context';
 
-	const { postPreviewLayout, postListLayoutContentPreview, postCardLayoutLeftAlignedButtons } = getSettingsContext();
+	const {
+		postPreviewLayout,
+		postListLayoutContentPreview,
+		postCardLayoutLeftAlignedButtons,
+		postCardLayoutFrostedGlassBackground
+	} = getSettingsContext();
 </script>

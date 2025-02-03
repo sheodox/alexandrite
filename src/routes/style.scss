@@ -80,3 +80,11 @@ html.sx-theme-light {
 		}
 	}
 }
+
+.sx-tooltip .address {
+	background: var(--sx-gray-500);
+	color: var(--sx-gray-50);
+	font-family: monospace, sans-serif;
+	border-radius: 5px;
+	padding: var(--sx-spacing-1);
+}

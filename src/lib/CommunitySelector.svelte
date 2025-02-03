@@ -6,23 +6,35 @@
 </style>
 
 <div class="card">
-	<h2 class="card-title">Select a Community</h2>
 	<Stack cl="card-body" dir="c" gap={2}>
-		<Search bind:value={searchText} />
-		<Stack cl="communities-list" dir="c" gap={2}>
-			{#if searchText && $searchState.busy}
-				<div>
-					<Spinner />
-				</div>
-			{/if}
-			{#each postableCommunities as com (com.id)}
-				<CommunityLink
-					href={`/${$profile.instance}/create/post?community=${encodeURIComponent(nameAtInstance(com))}${extraQuery}`}
-					community={com}
-					inlineLink={false}
-				/>
-			{/each}
-		</Stack>
+		<Search bind:value={searchText} {placeholder} />
+		{#if $searchState.busy}
+			<div class="sx-font-size-8 f-column align-items-center">
+				<Spinner />
+			</div>
+		{:else if postableCommunities.length}
+			<Stack cl="communities-list sx-list" dir="c">
+				{#each postableCommunities as com (com.id)}
+					<div class="sx-list-item action">
+						<CommunityLink
+							href={href(com)}
+							community={com}
+							inlineLink={false}
+							showBadges
+							{variant}
+							cl={variant === 'button' ? 'p-1' : ''}
+							on:select={(e) => {
+								dispatch('select', e.detail);
+								if (clearOnSelect) {
+									searchText = '';
+									searchResults = [];
+								}
+							}}
+						/>
+					</div>
+				{/each}
+			</Stack>
+		{/if}
 	</Stack>
 </div>
 
@@ -31,10 +43,23 @@
 	import { getAppContext } from './app-context';
 	import CommunityLink from './CommunityLink.svelte';
 	import { profile } from './profiles/profiles';
-	import { nameAtInstance } from './nav-utils';
 	import { Throttler, createStatefulAction } from './utils';
 	import type { Community } from 'lemmy-js-client';
 	import Spinner from './Spinner.svelte';
+	import { createEventDispatcher } from 'svelte';
+
+	// whether the user's followed communities should be shown when there's no search text
+	export let showFollowed = true;
+	// whether a community should be filtered out if the user can't post there
+	export let gatePostable = true;
+	export let placeholder = '';
+	export let href: (community: Community) => string = () => '';
+	export let variant: 'a' | 'button' = 'a';
+	export let clearOnSelect = false;
+
+	const dispatch = createEventDispatcher<{
+		select: Community;
+	}>();
 
 	const { siteMeta } = getAppContext();
 
@@ -42,34 +67,37 @@
 
 	let searchText = '';
 
-	const crossPostId = new URL(location.href).searchParams.get('crosspost');
-	const extraQuery = crossPostId && /^\d+$/.test(crossPostId) ? `&crosspost=${crossPostId}` : '';
-
 	let searchResults: Community[] = [];
 
-	$: communities = searchText
-		? searchResults
-		: $siteMeta.my_user?.follows
-				.map((f) => f.community)
-				.sort((a, b) => {
-					return (a.title || a.name).toLowerCase().localeCompare((b.title || b.name).toLowerCase());
-				}) || [];
+	$: communities =
+		// when we don't want to show followed, we're ok with zero matches to an empty query
+		searchText || !showFollowed
+			? searchResults
+			: $siteMeta.my_user?.follows
+					.map((f) => f.community)
+					.sort((a, b) => {
+						return (a.title || a.name).toLowerCase().localeCompare((b.title || b.name).toLowerCase());
+					}) || [];
 
-	$: postableCommunities = communities.filter((com) => {
-		// only let the user select communities that they can actually post in
-		return (
-			!com.posting_restricted_to_mods ||
-			$siteMeta.my_user?.moderates?.some((mod) => {
-				return mod.community.id === com.id;
-			})
-		);
-	});
+	$: postableCommunities =
+		!showFollowed && !searchText
+			? []
+			: communities.filter((com) => {
+					// only let the user select communities that they can actually post in
+					return (
+						!gatePostable ||
+						!com.posting_restricted_to_mods ||
+						$siteMeta.my_user?.moderates?.some((mod) => {
+							return mod.community.id === com.id;
+						})
+					);
+			  });
 
-	$: searchText ? onSearchChange() : null;
+	$: onSearchChange(searchText);
 
 	const searchThrottled = new Throttler(() => $searchState.submit(), 1000, true);
 
-	function onSearchChange() {
+	function onSearchChange(searchText: string) {
 		if (searchText) {
 			searchThrottled.run();
 		} else {
@@ -78,10 +106,12 @@
 	}
 
 	const searchState = createStatefulAction<void>(async function searchCommunities() {
+		searchResults = [];
 		if (!searchText) {
-			searchResults = [];
+			return;
 		}
 
+		// eliminate race conditions by caching what was searched so we can ignore search results if the query has changed by the time we get the results
 		let searched = searchText;
 
 		if (/.@./.test(searchText)) {
@@ -102,7 +132,7 @@
 					communities = [res.community_view.community];
 				}
 			} catch (e) {
-				console.log('caught', e);
+				console.log('community direct search caught', e);
 			}
 		} else {
 			const comms = await client.search({
