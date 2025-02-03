@@ -297,11 +297,11 @@ export function isInteractiveElementBetween(container: HTMLElement, eventTarget:
 	return within('button') || within('a');
 }
 
-const relativeTimeFormat = new Intl.RelativeTimeFormat(navigator.language, {
-	style: 'narrow'
-});
 export function toRelativeTime(isoDate: string) {
-	const d = parseDate(isoDate),
+	const relativeTimeFormat = new Intl.RelativeTimeFormat(navigator.language, {
+			style: 'narrow'
+		}),
+		d = parseDate(isoDate),
 		now = new Date(),
 		diff = {
 			years: differenceInYears(d, now),
