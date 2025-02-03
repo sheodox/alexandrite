@@ -160,7 +160,6 @@
 	import PostCommentCount from './PostCommentCount.svelte';
 	import { getCommunityContext } from '$lib/community-context/community-context';
 	import { goto } from '$app/navigation';
-	import NameAtInstance from '$lib/NameAtInstance.svelte';
 
 	export let postView: PostView;
 	export let readOnly = false;
