@@ -21,6 +21,10 @@
 			width: 3rem;
 		}
 	}
+	.community-tooltip {
+		// crosspost names can be long, don't let it get too big, though this is still huge unless on a phone
+		max-width: 80vw;
+	}
 </style>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -35,19 +39,22 @@
 	{#if inlineLink}
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
-				<Stack gap={2} dir="r" align="center">
-					{#if community.icon && showIcon}
-						<div class="community-avatar large">
-							<Image src={community.icon} mode="thumbnail" />
-						</div>
-					{/if}
-					<h1 class="sx-font-size-4 m-0">
-						{community.title || community.name}
-					</h1>
+				<Stack gap={2} dir="c">
+					<Stack gap={2} dir="r" align="center">
+						{#if community.icon && showIcon}
+							<div class="community-avatar large">
+								<Image src={community.icon} mode="thumbnail" />
+							</div>
+						{/if}
+						<h1 class="sx-font-size-4 m-0">
+							{community.title || community.name}
+						</h1>
+					</Stack>
+					<div class="address">
+						<NameAtInstance place={community} prefix="!" />
+					</div>
+					<slot name="tooltip" />
 				</Stack>
-				{#if community.title}
-					<NameAtInstance place={community} prefix="!" />
-				{/if}
 			</div>
 			<span class="f-row gap-1 align-items-center">
 				{#if community.icon && showIcon}

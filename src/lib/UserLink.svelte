@@ -16,7 +16,10 @@
 				{user.display_name ?? user.name}
 			</h1>
 		</Stack>
-		<span> {creatorName}</span>
+
+		<div class="address">
+			<NameAtInstance place={user} prefix="@" />
+		</div>
 	</div>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<svelte:element

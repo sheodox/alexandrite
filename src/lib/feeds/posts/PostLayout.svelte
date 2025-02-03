@@ -106,7 +106,12 @@
 	<Stack dir="r" gap={1} cl="f-wrap ml-2 mb-4">
 		Cross-posted to:
 		{#each crossPosts as pv}
-			<CommunityLink href="/{$profile.instance}/post/{pv.post.id}" community={pv.community} />
+			<CommunityLink href="/{$profile.instance}/post/{pv.post.id}" community={pv.community}>
+				<svelte:fragment slot="tooltip">
+					<p class="m-0">{pv.post.name}</p>
+					<p class="m-0"><Icon icon="user" /> {nameAtInstance(pv.creator, pv.creator.display_name)}</p>
+				</svelte:fragment>
+			</CommunityLink>
 		{/each}
 	</Stack>
 {/if}
@@ -155,6 +160,7 @@
 	import PostCommentCount from './PostCommentCount.svelte';
 	import { getCommunityContext } from '$lib/community-context/community-context';
 	import { goto } from '$app/navigation';
+	import NameAtInstance from '$lib/NameAtInstance.svelte';
 
 	export let postView: PostView;
 	export let readOnly = false;
