@@ -39,7 +39,7 @@
 	{#if inlineLink}
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
-				<Stack gap={2} dir="c">
+				<Stack gap={1} dir="c">
 					<Stack gap={2} dir="r" align="center">
 						{#if community.icon && showIcon}
 							<div class="community-avatar large">
@@ -53,6 +53,9 @@
 					<div class="address">
 						<NameAtInstance place={community} prefix="!" />
 					</div>
+					<p class="m-0">
+						Created <OriginDate date={community.published} /> ({toRelativeTime(community.published)})
+					</p>
 					<slot name="tooltip" />
 				</Stack>
 			</div>
@@ -93,6 +96,7 @@
 	import Avatar from './Avatar.svelte';
 	import Image from './Image.svelte';
 	import { nameAtInstance } from './nav-utils';
+	import { toRelativeTime } from './utils';
 	import CommunityBadges from './feeds/posts/CommunityBadges.svelte';
 	import type { Community } from 'lemmy-js-client';
 	import NameAtInstance from './NameAtInstance.svelte';
@@ -100,6 +104,7 @@
 	import { profile } from './profiles/profiles';
 	import { getSettingsContext } from './settings-context';
 	import { createEventDispatcher } from 'svelte';
+	import OriginDate from './OriginDate.svelte';
 
 	export let cl = '';
 	export let variant: 'a' | 'button' | 'span' = 'a';

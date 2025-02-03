@@ -1,7 +1,15 @@
 import { goto } from '$app/navigation';
 import { readable, writable, type Updater, type Writable } from 'svelte/store';
 import { getCtrlBasedHotkeys } from './app-context';
-import { parseISO } from 'date-fns';
+import {
+	differenceInDays,
+	differenceInHours,
+	differenceInMinutes,
+	differenceInMonths,
+	differenceInSeconds,
+	differenceInYears,
+	parseISO
+} from 'date-fns';
 
 export function copyToClipboard(text: string) {
 	navigator.clipboard.writeText(text);
@@ -287,6 +295,30 @@ export function isInteractiveElementBetween(container: HTMLElement, eventTarget:
 	// if they clicked something inside of an interactive element, let that
 	// element handle it instead
 	return within('button') || within('a');
+}
+
+const relativeTimeFormat = new Intl.RelativeTimeFormat(navigator.language, {
+	style: 'narrow'
+});
+export function toRelativeTime(isoDate: string) {
+	const d = parseDate(isoDate),
+		now = new Date(),
+		diff = {
+			years: differenceInYears(d, now),
+			months: differenceInMonths(d, now),
+			days: differenceInDays(d, now),
+			hours: differenceInHours(d, now),
+			minutes: differenceInMinutes(d, now),
+			seconds: differenceInSeconds(d, now)
+		};
+
+	for (const unit of ['years', 'months', 'days', 'hours', 'minutes', 'seconds'] as const) {
+		if (Math.abs(diff[unit]) > 0) {
+			return relativeTimeFormat.format(diff[unit], unit);
+		}
+	}
+
+	return '';
 }
 
 // Turns the passed element into a "button", so any clicks/enter on the element that aren't otherwise
