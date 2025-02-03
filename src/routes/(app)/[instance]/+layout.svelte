@@ -186,6 +186,10 @@
 			'post-card-layout-left-aligned-buttons',
 			AlexandriteSettingsDefaults.postCardLayoutLeftAlignedButtons
 		),
+		postCardLayoutFrostedGlassBackground = localStorageBackedStore(
+			'post-card-layout-frosted-glass-background',
+			AlexandriteSettingsDefaults.postCardLayoutFrostedGlassBackground
+		),
 		commentDefaultSort = localStorageBackedStore(
 			'comment-default-sort',
 			AlexandriteSettingsDefaults.commentDefaultSort
@@ -280,6 +284,7 @@
 		postPreviewLayout,
 		postListLayoutContentPreview,
 		postCardLayoutLeftAlignedButtons,
+		postCardLayoutFrostedGlassBackground,
 		commentDefaultSort,
 		showModlogWarning,
 		showModlogWarningModerated
