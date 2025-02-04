@@ -50,9 +50,11 @@
 							{community.title || community.name}
 						</h1>
 					</Stack>
+
 					<div class="address">
-						<NameAtInstance place={community} prefix="!" />
+						<NameAtInstance place={community} prefix="!" alwaysShowInstance />
 					</div>
+
 					<p class="m-0">
 						Created <OriginDate date={community.published} /> ({toRelativeTime(community.published)})
 					</p>
