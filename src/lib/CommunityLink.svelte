@@ -21,29 +21,45 @@
 			width: 3rem;
 		}
 	}
+	.community-tooltip {
+		// crosspost names can be long, don't let it get too big, though this is still huge unless on a phone
+		max-width: 80vw;
+	}
 </style>
 
-<a
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<svelte:element
+	this={variant}
 	href={href ? href : `/${$profile.instance}/c/${communityName}`}
+	class={cl}
 	class:inline-link={inlineLink}
 	data-sveltekit-preload-data="off"
+	on:click={() => dispatch('select', community)}
 >
 	{#if inlineLink}
 		<Tooltip>
 			<div slot="tooltip" class="community-tooltip">
-				<Stack gap={2} dir="r" align="center">
-					{#if community.icon && showIcon}
-						<div class="community-avatar large">
-							<Image src={community.icon} mode="thumbnail" />
-						</div>
-					{/if}
-					<h1 class="sx-font-size-4 m-0">
-						{community.title || community.name}
-					</h1>
+				<Stack gap={1} dir="c">
+					<Stack gap={2} dir="r" align="center">
+						{#if community.icon && showIcon}
+							<div class="community-avatar large">
+								<Image src={community.icon} mode="thumbnail" />
+							</div>
+						{/if}
+						<h1 class="sx-font-size-4 m-0">
+							{community.title || community.name}
+						</h1>
+					</Stack>
+
+					<div class="address">
+						<NameAtInstance place={community} prefix="!" alwaysShowInstance />
+					</div>
+
+					<p class="m-0">
+						Created <OriginDate date={community.published} /> ({toRelativeTime(community.published)})
+					</p>
+					<slot name="tooltip" />
 				</Stack>
-				{#if community.title}
-					<NameAtInstance place={community} prefix="!" />
-				{/if}
 			</div>
 			<span class="f-row gap-1 align-items-center">
 				{#if community.icon && showIcon}
@@ -70,22 +86,30 @@
 			<span>
 				<NameAtInstance place={community} displayName={community.title} prefix="" />
 			</span>
+			{#if showBadges}
+				<CommunityBadges {community} />
+			{/if}
 		</Stack>
 	{/if}
-</a>
+</svelte:element>
 
 <script lang="ts">
 	import { Stack, Tooltip } from 'sheodox-ui';
 	import Avatar from './Avatar.svelte';
 	import Image from './Image.svelte';
 	import { nameAtInstance } from './nav-utils';
+	import { toRelativeTime } from './utils';
 	import CommunityBadges from './feeds/posts/CommunityBadges.svelte';
 	import type { Community } from 'lemmy-js-client';
 	import NameAtInstance from './NameAtInstance.svelte';
 	import EllipsisText from './EllipsisText.svelte';
 	import { profile } from './profiles/profiles';
 	import { getSettingsContext } from './settings-context';
+	import { createEventDispatcher } from 'svelte';
+	import OriginDate from './OriginDate.svelte';
 
+	export let cl = '';
+	export let variant: 'a' | 'button' | 'span' = 'a';
 	export let community: Community;
 	export let inlineLink = true;
 	// if the link should actually go somewhere else, but still have community "branding", use that link instead.
@@ -93,6 +117,10 @@
 	// link should actually go to the post in that community
 	export let href: string | null = null;
 	export let showBadges = true;
+
+	const dispatch = createEventDispatcher<{
+		select: Community;
+	}>();
 
 	const { nsfwImageHandling } = getSettingsContext();
 

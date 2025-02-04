@@ -106,7 +106,33 @@
 	<Stack dir="r" gap={1} cl="f-wrap ml-2 mb-4">
 		Cross-posted to:
 		{#each crossPosts as pv}
-			<CommunityLink href="/{$profile.instance}/post/{pv.post.id}" community={pv.community} />
+			<CommunityLink href="/{$profile.instance}/post/{pv.post.id}" community={pv.community}>
+				<svelte:fragment slot="tooltip">
+					<hr class="w-100" />
+					<p class="m-0">{pv.post.name}</p>
+					<p class="m-0 f-row gap-2">
+						{#if $profile.settings.show_scores}
+							<span>
+								<Icon icon="arrow-up" />
+								{pv.counts.score}
+							</span>
+						{/if}
+						<span>
+							<Icon icon="comments" />
+							{pv.counts.comments}
+						</span>
+						<span>
+							<Icon icon="user" />
+							{nameAtInstance(pv.creator, pv.creator.display_name)}
+						</span>
+					</p>
+					<p class="m-0">
+						Posted {$showRelativeDates
+							? toRelativeTime(pv.post.published)
+							: parseDate(pv.post.published).toLocaleString()}
+					</p>
+				</svelte:fragment>
+			</CommunityLink>
 		{/each}
 	</Stack>
 {/if}
@@ -144,7 +170,7 @@
 	import UserBadges from './UserBadges.svelte';
 	import ExtraActions from '$lib/ExtraActions.svelte';
 	import type { PostFeatureType, PostView } from 'lemmy-js-client';
-	import { createStatefulAction, type ExtraAction } from '$lib/utils';
+	import { createStatefulAction, parseDate, toRelativeTime, type ExtraAction } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 	import { getContentViewStore, postViewToContentView } from '$lib/content-views';
 	import { getModActionPending, getModContext } from '$lib/mod/mod-context';
@@ -178,7 +204,8 @@
 	const modContext = getModContext();
 	const { siteMeta } = getAppContext();
 	const { weaklyGetCommunity, getFullCommunity } = getCommunityContext();
-	const { feedLayout, postPreviewLayout, showModlogWarning, showModlogWarningModerated } = getSettingsContext();
+	const { feedLayout, postPreviewLayout, showModlogWarning, showModlogWarningModerated, showRelativeDates } =
+		getSettingsContext();
 
 	$: layout = forceLayout ?? $postPreviewLayout;
 
