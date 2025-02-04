@@ -1,6 +1,6 @@
 # followed this guide, adapted to sveltekit
 # https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
-FROM node:18.17.0-bookworm-slim as build
+FROM node:18.20.6-bookworm-slim as build
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 ENV ALEXANDRITE_RUN_IN_NODE=true
 
