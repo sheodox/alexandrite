@@ -1,3 +1,9 @@
+<style lang="scss">
+	.useless-vibe {
+		opacity: 0.2;
+	}
+</style>
+
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
 		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4 f-wrap">
@@ -68,11 +74,31 @@
 			{/key}
 		</div>
 	</Stack>
-	<FeedNav on:refresh />
+	<FeedNav on:refresh>
+		<div slot="prepend" class="m-0 p-0" class:d-none={!vibesVisible}>
+			{#if vibesVisible}
+				<Accordion variant="horizontal">
+					<span slot="title">Vibe Check </span>
+					<ul class="sx-list">
+						<li class="sx-list-item two-columns">
+							<span class="column" class:useless-vibe={posts.length === 0}>
+								Posts ({posts.length})
+								<Vibe score={vibeScorePosts} />
+							</span>
+							<span class="column" class:useless-vibe={comments.length === 0}>
+								Comments ({comments.length})
+								<Vibe score={vibeScoreComments} />
+							</span>
+						</li>
+					</ul>
+				</Accordion>
+			{/if}
+		</div>
+	</FeedNav>
 </div>
 
 <script lang="ts">
-	import { Stack, Select } from 'sheodox-ui';
+	import { Accordion, Stack, Select } from 'sheodox-ui';
 	import FeedNav from '$lib/FeedNav.svelte';
 	import {
 		NormalFeedTypeOptions,
@@ -94,6 +120,7 @@
 	import type { VirtualFeedAPI } from '$lib/virtual-feed';
 	import type { PostLayoutAPI } from './post-utils';
 	import { getAppContext } from '$lib/app-context';
+	import Vibe from './Vibe.svelte';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -111,6 +138,19 @@
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
+
+	$: posts = $cvStore.filter((cv) => cv.type === 'post');
+	$: comments = $cvStore.filter((cv) => cv.type === 'comment');
+	$: vibeScorePosts = posts.reduce((total, cv) => {
+		return total + cv.score;
+	}, 0);
+
+	$: vibeScoreComments = comments.reduce((total, cv) => {
+		return total + cv.score;
+	}, 0);
+
+	$: iAmAMod = ($siteMeta.my_user?.moderates?.length ?? 0) > 0;
+	$: vibesVisible = feedType === 'user' && iAmAMod;
 
 	// forward up a couple things from the VirtualFeed, so PostsPage can handle hotkeys
 	export let viewportTopIndex: number;
