@@ -1,13 +1,3 @@
-<style lang="scss">
-	.vibe-check-list {
-		max-height: 20rem;
-		overflow: auto;
-	}
-	.useless-vibe {
-		opacity: 0.2;
-	}
-</style>
-
 <div class="post-feed f-1">
 	<Stack dir="column" gap={1}>
 		<div class="toolbar f-row justify-content-between align-items-center gap-4 p-4 f-wrap">
@@ -78,40 +68,11 @@
 			{/key}
 		</div>
 	</Stack>
-	<FeedNav on:refresh>
-		<div slot="top" class="m-0 p-0" class:d-none={!vibesVisible}>
-			{#if vibesVisible}
-				<Accordion>
-					<span slot="title">Vibe Check </span>
-					<ul class="sx-list vibe-check-list">
-						<li class="sx-list-item two-columns">
-							<span class="column" class:useless-vibe={posts.length === 0}>
-								Posts ({posts.length})
-								<Vibe score={vibeScorePosts} />
-							</span>
-							<span class="column" class:useless-vibe={comments.length === 0}>
-								Comments ({comments.length})
-								<Vibe score={vibeScoreComments} />
-							</span>
-						</li>
-						{#each vibeCommunitiesByScore as com}
-							{@const communityName = nameAtInstance(com.community)}
-							<li class="sx-list-item two-columns">
-								<span class="column"
-									><CommunityLink community={com.community} href="/{$profile.instance}/c/{communityName}" />
-								</span>
-								<span class="column"><Vibe score={com.score} /></span>
-							</li>
-						{/each}
-					</ul>
-				</Accordion>
-			{/if}
-		</div>
-	</FeedNav>
+	<FeedNav on:refresh />
 </div>
 
 <script lang="ts">
-	import { Accordion, Stack, Select } from 'sheodox-ui';
+	import { Stack, Select } from 'sheodox-ui';
 	import FeedNav from '$lib/FeedNav.svelte';
 	import {
 		NormalFeedTypeOptions,
@@ -125,7 +86,6 @@
 	import MiniPostLayoutSelector from './MiniPostLayoutSelector.svelte';
 	import Comment from '$lib/comments/Comment.svelte';
 	import { getContentViewStore } from '$lib/content-views';
-	import type { ContentViewComment, ContentViewPost } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 	import PostLayout from './PostLayout.svelte';
@@ -134,10 +94,6 @@
 	import type { VirtualFeedAPI } from '$lib/virtual-feed';
 	import type { PostLayoutAPI } from './post-utils';
 	import { getAppContext } from '$lib/app-context';
-	import Vibe from './Vibe.svelte';
-	import type { Community } from 'lemmy-js-client';
-	import { nameAtInstance } from '$lib/nav-utils';
-	import CommunityLink from '$lib/CommunityLink.svelte';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -155,39 +111,6 @@
 	$: typeOptions = getTypeOptions(feedType);
 	$: listingOptions = getListingOptions(feedType);
 	$: sortOptions = getSortOptions(feedType, selectedType);
-
-	$: posts = $cvStore.filter((cv) => cv.type === 'post');
-	$: comments = $cvStore.filter((cv) => cv.type === 'comment');
-	$: vibeScorePosts = posts.reduce((total, cv) => {
-		return total + cv.score;
-	}, 0);
-
-	$: vibeScoreComments = comments.reduce((total, cv) => {
-		return total + cv.score;
-	}, 0);
-
-	$: iAmAMod = ($siteMeta.my_user?.moderates?.length ?? 0) > 0;
-	$: vibesVisible = feedType === 'user' && iAmAMod;
-
-	$: vibeCommunitiesByScore = Array.from(
-		([...posts, ...comments] as (ContentViewPost | ContentViewComment)[])
-			.reduce((done, cv) => {
-				const communityId = cv.view.community.id;
-				const current = done.get(communityId);
-				if (current) {
-					done.set(communityId, {
-						...current,
-						score: current.score + cv.score
-					});
-				} else {
-					done.set(communityId, { score: 1, community: cv.view.community });
-				}
-				return done;
-			}, new Map<number, { community: Community; score: number }>())
-			.values()
-	).sort((a, b) => {
-		return b.score - a.score;
-	});
 
 	// forward up a couple things from the VirtualFeed, so PostsPage can handle hotkeys
 	export let viewportTopIndex: number;

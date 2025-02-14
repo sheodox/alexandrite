@@ -8,6 +8,19 @@
 	.user-address {
 		align-self: start;
 	}
+	.sx-list-item .column {
+		overflow: hidden;
+	}
+	.useless-vibe {
+		opacity: 0.2;
+	}
+	.vibe-check-list {
+		max-height: 20rem;
+		overflow: auto;
+	}
+	.vibe-community-breakdown {
+		grid-template-columns: 3fr 1fr;
+	}
 </style>
 
 <Title title={data.personUsername} />
@@ -59,27 +72,56 @@
 
 						<Accordion bind:open={$userStatsOpen}>
 							<span slot="title"><Icon icon="chart-simple" /> Stats</span>
-							<ul class="sx-list">
-								<UserCounts personView={data.personView} />
+							<div class="f-column gap-4">
+								<ul class="sx-list">
+									<UserCounts personView={data.personView} />
 
-								<li class="sx-list-item">
-									<ModlogLink
-										highlight={false}
-										highlightColor={'gray'}
-										warn={$showModlogWarning}
-										label="Modlog (actions on this user)"
-										targetId={data.personView.person.id}
-									/>
-								</li>
-								<!-- probably unnecessary to check this, but just in case -->
-								{#if data.personView.person.actor_id.startsWith('http')}
 									<li class="sx-list-item">
-										<ExternalLink href={data.personView.person.actor_id} cl="inline-link"
-											><Icon icon="arrow-up-right-from-square" /> Original Profile</ExternalLink
-										>
+										<ModlogLink
+											highlight={false}
+											highlightColor={'gray'}
+											warn={$showModlogWarning}
+											label="Modlog (actions on this user)"
+											targetId={data.personView.person.id}
+										/>
 									</li>
+									<!-- probably unnecessary to check this, but just in case -->
+									{#if data.personView.person.actor_id.startsWith('http')}
+										<li class="sx-list-item">
+											<ExternalLink href={data.personView.person.actor_id} cl="inline-link"
+												><Icon icon="arrow-up-right-from-square" /> Original Profile</ExternalLink
+											>
+										</li>
+									{/if}
+								</ul>
+
+								{#if iAmAMod}
+									<Accordion>
+										<span slot="title">Vibe Check </span>
+										<ul class="sx-list vibe-check-list">
+											<li class="sx-list-item two-columns">
+												<span class="column" class:useless-vibe={posts.length === 0}>
+													Posts ({posts.length})
+													<Vibe score={vibeScorePosts} />
+												</span>
+												<span class="column" class:useless-vibe={comments.length === 0}>
+													Comments ({comments.length})
+													<Vibe score={vibeScoreComments} />
+												</span>
+											</li>
+											{#each vibeCommunitiesByScore as com}
+												{@const communityName = nameAtInstance(com.community)}
+												<li class="sx-list-item two-columns vibe-community-breakdown">
+													<span class="column"
+														><CommunityLink community={com.community} href="/{$profile.instance}/c/{communityName}" />
+													</span>
+													<span class="column"><Vibe score={com.score} /></span>
+												</li>
+											{/each}
+										</ul>
+									</Accordion>
 								{/if}
-							</ul>
+							</div>
 						</Accordion>
 					</article>
 
@@ -117,17 +159,22 @@
 	import Title from '$lib/Title.svelte';
 	import { loadFeedData } from '$lib/feed-query.js';
 	import type { PageData } from './$types';
-	import { createContentViewStore, type ContentView } from '$lib/content-views';
+	import { createContentViewStore } from '$lib/content-views';
+	import type { ContentViewComment, ContentViewPost, ContentView } from '$lib/content-views';
 	import ModlogLink from '$lib/ModlogLink.svelte';
 	import { getSettingsContext } from '$lib/settings-context';
 	import { profile } from '$lib/profiles/profiles';
 	import { localStorageBackedStore } from '$lib/utils';
 	import CopyableText from '$lib/CopyableText.svelte';
 	import { nameAtInstance } from '$lib/nav-utils';
+	import Vibe from '$lib/feeds/posts/Vibe.svelte';
+	import { getAppContext } from '$lib/app-context';
+	import type { Community } from 'lemmy-js-client';
 
 	export let data;
 
 	const { showModlogWarning } = getSettingsContext();
+	const { siteMeta } = getAppContext();
 	const cvStore = createContentViewStore();
 
 	const userBioOpen = localStorageBackedStore('user-page-sidebar-bio-open', true);
@@ -141,6 +188,37 @@
 
 	$: isMe = data.personView.person.local && data.personView.person.name === $profile.username;
 	$: userAddress = '@' + nameAtInstance(data.personView.person, '', { alwaysShowInstance: true });
+	$: posts = $cvStore.filter((cv) => cv.type === 'post');
+	$: comments = $cvStore.filter((cv) => cv.type === 'comment');
+	$: iAmAMod = ($siteMeta.my_user?.moderates?.length ?? 0) > 0;
+
+	$: vibeScorePosts = posts.reduce((total, cv) => {
+		return total + cv.score;
+	}, 0);
+
+	$: vibeScoreComments = comments.reduce((total, cv) => {
+		return total + cv.score;
+	}, 0);
+
+	$: vibeCommunitiesByScore = Array.from(
+		([...posts, ...comments] as (ContentViewPost | ContentViewComment)[])
+			.reduce((done, cv) => {
+				const communityId = cv.view.community.id;
+				const current = done.get(communityId);
+				if (current) {
+					done.set(communityId, {
+						...current,
+						score: current.score + cv.score
+					});
+				} else {
+					done.set(communityId, { score: 1, community: cv.view.community });
+				}
+				return done;
+			}, new Map<number, { community: Community; score: number }>())
+			.values()
+	).sort((a, b) => {
+		return b.score - a.score;
+	});
 
 	function refresh(data: PageData) {
 		loader = initFeed(data);
