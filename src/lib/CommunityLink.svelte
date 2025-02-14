@@ -66,6 +66,9 @@
 					<div class="community-avatar small">
 						<Image src={community.icon} mode="thumbnail" thumbnailResolution={16} />
 					</div>
+				{:else}
+					<!-- show a fallback avatar so stuff like CommunitySelector looks right -->
+					<Avatar src={''} size="1rem" icon="users" />
 				{/if}
 				<EllipsisText
 					><NameAtInstance place={community} displayName={community.title} prefix="" wrappable={false} /></EllipsisText
