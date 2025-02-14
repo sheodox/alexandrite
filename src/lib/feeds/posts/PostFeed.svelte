@@ -125,6 +125,7 @@
 	import MiniPostLayoutSelector from './MiniPostLayoutSelector.svelte';
 	import Comment from '$lib/comments/Comment.svelte';
 	import { getContentViewStore } from '$lib/content-views';
+	import type { ContentViewComment, ContentViewPost } from '$lib/content-views';
 	import { navigateOnChange } from '$lib/utils';
 	import { profile } from '$lib/profiles/profiles';
 	import PostLayout from './PostLayout.svelte';
@@ -169,7 +170,7 @@
 	$: vibesVisible = feedType === 'user' && iAmAMod;
 
 	$: vibeCommunitiesByScore = Array.from(
-		[...posts, ...comments]
+		([...posts, ...comments] as (ContentViewPost | ContentViewComment)[])
 			.reduce((done, cv) => {
 				const communityId = cv.view.community.id;
 				const current = done.get(communityId);
