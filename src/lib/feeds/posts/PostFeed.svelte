@@ -169,17 +169,17 @@
 	$: vibesVisible = feedType === 'user' && iAmAMod;
 
 	$: vibeCommunitiesByScore = Array.from(
-		$cvStore
-			.filter((cv) => cv.type === 'post' || cv.type === 'comment')
+		[...posts, ...comments]
 			.reduce((done, cv) => {
-				const current = done.get(cv.communityId);
+				const communityId = cv.view.community.id;
+				const current = done.get(communityId);
 				if (current) {
-					done.set(cv.communityId, {
+					done.set(communityId, {
 						...current,
 						score: current.score + cv.score
 					});
 				} else {
-					done.set(cv.communityId, { score: 1, community: cv.view.community });
+					done.set(communityId, { score: 1, community: cv.view.community });
 				}
 				return done;
 			}, new Map<number, { community: Community; score: number }>())
