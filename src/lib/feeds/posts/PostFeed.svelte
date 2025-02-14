@@ -1,4 +1,8 @@
 <style lang="scss">
+	.vibe-check-list {
+		max-height: 20rem;
+		overflow: auto;
+	}
 	.useless-vibe {
 		opacity: 0.2;
 	}
@@ -75,11 +79,11 @@
 		</div>
 	</Stack>
 	<FeedNav on:refresh>
-		<div slot="prepend" class="m-0 p-0" class:d-none={!vibesVisible}>
+		<div slot="top" class="m-0 p-0" class:d-none={!vibesVisible}>
 			{#if vibesVisible}
-				<Accordion variant="horizontal">
+				<Accordion>
 					<span slot="title">Vibe Check </span>
-					<ul class="sx-list">
+					<ul class="sx-list vibe-check-list">
 						<li class="sx-list-item two-columns">
 							<span class="column" class:useless-vibe={posts.length === 0}>
 								Posts ({posts.length})
@@ -90,6 +94,15 @@
 								<Vibe score={vibeScoreComments} />
 							</span>
 						</li>
+						{#each vibeCommunitiesByScore as com}
+							{@const communityName = nameAtInstance(com.community)}
+							<li class="sx-list-item two-columns">
+								<span class="column"
+									><CommunityLink community={com.community} href="/{$profile.instance}/c/{communityName}" />
+								</span>
+								<span class="column"><Vibe score={com.score} /></span>
+							</li>
+						{/each}
 					</ul>
 				</Accordion>
 			{/if}
@@ -121,6 +134,9 @@
 	import type { PostLayoutAPI } from './post-utils';
 	import { getAppContext } from '$lib/app-context';
 	import Vibe from './Vibe.svelte';
+	import type { Community } from 'lemmy-js-client';
+	import { nameAtInstance } from '$lib/nav-utils';
+	import CommunityLink from '$lib/CommunityLink.svelte';
 
 	export let isMyFeed = false;
 	export let feedType: FeedType;
@@ -151,6 +167,26 @@
 
 	$: iAmAMod = ($siteMeta.my_user?.moderates?.length ?? 0) > 0;
 	$: vibesVisible = feedType === 'user' && iAmAMod;
+
+	$: vibeCommunitiesByScore = Array.from(
+		$cvStore
+			.filter((cv) => cv.type === 'post' || cv.type === 'comment')
+			.reduce((done, cv) => {
+				const current = done.get(cv.communityId);
+				if (current) {
+					done.set(cv.communityId, {
+						...current,
+						score: current.score + cv.score
+					});
+				} else {
+					done.set(cv.communityId, { score: 1, community: cv.view.community });
+				}
+				return done;
+			}, new Map<number, { community: Community; score: number }>())
+			.values()
+	).sort((a, b) => {
+		return b.score - a.score;
+	});
 
 	// forward up a couple things from the VirtualFeed, so PostsPage can handle hotkeys
 	export let viewportTopIndex: number;
