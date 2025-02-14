@@ -6,11 +6,16 @@
 	}
 </style>
 
-<div class="floating-nav f-row m-1 p-1 align-items-center gap-1" bind:this={elementInNav}>
-	{#if showScrollToTop}
-		<IconButton cl="tertiary" on:click={scrollToTop} icon="angles-up" text="Scroll to top" />
-	{/if}
-	<slot />
+<div class="floating-nav f-column m-1 align-items-end" bind:this={elementInNav}>
+	<slot name="top" />
+	<div class="f-row p-1 align-items-center gap-1">
+		<slot name="prepend" />
+		{#if showScrollToTop}
+			<IconButton cl="tertiary" on:click={scrollToTop} icon="angles-up" text="Scroll to top" />
+		{/if}
+		<slot />
+		<slot name="append" />
+	</div>
 </div>
 
 <script lang="ts">
