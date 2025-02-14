@@ -27,12 +27,15 @@
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
-		opacity: 0.12;
+		opacity: 0.2;
 		z-index: 0;
 		:global(img) {
 			object-fit: cover;
 			height: 100%;
 		}
+	}
+	:global(.sx-theme-light) .background-glass {
+		opacity: 0.3;
 	}
 	article :global(.post-card-content) {
 		position: relative;
