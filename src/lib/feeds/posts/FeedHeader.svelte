@@ -20,11 +20,11 @@
 		}
 	}
 
-	h1 {
+	.has-banner h1 {
 		text-shadow:
-			0 0 100px black,
-			0 0 50px black,
-			0 0 25px black;
+			0 0 100px var(--sx-gray-900),
+			0 0 50px var(--sx-gray-900),
+			0 0 25px var(--sx-gray-900);
 	}
 
 	.sx-badge-gray {
