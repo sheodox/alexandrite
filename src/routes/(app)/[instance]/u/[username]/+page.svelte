@@ -94,35 +94,41 @@
 										</li>
 									{/if}
 								</ul>
-
-								{#if iAmAMod}
-									<Accordion>
-										<span slot="title">Vibe Check </span>
-										<ul class="sx-list vibe-check-list">
-											<li class="sx-list-item two-columns">
-												<span class="column" class:useless-vibe={posts.length === 0}>
-													Posts ({posts.length})
-													<Vibe score={vibeScorePosts} />
-												</span>
-												<span class="column" class:useless-vibe={comments.length === 0}>
-													Comments ({comments.length})
-													<Vibe score={vibeScoreComments} />
-												</span>
-											</li>
-											{#each vibeCommunitiesByScore as com}
-												{@const communityName = nameAtInstance(com.community)}
-												<li class="sx-list-item two-columns vibe-community-breakdown">
-													<span class="column"
-														><CommunityLink community={com.community} href="/{$profile.instance}/c/{communityName}" />
-													</span>
-													<span class="column"><Vibe score={com.score} /></span>
-												</li>
-											{/each}
-										</ul>
-									</Accordion>
-								{/if}
 							</div>
 						</Accordion>
+						{#if iAmAMod}
+							<Accordion bind:open={$vibeCheckOpen}>
+								<span slot="title"><Icon icon="shield-alt" /> Vibe Check </span>
+								<div class="f-column gap-4">
+									<p class="m-0">
+										<Icon icon="info-circle" /> This is a running total of scores for posts and comments from this user in
+										various communities to help you identify trolls. Only totals the scores of things loaded on this page
+										so far.
+									</p>
+									<ul class="sx-list vibe-check-list">
+										<li class="sx-list-item two-columns">
+											<span class="column" class:useless-vibe={posts.length === 0}>
+												Posts ({posts.length})
+												<Vibe score={vibeScorePosts} />
+											</span>
+											<span class="column" class:useless-vibe={comments.length === 0}>
+												Comments ({comments.length})
+												<Vibe score={vibeScoreComments} />
+											</span>
+										</li>
+										{#each vibeCommunitiesByScore as com}
+											{@const communityName = nameAtInstance(com.community)}
+											<li class="sx-list-item two-columns vibe-community-breakdown">
+												<span class="column"
+													><CommunityLink community={com.community} href="/{$profile.instance}/c/{communityName}" />
+												</span>
+												<span class="column"><Vibe score={com.score} /></span>
+											</li>
+										{/each}
+									</ul>
+								</div>
+							</Accordion>
+						{/if}
 					</article>
 
 					{#if data.moderates && data.moderates.length}
@@ -180,6 +186,7 @@
 	const userBioOpen = localStorageBackedStore('user-page-sidebar-bio-open', true);
 	const userStatsOpen = localStorageBackedStore('user-page-sidebar-stats-open', true);
 	const userModeratesOpen = localStorageBackedStore('user-page-sidebar-moderates-open', true);
+	const vibeCheckOpen = localStorageBackedStore('user-page-sidebar-vibe-check-open', true);
 
 	let loader: ReturnType<typeof initFeed>;
 	$: {
