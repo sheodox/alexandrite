@@ -10,15 +10,11 @@
 <Fieldset legend="Theme">
 	<Stack dir="r" gap={4}>
 		<Stack dir="c" gap={4} cl="f-1">
-			<label>
-				Color Scheme
-				<br />
-				<select bind:value={$colorScheme}>
-					{#each colorSchemes as opt}
-						<option value={opt.value}>{opt.label}</option>
-					{/each}
-				</select>
-			</label>
+			<Select bind:value={$colorScheme} label="Color Scheme">
+				{#each colorSchemes as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</Select>
 			<Checkbox bind:checked={$pureTheme}>Pure {$colorScheme === null ? 'light/dark' : $colorScheme}</Checkbox>
 			<ThemeSlider label="Theme Hue" min={0} max={360} step={1} bind:value={$themeHue} />
 			<ThemeSlider label="Theme Saturation" min={0} max={5} step={0.1} bind:value={$themeSaturation} />
@@ -50,7 +46,7 @@
 
 <script lang="ts">
 	import { getSettingsContext, AlexandriteSettingsDefaults } from '$lib/settings-context';
-	import { Checkbox, Stack, Fieldset, Icon } from 'sheodox-ui';
+	import { Checkbox, Stack, Fieldset, Icon, Select } from 'sheodox-ui';
 	import VoteButtons from '$lib/VoteButtons.svelte';
 	import ThemeSlider from './ThemeSlider.svelte';
 
